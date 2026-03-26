@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Figuren Generator Test</title>
+  <style>
+    :root {
+      --figur-fill: #7BBFDE;
+      --figur-stroke: #2a5a7a;
+      --mint: #5dc4a4;
+      --coral: #e67e6c;
+      --bg-warm: #f0ebe1;
+      --bg-light: #faf6ee;
+      --surface: #ffffff;
+      --text-muted: #888;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+    body { font-family: 'Inter', sans-serif; background: #f5f0e8; padding: 2rem; max-width: 800px; margin: 0 auto; }
+    h1 { color: #333; }
+    h2 { color: #666; margin-top: 2rem; }
+    .question-card { background: white; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .q-label { font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+    .figur-pieces-row { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; align-items: center; padding: 1.5rem 1rem; background: var(--bg-warm); border-radius: var(--radius-lg); margin-bottom: 1rem; min-height: 110px; }
+    .figur-piece { filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.1)); }
+    .figur-options-row { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; padding: 0.5rem 0; }
+    .figur-option { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.6rem; border-radius: var(--radius); border: 2px solid transparent; cursor: pointer; transition: all 0.2s ease; background: var(--surface); min-width: 90px; }
+    .figur-option:hover { border-color: var(--mint); background: var(--bg-light); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .figur-option.selected { border-color: var(--mint); background: rgba(93, 196, 164, 0.08); box-shadow: 0 0 0 3px rgba(93, 196, 164, 0.15); }
+    .figur-option.correct-answer { border-color: var(--mint); background: rgba(93, 196, 164, 0.12); }
+    .figur-option.incorrect-answer { border-color: var(--coral); background: rgba(230, 126, 108, 0.12); opacity: 0.7; }
+    .figur-option-label { font-weight: 700; font-size: 0.85rem; color: var(--text-muted); }
+    .figur-option-e { justify-content: center; min-height: 90px; }
+    .figur-e-text { font-size: 0.7rem; color: var(--text-muted); text-align: center; line-height: 1.3; padding: 0.5rem 0.25rem; }
+    .figur-answer-shape { filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.08)); }
+    .info { font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
+    .correct-label { display: inline-block; background: var(--mint); color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem; margin-top: 0.5rem; }
+    button { background: var(--mint); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; margin: 0.3rem; }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <h1>Figuren Generator – Testseite</h1>
+  <div>
+    <button onclick="showQuestions('easy')">Easy (2 Teile)</button>
+    <button onclick="showQuestions('medium')">Medium (3-4 Teile)</button>
+    <button onclick="showQuestions('hard')">Hard (4-6 Teile)</button>
+  </div>
+  <div id="output"></div>
+
+  <script src="js/figuren.js"></script>
+  <script>
+    function showQuestions(diff) {
+      const container = document.getElementById('output');
+      container.innerHTML = `<h2>${diff.toUpperCase()} – 5 Fragen</h2>`;
+
+      for (let i = 0; i < 5; i++) {
+        const q = FigurenGenerator.generate(diff);
+        const rendered = FigurenGenerator.renderQuestion(q);
+        const labels = ['A', 'B', 'C', 'D', 'E'];
+
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.innerHTML = `
+          <div class="q-label">Frage ${i+1} · ${q.numPieces} Teile</div>
+          <p>Welche Figur lässt sich aus den folgenden Teilen zusammensetzen?</p>
+          ${rendered.piecesHTML}
+          ${rendered.optionsHTML}
+          <div class="correct-label">Richtige Antwort: ${labels[q.correct]}</div>
+        `;
+
+        // Add click handlers
+        const options = card.querySelectorAll('.figur-option');
+        options.forEach(opt => {
+          opt.onclick = () => {
+            options.forEach(o => o.classList.remove('selected', 'correct-answer', 'incorrect-answer'));
+            opt.classList.add('selected');
+            const idx = parseInt(opt.dataset.idx);
+            if (idx === q.correct) {
+              opt.classList.add('correct-answer');
+            } else {
+              opt.classList.add('incorrect-answer');
+              options.forEach(o => {
+                if (parseInt(o.dataset.idx) === q.correct) o.classList.add('correct-answer');
+              });
+            }
+          };
+        });
+
+        container.appendChild(card);
+      }
+    }
+
+    // Show medium by default
+    showQuestions('medium');
+  </script>
+</body>
+</html>

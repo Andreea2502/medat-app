@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MedAT Trainer – KFF Vorbereitung</title>
+  <meta name="description" content="Dein smarter Trainer für den kognitiven Teil des MedAT. Über 1000 Fragen, Allergieausweise, Textverständnis, Figuren und mehr – jetzt kostenlos starten!">
+
+  <!-- OpenGraph / Social Media -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MedAT KFF Trainer – Dein Weg zum Medizinstudium">
+  <meta property="og:description" content="Über 1000 Fragen für den kognitiven Teil des MedAT. Textverständnis, Implikationen, Allergieausweise, Zahlenfolgen und mehr. Kostenlos starten!">
+  <meta property="og:image" content="https://medat-trainer.vercel.app/icon-512.png">
+  <meta property="og:url" content="https://medat-trainer.vercel.app">
+  <meta property="og:locale" content="de_AT">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MedAT KFF Trainer">
+  <meta name="twitter:description" content="Über 1000 Fragen für den kognitiven Teil des MedAT. Kostenlos starten!">
+  <meta name="twitter:image" content="https://medat-trainer.vercel.app/icon-512.png">
+
+  <link rel="stylesheet" href="css/style.css?v=20260326g">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MedAT">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- jsPDF für PDF-Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Background decorations -->
+  <div class="bg-deco">
+    <div class="bg-blob bg-blob-1"></div>
+    <div class="bg-blob bg-blob-2"></div>
+    <div class="bg-blob bg-blob-3"></div>
+  </div>
+  <div class="swirl swirl-1"></div>
+  <div class="swirl swirl-2"></div>
+
+  <!-- ===== STARTSEITE ===== -->
+  <div id="screen-home" class="screen active">
+
+    <!-- Hero Card (dark) -->
+    <div class="hero-card fade-up">
+      <div class="hero-greeting" id="hero-greeting" style="font-size:1.1rem;color:var(--yellow);margin-bottom:0.25rem;font-weight:600"></div>
+      <div class="hero-label">MedAT 2026 Vorbereitung</div>
+      <div class="hero-title">MedAT <span>Trainer</span></div>
+      <div class="hero-sub">Dein Übungstool für den Medizinaufnahmetest Österreich</div>
+      <div class="chart-mini">
+        <div class="chart-bar" style="height:40%"></div>
+        <div class="chart-bar" style="height:65%"></div>
+        <div class="chart-bar" style="height:50%"></div>
+        <div class="chart-bar accent" style="height:85%"></div>
+        <div class="chart-bar" style="height:55%"></div>
+        <div class="chart-bar" style="height:70%"></div>
+        <div class="chart-bar accent" style="height:90%"></div>
+        <div class="chart-bar" style="height:60%"></div>
+        <div class="chart-bar" style="height:75%"></div>
+        <div class="chart-bar accent" style="height:95%"></div>
+        <div class="chart-bar" style="height:45%"></div>
+        <div class="chart-bar" style="height:80%"></div>
+      </div>
+      <div class="hero-countdown" id="hero-countdown">
+        <div class="hero-countdown-number" id="hero-countdown-days">–</div>
+        <div class="hero-countdown-label" id="hero-countdown-label">Tage bis zum MedAT</div>
+      </div>
+    </div>
+
+    <!-- ===== HAUPT-AKTIONEN ===== -->
+    <div class="home-main-actions fade-up" style="margin-top:1rem">
+
+      <!-- Hauptkategorie 1: Üben in der App -->
+      <button class="main-action-btn main-action-practice" id="btn-practice">
+        <div class="main-action-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+        <div class="main-action-info">
+          <span class="main-action-label" style="font-size:1.05rem;font-weight:700">Üben in der App</span>
+          <span class="main-action-desc">Wähle Thema & Schwierigkeit</span>
+        </div>
+        <span class="main-action-arrow">›</span>
+      </button>
+
+      <!-- Hauptkategorie 2: PDF-Simulator -->
+      <button class="main-action-btn main-action-pdf" id="btn-pdf" onclick="PDFExport.openDialog()">
+        <div class="main-action-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div class="main-action-info">
+          <span class="main-action-label" style="font-size:1.05rem;font-weight:700">PDF-Simulator</span>
+          <span class="main-action-desc">Simulationen erstellen & ausdrucken</span>
+        </div>
+        <span class="main-action-arrow">›</span>
+      </button>
+    </div>
+
+    <!-- ===== SCHNELLZUGRIFF ===== -->
+    <div class="fade-up" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;padding:0 1.25rem;margin-top:0.5rem">
+
+      <button onclick="App.startDailyChallenge()" style="background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.9rem 0.5rem;text-align:center;cursor:pointer;color:var(--text);font-size:0.78rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:0.45rem;box-shadow:0 2px 8px rgba(26,26,46,0.05);transition:transform 0.15s,box-shadow 0.15s" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+        <div style="width:40px;height:40px;border-radius:10px;background:var(--yellow-soft);display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        </div>
+        Tägliche Challenge
+      </button>
+
+      <button onclick="App.openSmartTraining()" style="background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.9rem 0.5rem;text-align:center;cursor:pointer;color:var(--text);font-size:0.78rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:0.45rem;box-shadow:0 2px 8px rgba(26,26,46,0.05);transition:transform 0.15s,box-shadow 0.15s" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+        <div style="width:40px;height:40px;border-radius:10px;background:var(--mint);display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2d6b4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        Schwächen trainieren
+      </button>
+
+      <button onclick="App.showScreen('screen-stats')" style="background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.9rem 0.5rem;text-align:center;cursor:pointer;color:var(--text);font-size:0.78rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:0.45rem;box-shadow:0 2px 8px rgba(26,26,46,0.05);transition:transform 0.15s,box-shadow 0.15s" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+        <div style="width:40px;height:40px;border-radius:10px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c0522e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        Statistik
+      </button>
+    </div>
+
+    <!-- Freunde einladen -->
+    <div class="fade-up" style="margin:0.6rem 1.25rem 0;background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.8rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 2px 8px rgba(26,26,46,0.04)" onclick="App.shareApp()">
+      <div style="display:flex;align-items:center;gap:0.65rem">
+        <div style="width:36px;height:36px;border-radius:10px;background:var(--lavender);display:flex;align-items:center;justify-content:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b4d99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </div>
+        <span style="font-size:0.88rem;font-weight:700;color:var(--text)">Freunde einladen</span>
+      </div>
+      <span style="font-size:1.1rem;color:var(--text-muted);font-weight:600">›</span>
+    </div>
+
+  </div>
+
+  <!-- Upgrade Badge (visible for free users) -->
+  <button class="upgrade-float-btn" id="upgrade-float-btn" style="display:none" onclick="App.showScreen('screen-konto');App.renderKonto();" aria-label="Upgrade">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    <span class="upgrade-float-label">Upgrade</span>
+  </button>
+
+  <!-- Credit Counter (hidden element for JS state, no visible bar) -->
+  <span id="credit-counter" style="display:none"></span>
+
+  <!-- Hamburger Menu Button -->
+  <button class="hamburger-btn" id="hamburger-btn" aria-label="Menü öffnen">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+
+  <!-- Slide-in Menu Panel -->
+  <nav class="slide-menu" id="slide-menu">
+    <div class="slide-menu-header">
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <img src="icon-512.png" alt="MedAT" style="width:28px;height:28px;border-radius:6px">
+        <span class="slide-menu-title">MedAT Trainer</span>
+      </div>
+      <button class="slide-menu-close" id="slide-menu-close" aria-label="Menü schließen">✕</button>
+    </div>
+    <div class="slide-menu-user" id="slide-menu-user"></div>
+    <div class="slide-menu-items">
+      <!-- Hauptnavigation -->
+      <a class="slide-menu-item active" id="snav-home">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+        Home
+      </a>
+      <a class="slide-menu-item" id="snav-practice">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+        Üben in der App
+      </a>
+      <a class="slide-menu-item" id="snav-pdf" onclick="PDFExport.openDialog()">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
+        PDF-Simulator
+      </a>
+      <a class="slide-menu-item" id="snav-my-pdfs" onclick="App._closeMenu();PDFExport.openMyPdfs()">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        Meine PDFs
+      </a>
+      <a class="slide-menu-item" id="snav-stats">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Statistik
+      </a>
+      <a class="slide-menu-item" id="snav-konto">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg></span>
+        Konto & Plan
+      </a>
+      <a class="slide-menu-item" id="snav-credits" onclick="App._closeMenu();Credits.showHistory()" style="display:none">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+        <span id="snav-credits-label">Credits</span>
+      </a>
+
+      <!-- Trennlinie -->
+      <div style="height:1px;background:rgba(255,255,255,0.06);margin:0.5rem 1rem"></div>
+
+      <!-- Unterkategorien -->
+      <a class="slide-menu-item slide-menu-sub" id="snav-weaknesses" onclick="App.openSmartTraining()">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        Schwächen trainieren
+      </a>
+      <a class="slide-menu-item slide-menu-sub" id="snav-daily" onclick="App.startDailyChallenge()">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>
+        Tägliche Challenge
+      </a>
+      <a class="slide-menu-item slide-menu-sub" id="snav-notes" onclick="App.showNotesScreen()">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+        Meine Notizen
+      </a>
+      <a class="slide-menu-item slide-menu-sub" id="snav-share" onclick="App.shareApp()">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
+        Freunde einladen
+      </a>
+      <a class="slide-menu-item slide-menu-sub" id="snav-install" onclick="App._closeMenu();App.showInstallGuide()">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
+        App installieren
+      </a>
+
+      <!-- Admin-Bereich (nur für Admins sichtbar) -->
+      <div id="snav-admin-divider" style="display:none;height:1px;background:rgba(255,255,255,0.06);margin:0.5rem 1rem"></div>
+      <a class="slide-menu-item" id="snav-admin" style="display:none" onclick="App._closeMenu();App.showScreen('screen-admin');Admin.render();">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f5c542" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span style="color:#f5c542;font-weight:700">Administrator</span>
+      </a>
+    </div>
+    <div class="slide-menu-footer">
+      <button class="slide-menu-logout" id="snav-logout">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        Abmelden
+      </button>
+    </div>
+  </nav>
+
+  <!-- Menu overlay -->
+  <div class="slide-menu-overlay" id="slide-menu-overlay"></div>
+
+  <!-- ===== ELI5 LERNSEITEN ===== -->
+  <div id="screen-eli5" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>📚 ELI5 Lernseiten</h1>
+    </header>
+
+    <div class="eli5-intro fade-up">
+      <p>Interaktive Erklärungen mit Animationen, Visualisierungen und Quiz — als hättest du es einem 5-Jährigen erklärt.</p>
+    </div>
+
+    <div class="eli5-grid">
+      <a href="eli5-mitose-meiose.html" class="eli5-card fade-up eli5-card-mint">
+        <div class="eli5-card-icon">🧬</div>
+        <div class="eli5-card-content">
+          <h3>Mitose & Meiose</h3>
+          <p>Zellteilung animiert: Phasen, Vergleich und Quiz.</p>
+        </div>
+        <span class="eli5-card-badge">NEU</span>
+      </a>
+      <a href="eli5-dna-genexpression.html" class="eli5-card fade-up eli5-card-blue">
+        <div class="eli5-card-icon">🔬</div>
+        <div class="eli5-card-content">
+          <h3>DNA & Genexpression</h3>
+          <p>Von der DNA-Helix zum Protein: Replikation, Transkription, Translation.</p>
+        </div>
+        <span class="eli5-card-badge">NEU</span>
+      </a>
+      <a href="eli5-genetik.html" class="eli5-card fade-up eli5-card-lavender">
+        <div class="eli5-card-icon">🌱</div>
+        <div class="eli5-card-content">
+          <h3>Mendel'sche Genetik</h3>
+          <p>Punnett-Quadrat, Erbgänge und Stammbaumanalyse — interaktiv!</p>
+        </div>
+        <span class="eli5-card-badge">NEU</span>
+      </a>
+    </div>
+
+    <!-- Platz für zukünftige ELI5 Themen -->
+  </div>
+
+  <!-- ===== ÜBUNGSMODUS: THEMENAUSWAHL ===== -->
+  <div id="screen-practice-select" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1><span class="header-icon" id="icon-header-practice"></span> Üben</h1>
+    </header>
+
+    <div class="practice-blocks" id="practice-blocks">
+      <!-- Wird dynamisch befüllt -->
+    </div>
+  </div>
+
+  <!-- ===== SIMULATIONSMODUS: ÜBERSICHT ===== -->
+  <div id="screen-sim-overview" class="screen">
+    <header class="app-header app-header-sim">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1><span class="header-icon" id="icon-header-sim"></span> Simulation</h1>
+    </header>
+
+    <div class="sim-intro">
+      <p>Simuliere den echten MedAT-H unter Testbedingungen. Zeitlimit, korrekte Aufgabenzahl und Punkteauswertung.</p>
+      <div class="sim-stats-row">
+        <div class="sim-stat"><strong>~5,5h</strong><span>Bearbeitungszeit</span></div>
+        <div class="sim-stat"><strong>4</strong><span>Testblöcke</span></div>
+        <div class="sim-stat"><strong>194+</strong><span>Aufgaben</span></div>
+      </div>
+    </div>
+
+    <div class="sim-block-select" id="sim-block-select">
+      <!-- Wird dynamisch befüllt -->
+    </div>
+
+    <button class="btn-primary btn-large btn-full" id="btn-start-sim">▶ Simulation starten</button>
+  </div>
+
+  <!-- ===== ÜBUNGSMODUS: EINSTELLUNGEN FÜR SEKTION ===== -->
+  <div id="screen-practice-settings" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-practice-select">← Zurück</button>
+      <h1 id="practice-section-title">Sektion</h1>
+    </header>
+
+    <div class="settings-card">
+      <!-- Topic-Auswahl (nur für BMS-Fächer) -->
+      <div class="setting-row" id="topic-setting-row" style="display:none">
+        <label for="prac-topic">Kapitel</label>
+        <select id="prac-topic">
+          <option value="all">🎯 Alle Kapitel (gemischt)</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label for="prac-difficulty">Schwierigkeit</label>
+        <select id="prac-difficulty">
+          <option value="mixed">Gemischt</option>
+          <option value="easy">Leicht</option>
+          <option value="medium">Mittel</option>
+          <option value="hard">Schwer</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label for="prac-count">Anzahl Fragen</label>
+        <select id="prac-count">
+          <option value="5">5</option>
+          <option value="10" selected>10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label for="prac-timer-toggle">Timer anzeigen</label>
+        <label class="toggle">
+          <input type="checkbox" id="prac-timer-toggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Schwächenanalyse Button (nur für BMS) -->
+    <div id="weakness-hint" style="display:none" class="weakness-hint-card">
+      <div id="weakness-hint-content"></div>
+    </div>
+
+    <!-- Implikationen Cheat Sheet -->
+    <div id="implikationen-cheatsheet" class="cheatsheet-card" style="display:none">
+      <button class="cheatsheet-toggle" onclick="this.parentElement.classList.toggle('open')">
+        <span class="cheatsheet-icon">📋</span>
+        <span class="cheatsheet-title">Cheat Sheet: Implikationen-Regeln</span>
+        <span class="cheatsheet-arrow">▾</span>
+      </button>
+      <div class="cheatsheet-body">
+        <p class="cheatsheet-intro">Welche Schlussfolgerungen sind bei welcher Kombination gültig?</p>
+        <table class="cheatsheet-table">
+          <thead>
+            <tr><th>P1</th><th>P2</th><th>Gültige Schlüsse</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="q-all">Alle A = B</td><td class="q-all">Alle B = C</td><td>Alle A = C ✓<br>Einige A = C ✓</td></tr>
+            <tr><td class="q-all">Alle A = B</td><td class="q-some">Einige B = C</td><td>Einige A könnten C sein ✓<br><em>Nicht sicher!</em></td></tr>
+            <tr><td class="q-all">Alle A = B</td><td class="q-none">Kein B = C</td><td>Kein A = C ✓</td></tr>
+            <tr><td class="q-some">Einige A = B</td><td class="q-all">Alle B = C</td><td>Einige A = C ✓</td></tr>
+            <tr><td class="q-some">Einige A = B</td><td class="q-some">Einige B = C</td><td><em>Keine sichere Schlussfolgerung!</em></td></tr>
+            <tr><td class="q-some">Einige A = B</td><td class="q-none">Kein B = C</td><td>Einige A ≠ C ✓</td></tr>
+            <tr><td class="q-none">Kein A = B</td><td class="q-all">Alle B = C</td><td>Einige C ≠ A ✓</td></tr>
+            <tr><td class="q-none">Kein A = B</td><td class="q-some">Einige B = C</td><td>Einige C ≠ A ✓</td></tr>
+            <tr><td class="q-none">Kein A = B</td><td class="q-none">Kein B = C</td><td><em>Keine sichere Schlussfolgerung!</em></td></tr>
+          </tbody>
+        </table>
+        <div class="cheatsheet-tips">
+          <strong>Merkhilfe:</strong> „Alle" verengt die Menge (Teilmenge) → starke Schlüsse möglich. „Einige" lässt 4 Darstellungen offen → schwache Schlüsse. „Keine" trennt komplett → Ausschluss.
+        </div>
+      </div>
+    </div>
+
+    <!-- Credit cost hint -->
+    <div id="credit-cost-hint" style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin:-0.25rem 0 0.5rem;display:none">
+      <span id="credit-cost-text"></span>
+    </div>
+
+    <button class="btn-primary btn-large btn-full" id="btn-start-practice">▶ Übung starten</button>
+  </div>
+
+  <!-- ===== SCHWÄCHENANALYSE-SCREEN ===== -->
+  <div id="screen-weakness" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-practice-select">← Zurück</button>
+      <h1>🎯 Schwächenanalyse</h1>
+    </header>
+
+    <div class="weakness-container" id="weakness-container">
+      <div style="text-align:center;padding:2rem;color:var(--text-muted)"><div class="spinner"></div>Analysiere deine Antworten...</div>
+    </div>
+  </div>
+
+  <!-- ===== SMARTES TRAINING SCREEN ===== -->
+  <div id="screen-smart-train" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1 style="display:flex;align-items:center;gap:0.5rem">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Schwächen trainieren
+      </h1>
+    </header>
+
+    <!-- Hero-Banner -->
+    <div style="margin:0 1rem 1.25rem;padding:1.25rem;background:var(--dark);border-radius:16px;color:white;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:var(--yellow);opacity:0.08;border-radius:50%"></div>
+      <div style="position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;background:var(--mint);opacity:0.06;border-radius:50%"></div>
+      <div style="font-size:0.8rem;color:var(--yellow);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:0.4rem">Persönlicher Lernpfad</div>
+      <div style="font-size:1rem;font-weight:700;line-height:1.4">Lerne aus deinen Fehlern — hier werden deine Schwächen zu Stärken.</div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-top:0.5rem" id="smart-train-summary">Lade Daten...</div>
+    </div>
+
+    <div style="padding:0 1rem 2rem;display:flex;flex-direction:column;gap:0.75rem">
+
+      <!-- Falsche Fragen wiederholen -->
+      <div onclick="App.startReviewQueue()" style="cursor:pointer;background:white;border-radius:14px;padding:1.1rem 1.25rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:1rem;transition:transform 0.15s,box-shadow 0.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:0.95rem;color:var(--dark)">Falsche Fragen wiederholen</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Fragen die du falsch beantwortet hast, gezielt nochmal üben</div>
+          <div style="font-size:0.75rem;color:#ee5a24;font-weight:600;margin-top:4px" id="review-queue-count"></div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Gezielt üben -->
+      <div onclick="App.startWeakspotTrainer()" style="cursor:pointer;background:white;border-radius:14px;padding:1.1rem 1.25rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:1rem;transition:transform 0.15s,box-shadow 0.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#6db88a,#4a9e6e);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:0.95rem;color:var(--dark)">Gezielt üben</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Automatisch deine schwächste Sektion erkennen & trainieren</div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Schwächenanalyse -->
+      <div onclick="App.openWeaknessAnalysis()" style="cursor:pointer;background:white;border-radius:14px;padding:1.1rem 1.25rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);display:flex;align-items:center;gap:1rem;transition:transform 0.15s,box-shadow 0.15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 20px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#9b7fc4,#7a5fb0);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12c0 1.66-4.03 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><ellipse cx="12" cy="5" rx="9" ry="3"/></svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:0.95rem;color:var(--dark)">Schwächenanalyse</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Detaillierte Auswertung aller BMS-Themen mit KI-Empfehlungen</div>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== ALLERGIEAUSWEIS EINPRÄGEPHASE ===== -->
+  <div id="screen-memorize" class="screen">
+    <header class="app-header app-header-kff">
+      <div class="header-timer" id="mem-timer-display">08:00</div>
+      <h1><span class="header-icon" id="icon-header-memorize"></span> Einprägephase</h1>
+    </header>
+
+    <div class="memorize-info">
+      <p>Präge dir die folgenden <strong>8 Allergieausweise</strong> ein. Du hast <strong>8 Minuten</strong> Zeit.</p>
+      <p class="mem-hint">Merke dir: Name, Geburtsdatum, Allergien, Medikamente, Notfallkontakt</p>
+    </div>
+
+    <div class="memorize-cards" id="memorize-cards">
+      <!-- Wird dynamisch befüllt -->
+    </div>
+
+    <div class="mem-nav">
+      <button class="btn-secondary" id="mem-prev">← Vorher</button>
+      <span id="mem-card-counter">1 / 8</span>
+      <button class="btn-secondary" id="mem-next">Nächste →</button>
+    </div>
+    <button class="btn-primary btn-full" id="mem-skip" style="margin-top:1rem">Phase beenden</button>
+  </div>
+
+  <!-- ===== FRAGE-BILDSCHIRM (Üben + Simulation) ===== -->
+  <div id="screen-question" class="screen">
+    <header class="app-header" id="question-header">
+      <div class="q-header-left">
+        <button class="abort-btn" id="btn-abort-test" title="Test abbrechen">✕</button>
+        <span class="q-section-badge" id="q-section-badge">Zahlenfolgen</span>
+      </div>
+      <div class="q-header-right">
+        <div class="countdown-timer" id="q-countdown">15:00</div>
+      </div>
+    </header>
+
+    <div class="q-progress">
+      <div class="q-progress-bar">
+        <div class="q-progress-fill" id="q-progress-fill"></div>
+      </div>
+      <span class="q-progress-text" id="q-progress-text">1 / 10</span>
+    </div>
+
+    <div class="q-card">
+      <div id="q-content"></div>
+      <div id="q-answers"></div>
+    </div>
+
+    <!-- Scratchpad / Notizblock -->
+    <div id="scratchpad-container" class="scratchpad-container hidden">
+      <div class="scratchpad-header">
+        <span class="scratchpad-title">✏️ Notizblock</span>
+        <div class="scratchpad-tools">
+          <button class="scratchpad-tool active" id="sp-pen" title="Stift">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+          </button>
+          <button class="scratchpad-tool" id="sp-highlighter" title="Textmarker">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
+          </button>
+          <button class="scratchpad-tool" id="sp-eraser" title="Radierer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+          </button>
+          <button class="scratchpad-tool" id="sp-clear" title="Alles löschen">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+          </button>
+          <span class="scratchpad-divider"></span>
+          <button class="scratchpad-color active" id="sp-c-black" style="background:#1a1a2e" title="Schwarz"></button>
+          <button class="scratchpad-color" id="sp-c-red" style="background:#e74c3c" title="Rot"></button>
+          <button class="scratchpad-color" id="sp-c-blue" style="background:#3498db" title="Blau"></button>
+          <button class="scratchpad-color" id="sp-c-green" style="background:#27ae60" title="Grün"></button>
+          <button class="scratchpad-color" id="sp-c-yellow" style="background:#f1c40f" title="Gelb"></button>
+        </div>
+        <button class="scratchpad-toggle" id="sp-minimize" title="Zuklappen">▼</button>
+      </div>
+      <canvas id="scratchpad-canvas" width="600" height="280"></canvas>
+      <div class="scratchpad-note-bar">
+        <input type="text" id="sp-note-input" placeholder="Notiz speichern, z.B. 'Mendel-Gesetze nochmal lernen'" maxlength="300">
+        <button id="sp-note-save">Merken</button>
+      </div>
+    </div>
+
+    <button id="scratchpad-btn" class="scratchpad-fab hidden" title="Notizblock öffnen">✏️</button>
+
+    <div id="q-feedback" class="q-feedback hidden">
+      <div class="q-feedback-icon" id="q-feedback-icon"></div>
+      <p id="q-feedback-text"></p>
+      <p class="q-feedback-detail" id="q-feedback-detail" style="font-size:0.85rem;color:var(--text-muted);margin:4px 0"></p>
+      <p class="q-feedback-explanation" id="q-feedback-explanation" style="font-size:0.85rem;color:var(--text-muted);margin:4px 0;font-style:italic"></p>
+      <p class="q-explanation" id="q-explanation"></p>
+      <div id="q-euler-diagrams" class="euler-diagrams-container hidden"></div>
+      <button class="btn-primary btn-full" id="q-next-btn">Nächste Frage →</button>
+    </div>
+  </div>
+
+  <!-- ===== ERGEBNIS-BILDSCHIRM ===== -->
+  <div id="screen-result" class="screen">
+    <div class="result-header">
+      <h1 id="result-title"><span class="header-icon" id="icon-header-result"></span> Ergebnis</h1>
+    </div>
+
+    <div class="result-circle-wrap">
+      <svg class="result-svg" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="52" class="circle-bg"/>
+        <circle cx="60" cy="60" r="52" class="circle-progress" id="res-circle"/>
+      </svg>
+      <div class="result-pct" id="res-pct">0%</div>
+    </div>
+
+    <p class="result-score" id="res-score">0 / 0 richtig</p>
+    <p class="result-msg" id="res-msg"></p>
+
+    <div class="result-stats" id="res-stats">
+      <!-- Breakdown wird dynamisch -->
+    </div>
+
+    <!-- Simulation: Block-Übersicht -->
+    <div class="sim-result-blocks hidden" id="sim-result-blocks">
+      <!-- Wird dynamisch befüllt -->
+    </div>
+
+    <!-- Infografiken für falsche Antworten -->
+    <div id="result-infographics" class="result-infographics hidden">
+      <h3><span class="header-icon" id="icon-header-infographic"></span> Lernhilfe: Infografiken zu deinen Fehlern</h3>
+      <p class="infographics-subtitle">Automatisch generiert, um dir beim Verstehen zu helfen</p>
+      <div id="infographics-container"></div>
+      <div id="infographics-loading" class="hidden">
+        <div class="spinner"></div>
+        <p>Infografiken werden im Hintergrund generiert...</p>
+      </div>
+    </div>
+
+    <!-- TV-Analyse -->
+    <div id="tv-analysis-section" class="tv-analysis-section hidden">
+      <button class="btn-tv-analyze" id="btn-tv-analyze">
+        <span class="tv-analyze-icon">🔍</span>
+        <span class="tv-analyze-text">
+          <strong>TV-Analyse starten</strong>
+          <small>KI analysiert deine Fehler und gibt dir persönliche Tipps</small>
+        </span>
+      </button>
+      <div id="tv-analysis-result" class="tv-analysis-result hidden"></div>
+      <div id="tv-analysis-loading" class="tv-analysis-loading hidden">
+        <div class="spinner"></div>
+        <p>Deine Antworten werden analysiert...</p>
+      </div>
+    </div>
+
+    <!-- Upgrade CTA für Free User -->
+    <div id="result-upgrade-cta" class="hidden"></div>
+
+    <div class="result-actions">
+      <button class="btn-primary btn-large" id="res-restart"><span class="header-icon" id="icon-res-restart"></span> Nochmal</button>
+      <button class="btn-secondary" id="res-home"><span class="header-icon" id="icon-res-home"></span> Startseite</button>
+    </div>
+  </div>
+
+  <!-- ===== AUTH-SCREEN: Login / Registrierung ===== -->
+  <div id="screen-auth" class="screen">
+    <div class="auth-container">
+      <div class="auth-header">
+        <div class="auth-logo" id="icon-auth-logo"></div>
+        <h1>MedAT Trainer</h1>
+        <p>Melde dich an, um deinen Fortschritt zu speichern</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="auth-login" class="auth-form" autocomplete="on" onsubmit="return false;">
+        <div class="auth-input-group">
+          <label for="login-email">E-Mail</label>
+          <input type="email" id="login-email" name="email" placeholder="deine@email.at" autocomplete="username email">
+        </div>
+        <div class="auth-input-group">
+          <label for="login-password">Passwort</label>
+          <input type="password" id="login-password" name="password" placeholder="Dein Passwort" autocomplete="current-password">
+        </div>
+        <div id="auth-error" class="auth-error hidden"></div>
+        <button type="submit" class="btn-primary btn-large btn-full" id="btn-login">Anmelden</button>
+
+        <div class="auth-links">
+          <button type="button" class="auth-link" id="btn-show-signup">Noch kein Konto? Registrieren</button>
+          <button type="button" class="auth-link" id="btn-show-reset">Passwort vergessen?</button>
+        </div>
+      </form>
+
+      <!-- Signup Form -->
+      <div id="auth-signup" class="auth-form hidden">
+        <div class="auth-input-group">
+          <label for="signup-name">Name</label>
+          <input type="text" id="signup-name" placeholder="Dein Name" autocomplete="name">
+        </div>
+        <div class="auth-input-group">
+          <label for="signup-email">E-Mail</label>
+          <input type="email" id="signup-email" placeholder="deine@email.at" autocomplete="email">
+        </div>
+        <div class="auth-input-group">
+          <label for="signup-username">Benutzername</label>
+          <input type="text" id="signup-username" placeholder="Dein Benutzername" autocomplete="username">
+        </div>
+        <div class="auth-input-group">
+          <label for="signup-password">Passwort</label>
+          <input type="password" id="signup-password" placeholder="Min. 6 Zeichen" autocomplete="new-password">
+        </div>
+        <div class="auth-input-group">
+          <label for="signup-license">Lizenzcode <span style="font-weight:normal;color:var(--text-muted)">(optional)</span></label>
+          <input type="text" id="signup-license" placeholder="z.B. MEDAT-XXXX-XXXX" style="text-transform:uppercase">
+        </div>
+        <div class="auth-input-group" style="flex-direction:row;align-items:flex-start;gap:0.5rem">
+          <input type="checkbox" id="signup-privacy" style="margin-top:0.2rem;width:18px;height:18px;flex-shrink:0;accent-color:var(--primary)">
+          <label for="signup-privacy" style="font-size:0.8rem;line-height:1.4;font-weight:normal;color:var(--text-muted);cursor:pointer">
+            Ich akzeptiere die <a href="#" id="link-agb" style="color:var(--primary);text-decoration:underline">AGB</a> und die <a href="#" id="link-datenschutz" style="color:var(--primary);text-decoration:underline">Datenschutzerklärung</a> und bin damit einverstanden, dass meine Daten zur Nutzung der App verarbeitet werden.
+          </label>
+        </div>
+        <div id="signup-error" class="auth-error hidden"></div>
+        <button class="btn-primary btn-large btn-full" id="btn-signup">Registrieren</button>
+
+        <div class="auth-links">
+          <button class="auth-link" id="btn-show-login">Bereits ein Konto? Anmelden</button>
+        </div>
+      </div>
+
+      <!-- Reset Form -->
+      <div id="auth-reset" class="auth-form hidden">
+        <div class="auth-input-group">
+          <label for="reset-email">E-Mail</label>
+          <input type="email" id="reset-email" placeholder="deine@email.at" autocomplete="email">
+        </div>
+        <div id="reset-error" class="auth-error hidden"></div>
+        <div id="reset-success" class="auth-success hidden"></div>
+        <button class="btn-primary btn-large btn-full" id="btn-reset">Link senden</button>
+
+        <div class="auth-links">
+          <button class="auth-link" id="btn-back-login">Zurück zum Login</button>
+        </div>
+      </div>
+
+      <!-- Gast-Modus deaktiviert -->
+      <!--
+      <div class="auth-guest">
+        <div class="auth-divider"><span>oder</span></div>
+        <button class="btn-secondary btn-full" id="btn-guest">Als Gast fortfahren</button>
+        <p class="auth-guest-hint">Fortschritt wird nur lokal gespeichert</p>
+      </div>
+      -->
+    </div>
+  </div>
+
+  <!-- ===== ONBOARDING SCREEN ===== -->
+  <div id="screen-onboarding" class="screen">
+    <div class="ob-container">
+      <!-- Progress bar -->
+      <div class="ob-progress">
+        <div class="ob-progress-bar" id="ob-progress-bar" style="width:0%"></div>
+      </div>
+
+      <!-- Step 1: Uni-Wahl -->
+      <div class="ob-step active" data-step="1">
+        <div class="ob-emoji">🎓</div>
+        <h2>An welcher Uni möchtest du studieren?</h2>
+        <p class="ob-sub">Wir passen dein Training an deinen Standort an.</p>
+        <div class="ob-options" data-field="target_uni">
+          <button class="ob-option" data-value="wien">🏛️ Wien</button>
+          <button class="ob-option" data-value="graz">🏔️ Graz</button>
+          <button class="ob-option" data-value="innsbruck">⛰️ Innsbruck</button>
+          <button class="ob-option" data-value="linz">🌉 Linz</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Erster Antritt -->
+      <div class="ob-step" data-step="2">
+        <div class="ob-emoji">📋</div>
+        <h2>Ist das dein erster MedAT-Antritt?</h2>
+        <p class="ob-sub">So können wir deinen Wissensstand besser einschätzen.</p>
+        <div class="ob-options" data-field="is_first_attempt">
+          <button class="ob-option" data-value="true">✨ Ja, mein erstes Mal</button>
+          <button class="ob-option" data-value="false">🔄 Nein, ich wiederhole</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Größte Sorge -->
+      <div class="ob-step" data-step="3">
+        <div class="ob-emoji">😰</div>
+        <h2>Welcher Testteil bereitet dir die größten Sorgen?</h2>
+        <p class="ob-sub">Wir starten mit dem, was dir am meisten Stress macht.</p>
+        <div class="ob-options" data-field="weakest_section">
+          <button class="ob-option" data-value="bms">🧬 BMS – Bio, Chemie, Physik, Mathe</button>
+          <button class="ob-option" data-value="tv">📖 TV – Textverständnis</button>
+          <button class="ob-option" data-value="kff">🧩 KFF – Kognitive Fähigkeiten</button>
+          <button class="ob-option" data-value="sek">💬 SEK – Soziales Entscheiden</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Sicherheits-Gefühl -->
+      <div class="ob-step" data-step="4">
+        <div class="ob-emoji">💭</div>
+        <h2>Wie sicher fühlst du dich gerade?</h2>
+        <p class="ob-sub">Sei ehrlich — es gibt keine falsche Antwort.</p>
+        <div class="ob-options" data-field="confidence_level">
+          <button class="ob-option" data-value="sehr_sicher">💪 Ziemlich sicher – ich brauch nur Feinschliff</button>
+          <button class="ob-option" data-value="unsicher">🤔 Unsicher – ich weiß nicht, wo ich stehe</button>
+          <button class="ob-option" data-value="angst">😟 Große Angst – ich fühl mich noch nicht bereit</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Quick Win — 3 easy questions -->
+      <div class="ob-step" data-step="5">
+        <div class="ob-emoji">⚡</div>
+        <h2>Kleiner Schnelltest – 3 Fragen</h2>
+        <p class="ob-sub">Lass uns sehen, was du schon draufhast!</p>
+        <div class="ob-quiz" id="ob-quiz">
+          <!-- Quiz question rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Step 6: Lernzeit-Präferenz -->
+      <div class="ob-step" data-step="6">
+        <div class="ob-emoji">⏰</div>
+        <h2>Wann lernst du am liebsten?</h2>
+        <p class="ob-sub">Wir erinnern dich zur perfekten Zeit.</p>
+        <div class="ob-options" data-field="preferred_study_time">
+          <button class="ob-option" data-value="morgens">🌅 Morgens – Frisch und ausgeruht</button>
+          <button class="ob-option" data-value="mittags">☀️ Mittags – Zwischen den Vorlesungen</button>
+          <button class="ob-option" data-value="abends">🌙 Abends – Wenn alles ruhig ist</button>
+        </div>
+      </div>
+
+      <!-- Step 7: Arbeits-Animation -->
+      <div class="ob-step" data-step="7">
+        <div class="ob-emoji">🔬</div>
+        <h2>Dein persönlicher Lernplan wird erstellt...</h2>
+        <div class="ob-loading" id="ob-loading">
+          <div class="ob-load-item" data-delay="0">
+            <div class="ob-load-check">⏳</div>
+            <span>Analysiere deine Schwächen...</span>
+          </div>
+          <div class="ob-load-item" data-delay="1500">
+            <div class="ob-load-check">⏳</div>
+            <span>Erstelle maßgeschneiderten MedAT-Lernplan...</span>
+          </div>
+          <div class="ob-load-item" data-delay="3000">
+            <div class="ob-load-check">⏳</div>
+            <span>Wähle deine ersten Übungsfragen aus...</span>
+          </div>
+          <div class="ob-load-item" data-delay="4500">
+            <div class="ob-load-check">⏳</div>
+            <span>Generiere deine PDF-Prüfungssimulationen...</span>
+          </div>
+          <div class="ob-load-item" data-delay="6000">
+            <div class="ob-load-check">⏳</div>
+            <span>Alles bereit!</span>
+          </div>
+        </div>
+        <div class="ob-load-progress">
+          <div class="ob-load-progress-bar" id="ob-load-bar"></div>
+        </div>
+      </div>
+
+      <!-- Step 8: Roadmap Preview -->
+      <div class="ob-step" data-step="8">
+        <div class="ob-emoji">🗺️</div>
+        <h2>Dein persönlicher Trainingsplan</h2>
+        <p class="ob-sub">Basierend auf deinen Angaben haben wir diesen Plan für dich erstellt:</p>
+        <div class="ob-roadmap" id="ob-roadmap">
+          <!-- Rendered by JS based on answers -->
+        </div>
+        <button class="btn-primary btn-large btn-full ob-next-btn" id="ob-to-paywall">Jetzt loslegen 🚀</button>
+      </div>
+
+      <!-- Step 9: Paywall -->
+      <div class="ob-step" data-step="9">
+        <div class="ob-emoji">🔓</div>
+        <h2>Dein Lernplan ist fertig!</h2>
+        <p class="ob-sub">Schalte jetzt alle <strong>2.896+ Fragen</strong> und <strong>10+ PDF-Simulationen</strong> frei.</p>
+        <div class="ob-paywall">
+          <div class="ob-pay-card">
+            <div class="ob-pay-badge">Einmalzahlung</div>
+            <div class="ob-pay-price">€17</div>
+            <div class="ob-pay-desc">Kein Abo · Kein Kleingedrucktes</div>
+            <ul class="ob-pay-features">
+              <li>✓ Alle 2.896+ Übungsfragen</li>
+              <li>✓ 10+ PDF-Prüfungssimulationen</li>
+              <li>✓ Schwächen-Fokus & Statistiken</li>
+              <li>✓ Dein persönlicher Lernplan</li>
+              <li>✓ Laufend neue Fragen & Updates</li>
+            </ul>
+            <button class="btn-primary btn-large btn-full" id="ob-buy-btn">Vollzugang freischalten – €17</button>
+          </div>
+          <button class="ob-skip-link" id="ob-skip-paywall">Erstmal kostenlos testen →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== PROFIL-SCREEN ===== -->
+  <div id="screen-profile" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1><span class="header-icon" id="icon-header-profile"></span> Profil</h1>
+    </header>
+
+    <div class="profile-container">
+      <!-- Profil-Karte -->
+      <div class="profile-card">
+        <div class="profile-avatar" id="profile-avatar"></div>
+        <h2 id="profile-name">–</h2>
+        <p class="profile-email" id="profile-email">–</p>
+      </div>
+
+      <!-- MedAT Countdown -->
+      <div class="profile-countdown hidden" id="profile-countdown">
+        <div class="countdown-number" id="countdown-days">–</div>
+        <div class="countdown-label" id="countdown-label">Tage bis zum MedAT</div>
+      </div>
+
+      <!-- Einstellungen -->
+      <div class="settings-card">
+        <h3>Einstellungen</h3>
+        <div class="setting-row">
+          <label for="profile-display-name">Anzeigename</label>
+          <input type="text" id="profile-display-name" placeholder="Dein Name">
+        </div>
+        <div class="setting-row">
+          <label for="profile-medat-date">MedAT-Termin</label>
+          <input type="date" id="profile-medat-date">
+        </div>
+        <div class="setting-row">
+          <label for="profile-target-score">Zielpunktzahl</label>
+          <select id="profile-target-score">
+            <option value="">Kein Ziel</option>
+            <option value="60">60% (Bestehen)</option>
+            <option value="70">70% (Gut)</option>
+            <option value="80">80% (Sehr gut)</option>
+            <option value="90">90% (Exzellent)</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label for="profile-study-hours">Lernstunden/Tag</label>
+          <select id="profile-study-hours">
+            <option value="1">1 Stunde</option>
+            <option value="2" selected>2 Stunden</option>
+            <option value="3">3 Stunden</option>
+            <option value="4">4 Stunden</option>
+            <option value="5">5+ Stunden</option>
+          </select>
+        </div>
+        <button class="btn-primary btn-full" id="btn-save-profile">Speichern</button>
+      </div>
+
+      <!-- Lernstatistik -->
+      <div class="profile-stats-card">
+        <h3>Deine Statistik</h3>
+        <div class="profile-stats-grid">
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-total">0</div>
+            <div class="profile-stat-label">Fragen beantwortet</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-correct">0%</div>
+            <div class="profile-stat-label">Genauigkeit</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-streak">0</div>
+            <div class="profile-stat-label">Tage Streak</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profile-member-since">–</div>
+            <div class="profile-stat-label">Dabei seit</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logout -->
+      <div class="profile-actions" id="profile-auth-actions">
+        <button class="btn-secondary btn-full" id="btn-logout" style="color: var(--danger)">Abmelden</button>
+      </div>
+
+      <!-- Gast: Login auffordern -->
+      <div class="profile-guest-prompt hidden" id="profile-guest-prompt">
+        <p>Du bist als Gast angemeldet. Erstelle ein Konto, um deinen Fortschritt geräteübergreifend zu speichern.</p>
+        <button class="btn-primary btn-full" id="btn-goto-auth">Konto erstellen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== STATISTIK-SCREEN ===== -->
+  <div id="screen-stats" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1><span class="header-icon" id="icon-header-stats"></span> Statistik</h1>
+    </header>
+
+    <div class="stats-container" id="stats-container">
+      <!-- Dynamisch durch Stats.render() befüllt -->
+      <div style="text-align:center;padding:3rem;color:var(--text-muted)">
+        <div class="spinner"></div>
+        Statistiken werden geladen...
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NOTIZEN SCREEN ===== -->
+  <div id="screen-notes" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>Meine Notizen</h1>
+    </header>
+    <div id="notes-container" class="notes-list"></div>
+  </div>
+
+  <!-- ===== KONTO & ABO SCREEN ===== -->
+  <div id="screen-konto" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>👤 Konto & Plan</h1>
+    </header>
+    <div class="konto-container" id="konto-container">
+      <!-- Dynamisch durch App.renderKonto() befüllt -->
+    </div>
+  </div>
+
+  <!-- ===== SIMULATION-AUSWERTUNG ===== -->
+  <div id="screen-sim-eval" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-konto">← Zurück</button>
+      <h1>📊 Auswertung</h1>
+    </header>
+    <div class="sim-eval-container" id="sim-eval-container">
+      <!-- Dynamisch durch App.renderSimEval() befüllt -->
+    </div>
+  </div>
+
+  <!-- ===== ADMIN-SCREEN ===== -->
+  <div id="screen-admin" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>🔧 Admin Dashboard</h1>
+    </header>
+    <div class="admin-container" id="admin-container">
+      <div style="text-align:center;padding:3rem;color:var(--text-muted)">
+        <div class="spinner"></div>
+        Admin-Daten werden geladen...
+      </div>
+    </div>
+  </div>
+
+  <script src="js/icons.js?v=20260326g"></script>
+  <script src="js/allergie-photos.js?v=20260326g"></script>
+  <!-- Datenschutzerklärung Modal -->
+  <div id="modal-datenschutz" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;overflow-y:auto;padding:1rem">
+    <div style="max-width:640px;margin:2rem auto;background:var(--bg,#fff);border-radius:16px;padding:2rem;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto">
+      <h2 style="margin:0 0 1rem;font-size:1.3rem">Datenschutzerklärung</h2>
+      <div style="font-size:0.85rem;line-height:1.7;color:var(--text-muted)">
+        <p><strong>1. Verantwortlicher</strong><br>
+        AI-Guide.at<br>
+        Kontakt: office@ai-guide.at<br>
+        Website: https://ai-guide.at</p>
+
+        <p><strong>2. Welche Daten wir erheben</strong><br>
+        Bei der Registrierung speichern wir deine E-Mail-Adresse, deinen gewählten Benutzernamen und dein verschlüsseltes Passwort. Bei der Nutzung der App speichern wir deinen Lernfortschritt (beantwortete Fragen, Ergebnisse, Streaks), erstellte PDFs und Simulationen, Notizen sowie technische Nutzungsdaten (z.B. letzte Aktivität, Geräteinformationen).</p>
+
+        <p><strong>3. Zweck der Verarbeitung</strong><br>
+        Deine Daten werden ausschließlich verwendet, um dir die App-Funktionalität bereitzustellen, deinen Lernfortschritt zu speichern, personalisierte Lernempfehlungen zu ermöglichen und die App zu verbessern.</p>
+
+        <p><strong>4. Rechtsgrundlage</strong><br>
+        Die Verarbeitung erfolgt auf Grundlage der Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO) — dein Account ist notwendig, um dir die Dienste bereitzustellen. Für darüber hinausgehende Verarbeitungen (z.B. E-Mail-Kommunikation) nutzen wir deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO).</p>
+
+        <p><strong>5. Speicherdauer</strong><br>
+        Deine Daten werden gespeichert, solange dein Account besteht. Nach Löschung deines Accounts werden alle personenbezogenen Daten innerhalb von 30 Tagen gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten bestehen. Zahlungsdaten werden gemäß steuerrechtlicher Vorgaben (BAO) 7 Jahre aufbewahrt.</p>
+
+        <p><strong>6. Deine Rechte nach DSGVO</strong><br>
+        Du hast das Recht auf: Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Zur Ausübung deiner Rechte wende dich an office@ai-guide.at.</p>
+
+        <p><strong>7. Hosting und Drittanbieter</strong><br>
+        Die App wird über Vercel Inc. (USA) gehostet. Die Datenbank wird über Supabase Inc. (USA) bereitgestellt. Zahlungen werden über Stripe Inc. (USA) abgewickelt. Eine Datenübertragung in die USA erfolgt auf Basis von Standardvertragsklauseln (SCCs) gemäß Art. 46 Abs. 2 lit. c DSGVO sowie dem EU-U.S. Data Privacy Framework.</p>
+
+        <p><strong>8. Cookies und lokale Speicherung</strong><br>
+        Die App verwendet nur technisch notwendige Cookies und Local Storage für die Authentifizierung und Sitzungsverwaltung. Es werden keine Tracking- oder Werbe-Cookies eingesetzt. Eine Einwilligung ist dafür gemäß § 165 Abs. 3 TKG 2021 nicht erforderlich.</p>
+
+        <p><strong>9. Beschwerderecht</strong><br>
+        Du hast das Recht, dich bei einer Datenschutzbehörde zu beschweren. Die zuständige Aufsichtsbehörde in Österreich ist die Österreichische Datenschutzbehörde, Barichgasse 40-42, 1030 Wien, dsb.gv.at.</p>
+
+        <p><strong>Stand:</strong> März 2026</p>
+      </div>
+      <button onclick="document.getElementById('modal-datenschutz').style.display='none'" style="margin-top:1.5rem;width:100%;padding:0.75rem;background:var(--primary,#1a1a2e);color:white;border:none;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:600">Verstanden</button>
+    </div>
+  </div>
+
+  <!-- AGB Modal -->
+  <div id="modal-agb" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;overflow-y:auto;padding:1rem">
+    <div style="max-width:640px;margin:2rem auto;background:var(--bg,#fff);border-radius:16px;padding:2rem;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto">
+      <h2 style="margin:0 0 1rem;font-size:1.3rem">Allgemeine Geschäftsbedingungen (AGB)</h2>
+      <div style="font-size:0.85rem;line-height:1.7;color:var(--text-muted)">
+        <p><strong>1. Geltungsbereich</strong><br>
+        Diese AGB gelten für die Nutzung der Web-App „MedAT Trainer" (im Folgenden „App"), betrieben von AI-Guide.at, office@ai-guide.at (im Folgenden „Anbieter"). Mit der Registrierung erkennst du diese AGB an.</p>
+
+        <p><strong>2. Leistungsbeschreibung</strong><br>
+        Die App ist eine digitale Lernplattform zur Vorbereitung auf den MedAT (Medizinischer Aufnahme-Test). Sie bietet Übungsfragen, PDF-Simulationen, Lernstatistiken und weitere Funktionen. Der Anbieter bemüht sich um Richtigkeit und Aktualität der Inhalte, übernimmt jedoch keine Garantie für den Prüfungserfolg.</p>
+
+        <p><strong>3. Registrierung und Account</strong><br>
+        Für die Nutzung ist eine Registrierung mit gültiger E-Mail-Adresse erforderlich. Du bist für die Geheimhaltung deiner Zugangsdaten verantwortlich. Pro Person darf nur ein Account erstellt werden. Der Anbieter behält sich das Recht vor, Accounts bei Missbrauch zu sperren.</p>
+
+        <p><strong>4. Kostenlose und kostenpflichtige Nutzung</strong><br>
+        Die App bietet eine kostenlose Basisversion mit eingeschränktem Funktionsumfang (300 Credits). Der „Vollzugang" ist als Einmalzahlung erhältlich und schaltet alle Funktionen bis zum MedAT-Prüfungstermin frei. Die aktuellen Preise werden auf der Konto-Seite der App angezeigt.</p>
+
+        <p><strong>5. Zahlungsbedingungen</strong><br>
+        Die Bezahlung des Vollzugangs erfolgt über den Zahlungsdienstleister Stripe. Mit dem Kauf wird der Gesamtbetrag sofort fällig. Alle Preise verstehen sich inklusive der gesetzlichen Umsatzsteuer (sofern anwendbar). Die Bezahlung ist eine Einmalzahlung — es entsteht kein Abonnement.</p>
+
+        <p><strong>6. Widerrufsrecht (Fernabsatz gemäß FAGG)</strong><br>
+        Du hast das Recht, binnen 14 Tagen ohne Angabe von Gründen den Vertrag zu widerrufen. Die Widerrufsfrist beträgt 14 Tage ab dem Tag des Vertragsabschlusses (Kauf). Um dein Widerrufsrecht auszuüben, sende eine eindeutige Erklärung (z.B. per E-Mail an office@ai-guide.at) über deinen Entschluss, den Vertrag zu widerrufen. Zur Wahrung der Frist genügt die rechtzeitige Absendung.<br><br>
+        <strong>Folgen des Widerrufs:</strong> Im Falle eines wirksamen Widerrufs erstatten wir dir den Kaufpreis unverzüglich, spätestens innerhalb von 14 Tagen ab Zugang deiner Widerrufserklärung, über dasselbe Zahlungsmittel. Dein Vollzugang wird nach dem Widerruf deaktiviert.<br><br>
+        <strong>Hinweis:</strong> Das Widerrufsrecht erlischt vorzeitig, wenn du ausdrücklich zugestimmt hast, dass wir mit der Leistung vor Ablauf der Widerrufsfrist beginnen, und du deine Kenntnis davon bestätigt hast, dass du durch diese Zustimmung dein Widerrufsrecht verlierst (§ 18 Abs. 1 Z 11 FAGG). Da der digitale Inhalt sofort nach Kauf bereitgestellt wird, erklärst du mit dem Kauf deine Zustimmung zum sofortigen Leistungsbeginn und nimmst den Verlust des Widerrufsrechts zur Kenntnis.</p>
+
+        <p><strong>7. Gewährleistung und Aktualisierungspflicht</strong><br>
+        Der Anbieter gewährleistet, dass die digitalen Inhalte zum Zeitpunkt der Bereitstellung dem Vertrag entsprechen (§§ 7–10 VGIG). Die Gewährleistungsfrist beträgt 2 Jahre. Der Anbieter stellt funktionale Updates bereit, soweit dies für die vertragsgemäße Nutzung erforderlich ist. Sicherheitsupdates werden während der Vertragslaufzeit bereitgestellt.</p>
+
+        <p><strong>8. Haftung</strong><br>
+        Der Anbieter haftet für Vorsatz und grobe Fahrlässigkeit unbeschränkt. Bei leichter Fahrlässigkeit ist die Haftung auf den typischen, vorhersehbaren Schaden begrenzt. Die Haftung für entgangenen Gewinn, Datenverlust und mittelbare Schäden ist bei leichter Fahrlässigkeit ausgeschlossen. Die Haftung nach dem Produkthaftungsgesetz (PHG) bleibt unberührt.</p>
+
+        <p><strong>9. Geistiges Eigentum</strong><br>
+        Alle Inhalte der App (Texte, Fragen, Grafiken, Software) sind urheberrechtlich geschützt. Die Nutzung ist ausschließlich für den persönlichen, nicht-kommerziellen Lerngebrauch gestattet. Das Kopieren, Verbreiten, Verkaufen oder Weitergeben von Inhalten ist untersagt.</p>
+
+        <p><strong>10. Verfügbarkeit</strong><br>
+        Der Anbieter bemüht sich um eine möglichst unterbrechungsfreie Verfügbarkeit der App. Ein Anspruch auf ständige Verfügbarkeit besteht nicht. Bei geplanten Wartungsarbeiten wird der Anbieter die Nutzer nach Möglichkeit vorab informieren.</p>
+
+        <p><strong>11. Kündigung und Accountlöschung</strong><br>
+        Du kannst deinen Account jederzeit löschen lassen, indem du eine E-Mail an office@ai-guide.at sendest. Bei der kostenlosen Version ist keine Kündigung nötig. Bei Verstoß gegen diese AGB kann der Anbieter den Zugang sperren oder kündigen.</p>
+
+        <p><strong>12. Änderungen der AGB</strong><br>
+        Der Anbieter kann diese AGB mit angemessener Vorankündigung ändern. Du wirst über Änderungen per E-Mail oder in der App informiert. Widersprichst du den geänderten AGB nicht innerhalb von 30 Tagen, gelten sie als angenommen.</p>
+
+        <p><strong>13. Anwendbares Recht und Gerichtsstand</strong><br>
+        Es gilt österreichisches Recht unter Ausschluss des UN-Kaufrechts. Bei Verbrauchern gelten die zwingenden Bestimmungen des Konsumentenschutzgesetzes (KSchG). Gerichtsstand für Klagen des Anbieters gegen Verbraucher ist deren Wohnsitz. Für Klagen des Verbrauchers gegen den Anbieter steht auch der Gerichtsstand am Sitz des Anbieters offen.</p>
+
+        <p><strong>14. Streitbeilegung</strong><br>
+        Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr" target="_blank" style="color:var(--primary);text-decoration:underline">ec.europa.eu/consumers/odr</a>. Wir sind nicht verpflichtet und nicht bereit, an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+
+        <p><strong>15. Salvatorische Klausel</strong><br>
+        Sollten einzelne Bestimmungen dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
+
+        <p><strong>Stand:</strong> März 2026</p>
+      </div>
+      <button onclick="document.getElementById('modal-agb').style.display='none'" style="margin-top:1.5rem;width:100%;padding:0.75rem;background:var(--primary,#1a1a2e);color:white;border:none;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:600">Verstanden</button>
+    </div>
+  </div>
+
+  <script src="js/config.js?v=20260326g"></script>
+  <script src="js/auth.js?v=20260326g"></script>
+  <script src="js/api.js?v=20260326g"></script>
+  <script src="js/figuren.js?v=20260326g"></script>
+  <script src="js/stats.js?v=20260326g"></script>
+  <script src="js/admin.js?v=20260326g"></script>
+  <script src="js/credits.js?v=20260326g"></script>
+  <script src="js/app.js?v=20260326g"></script>
+  <script src="js/pdf.js?v=20260326g"></script>
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        console.log('SW registered:', reg.scope);
+      }).catch(err => console.warn('SW registration failed:', err));
+    }
+
+    // PWA Install Prompt — only capture event, don't show yet (show after login)
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+    });
+
+    // Called from App after login to show install banner
+    window.showPWAInstallBanner = function() {
+      // Skip if already in standalone/PWA mode
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      if (isStandalone) return;
+      if (localStorage.getItem('medat_pwa_dismissed')) return;
+
+      // Android/Chrome: use native prompt
+      if (deferredInstallPrompt) {
+        const banner = document.createElement('div');
+        banner.id = 'pwa-install-banner';
+        banner.style.cssText = 'position:fixed;bottom:70px;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#1a1a2e,#2a2a4e);color:#fff;padding:1rem 1.2rem;display:flex;align-items:center;gap:0.8rem;box-shadow:0 -4px 20px rgba(0,0,0,0.3);border-top:2px solid #f5c542;animation:slideUp .4s ease';
+        banner.innerHTML = `
+          <div style="font-size:2rem">📱</div>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:0.95rem;margin-bottom:0.2rem">App installieren</div>
+            <div style="font-size:0.8rem;opacity:0.8">Zum Homescreen hinzufügen für schnellen Zugriff</div>
+          </div>
+          <button id="pwa-install-btn" style="background:#f5c542;color:#1a1a2e;border:none;border-radius:10px;padding:0.55rem 1.1rem;font-weight:700;font-size:0.85rem;cursor:pointer;white-space:nowrap">Installieren</button>
+          <button id="pwa-dismiss-btn" style="background:transparent;color:#fff;border:none;font-size:1.2rem;cursor:pointer;padding:0.3rem;opacity:0.6">✕</button>
+        `;
+        document.body.appendChild(banner);
+
+        document.getElementById('pwa-install-btn').onclick = async () => {
+          if (!deferredInstallPrompt) return;
+          deferredInstallPrompt.prompt();
+          const result = await deferredInstallPrompt.userChoice;
+          if (result.outcome === 'accepted') banner.remove();
+          deferredInstallPrompt = null;
+        };
+        document.getElementById('pwa-dismiss-btn').onclick = () => {
+          banner.remove();
+          localStorage.setItem('medat_pwa_dismissed', Date.now());
+        };
+        return;
+      }
+
+      // iOS Safari: show hint
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      if (isIOS && !localStorage.getItem('medat_pwa_ios_dismissed')) {
+        const banner = document.createElement('div');
+        banner.id = 'pwa-ios-banner';
+        banner.style.cssText = 'position:fixed;bottom:70px;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#1a1a2e,#2a2a4e);color:#fff;padding:1rem 1.2rem;box-shadow:0 -4px 20px rgba(0,0,0,0.3);border-top:2px solid #f5c542;animation:slideUp .4s ease';
+        banner.innerHTML = `
+          <div style="display:flex;align-items:center;gap:0.8rem">
+            <div style="font-size:2rem">📱</div>
+            <div style="flex:1">
+              <div style="font-weight:700;font-size:0.95rem;margin-bottom:0.3rem">App installieren</div>
+              <div style="font-size:0.8rem;opacity:0.8;line-height:1.5">
+                Tippe auf <span style="display:inline-flex;align-items:center;background:rgba(255,255,255,0.15);border-radius:4px;padding:0.1rem 0.35rem;margin:0 0.15rem">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
+                und dann <strong>„Zum Home-Bildschirm"</strong>
+              </div>
+            </div>
+            <button id="pwa-ios-dismiss" style="background:transparent;color:#fff;border:none;font-size:1.2rem;cursor:pointer;padding:0.3rem;opacity:0.6">✕</button>
+          </div>
+        `;
+        document.body.appendChild(banner);
+        document.getElementById('pwa-ios-dismiss').onclick = () => {
+          banner.remove();
+          localStorage.setItem('medat_pwa_ios_dismissed', Date.now());
+        };
+      }
+    }
+  </script>
+</body>
+</html>

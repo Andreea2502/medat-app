@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELI5 – Mendel'sche Genetik</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--surface:#ffffff;--card:#ffffff;--gold:#f5c542;--gold-deep:#e6a817;
+    --blue:#6db8e0;--purple:#9b7fc4;--pink:#e07b8b;--green:#6db88a;--orange:#e0734a;
+    --text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--radius:20px;
+    --shadow:0 2px 16px rgba(26,26,46,.06);--shadow-md:0 4px 24px rgba(26,26,46,.08);
+    --yellow-soft:#fdf3d7;--lavender:#e4daf0;--mint:#c8e6d0;--coral-soft:#fde8e0;
+  }
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+  .header{background:var(--surface);padding:24px 20px 16px;text-align:center;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+  .header h1{font-size:1.5rem;background:linear-gradient(135deg,var(--green),var(--gold-deep));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+  .header p{color:var(--text-secondary);font-size:.85rem}
+  .back-btn{position:absolute;left:16px;top:50%;transform:translateY(-50%);background:var(--mint);border:1px solid var(--border);color:#4a9a6a;width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .back-btn:hover{background:var(--green);color:#fff}
+
+  .tabs{display:flex;justify-content:center;gap:8px;padding:16px 20px;position:sticky;top:72px;z-index:99;background:var(--bg);flex-wrap:wrap}
+  .tab{padding:10px 18px;border-radius:30px;border:2px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.85rem;cursor:pointer;transition:all .3s;font-weight:600}
+  .tab.active{background:linear-gradient(135deg,var(--green),#58a070);color:#fff;border-color:var(--green);box-shadow:0 2px 12px rgba(109,184,138,.3)}
+  .tab:hover:not(.active){border-color:var(--green);color:#4a9a6a}
+
+  .content{max-width:700px;margin:0 auto;padding:0 16px 100px}
+  .section{display:none;animation:fadeUp .5s ease}.section.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  .info-card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;border-left:4px solid var(--green);cursor:pointer;transition:all .3s;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid var(--green)}
+  .info-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+  .info-card.expanded .card-detail{max-height:800px;opacity:1;margin-top:16px}
+  .card-header{display:flex;align-items:center;gap:12px}
+  .card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+  .card-title{font-size:1.05rem;font-weight:700;color:var(--text)}
+  .card-sub{font-size:.8rem;color:var(--text-secondary);margin-top:2px}
+  .card-expand{margin-left:auto;color:var(--muted);font-size:1.1rem;transition:transform .3s}
+  .info-card.expanded .card-expand{transform:rotate(180deg)}
+  .card-detail{max-height:0;opacity:0;overflow:hidden;transition:all .4s}
+  .card-detail p{color:var(--text-secondary);font-size:.9rem;line-height:1.7;margin-bottom:8px}
+  .hl{color:#4a9a6a;font-weight:600}
+  .hl-g{color:var(--gold-deep);font-weight:600}
+  .hl-p{color:#7a60a8;font-weight:600}
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.85rem;color:var(--text)}
+
+  /* Punnett Square */
+  .punnett-tool{background:var(--card);border-radius:var(--radius);padding:20px;margin:20px 0;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .punnett-tool h3{color:#4a9a6a;font-size:1rem;margin-bottom:16px;text-align:center}
+  .punnett-controls{display:flex;justify-content:center;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+  .parent-select{text-align:center}
+  .parent-select label{display:block;font-size:.8rem;color:var(--text-secondary);margin-bottom:6px}
+  .parent-select select{padding:10px 16px;border-radius:10px;border:2px solid var(--border);background:var(--surface);color:var(--text);font-size:.9rem;cursor:pointer;min-width:120px}
+  .parent-select select:focus{border-color:var(--green);outline:none}
+
+  .punnett-grid{display:grid;grid-template-columns:60px 1fr 1fr;grid-template-rows:40px 1fr 1fr;gap:4px;max-width:320px;margin:0 auto 16px}
+  .punnett-cell{display:flex;align-items:center;justify-content:center;border-radius:8px;font-weight:700;font-size:1.1rem;min-height:60px;transition:all .3s}
+  .punnett-header{background:var(--mint);color:#4a9a6a;font-size:.9rem}
+  .punnett-corner{background:transparent}
+  .punnett-result{background:var(--bg);border:2px solid var(--border)}
+  .punnett-result.dominant{background:rgba(109,184,138,.12);border-color:rgba(109,184,138,.4);color:#2d8a54}
+  .punnett-result.recessive{background:rgba(224,123,139,.12);border-color:rgba(224,123,139,.4);color:#c8505f}
+  .punnett-result.carrier{background:var(--yellow-soft);border-color:rgba(245,197,66,.4);color:var(--gold-deep)}
+
+  .punnett-ratios{text-align:center;margin-top:12px}
+  .ratio-bar{height:30px;border-radius:8px;overflow:hidden;display:flex;margin:8px 0}
+  .ratio-seg{display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#1a1a2e;transition:width .5s}
+  .ratio-legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:8px}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--text-secondary)}
+  .legend-dot{width:12px;height:12px;border-radius:3px}
+
+  /* Pea Phenotype */
+  .pea-display{display:flex;justify-content:center;gap:12px;margin:16px 0;flex-wrap:wrap}
+  .pea{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all .4s;animation:popIn .3s ease}
+  @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
+
+  .fun-fact{background:linear-gradient(135deg,var(--mint),var(--yellow-soft));border-radius:var(--radius);padding:16px;margin:16px 0;border-left:4px solid var(--green);box-shadow:var(--shadow)}
+  .fun-fact .label{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:#4a9a6a;font-weight:700;margin-bottom:6px}
+  .fun-fact p{font-size:.88rem;color:var(--text);line-height:1.6}
+
+  /* Family tree */
+  .tree-container{background:var(--card);border-radius:var(--radius);padding:20px;margin:20px 0;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .tree-container h3{color:#4a9a6a;font-size:1rem;margin-bottom:12px}
+  canvas{border-radius:12px;background:#1a1a2e;max-width:100%}
+
+  .quiz-box{background:var(--card);border-radius:var(--radius);padding:20px;margin:20px 0;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .quiz-box h3{color:#4a9a6a;font-size:1rem;margin-bottom:12px}
+  .quiz-q{font-size:.95rem;margin-bottom:16px;line-height:1.6}
+  .quiz-opt{display:block;width:100%;text-align:left;padding:12px 16px;margin-bottom:8px;border-radius:10px;border:2px solid var(--border);background:var(--surface);color:var(--text);font-size:.88rem;cursor:pointer;transition:all .3s}
+  .quiz-opt:hover{border-color:var(--green);background:rgba(109,184,138,.06)}
+  .quiz-opt.correct{border-color:var(--green);background:rgba(109,184,138,.12);color:#2d8a54}
+  .quiz-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);color:#c8505f}
+  .quiz-opt.reveal{border-color:var(--green);background:rgba(109,184,138,.08)}
+  .quiz-feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:.85rem;line-height:1.6;display:none}
+  .quiz-feedback.show{display:block;animation:fadeUp .3s ease}
+  .quiz-feedback.correct{background:rgba(109,184,138,.1);color:#2d8a54}
+  .quiz-feedback.wrong{background:rgba(224,123,139,.1);color:#c8505f}
+
+  .anim-btn{padding:8px 18px;border-radius:20px;border:none;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .3s}
+  .anim-btn.primary{background:linear-gradient(135deg,var(--green),#58a070);color:#fff;box-shadow:0 2px 8px rgba(109,184,138,.3)}
+  .anim-btn.primary:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(109,184,138,.4)}
+
+  .scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--green),var(--gold));z-index:200;transition:width .1s}
+
+  .erbgang-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+  .erbgang-card{background:var(--surface);border-radius:12px;padding:14px;text-align:center;border:2px solid var(--border);cursor:pointer;transition:all .3s}
+  .erbgang-card:hover{border-color:var(--green);transform:translateY(-2px)}
+  .erbgang-card.active{border-color:var(--green);background:var(--mint)}
+  .erbgang-card h4{font-size:.9rem;margin-bottom:4px;color:var(--text)}
+  .erbgang-card p{font-size:.75rem;color:var(--text-secondary)}
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<div class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <h1>🌱 Mendel'sche Genetik</h1>
+  <p>Vererbung einfach erklärt</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="grundlagen">Grundlagen</button>
+  <button class="tab" data-tab="kreuzung">Kreuzungs-Tool</button>
+  <button class="tab" data-tab="erbgaenge">Erbgänge</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<div class="content">
+
+<!-- ==================== GRUNDLAGEN ==================== -->
+<div class="section active" id="sec-grundlagen">
+
+  <div class="info-card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(109,184,138,.15)">🌱</div>
+      <div><div class="card-title">Gregor Mendel & seine Erbsen</div><div class="card-sub">Der Vater der Genetik</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p>Gregor Mendel (1822–1884) entdeckte die Grundgesetze der Vererbung durch <span class="hl">Kreuzungsexperimente mit Erbsen</span>. Er untersuchte 7 Merkmale: Samenform, Samenfarbe, Blütenfarbe, Hülsenform, Hülsenfarbe, Blütenposition und Stängellänge.</p>
+      <div class="key-fact">📌 Mendel veröffentlichte seine Ergebnisse 1866 — sie wurden erst 1900 wiederentdeckt!</div>
+    </div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--gold)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(245,197,66,.15)">📖</div>
+      <div><div class="card-title">Wichtige Begriffe</div><div class="card-sub">Die Sprache der Genetik</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p><span class="hl">Gen</span> — Abschnitt der DNA, der ein Merkmal codiert</p>
+      <p><span class="hl">Allel</span> — eine Variante eines Gens (z.B. "gelb" oder "grün")</p>
+      <p><span class="hl">Genotyp</span> — die genetische Ausstattung (z.B. Aa, AA, aa)</p>
+      <p><span class="hl">Phänotyp</span> — das sichtbare Merkmal (z.B. gelbe Erbse)</p>
+      <p><span class="hl-g">Dominant</span> (A) — setzt sich im Phänotyp durch</p>
+      <p><span class="hl-p">Rezessiv</span> (a) — nur sichtbar bei aa (homozygot rezessiv)</p>
+      <p><span class="hl">Homozygot</span> — AA oder aa (reinerbig)</p>
+      <p><span class="hl">Heterozygot</span> — Aa (mischerbig)</p>
+      <div class="key-fact">📌 Merkhilfe: Genotyp = <strong>Gene</strong>tischer Code, Phänotyp = <strong>Ph</strong>ysisches Aussehen</div>
+    </div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--purple)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(155,127,196,.15)">📜</div>
+      <div><div class="card-title">Mendel'sche Regeln</div><div class="card-sub">Die 3 Vererbungsgesetze</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p><span class="hl">1. Uniformitätsregel</span>: Kreuzt man zwei reinerbige Eltern (AA × aa), sind alle F1-Nachkommen gleich (Aa).</p>
+      <p><span class="hl-g">2. Spaltungsregel</span>: Kreuzt man F1 untereinander (Aa × Aa), spalten sich die Merkmale in der F2 im Verhältnis <span class="hl-g">3:1</span> (Phänotyp) bzw. <span class="hl-g">1:2:1</span> (Genotyp).</p>
+      <p><span class="hl-p">3. Unabhängigkeitsregel</span>: Gene auf verschiedenen Chromosomen werden unabhängig voneinander vererbt (gilt nur ohne Genkopplung!).</p>
+      <div class="key-fact">📌 Die 3. Regel gilt nur bei Genen auf verschiedenen Chromosomen. Gekoppelte Gene werden zusammen vererbt!</div>
+    </div>
+  </div>
+
+  <div class="fun-fact">
+    <div class="label">💡 Wusstest du?</div>
+    <p>Mendel untersuchte über 28.000 Erbsenpflanzen in seinen Experimenten. Er war so genau, dass seine Ergebnisse verdächtig nah an den erwarteten Verhältnissen lagen — manche Historiker vermuten, er hat "zu perfekte" Daten ausgewählt!</p>
+  </div>
+</div>
+
+<!-- ==================== KREUZUNGS-TOOL ==================== -->
+<div class="section" id="sec-kreuzung">
+
+  <div class="punnett-tool">
+    <h3>🧪 Interaktives Punnett-Quadrat</h3>
+    <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:16px">Wähle die Genotypen der Eltern und sieh das Ergebnis!</p>
+
+    <div class="punnett-controls">
+      <div class="parent-select">
+        <label>♀ Mutter</label>
+        <select id="parent1" onchange="updatePunnett()">
+          <option value="AA">AA (homozygot dominant)</option>
+          <option value="Aa" selected>Aa (heterozygot)</option>
+          <option value="aa">aa (homozygot rezessiv)</option>
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;font-size:1.5rem;color:var(--muted)">×</div>
+      <div class="parent-select">
+        <label>♂ Vater</label>
+        <select id="parent2" onchange="updatePunnett()">
+          <option value="AA">AA (homozygot dominant)</option>
+          <option value="Aa" selected>Aa (heterozygot)</option>
+          <option value="aa">aa (homozygot rezessiv)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="punnett-grid" id="punnettGrid"></div>
+
+    <div class="punnett-ratios" id="punnettRatios"></div>
+
+    <div class="pea-display" id="peaDisplay"></div>
+  </div>
+
+  <div class="punnett-tool">
+    <h3>🧬 Dihybrider Erbgang (AaBb × AaBb)</h3>
+    <p style="text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:16px">Das berühmte 9:3:3:1 Verhältnis</p>
+    <canvas id="dihybridCanvas" width="600" height="400"></canvas>
+    <div style="text-align:center;margin-top:12px">
+      <button class="anim-btn primary" onclick="drawDihybrid()">🔄 Neu berechnen</button>
+    </div>
+  </div>
+
+  <div class="fun-fact">
+    <div class="label">📝 MedAT-Tipp</div>
+    <p>Punnett-Quadrate sind der schnellste Weg, um Kreuzungsergebnisse zu berechnen. Beim MedAT kommen oft Fragen zum 3:1 oder 9:3:3:1 Verhältnis. Übe das Aufstellen, bis es automatisch geht!</p>
+  </div>
+</div>
+
+<!-- ==================== ERBGÄNGE ==================== -->
+<div class="section" id="sec-erbgaenge">
+
+  <h2 style="text-align:center;color:var(--green);margin:20px 0 16px;font-size:1.1rem">Verschiedene Erbgänge</h2>
+
+  <div class="erbgang-grid">
+    <div class="erbgang-card active" onclick="showErbgang('ad')">
+      <h4 style="color:var(--green)">Autosomal-dominant</h4>
+      <p>Ein A-Allel reicht</p>
+    </div>
+    <div class="erbgang-card" onclick="showErbgang('ar')">
+      <h4 style="color:var(--pink)">Autosomal-rezessiv</h4>
+      <p>Braucht aa für Ausprägung</p>
+    </div>
+    <div class="erbgang-card" onclick="showErbgang('xr')">
+      <h4 style="color:var(--blue)">X-chromosomal rezessiv</h4>
+      <p>Männer häufiger betroffen</p>
+    </div>
+    <div class="erbgang-card" onclick="showErbgang('xd')">
+      <h4 style="color:var(--purple)">X-chromosomal dominant</h4>
+      <p>Betroffener Vater → alle Töchter</p>
+    </div>
+  </div>
+
+  <div class="tree-container">
+    <h3 id="erbgangTitle">Autosomal-dominanter Erbgang</h3>
+    <canvas id="treeCanvas" width="600" height="350"></canvas>
+    <div id="erbgangInfo" style="margin-top:12px;font-size:.85rem;color:var(--muted);line-height:1.6"></div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--orange)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(224,115,74,.15)">🔑</div>
+      <div><div class="card-title">Erbgang erkennen — Cheat Sheet</div><div class="card-sub">So erkennst du den Erbgang im Stammbaum</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p><span class="hl">Autosomal-dominant</span>: Merkmal in jeder Generation, betroffene Eltern haben betroffene Kinder.</p>
+      <p><span style="color:var(--pink);font-weight:600">Autosomal-rezessiv</span>: Kann Generationen überspringen, gesunde Eltern können kranke Kinder haben.</p>
+      <p><span style="color:var(--blue);font-weight:600">X-chromosomal rezessiv</span>: Meist Männer betroffen, keine Vater→Sohn-Übertragung, Konduktorinnen.</p>
+      <p><span class="hl-p">X-chromosomal dominant</span>: Betroffener Vater → alle Töchter betroffen, kein Sohn betroffen.</p>
+      <div class="key-fact">📌 Faustregel: Wenn das Merkmal eine Generation überspringt → wahrscheinlich rezessiv. Wenn hauptsächlich Männer betroffen → X-chromosomal.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== QUIZ ==================== -->
+<div class="section" id="sec-quiz">
+  <h2 style="text-align:center;color:var(--green);margin:20px 0 16px;font-size:1.2rem">Teste dein Wissen!</h2>
+  <div id="quizContainer"></div>
+  <div style="text-align:center;margin-top:20px">
+    <button class="anim-btn primary" onclick="resetQuiz()" style="display:none" id="quizResetBtn">🔄 Quiz wiederholen</button>
+  </div>
+  <div id="quizScore" style="text-align:center;margin-top:16px;color:var(--green);font-size:1.1rem;font-weight:700;display:none"></div>
+</div>
+
+</div>
+
+<script>
+// Tabs
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('sec-'+t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+document.querySelectorAll('.info-card').forEach(c => c.addEventListener('click', () => c.classList.toggle('expanded')));
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('scrollProgress').style.width = (window.scrollY/h*100)+'%';
+});
+
+// ====== PUNNETT SQUARE ======
+function updatePunnett() {
+  const p1 = document.getElementById('parent1').value;
+  const p2 = document.getElementById('parent2').value;
+  const a1 = [p1[0], p1[1]];
+  const a2 = [p2[0], p2[1]];
+
+  const grid = document.getElementById('punnettGrid');
+  const offspring = [];
+
+  let html = `<div class="punnett-cell punnett-corner"></div>`;
+  html += `<div class="punnett-cell punnett-header">${a2[0]}</div>`;
+  html += `<div class="punnett-cell punnett-header">${a2[1]}</div>`;
+
+  for (let i = 0; i < 2; i++) {
+    html += `<div class="punnett-cell punnett-header">${a1[i]}</div>`;
+    for (let j = 0; j < 2; j++) {
+      const alleles = [a1[i], a2[j]].sort((a,b) => a.toLowerCase().localeCompare(b.toLowerCase()) || a.localeCompare(b));
+      const genotype = alleles.join('');
+      const isRec = genotype === 'aa';
+      const isDom = genotype === 'AA';
+      const isCar = genotype === 'Aa' || genotype === 'aA';
+      const cls = isRec ? 'recessive' : isDom ? 'dominant' : 'carrier';
+      html += `<div class="punnett-cell punnett-result ${cls}">${genotype}</div>`;
+      offspring.push(genotype);
+    }
+  }
+  grid.innerHTML = html;
+
+  // Calculate ratios
+  const counts = {AA:0, Aa:0, aa:0};
+  offspring.forEach(g => { const n = g === 'AA' ? 'AA' : g === 'aa' ? 'aa' : 'Aa'; counts[n]++; });
+
+  const domPct = (counts.AA + counts.Aa) / 4 * 100;
+  const recPct = counts.aa / 4 * 100;
+
+  let ratioHtml = `<div style="font-size:.85rem;color:var(--muted);margin-bottom:8px">Genotyp-Verhältnis: <strong>${counts.AA}:${counts.Aa}:${counts.aa}</strong> (AA:Aa:aa)</div>`;
+  ratioHtml += `<div class="ratio-bar">`;
+  if (counts.AA) ratioHtml += `<div class="ratio-seg" style="width:${counts.AA*25}%;background:var(--green)">${counts.AA*25}%</div>`;
+  if (counts.Aa) ratioHtml += `<div class="ratio-seg" style="width:${counts.Aa*25}%;background:var(--gold)">${counts.Aa*25}%</div>`;
+  if (counts.aa) ratioHtml += `<div class="ratio-seg" style="width:${counts.aa*25}%;background:var(--pink)">${counts.aa*25}%</div>`;
+  ratioHtml += `</div>`;
+  ratioHtml += `<div class="ratio-legend">`;
+  if (counts.AA) ratioHtml += `<div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>AA dominant</div>`;
+  if (counts.Aa) ratioHtml += `<div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Aa Träger</div>`;
+  if (counts.aa) ratioHtml += `<div class="legend-item"><div class="legend-dot" style="background:var(--pink)"></div>aa rezessiv</div>`;
+  ratioHtml += `</div>`;
+  ratioHtml += `<div style="margin-top:8px;font-size:.85rem;color:var(--muted)">Phänotyp: <span style="color:var(--green)">${domPct}% dominant</span> / <span style="color:var(--pink)">${recPct}% rezessiv</span></div>`;
+  document.getElementById('punnettRatios').innerHTML = ratioHtml;
+
+  // Pea display
+  let peaHtml = '';
+  offspring.forEach(g => {
+    const isRec = g === 'aa';
+    peaHtml += `<div class="pea" style="background:${isRec ? '#6db88a' : '#f5c542'}" title="${g} → ${isRec ? 'grün (rezessiv)' : 'gelb (dominant)'}">🫛</div>`;
+  });
+  document.getElementById('peaDisplay').innerHTML = peaHtml;
+}
+
+// ====== DIHYBRID CANVAS ======
+function drawDihybrid() {
+  const ctx = document.getElementById('dihybridCanvas').getContext('2d');
+  const W = 600, H = 400;
+  ctx.clearRect(0, 0, W, H);
+
+  const gametes = ['AB','Ab','aB','ab'];
+  const cellSize = 65;
+  const startX = (W - cellSize*5) / 2;
+  const startY = 60;
+
+  // Headers
+  ctx.fillStyle = '#8888aa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('♂ Vater: AaBb', W/2, 20);
+  ctx.fillText('♀ Mutter: AaBb', startX - 20, startY + cellSize*2.5);
+  ctx.save(); ctx.translate(startX-20, startY+cellSize*2.5); ctx.rotate(-Math.PI/2); ctx.fillText('', 0, 0); ctx.restore();
+
+  // Column headers
+  gametes.forEach((g, i) => {
+    ctx.fillStyle = '#6db88a'; ctx.font = 'bold 12px sans-serif';
+    ctx.fillText(g, startX + cellSize*(i+1) + cellSize/2, startY + cellSize/2 + 4);
+    ctx.fillText(g, startX + cellSize/2, startY + cellSize*(i+1) + cellSize/2 + 4);
+  });
+
+  // Grid
+  const results = {dom_dom:0, dom_rec:0, rec_dom:0, rec_rec:0};
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c < 4; c++) {
+      const x = startX + cellSize*(c+1);
+      const y = startY + cellSize*(r+1);
+      const mg = gametes[r]; // mother
+      const fg = gametes[c]; // father
+
+      const a1 = mg[0], b1 = mg[1], a2 = fg[0], b2 = fg[1];
+      const hasA = (a1==='A' || a2==='A');
+      const hasB = (b1==='B' || b2==='B');
+
+      let color, label;
+      if (hasA && hasB) { color = 'rgba(109,184,138,.2)'; label = '#6db88a'; results.dom_dom++; }
+      else if (hasA && !hasB) { color = 'rgba(245,197,66,.2)'; label = '#f5c542'; results.dom_rec++; }
+      else if (!hasA && hasB) { color = 'rgba(109,184,226,.2)'; label = '#6db8e0'; results.rec_dom++; }
+      else { color = 'rgba(224,123,139,.2)'; label = '#e07b8b'; results.rec_rec++; }
+
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.roundRect(x+2, y+2, cellSize-4, cellSize-4, 6); ctx.fill();
+      ctx.strokeStyle = label+'40'; ctx.lineWidth = 1; ctx.stroke();
+
+      const genA = [a1,a2].sort((x,y)=>x.localeCompare(y)).join('');
+      const genB = [b1,b2].sort((x,y)=>x.localeCompare(y)).join('');
+      ctx.fillStyle = label; ctx.font = '10px sans-serif';
+      ctx.fillText(genA+genB, x+cellSize/2, y+cellSize/2+4);
+    }
+  }
+
+  // Ratio bar at bottom
+  const barY = startY + cellSize*5 + 20;
+  const barW = W - 80;
+  const barH = 28;
+  const total = 16;
+
+  ctx.fillStyle = '#6db88a'; ctx.beginPath(); ctx.roundRect(40, barY, barW*results.dom_dom/total, barH, [6,0,0,6]); ctx.fill();
+  ctx.fillStyle = '#f5c542'; ctx.fillRect(40+barW*results.dom_dom/total, barY, barW*results.dom_rec/total, barH);
+  ctx.fillStyle = '#6db8e0'; ctx.fillRect(40+barW*(results.dom_dom+results.dom_rec)/total, barY, barW*results.rec_dom/total, barH);
+  ctx.fillStyle = '#e07b8b'; ctx.beginPath(); ctx.roundRect(40+barW*(results.dom_dom+results.dom_rec+results.rec_dom)/total, barY, barW*results.rec_rec/total, barH, [0,6,6,0]); ctx.fill();
+
+  ctx.fillStyle = '#1a1a2e'; ctx.font = 'bold 11px sans-serif';
+  ctx.fillText(`${results.dom_dom}`, 40+barW*results.dom_dom/total/2, barY+barH/2+4);
+  ctx.fillText(`${results.dom_rec}`, 40+barW*(results.dom_dom+results.dom_rec/2)/total, barY+barH/2+4);
+  ctx.fillText(`${results.rec_dom}`, 40+barW*(results.dom_dom+results.dom_rec+results.rec_dom/2)/total, barY+barH/2+4);
+  ctx.fillText(`${results.rec_rec}`, 40+barW*(total-results.rec_rec/2)/total, barY+barH/2+4);
+
+  ctx.fillStyle = '#f5c542'; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('Verhältnis: 9 : 3 : 3 : 1', W/2, barY + barH + 22);
+  ctx.fillStyle = '#8888aa'; ctx.font = '10px sans-serif';
+  ctx.fillText('A_B_ : A_bb : aaB_ : aabb', W/2, barY + barH + 38);
+}
+
+// ====== FAMILY TREE / ERBGÄNGE ======
+const erbgangData = {
+  ad: {
+    title: 'Autosomal-dominanter Erbgang',
+    info: '<strong>Merkmale:</strong> Merkmal in jeder Generation sichtbar. Betroffene haben mindestens einen betroffenen Elternteil. Heterozygote (Aa) sind betroffen. Beispiele: Chorea Huntington, Marfan-Syndrom, Achondroplasie.',
+    tree: [{gen:0,x:200,y:40,sex:'m',affected:true,label:'Aa'},{gen:0,x:400,y:40,sex:'f',affected:false,label:'aa'},
+           {gen:1,x:120,y:170,sex:'f',affected:true,label:'Aa'},{gen:1,x:250,y:170,sex:'m',affected:false,label:'aa'},
+           {gen:1,x:350,y:170,sex:'f',affected:false,label:'aa'},{gen:1,x:480,y:170,sex:'m',affected:true,label:'Aa'}],
+    couples: [[0,1]], children: [[0,1,2],[0,1,3],[0,1,4],[0,1,5]]
+  },
+  ar: {
+    title: 'Autosomal-rezessiver Erbgang',
+    info: '<strong>Merkmale:</strong> Kann Generationen überspringen. Gesunde Eltern (Träger) können kranke Kinder haben. Beide Eltern müssen Träger sein. Beispiele: Mukoviszidose, Sichelzellanämie, PKU.',
+    tree: [{gen:0,x:200,y:40,sex:'m',affected:false,label:'Aa',carrier:true},{gen:0,x:400,y:40,sex:'f',affected:false,label:'Aa',carrier:true},
+           {gen:1,x:100,y:170,sex:'m',affected:false,label:'AA'},{gen:1,x:230,y:170,sex:'f',affected:false,label:'Aa',carrier:true},
+           {gen:1,x:370,y:170,sex:'m',affected:true,label:'aa'},{gen:1,x:500,y:170,sex:'f',affected:false,label:'Aa',carrier:true}],
+    couples: [[0,1]], children: [[0,1,2],[0,1,3],[0,1,4],[0,1,5]]
+  },
+  xr: {
+    title: 'X-chromosomal rezessiver Erbgang',
+    info: '<strong>Merkmale:</strong> Hauptsächlich Männer betroffen (XᵃY). Frauen sind meist Konduktorinnen (X^A Xᵃ). Keine Vater→Sohn-Übertragung! Beispiele: Hämophilie, Rot-Grün-Blindheit, Duchenne.',
+    tree: [{gen:0,x:200,y:40,sex:'m',affected:false,label:'XᴬY'},{gen:0,x:400,y:40,sex:'f',affected:false,label:'XᴬXᵃ',carrier:true},
+           {gen:1,x:100,y:170,sex:'m',affected:true,label:'XᵃY'},{gen:1,x:230,y:170,sex:'f',affected:false,label:'XᴬXᵃ',carrier:true},
+           {gen:1,x:370,y:170,sex:'m',affected:false,label:'XᴬY'},{gen:1,x:500,y:170,sex:'f',affected:false,label:'XᴬXᴬ'}],
+    couples: [[0,1]], children: [[0,1,2],[0,1,3],[0,1,4],[0,1,5]]
+  },
+  xd: {
+    title: 'X-chromosomal dominanter Erbgang',
+    info: '<strong>Merkmale:</strong> Betroffener Vater → alle Töchter betroffen, kein Sohn betroffen. Betroffene Mutter → 50% aller Kinder betroffen. Frauen doppelt so häufig betroffen. Beispiel: Vitamin-D-resistente Rachitis.',
+    tree: [{gen:0,x:200,y:40,sex:'m',affected:true,label:'XᴬY'},{gen:0,x:400,y:40,sex:'f',affected:false,label:'XᵃXᵃ'},
+           {gen:1,x:100,y:170,sex:'f',affected:true,label:'XᴬXᵃ'},{gen:1,x:230,y:170,sex:'f',affected:true,label:'XᴬXᵃ'},
+           {gen:1,x:370,y:170,sex:'m',affected:false,label:'XᵃY'},{gen:1,x:500,y:170,sex:'m',affected:false,label:'XᵃY'}],
+    couples: [[0,1]], children: [[0,1,2],[0,1,3],[0,1,4],[0,1,5]]
+  },
+};
+
+function showErbgang(type) {
+  document.querySelectorAll('.erbgang-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  const data = erbgangData[type];
+  document.getElementById('erbgangTitle').textContent = data.title;
+  document.getElementById('erbgangInfo').innerHTML = data.info;
+
+  const ctx = document.getElementById('treeCanvas').getContext('2d');
+  const W = 600, H = 350;
+  ctx.clearRect(0, 0, W, H);
+
+  // Draw connections
+  data.couples.forEach(([a,b]) => {
+    ctx.strokeStyle = '#f5c54240'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(data.tree[a].x, data.tree[a].y); ctx.lineTo(data.tree[b].x, data.tree[b].y); ctx.stroke();
+    const midX = (data.tree[a].x + data.tree[b].x)/2;
+    const midY = data.tree[a].y;
+    ctx.beginPath(); ctx.moveTo(midX, midY); ctx.lineTo(midX, midY+50); ctx.stroke();
+    // Line to children
+    const childGen = data.tree.filter(t => t.gen === 1);
+    ctx.beginPath(); ctx.moveTo(childGen[0].x, midY+50); ctx.lineTo(childGen[childGen.length-1].x, midY+50); ctx.stroke();
+    childGen.forEach(c => { ctx.beginPath(); ctx.moveTo(c.x, midY+50); ctx.lineTo(c.x, c.y-25); ctx.stroke(); });
+  });
+
+  // Draw people
+  data.tree.forEach(p => {
+    const size = 22;
+    if (p.sex === 'm') {
+      ctx.fillStyle = p.affected ? 'var(--green)' : (p.carrier ? 'rgba(245,197,66,.3)' : 'rgba(255,255,255,.06)');
+      ctx.strokeStyle = p.affected ? '#6db88a' : (p.carrier ? '#f5c542' : '#555');
+      ctx.lineWidth = 2;
+      ctx.fillRect(p.x-size, p.y-size, size*2, size*2);
+      ctx.strokeRect(p.x-size, p.y-size, size*2, size*2);
+      if (p.carrier && !p.affected) {
+        ctx.fillStyle = '#f5c54280';
+        ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI*2); ctx.fill();
+      }
+    } else {
+      ctx.fillStyle = p.affected ? 'var(--green)' : (p.carrier ? 'rgba(245,197,66,.3)' : 'rgba(255,255,255,.06)');
+      ctx.strokeStyle = p.affected ? '#6db88a' : (p.carrier ? '#f5c542' : '#555');
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(p.x, p.y, size, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      if (p.carrier && !p.affected) {
+        ctx.fillStyle = '#f5c54280';
+        ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI*2); ctx.fill();
+      }
+    }
+    // Label
+    ctx.fillStyle = '#e8e8f0'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(p.label, p.x, p.y + size + 18);
+  });
+
+  // Legend
+  const ly = H - 50;
+  ctx.fillStyle = '#8888aa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillRect(20, ly, 14, 14); ctx.strokeStyle = '#555'; ctx.strokeRect(20, ly, 14, 14);
+  ctx.fillText('= Mann', 40, ly+11);
+  ctx.beginPath(); ctx.arc(120, ly+7, 7, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.fillText('= Frau', 132, ly+11);
+  ctx.fillStyle = '#6db88a'; ctx.fillRect(210, ly, 14, 14);
+  ctx.fillStyle = '#8888aa'; ctx.fillText('= betroffen', 230, ly+11);
+  ctx.fillStyle = '#f5c54280'; ctx.beginPath(); ctx.arc(320, ly+7, 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#8888aa'; ctx.fillText('= Träger', 330, ly+11);
+}
+
+// ====== QUIZ ======
+const quizData = [
+  {q:'Was beschreibt die Spaltungsregel?',opts:['F1 aus reinerbigen Eltern ist uniform','F2 spaltet sich 3:1','Gene werden unabhängig vererbt','Mutationen entstehen zufällig'],correct:1,exp:'Die 2. Mendel\'sche Regel besagt: Bei Kreuzung von F1 (Aa × Aa) spalten sich die Phänotypen in der F2 im Verhältnis 3:1.'},
+  {q:'Welchen Genotyp hat ein Träger bei autosomal-rezessivem Erbgang?',opts:['AA','Aa','aa','XᵃY'],correct:1,exp:'Träger (Konduktoren) sind heterozygot (Aa) — sie tragen ein rezessives Allel, zeigen aber den dominanten Phänotyp.'},
+  {q:'Wie ist das Phänotyp-Verhältnis beim dihybriden Erbgang (AaBb × AaBb)?',opts:['3:1','1:2:1','9:3:3:1','1:1:1:1'],correct:2,exp:'Beim dihybriden Erbgang mit unabhängiger Vererbung: 9 A_B_ : 3 A_bb : 3 aaB_ : 1 aabb.'},
+  {q:'Welcher Erbgang zeigt keine Vater-Sohn-Übertragung?',opts:['Autosomal-dominant','Autosomal-rezessiv','X-chromosomal rezessiv','Alle zeigen Vater-Sohn-Übertragung'],correct:2,exp:'Bei X-chromosomaler Vererbung gibt der Vater sein X an Töchter und Y an Söhne. Daher keine Vater→Sohn-Übertragung des X-gebundenen Merkmals.'},
+  {q:'Was bedeutet "homozygot"?',opts:['Zwei verschiedene Allele','Zwei gleiche Allele','Kein Allel vorhanden','Ein dominantes Allel'],correct:1,exp:'Homozygot = reinerbig, beide Allele sind gleich (AA oder aa). Heterozygot = mischerbig (Aa).'},
+  {q:'Welches Verhältnis ergibt Aa × Aa (Genotyp)?',opts:['3:1','1:2:1','1:1','9:3:3:1'],correct:1,exp:'Aa × Aa ergibt: 1 AA : 2 Aa : 1 aa (Genotyp-Verhältnis 1:2:1). Phänotyp-Verhältnis ist 3:1.'},
+];
+
+let quizAnswered=0, quizCorrect=0;
+function buildQuiz() {
+  const c=document.getElementById('quizContainer');c.innerHTML='';quizAnswered=0;quizCorrect=0;
+  document.getElementById('quizResetBtn').style.display='none';document.getElementById('quizScore').style.display='none';
+  quizData.forEach((q,qi)=>{const box=document.createElement('div');box.className='quiz-box';box.innerHTML=`<h3>Frage ${qi+1}/${quizData.length}</h3><div class="quiz-q">${q.q}</div>${q.opts.map((o,oi)=>`<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${o}</button>`).join('')}<div class="quiz-feedback" id="qfb-${qi}"></div>`;c.appendChild(box)});
+  c.querySelectorAll('.quiz-opt').forEach(btn=>{btn.addEventListener('click',function(){const qi=+this.dataset.qi,oi=+this.dataset.oi;const sibs=c.querySelectorAll(`[data-qi="${qi}"]`);if(sibs[0].classList.contains('correct')||sibs[0].classList.contains('wrong')||sibs[0].classList.contains('reveal'))return;const ok=quizData[qi].correct===oi;if(ok){this.classList.add('correct');quizCorrect++}else{this.classList.add('wrong');sibs[quizData[qi].correct].classList.add('reveal')}quizAnswered++;const fb=document.getElementById(`qfb-${qi}`);fb.className=`quiz-feedback show ${ok?'correct':'wrong'}`;fb.textContent=(ok?'✓ Richtig! ':'✗ Falsch. ')+quizData[qi].exp;if(quizAnswered===quizData.length){document.getElementById('quizResetBtn').style.display='inline-block';const sc=document.getElementById('quizScore');sc.style.display='block';const pct=Math.round(quizCorrect/quizData.length*100);sc.textContent=`Ergebnis: ${quizCorrect}/${quizData.length} (${pct}%)`+(pct>=80?' 🎉':pct>=50?' 👍':' 💪')}})});
+}
+function resetQuiz(){buildQuiz();window.scrollTo({top:document.getElementById('sec-quiz').offsetTop-100,behavior:'smooth'})}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  updatePunnett();
+  drawDihybrid();
+  showErbgang('ad');
+  buildQuiz();
+});
+</script>
+</body>
+</html>

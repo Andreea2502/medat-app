@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELI5 – DNA & Genexpression</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--surface:#ffffff;--card:#ffffff;--gold:#f5c542;--gold-deep:#e6a817;
+    --blue:#6db8e0;--purple:#9b7fc4;--pink:#e07b8b;--green:#6db88a;--orange:#e0734a;
+    --text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--radius:20px;
+    --shadow:0 2px 16px rgba(26,26,46,.06);--shadow-md:0 4px 24px rgba(26,26,46,.08);
+    --yellow-soft:#fdf3d7;--lavender:#e4daf0;--mint:#c8e6d0;--coral-soft:#fde8e0;
+  }
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+  .header{background:var(--surface);padding:24px 20px 16px;text-align:center;position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+  .header h1{font-size:1.5rem;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+  .header p{color:var(--text-secondary);font-size:.85rem}
+  .back-btn{position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(109,184,226,.12);border:1px solid var(--border);color:var(--blue);width:36px;height:36px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .back-btn:hover{background:var(--blue);color:#fff}
+
+  .tabs{display:flex;justify-content:center;gap:8px;padding:16px 20px;position:sticky;top:72px;z-index:99;background:var(--bg);flex-wrap:wrap}
+  .tab{padding:10px 18px;border-radius:30px;border:2px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.85rem;cursor:pointer;transition:all .3s;font-weight:600}
+  .tab.active{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;border-color:var(--blue);box-shadow:0 2px 12px rgba(109,184,226,.3)}
+  .tab:hover:not(.active){border-color:var(--blue);color:var(--blue)}
+
+  .content{max-width:700px;margin:0 auto;padding:0 16px 100px}
+  .section{display:none;animation:fadeUp .5s ease}
+  .section.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+  .info-card{background:var(--card);border-radius:var(--radius);padding:20px;margin-bottom:16px;border-left:4px solid var(--blue);cursor:pointer;transition:all .3s;box-shadow:var(--shadow);border:1px solid var(--border);border-left:4px solid var(--blue)}
+  .info-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+  .info-card.expanded .card-detail{max-height:800px;opacity:1;margin-top:16px}
+  .card-header{display:flex;align-items:center;gap:12px}
+  .card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+  .card-title{font-size:1.05rem;font-weight:700;color:var(--text)}
+  .card-sub{font-size:.8rem;color:var(--text-secondary);margin-top:2px}
+  .card-expand{margin-left:auto;color:var(--muted);font-size:1.1rem;transition:transform .3s}
+  .info-card.expanded .card-expand{transform:rotate(180deg)}
+  .card-detail{max-height:0;opacity:0;overflow:hidden;transition:all .4s}
+  .card-detail p{color:var(--text-secondary);font-size:.9rem;line-height:1.7;margin-bottom:8px}
+  .hl{color:#4a9cc0;font-weight:600}
+  .hl-p{color:#7a60a8;font-weight:600}
+  .hl-g{color:#4a9a6a;font-weight:600}
+  .hl-o{color:#c85a3a;font-weight:600}
+  .key-fact{background:rgba(109,184,226,.1);border-left:3px solid var(--blue);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.85rem;color:var(--text)}
+
+  .anim-container{background:var(--card);border-radius:var(--radius);padding:20px;margin:20px 0;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .anim-container h3{font-size:1rem;margin-bottom:12px;color:#4a9cc0}
+  canvas{border-radius:12px;background:#1a1a2e;max-width:100%}
+  .anim-controls{display:flex;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .anim-btn{padding:8px 18px;border-radius:20px;border:none;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .3s}
+  .anim-btn.primary{background:linear-gradient(135deg,var(--blue),#5aa0c8);color:#fff;box-shadow:0 2px 8px rgba(109,184,226,.3)}
+  .anim-btn.primary:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(109,184,226,.4)}
+  .anim-btn.secondary{background:var(--surface);color:var(--text-secondary);border:1px solid var(--border)}
+  .anim-btn.secondary:hover{border-color:var(--blue);color:var(--blue)}
+
+  .step-indicator{display:flex;justify-content:center;gap:6px;margin:12px 0}
+  .step-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .4s}
+  .step-dot.active{background:var(--blue);transform:scale(1.3);box-shadow:0 0 8px rgba(109,184,226,.4)}
+  .step-label{text-align:center;color:#4a9cc0;font-size:.85rem;font-weight:600;min-height:22px}
+
+  .base-pair{display:inline-block;padding:4px 10px;border-radius:6px;font-weight:700;font-size:.85rem;margin:2px}
+  .bp-a{background:rgba(109,184,226,.15);color:#4a9cc0}
+  .bp-t{background:rgba(224,123,139,.15);color:#c8505f}
+  .bp-g{background:rgba(109,184,138,.15);color:#4a9a6a}
+  .bp-c{background:rgba(155,127,196,.15);color:#7a60a8}
+  .bp-u{background:rgba(224,115,74,.15);color:#c85a3a}
+
+  .process-flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:16px 0;padding:16px;background:var(--bg-warm);border-radius:12px;border:1px solid var(--border)}
+  .flow-step{padding:10px 16px;border-radius:10px;font-size:.82rem;font-weight:600;text-align:center}
+  .flow-arrow{color:var(--muted);font-size:1.2rem}
+
+  .fun-fact{background:linear-gradient(135deg,var(--lavender),rgba(109,184,226,.12));border-radius:var(--radius);padding:16px;margin:16px 0;border-left:4px solid var(--purple);box-shadow:var(--shadow)}
+  .fun-fact .label{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--purple);font-weight:700;margin-bottom:6px}
+  .fun-fact p{font-size:.88rem;color:var(--text);line-height:1.6}
+
+  .quiz-box{background:var(--card);border-radius:var(--radius);padding:20px;margin:20px 0;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .quiz-box h3{color:#4a9cc0;font-size:1rem;margin-bottom:12px}
+  .quiz-q{font-size:.95rem;margin-bottom:16px;line-height:1.6}
+  .quiz-opt{display:block;width:100%;text-align:left;padding:12px 16px;margin-bottom:8px;border-radius:10px;border:2px solid var(--border);background:var(--surface);color:var(--text);font-size:.88rem;cursor:pointer;transition:all .3s}
+  .quiz-opt:hover{border-color:var(--blue);background:rgba(109,184,226,.06)}
+  .quiz-opt.correct{border-color:var(--green);background:rgba(109,184,138,.12);color:#2d8a54}
+  .quiz-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);color:#c8505f}
+  .quiz-opt.reveal{border-color:var(--green);background:rgba(109,184,138,.08)}
+  .quiz-feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:.85rem;line-height:1.6;display:none}
+  .quiz-feedback.show{display:block;animation:fadeUp .3s ease}
+  .quiz-feedback.correct{background:rgba(109,184,138,.1);color:#2d8a54}
+  .quiz-feedback.wrong{background:rgba(224,123,139,.1);color:#c8505f}
+
+  .scroll-progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--purple));z-index:200;transition:width .1s}
+
+  .codon-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden;margin:12px 0;font-size:.78rem;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .codon-table th{background:linear-gradient(135deg,var(--blue),#5aa0c8);color:#fff;padding:8px;text-align:center}
+  .codon-table td{padding:6px 8px;text-align:center;border-bottom:1px solid var(--border);color:var(--text-secondary);background:var(--surface)}
+  .codon-table tr:hover td{background:rgba(109,184,226,.08);color:var(--text)}
+</style>
+</head>
+<body>
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<div class="header">
+  <button class="back-btn" onclick="history.back()">←</button>
+  <h1>🧬 DNA & Genexpression</h1>
+  <p>Von der DNA zum Protein</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="dna">DNA-Aufbau</button>
+  <button class="tab" data-tab="replikation">Replikation</button>
+  <button class="tab" data-tab="transkription">Transkription</button>
+  <button class="tab" data-tab="translation">Translation</button>
+  <button class="tab" data-tab="quiz">Quiz</button>
+</div>
+
+<div class="content">
+
+<!-- ==================== DNA AUFBAU ==================== -->
+<div class="section active" id="sec-dna">
+
+  <div class="process-flow">
+    <div class="flow-step" style="background:rgba(109,184,226,.15);color:var(--blue)">DNA</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="background:rgba(155,127,196,.15);color:var(--purple)">mRNA</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step" style="background:rgba(109,184,138,.15);color:var(--green)">Protein</div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--blue)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(109,184,226,.15)">🧬</div>
+      <div><div class="card-title">Was ist DNA?</div><div class="card-sub">Die Bauanleitung des Lebens</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p>DNA (Desoxyribonukleinsäure) ist ein <span class="hl">doppelsträngiges Molekül</span>, das wie eine verdrehte Leiter aussieht — die berühmte <span class="hl">Doppelhelix</span>.</p>
+      <div class="key-fact">📌 Die DNA eines einzigen menschlichen Zellkerns wäre ausgestreckt ca. 2 Meter lang!</div>
+      <p>Die "Sprossen" der Leiter bestehen aus <span class="hl">Basenpaaren</span>:</p>
+      <p><span class="base-pair bp-a">A</span> Adenin paart immer mit <span class="base-pair bp-t">T</span> Thymin</p>
+      <p><span class="base-pair bp-g">G</span> Guanin paart immer mit <span class="base-pair bp-c">C</span> Cytosin</p>
+      <div class="key-fact">📌 Merkhilfe: <strong>A</strong>uto-<strong>T</strong>ür (A=T) und <strong>G</strong>arage-<strong>C</strong>arport (G≡C)</div>
+    </div>
+  </div>
+
+  <div class="anim-container">
+    <h3>Interaktive DNA-Doppelhelix</h3>
+    <canvas id="dnaCanvas" width="600" height="350"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn primary" id="dnaPlayBtn" onclick="toggleDnaAnim()">▶ Helix drehen</button>
+      <button class="anim-btn secondary" onclick="zoomDna()">🔍 Basenpaarung zeigen</button>
+    </div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--purple)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(155,127,196,.15)">📦</div>
+      <div><div class="card-title">Nukleotide – Bausteine der DNA</div><div class="card-sub">Zucker + Phosphat + Base</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p>Jedes Nukleotid besteht aus drei Teilen:</p>
+      <p>1. <span class="hl-p">Phosphatgruppe</span> — das Rückgrat</p>
+      <p>2. <span class="hl">Desoxyribose</span> — ein Zucker (5 C-Atome)</p>
+      <p>3. <span class="hl-g">Stickstoffbase</span> — A, T, G oder C</p>
+      <div class="key-fact">📌 Die beiden Stränge verlaufen antiparallel: 5'→3' und 3'→5'</div>
+      <p>DNA vs. RNA: RNA hat <span class="hl-o">Ribose</span> statt Desoxyribose und <span class="base-pair bp-u">U</span> Uracil statt <span class="base-pair bp-t">T</span> Thymin.</p>
+    </div>
+  </div>
+
+  <div class="fun-fact">
+    <div class="label">💡 Wusstest du?</div>
+    <p>Wenn man die gesamte DNA aus allen Zellen deines Körpers aneinanderreihen würde, könnte man damit etwa 600-mal zur Sonne und zurück reisen!</p>
+  </div>
+</div>
+
+<!-- ==================== REPLIKATION ==================== -->
+<div class="section" id="sec-replikation">
+
+  <div class="info-card" style="border-left-color:var(--green)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(109,184,138,.15)">🔄</div>
+      <div><div class="card-title">DNA-Replikation</div><div class="card-sub">DNA verdoppelt sich semikonservativ</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p>Vor jeder Zellteilung muss die DNA kopiert werden. Dies geschieht <span class="hl-g">semikonservativ</span>: Jeder neue Doppelstrang enthält einen alten und einen neuen Strang.</p>
+      <div class="key-fact">📌 Semikonservativ = jede Tochterzelle bekommt einen Original- und einen neuen Strang</div>
+    </div>
+  </div>
+
+  <div class="anim-container">
+    <h3>Replikationsgabel — Animation</h3>
+    <canvas id="replikCanvas" width="600" height="350"></canvas>
+    <div class="step-indicator" id="replikSteps">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="step-label" id="replikLabel">Helicase öffnet die Doppelhelix</div>
+    <div class="anim-controls">
+      <button class="anim-btn primary" id="replikPlayBtn" onclick="toggleReplikAnim()">▶ Abspielen</button>
+      <button class="anim-btn secondary" onclick="stepReplik(-1)">◀</button>
+      <button class="anim-btn secondary" onclick="stepReplik(1)">▶</button>
+    </div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--blue)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(109,184,226,.15)">🔧</div>
+      <div><div class="card-title">Beteiligte Enzyme</div><div class="card-sub">Die Werkzeuge der Replikation</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p><span class="hl">Helicase</span> — entwindet die Doppelhelix (wie ein Reißverschluss)</p>
+      <p><span class="hl-p">Primase</span> — setzt RNA-Primer als Startpunkt</p>
+      <p><span class="hl-g">DNA-Polymerase III</span> — synthetisiert den neuen Strang (5'→3')</p>
+      <p><span class="hl-o">DNA-Ligase</span> — verbindet Okazaki-Fragmente am Folgestrang</p>
+      <div class="key-fact">📌 Leitstrang wird kontinuierlich synthetisiert, Folgestrang in Okazaki-Fragmenten (diskontinuierlich)</div>
+    </div>
+  </div>
+
+  <div class="fun-fact">
+    <div class="label">📝 MedAT-Tipp</div>
+    <p>Klassische Prüfungsfrage: "Was ist semikonservative Replikation?" — Jeder neue DNA-Doppelstrang besteht aus einem alten (konservierten) und einem neu synthetisierten Strang. Dies bewies das Meselson-Stahl-Experiment (1958).</p>
+  </div>
+</div>
+
+<!-- ==================== TRANSKRIPTION ==================== -->
+<div class="section" id="sec-transkription">
+
+  <div class="info-card" style="border-left-color:var(--purple)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(155,127,196,.15)">📝</div>
+      <div><div class="card-title">Transkription</div><div class="card-sub">DNA → mRNA (im Zellkern)</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p>Bei der Transkription wird ein <span class="hl-p">DNA-Abschnitt (Gen)</span> in eine <span class="hl-p">mRNA-Kopie</span> umgeschrieben. Die <span class="hl">RNA-Polymerase</span> liest den <span class="hl">Matrizenstrang</span> (3'→5') und baut die mRNA in 5'→3'-Richtung auf.</p>
+      <div class="key-fact">📌 In der RNA: <span class="base-pair bp-u">U</span> (Uracil) ersetzt <span class="base-pair bp-t">T</span> (Thymin)!</div>
+      <p>Beispiel: DNA-Matrizenstrang <span class="base-pair bp-t">T</span><span class="base-pair bp-a">A</span><span class="base-pair bp-c">C</span> → mRNA <span class="base-pair bp-a">A</span><span class="base-pair bp-u">U</span><span class="base-pair bp-g">G</span> (= Start-Codon!)</p>
+    </div>
+  </div>
+
+  <div class="anim-container">
+    <h3>Transkription — Animation</h3>
+    <canvas id="transkriptCanvas" width="600" height="300"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn primary" id="transkriptPlayBtn" onclick="toggleTranskriptAnim()">▶ Abspielen</button>
+      <button class="anim-btn secondary" onclick="resetTranskriptAnim()">↻ Reset</button>
+    </div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--orange)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(224,115,74,.15)">✂️</div>
+      <div><div class="card-title">mRNA-Prozessierung</div><div class="card-sub">Spleißen bei Eukaryoten</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p>Die prä-mRNA wird bearbeitet:</p>
+      <p>1. <span class="hl-p">5'-Cap</span> — Schutzkappe wird angehängt</p>
+      <p>2. <span class="hl-o">Poly-A-Schwanz</span> — ca. 200 Adenine am 3'-Ende</p>
+      <p>3. <span class="hl">Spleißen</span> — Introns werden entfernt, Exons werden verbunden</p>
+      <div class="key-fact">📌 Merkhilfe: <strong>Ex</strong>ons werden <strong>ex</strong>primiert, <strong>In</strong>trons bleiben <strong>in</strong>trazellulär (werden rausgeschnitten)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TRANSLATION ==================== -->
+<div class="section" id="sec-translation">
+
+  <div class="info-card" style="border-left-color:var(--green)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(109,184,138,.15)">🏭</div>
+      <div><div class="card-title">Translation</div><div class="card-sub">mRNA → Protein (am Ribosom)</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <p>Die <span class="hl-g">Ribosomen</span> lesen die mRNA in <span class="hl">Codons</span> (Dreiergruppen) und bauen daraus eine <span class="hl-g">Aminosäurekette</span> (Polypeptid) zusammen.</p>
+      <p><span class="hl">tRNA</span>-Moleküle bringen die passenden Aminosäuren — jede tRNA hat ein <span class="hl-p">Anticodon</span>, das zum mRNA-Codon passt.</p>
+      <div class="key-fact">📌 Start-Codon: AUG (Methionin) — Stop-Codons: UAA, UAG, UGA</div>
+    </div>
+  </div>
+
+  <div class="anim-container">
+    <h3>Translation am Ribosom</h3>
+    <canvas id="translationCanvas" width="600" height="320"></canvas>
+    <div class="anim-controls">
+      <button class="anim-btn primary" id="translationPlayBtn" onclick="toggleTranslationAnim()">▶ Abspielen</button>
+      <button class="anim-btn secondary" onclick="resetTranslationAnim()">↻ Reset</button>
+    </div>
+  </div>
+
+  <div class="info-card" style="border-left-color:var(--gold)">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(245,197,66,.15)">📋</div>
+      <div><div class="card-title">Wichtige Codons</div><div class="card-sub">Der genetische Code</div></div>
+      <span class="card-expand">▼</span>
+    </div>
+    <div class="card-detail">
+      <table class="codon-table">
+        <thead><tr><th>Codon</th><th>Aminosäure</th><th>Bedeutung</th></tr></thead>
+        <tbody>
+          <tr><td><span class="base-pair bp-a">A</span><span class="base-pair bp-u">U</span><span class="base-pair bp-g">G</span></td><td>Methionin (Met)</td><td>Start-Codon</td></tr>
+          <tr><td><span class="base-pair bp-u">U</span><span class="base-pair bp-a">A</span><span class="base-pair bp-a">A</span></td><td>—</td><td>Stop-Codon</td></tr>
+          <tr><td><span class="base-pair bp-u">U</span><span class="base-pair bp-a">A</span><span class="base-pair bp-g">G</span></td><td>—</td><td>Stop-Codon</td></tr>
+          <tr><td><span class="base-pair bp-u">U</span><span class="base-pair bp-g">G</span><span class="base-pair bp-a">A</span></td><td>—</td><td>Stop-Codon</td></tr>
+        </tbody>
+      </table>
+      <div class="key-fact">📌 Der genetische Code ist <strong>degeneriert</strong> (mehrere Codons = gleiche Aminosäure), <strong>universell</strong> (fast alle Lebewesen) und <strong>nicht überlappend</strong>.</div>
+    </div>
+  </div>
+
+  <div class="fun-fact">
+    <div class="label">📝 MedAT-Tipp</div>
+    <p>Häufige Prüfungsfalle: "Wo findet die Translation statt?" — An den Ribosomen im Cytoplasma (oder am rauen ER), NICHT im Zellkern! Die Transkription findet im Kern statt, die Translation im Cytoplasma.</p>
+  </div>
+</div>
+
+<!-- ==================== QUIZ ==================== -->
+<div class="section" id="sec-quiz">
+  <h2 style="text-align:center;color:var(--blue);margin:20px 0 16px;font-size:1.2rem">Teste dein Wissen!</h2>
+  <div id="quizContainer"></div>
+  <div style="text-align:center;margin-top:20px">
+    <button class="anim-btn primary" onclick="resetQuiz()" style="display:none" id="quizResetBtn">🔄 Quiz wiederholen</button>
+  </div>
+  <div id="quizScore" style="text-align:center;margin-top:16px;color:var(--blue);font-size:1.1rem;font-weight:700;display:none"></div>
+</div>
+
+</div>
+
+<script>
+// Tabs
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('sec-' + t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+// Expandable cards
+document.querySelectorAll('.info-card').forEach(c => c.addEventListener('click', () => c.classList.toggle('expanded')));
+
+// Scroll progress
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('scrollProgress').style.width = (window.scrollY/h*100)+'%';
+});
+
+// ====== DNA HELIX ANIMATION ======
+let dnaPlaying = false, dnaId = null, dnaFrame = 0, dnaZoom = false;
+
+function drawDnaHelix(ctx, frame) {
+  const W=600, H=350;
+  ctx.clearRect(0,0,W,H);
+  const bases = ['A','T','G','C','A','G','T','C','G','A','T','C','A','T','G','G'];
+  const complement = {'A':'T','T':'A','G':'C','C':'G'};
+  const colors = {'A':'#6db8e0','T':'#e07b8b','G':'#6db88a','C':'#9b7fc4'};
+
+  if (dnaZoom) {
+    // Show base pairing close-up
+    ctx.fillStyle = '#8888aa'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Basenpaarung (Wasserstoffbrücken)', W/2, 25);
+    const pairs = [['A','T',2],['G','C',3],['T','A',2],['C','G',3]];
+    pairs.forEach((p, i) => {
+      const y = 70 + i*70;
+      // Left base
+      ctx.fillStyle = colors[p[0]]; ctx.font = 'bold 28px sans-serif';
+      ctx.fillText(p[0], 200, y+10);
+      // Hydrogen bonds
+      ctx.strokeStyle = '#f5c54280'; ctx.lineWidth = 2; ctx.setLineDash([4,4]);
+      for (let b = 0; b < p[2]; b++) {
+        const bx = 240 + b*(120/p[2]);
+        ctx.beginPath(); ctx.moveTo(bx, y); ctx.lineTo(bx+20, y); ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      // Right base
+      ctx.fillStyle = colors[p[1]]; ctx.fillText(p[1], 400, y+10);
+      // Bond count
+      ctx.fillStyle = '#f5c542'; ctx.font = '11px sans-serif';
+      ctx.fillText(p[2]+' H-Brücken', 300, y+30);
+    });
+    return;
+  }
+
+  for (let i = 0; i < bases.length; i++) {
+    const t = (i/bases.length)*Math.PI*4 + frame*0.03;
+    const x = 80 + (i/bases.length)*(W-160);
+    const yOff = Math.sin(t)*40;
+    const depth = Math.cos(t);
+    const base = bases[i];
+    const comp = complement[base];
+
+    // Draw backbone
+    ctx.strokeStyle = depth > 0 ? '#6db8e060' : '#6db8e020';
+    ctx.lineWidth = 3;
+    if (i > 0) {
+      const prevT = ((i-1)/bases.length)*Math.PI*4 + frame*0.03;
+      const prevX = 80 + ((i-1)/bases.length)*(W-160);
+      ctx.beginPath(); ctx.moveTo(prevX, H/2 + Math.sin(prevT)*40); ctx.lineTo(x, H/2+yOff); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(prevX, H/2 - Math.sin(prevT)*40); ctx.lineTo(x, H/2-yOff); ctx.stroke();
+    }
+
+    // Draw base pair "rung"
+    const alpha = Math.abs(depth)*0.6+0.4;
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = '#f5c54240'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, H/2+yOff); ctx.lineTo(x, H/2-yOff); ctx.stroke();
+
+    // Base labels
+    const size = 12 + Math.abs(depth)*6;
+    ctx.font = `bold ${size}px sans-serif`;
+    ctx.fillStyle = colors[base]; ctx.fillText(base, x-4, H/2+yOff+size+4);
+    ctx.fillStyle = colors[comp]; ctx.fillText(comp, x-4, H/2-yOff-8);
+
+    // Backbone spheres
+    ctx.fillStyle = colors[base]+'80';
+    ctx.beginPath(); ctx.arc(x, H/2+yOff, 5+Math.abs(depth)*3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = colors[comp]+'80';
+    ctx.beginPath(); ctx.arc(x, H/2-yOff, 5+Math.abs(depth)*3, 0, Math.PI*2); ctx.fill();
+
+    ctx.globalAlpha = 1;
+  }
+
+  // Labels
+  ctx.fillStyle = '#8888aa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText("5'", 55, H/2+50); ctx.fillText("3'", W-60, H/2+50);
+  ctx.fillText("3'", 55, H/2-45); ctx.fillText("5'", W-60, H/2-45);
+}
+
+function animDna() {
+  drawDnaHelix(document.getElementById('dnaCanvas').getContext('2d'), dnaFrame);
+  dnaFrame++;
+  if (dnaPlaying) dnaId = requestAnimationFrame(animDna);
+}
+function toggleDnaAnim() {
+  dnaZoom = false;
+  dnaPlaying = !dnaPlaying;
+  document.getElementById('dnaPlayBtn').textContent = dnaPlaying ? '⏸ Pause' : '▶ Helix drehen';
+  if (dnaPlaying) animDna();
+}
+function zoomDna() {
+  dnaPlaying = false; dnaZoom = !dnaZoom;
+  document.getElementById('dnaPlayBtn').textContent = '▶ Helix drehen';
+  cancelAnimationFrame(dnaId);
+  drawDnaHelix(document.getElementById('dnaCanvas').getContext('2d'), dnaFrame);
+}
+
+// ====== REPLIKATION ANIMATION ======
+const replikPhases = [
+  {name:'Helicase öffnet die Doppelhelix',color:'#6db8e0'},
+  {name:'Primase setzt RNA-Primer',color:'#9b7fc4'},
+  {name:'DNA-Polymerase synthetisiert neue Stränge',color:'#6db88a'},
+  {name:'Ligase verbindet Okazaki-Fragmente',color:'#e0734a'},
+];
+let replikPhase=0, replikFrame=0, replikPlaying=false, replikId=null;
+
+function drawReplik(ctx, phase, frame) {
+  const W=600, H=350;
+  ctx.clearRect(0,0,W,H);
+
+  // Fork position
+  const forkX = 150 + Math.min(250, frame*2);
+
+  // Original double strand (left of fork)
+  ctx.lineWidth = 6; ctx.lineCap = 'round';
+  ctx.strokeStyle = '#6db8e0'; ctx.beginPath(); ctx.moveTo(50, H/2-15); ctx.lineTo(Math.min(forkX, forkX), H/2-15); ctx.stroke();
+  ctx.strokeStyle = '#e07b8b'; ctx.beginPath(); ctx.moveTo(50, H/2+15); ctx.lineTo(Math.min(forkX, forkX), H/2+15); ctx.stroke();
+  // Base pairs left
+  for (let x = 60; x < forkX-10; x += 20) {
+    ctx.strokeStyle = '#f5c54230'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, H/2-15); ctx.lineTo(x, H/2+15); ctx.stroke();
+  }
+
+  // Fork opening
+  const openAngle = Math.min(40, frame*0.5);
+  ctx.lineWidth = 6;
+  ctx.strokeStyle = '#6db8e0';
+  ctx.beginPath(); ctx.moveTo(forkX, H/2-15); ctx.lineTo(forkX+80, H/2-15-openAngle); ctx.stroke();
+  ctx.strokeStyle = '#e07b8b';
+  ctx.beginPath(); ctx.moveTo(forkX, H/2+15); ctx.lineTo(forkX+80, H/2+15+openAngle); ctx.stroke();
+
+  // Helicase at fork
+  if (phase >= 0) {
+    ctx.fillStyle = '#f5c542'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('⚙', forkX+5, H/2+7);
+    ctx.font = '10px sans-serif'; ctx.fillStyle = '#f5c542';
+    ctx.fillText('Helicase', forkX+5, H/2+30);
+  }
+
+  if (phase >= 1) {
+    // Primers
+    ctx.fillStyle = '#9b7fc4'; ctx.font = '10px sans-serif';
+    const primerX = forkX - 40;
+    ctx.fillRect(primerX, H/2-28, 25, 6);
+    ctx.fillRect(primerX+50, H/2+22, 25, 6);
+    ctx.fillText('Primer', primerX+12, H/2-32);
+  }
+
+  if (phase >= 2) {
+    // New strands being synthesized
+    const newLen = Math.min(forkX-80, frame*1.5);
+    // Leading strand (continuous)
+    ctx.strokeStyle = '#6db88a'; ctx.lineWidth = 5;
+    ctx.beginPath(); ctx.moveTo(forkX-newLen, H/2-25-openAngle*0.3); ctx.lineTo(forkX, H/2-25); ctx.stroke();
+    ctx.fillStyle = '#6db88a'; ctx.font = '10px sans-serif';
+    ctx.fillText('Leitstrang (kontinuierlich)', forkX-newLen/2, H/2-40-openAngle*0.3);
+    ctx.fillText('→ 5\'→3\'', forkX-newLen/2, H/2-52-openAngle*0.3);
+
+    // Lagging strand (Okazaki fragments)
+    ctx.strokeStyle = '#e0734a'; ctx.lineWidth = 5;
+    for (let i = 0; i < 3; i++) {
+      const fragStart = forkX - i*50 - 20;
+      const fragEnd = fragStart - 30;
+      if (fragEnd > 60) {
+        ctx.beginPath(); ctx.moveTo(fragStart, H/2+25+openAngle*0.3); ctx.lineTo(fragEnd, H/2+25+openAngle*0.3); ctx.stroke();
+      }
+    }
+    ctx.fillStyle = '#e0734a'; ctx.font = '10px sans-serif';
+    ctx.fillText('Folgestrang (Okazaki)', forkX-80, H/2+50+openAngle*0.3);
+    ctx.fillText('← 5\'→3\'', forkX-80, H/2+62+openAngle*0.3);
+
+    // Polymerase
+    ctx.fillStyle = '#6db88a'; ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('🔧 Pol III', forkX-20, H/2-8);
+  }
+
+  if (phase >= 3) {
+    // Ligase connecting fragments
+    ctx.fillStyle = '#e0734a'; ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('🔗 Ligase', forkX-100, H/2+80+openAngle*0.3);
+  }
+
+  // Labels
+  ctx.fillStyle = '#8888aa'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText("3'", 30, H/2-10); ctx.fillText("5'", 30, H/2+22);
+}
+
+function updateReplikIndicator() {
+  document.querySelectorAll('#replikSteps .step-dot').forEach((d,i) => d.classList.toggle('active',i===replikPhase));
+  document.getElementById('replikLabel').textContent = replikPhases[replikPhase].name;
+}
+function animReplik() {
+  drawReplik(document.getElementById('replikCanvas').getContext('2d'), replikPhase, replikFrame);
+  replikFrame++;
+  if (replikFrame > 160) { replikFrame=0; replikPhase=(replikPhase+1)%4; updateReplikIndicator(); }
+  if (replikPlaying) replikId = requestAnimationFrame(animReplik);
+}
+function toggleReplikAnim() {
+  replikPlaying=!replikPlaying;
+  document.getElementById('replikPlayBtn').textContent = replikPlaying ? '⏸ Pause' : '▶ Abspielen';
+  if (replikPlaying) animReplik();
+}
+function stepReplik(dir) {
+  replikPlaying=false; document.getElementById('replikPlayBtn').textContent='▶ Abspielen';
+  cancelAnimationFrame(replikId);
+  replikPhase=(replikPhase+dir+4)%4; replikFrame=60;
+  updateReplikIndicator();
+  drawReplik(document.getElementById('replikCanvas').getContext('2d'), replikPhase, 60);
+}
+
+// ====== TRANSKRIPTION ANIMATION ======
+let transkriptPlaying=false, transkriptId=null, transkriptFrame=0;
+
+function drawTranskription(ctx, frame) {
+  const W=600, H=300;
+  ctx.clearRect(0,0,W,H);
+
+  const dnaSeq = ['T','A','C','G','G','A','T','T','C','A','C','T'];
+  const mrnaComp = {'T':'A','A':'U','C':'G','G':'C'};
+  const colors = {'A':'#6db8e0','T':'#e07b8b','G':'#6db88a','C':'#9b7fc4','U':'#e0734a'};
+
+  const progress = Math.min(dnaSeq.length, frame*0.03);
+  const polyX = 100 + progress*(W-200)/dnaSeq.length;
+
+  // DNA template strand
+  ctx.fillStyle = '#8888aa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('DNA-Matrizenstrang (3\'→5\')', W/2, 60);
+  for (let i = 0; i < dnaSeq.length; i++) {
+    const x = 100 + i*(W-200)/dnaSeq.length;
+    ctx.fillStyle = colors[dnaSeq[i]]; ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(dnaSeq[i], x, 90);
+  }
+
+  // RNA Polymerase
+  ctx.fillStyle = '#f5c54240';
+  ctx.beginPath(); ctx.arc(polyX, 130, 25, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#f5c542'; ctx.font = 'bold 10px sans-serif';
+  ctx.fillText('RNA-Pol', polyX, 133);
+
+  // mRNA being built
+  ctx.fillStyle = '#8888aa'; ctx.font = '10px sans-serif';
+  ctx.fillText('mRNA (5\'→3\')', W/2, 175);
+  for (let i = 0; i < Math.floor(progress); i++) {
+    const x = 100 + i*(W-200)/dnaSeq.length;
+    const rnaBase = mrnaComp[dnaSeq[i]];
+    ctx.fillStyle = colors[rnaBase]; ctx.font = 'bold 18px sans-serif';
+    ctx.fillText(rnaBase, x, 195);
+    // Connection line
+    ctx.strokeStyle = '#f5c54230'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, 97); ctx.lineTo(x, 178); ctx.stroke();
+  }
+
+  // Codon grouping
+  if (progress > 3) {
+    ctx.strokeStyle = '#f5c54220'; ctx.lineWidth = 1;
+    for (let i = 3; i < Math.floor(progress); i += 3) {
+      const x = 100 + (i-0.5)*(W-200)/dnaSeq.length;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(x, 180); ctx.lineTo(x, 210); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle = '#8888aa'; ctx.font = '9px sans-serif';
+    if (progress > 3) ctx.fillText('Codon', 140, 220);
+  }
+
+  // Direction arrows
+  ctx.fillStyle = '#6db8e040'; ctx.font = '16px sans-serif';
+  ctx.fillText('→', W-60, 195);
+}
+
+function animTranskript() {
+  drawTranskription(document.getElementById('transkriptCanvas').getContext('2d'), transkriptFrame);
+  transkriptFrame++;
+  if (transkriptFrame > 450) transkriptFrame = 0;
+  if (transkriptPlaying) transkriptId = requestAnimationFrame(animTranskript);
+}
+function toggleTranskriptAnim() {
+  transkriptPlaying=!transkriptPlaying;
+  document.getElementById('transkriptPlayBtn').textContent = transkriptPlaying ? '⏸ Pause' : '▶ Abspielen';
+  if (transkriptPlaying) animTranskript();
+}
+function resetTranskriptAnim() {
+  transkriptPlaying=false; transkriptFrame=0;
+  document.getElementById('transkriptPlayBtn').textContent='▶ Abspielen';
+  cancelAnimationFrame(transkriptId);
+  drawTranskription(document.getElementById('transkriptCanvas').getContext('2d'),0);
+}
+
+// ====== TRANSLATION ANIMATION ======
+let translationPlaying=false, translationId=null, translationFrame=0;
+
+function drawTranslation(ctx, frame) {
+  const W=600, H=320;
+  ctx.clearRect(0,0,W,H);
+
+  const codons = [['A','U','G'],['G','C','U'],['U','A','C'],['U','A','A']];
+  const aas = ['Met','Ala','Tyr','STOP'];
+  const aaColors = ['#6db8e0','#6db88a','#9b7fc4','#e07b8b'];
+  const colors = {'A':'#6db8e0','U':'#e0734a','G':'#6db88a','C':'#9b7fc4'};
+
+  const progress = Math.min(codons.length, frame*0.015);
+
+  // mRNA strand
+  ctx.fillStyle = '#8888aa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('mRNA', 50, 155);
+  for (let c = 0; c < codons.length; c++) {
+    for (let b = 0; b < 3; b++) {
+      const x = 100 + c*120 + b*30;
+      ctx.fillStyle = colors[codons[c][b]]; ctx.font = 'bold 20px sans-serif';
+      ctx.fillText(codons[c][b], x, 160);
+    }
+    // Codon bracket
+    ctx.strokeStyle = '#f5c54230'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(100+c*120-10, 170); ctx.lineTo(100+c*120-10, 178);
+    ctx.lineTo(100+c*120+70, 178); ctx.lineTo(100+c*120+70, 170);
+    ctx.stroke();
+    ctx.fillStyle = '#f5c542'; ctx.font = '9px sans-serif';
+    ctx.fillText(aas[c], 100+c*120+30, 192);
+  }
+
+  // Ribosom
+  const riboX = 100 + Math.floor(progress)*120 + 30;
+  ctx.fillStyle = '#f5c54215';
+  ctx.beginPath(); ctx.ellipse(Math.min(riboX, 460), 140, 55, 70, 0, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#f5c54240'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.ellipse(Math.min(riboX, 460), 140, 55, 70, 0, 0, Math.PI*2); ctx.stroke();
+  ctx.fillStyle = '#f5c542'; ctx.font = '10px sans-serif';
+  ctx.fillText('Ribosom', Math.min(riboX, 460), 90);
+
+  // tRNA bringing amino acids
+  for (let i = 0; i < Math.floor(progress) && i < 3; i++) {
+    const x = 100 + i*120 + 30;
+    // tRNA shape (upside down T)
+    ctx.strokeStyle = aaColors[i]+'80'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x, 130); ctx.lineTo(x, 65); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x-15, 65); ctx.lineTo(x+15, 65); ctx.stroke();
+    // Amino acid ball
+    ctx.fillStyle = aaColors[i]; ctx.beginPath(); ctx.arc(x, 50, 14, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#1a1a2e'; ctx.font = 'bold 9px sans-serif';
+    ctx.fillText(aas[i], x, 53);
+  }
+
+  // Polypeptide chain forming
+  if (Math.floor(progress) > 0) {
+    ctx.fillStyle = '#8888aa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Polypeptidkette', 180, 25);
+    for (let i = 0; i < Math.min(Math.floor(progress), 3); i++) {
+      const x = 120 + i*50;
+      ctx.fillStyle = aaColors[i]; ctx.beginPath(); ctx.arc(x, 38, 12, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#1a1a2e'; ctx.font = 'bold 8px sans-serif'; ctx.fillText(aas[i], x, 41);
+      if (i > 0) { ctx.strokeStyle = '#f5c542'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x-12, 38); ctx.lineTo(x-38, 38); ctx.stroke(); }
+    }
+  }
+
+  // Stop signal
+  if (Math.floor(progress) >= 4) {
+    ctx.fillStyle = '#e07b8b'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('⛔ STOP — Protein fertig!', W/2, H-30);
+  }
+}
+
+function animTranslation() {
+  drawTranslation(document.getElementById('translationCanvas').getContext('2d'), translationFrame);
+  translationFrame++;
+  if (translationFrame > 300) translationFrame = 0;
+  if (translationPlaying) translationId = requestAnimationFrame(animTranslation);
+}
+function toggleTranslationAnim() {
+  translationPlaying=!translationPlaying;
+  document.getElementById('translationPlayBtn').textContent = translationPlaying ? '⏸ Pause' : '▶ Abspielen';
+  if (translationPlaying) animTranslation();
+}
+function resetTranslationAnim() {
+  translationPlaying=false; translationFrame=0;
+  document.getElementById('translationPlayBtn').textContent='▶ Abspielen';
+  cancelAnimationFrame(translationId);
+  drawTranslation(document.getElementById('translationCanvas').getContext('2d'),0);
+}
+
+// ====== QUIZ ======
+const quizData = [
+  {q:'Welche Base kommt in RNA vor, aber nicht in DNA?',opts:['Thymin','Adenin','Uracil','Guanin'],correct:2,exp:'In RNA ersetzt Uracil (U) das Thymin (T) der DNA.'},
+  {q:'Was macht die Helicase?',opts:['Verbindet Okazaki-Fragmente','Entwindet die DNA-Doppelhelix','Synthetisiert mRNA','Transportiert Aminosäuren'],correct:1,exp:'Die Helicase öffnet die DNA-Doppelhelix, indem sie die Wasserstoffbrücken zwischen den Basen löst.'},
+  {q:'Was ist das Start-Codon?',opts:['UAA','AUG','UGA','TAC'],correct:1,exp:'AUG codiert für Methionin und ist gleichzeitig das universelle Start-Codon der Translation.'},
+  {q:'Wo findet die Translation statt?',opts:['Im Zellkern','An den Ribosomen','In den Mitochondrien','Am glatten ER'],correct:1,exp:'Die Translation findet an den Ribosomen im Cytoplasma (oder am rauen ER) statt.'},
+  {q:'Was bedeutet "semikonservativ"?',opts:['Nur ein Strang wird kopiert','Jeder neue Doppelstrang hat einen alten + neuen Strang','Die DNA wird dreimal kopiert','Beide Stränge sind neu'],correct:1,exp:'Bei der semikonservativen Replikation enthält jeder neue DNA-Doppelstrang einen originalen und einen neu synthetisierten Strang.'},
+  {q:'Was wird beim Spleißen entfernt?',opts:['Exons','Introns','Primer','Codons'],correct:1,exp:'Introns sind nicht-codierende Sequenzen, die herausgeschnitten werden. Exons werden zu reifer mRNA zusammengefügt.'},
+];
+
+let quizAnswered=0, quizCorrect=0;
+
+function buildQuiz() {
+  const c = document.getElementById('quizContainer');
+  c.innerHTML=''; quizAnswered=0; quizCorrect=0;
+  document.getElementById('quizResetBtn').style.display='none';
+  document.getElementById('quizScore').style.display='none';
+  quizData.forEach((q,qi) => {
+    const box=document.createElement('div'); box.className='quiz-box';
+    box.innerHTML=`<h3>Frage ${qi+1}/${quizData.length}</h3><div class="quiz-q">${q.q}</div>${q.opts.map((o,oi)=>`<button class="quiz-opt" data-qi="${qi}" data-oi="${oi}">${o}</button>`).join('')}<div class="quiz-feedback" id="qfb-${qi}"></div>`;
+    c.appendChild(box);
+  });
+  c.querySelectorAll('.quiz-opt').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const qi=+this.dataset.qi, oi=+this.dataset.oi;
+      const sibs=c.querySelectorAll(`[data-qi="${qi}"]`);
+      if(sibs[0].classList.contains('correct')||sibs[0].classList.contains('wrong')||sibs[0].classList.contains('reveal'))return;
+      const ok=quizData[qi].correct===oi;
+      if(ok){this.classList.add('correct');quizCorrect++}else{this.classList.add('wrong');sibs[quizData[qi].correct].classList.add('reveal')}
+      quizAnswered++;
+      const fb=document.getElementById(`qfb-${qi}`);
+      fb.className=`quiz-feedback show ${ok?'correct':'wrong'}`;
+      fb.textContent=(ok?'✓ Richtig! ':'✗ Falsch. ')+quizData[qi].exp;
+      if(quizAnswered===quizData.length){document.getElementById('quizResetBtn').style.display='inline-block';const sc=document.getElementById('quizScore');sc.style.display='block';const pct=Math.round(quizCorrect/quizData.length*100);sc.textContent=`Ergebnis: ${quizCorrect}/${quizData.length} (${pct}%)`+(pct>=80?' 🎉':pct>=50?' 👍':' 💪')}
+    });
+  });
+}
+function resetQuiz(){buildQuiz();window.scrollTo({top:document.getElementById('sec-quiz').offsetTop-100,behavior:'smooth'})}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  drawDnaHelix(document.getElementById('dnaCanvas').getContext('2d'), 0);
+  drawReplik(document.getElementById('replikCanvas').getContext('2d'), 0, 0);
+  drawTranskription(document.getElementById('transkriptCanvas').getContext('2d'), 0);
+  drawTranslation(document.getElementById('translationCanvas').getContext('2d'), 0);
+  buildQuiz();
+});
+</script>
+</body>
+</html>
