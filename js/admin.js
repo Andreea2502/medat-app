@@ -11,6 +11,7 @@ const Admin = {
   _onboarding: [],
   _simulations: [],
   _notes: [],
+  _credits: [],
   _questionCount: 0,
 
   // License selection state
@@ -38,7 +39,7 @@ const Admin = {
     container.innerHTML = '<div class="adm-loading"><div class="spinner"></div><span>Admin-Dashboard wird geladen...</span></div>';
 
     try {
-      const [users, progress, questions, licenses, onboarding, simulations, notes] = await Promise.allSettled([
+      const [users, progress, questions, licenses, onboarding, simulations, notes, credits] = await Promise.allSettled([
         this._loadUsers(),
         this._loadAllProgress(),
         this._loadQuestionCount(),
@@ -46,6 +47,7 @@ const Admin = {
         this._loadOnboarding(),
         this._loadSimulations(),
         this._loadNotes(),
+        this._loadCredits(),
       ]);
 
       this._users = users.status === 'fulfilled' ? users.value : [];
@@ -55,6 +57,7 @@ const Admin = {
       this._onboarding = onboarding.status === 'fulfilled' ? onboarding.value : [];
       this._simulations = simulations.status === 'fulfilled' ? simulations.value : [];
       this._notes = notes.status === 'fulfilled' ? notes.value : [];
+      this._credits = credits.status === 'fulfilled' ? credits.value : [];
       this._selectedLicenseIds = new Set();
 
       container.innerHTML = this._buildDashboard();
@@ -99,6 +102,13 @@ const Admin = {
   async _loadOnboarding() { try { return await this._adminCall('list-onboarding') || []; } catch { return []; } },
   async _loadSimulations() { try { return await this._adminCall('list-simulations') || []; } catch { return []; } },
   async _loadNotes() { try { return await this._adminCall('list-notes') || []; } catch { return []; } },
+  async _loadCredits() {
+    if (!Auth.supabase) return [];
+    try {
+      const { data, error } = await Auth.supabase.from('user_credits').select('*');
+      return error ? [] : (data || []);
+    } catch { return []; }
+  },
   async _loadQuestionCount() {
     if (!Auth.supabase) return 0;
     const { count, error } = await Auth.supabase.from('questions').select('id', { count: 'exact', head: true });
@@ -176,6 +186,10 @@ const Admin = {
     // Onboarding keyed by user_id
     const onboardingByUser = {};
     onboarding.forEach(o => { if (o.user_id) onboardingByUser[o.user_id] = o; });
+
+    // Credits keyed by user_id
+    const creditsByUser = {};
+    (this._credits || []).forEach(c => { if (c.user_id) creditsByUser[c.user_id] = c; });
 
     // Section popularity
     const bySec = {};
@@ -274,64 +288,82 @@ const Admin = {
 
       <!-- USERS TAB -->
       <div id="adm-tab-users" class="adm-tab-content">
-        <div class="adm-card">
-          <div class="adm-card-header">
-            Alle Nutzer
-            <span class="adm-card-badge">${uniqueUsers} registriert</span>
-          </div>
-          <div class="adm-search-row" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
+          <div style="font-size:1.1rem;font-weight:700">${uniqueUsers} Nutzer</div>
+          <div style="display:flex;gap:0.5rem;align-items:center;flex:1;max-width:500px">
             <input type="text" id="adm-user-search" class="adm-search-input" placeholder="Nutzer suchen (Name, Email)..." style="flex:1;min-width:200px">
-            <button class="adm-btn adm-btn-ghost" id="adm-export-users" style="white-space:nowrap">📥 CSV Export</button>
+            <button class="adm-btn adm-btn-ghost" id="adm-export-users" style="white-space:nowrap">📥 CSV</button>
           </div>
-          <div class="adm-table-wrap" style="max-height:700px;overflow-y:auto">
-            <table class="adm-table adm-table-users">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Abo</th>
-                  <th>Registriert</th>
-                  <th>Letzte Aktivität</th>
-                  <th>Aktion</th>
-                </tr>
-              </thead>
-              <tbody id="adm-users-tbody">
-                ${users.map(u => {
-                  const isUpgraded = u.license_tier === 'basic' || u.license_tier === 'premium';
-                  const tierLabel = (u.license_tier || 'free').toUpperCase();
-                  const tierClass = isUpgraded ? 'adm-tier-paid' : 'adm-tier-free';
-                  const isBlocked = !!u.blocked;
-                  const lastActive = u.last_active_date ? this._formatDateTime(u.last_active_date + 'T00:00:00') : '–';
+        </div>
+        <div id="adm-user-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;max-height:800px;overflow-y:auto;padding:2px">
+          ${users.map(u => {
+            const isUpgraded = u.license_tier === 'basic' || u.license_tier === 'premium';
+            const tierLabel = (u.license_tier || 'free').toUpperCase();
+            const tierClass = isUpgraded ? 'adm-tier-paid' : 'adm-tier-free';
+            const isBlocked = !!u.blocked;
+            const name = u.username || u.display_name || '–';
+            const lastActive = u.last_active_date ? this._formatDate(u.last_active_date + 'T00:00:00') : '–';
+            const up = userProgress[u.user_id] || { total: 0, correct: 0 };
+            const accuracy = up.total > 0 ? Math.round(up.correct / up.total * 100) : 0;
+            const cr = creditsByUser[u.user_id] || {};
+            const aiSessUsed = cr.ai_sessions_used || 0;
+            const aiSessTotal = cr.ai_sessions_total || 0;
+            const aiImgUsed = cr.ai_images_used || 0;
+            const aiImgTotal = cr.ai_images_total || 0;
+            const creditsUsed = cr.credits_used || 0;
+            const creditsTotal = cr.credits_total || 0;
+            const aiSessPct = aiSessTotal > 0 ? Math.round(aiSessUsed / aiSessTotal * 100) : 0;
+            const aiImgPct = aiImgTotal > 0 ? Math.round(aiImgUsed / aiImgTotal * 100) : 0;
 
-                  return `
-                  <tr data-userid="${u.user_id}" data-search="${(u.display_name || '').toLowerCase()} ${(u.username || '').toLowerCase()} ${(u.email || '').toLowerCase()}"${isBlocked ? ' class="adm-row-blocked"' : ''}>
-                    <td>
-                      <div class="adm-user-cell">
-                        <div class="adm-avatar">${(u.username || u.display_name || '?')[0].toUpperCase()}</div>
-                        <a href="#" class="adm-user-link" data-userid="${u.user_id}">${u.username || u.display_name || '–'}${isBlocked ? ' 🚫' : ''}</a>
-                      </div>
-                    </td>
-                    <td>${u.email ? `<a href="mailto:${u.email}" class="adm-email-link">${u.email}</a>` : '<span class="adm-muted">–</span>'}</td>
-                    <td><span class="adm-tier ${tierClass}">${tierLabel}</span></td>
-                    <td style="white-space:nowrap">${this._formatDate(u.created_at)}</td>
-                    <td style="white-space:nowrap">${lastActive}</td>
-                    <td style="white-space:nowrap">
-                      <div style="display:flex;gap:4px;flex-wrap:wrap">
-                        ${isUpgraded
-                          ? '<span class="adm-badge-ok">✓ Vollzugang</span>'
-                          : `<button class="adm-btn-sm adm-btn-upgrade" data-userid="${u.user_id}" data-username="${u.username || u.display_name || ''}">⚡ Freischalten</button>`
-                        }
-                        ${isBlocked
-                          ? `<button class="adm-btn-sm adm-btn-unblock" data-userid="${u.user_id}">Entsperren</button>`
-                          : `<button class="adm-btn-sm adm-btn-block" data-userid="${u.user_id}" data-username="${u.username || u.display_name || ''}">🔒 Sperren</button>`
-                        }
-                      </div>
-                    </td>
-                  </tr>`;
-                }).join('')}
-              </tbody>
-            </table>
-          </div>
+            return `
+            <div class="adm-card adm-user-card" data-userid="${u.user_id}" data-search="${(name).toLowerCase()} ${(u.email || '').toLowerCase()}" style="cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;margin:0${isBlocked ? ';opacity:0.6;border:1px solid #fecaca' : ''}">
+              <div style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem">
+                <!-- Header: Avatar + Name + Tier -->
+                <div style="display:flex;align-items:center;gap:0.75rem">
+                  <div class="adm-avatar" style="width:42px;height:42px;font-size:1.1rem;flex-shrink:0">${name[0].toUpperCase()}</div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${isBlocked ? ' 🚫' : ''}</div>
+                    <div style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.email || '–'}</div>
+                  </div>
+                  <span class="adm-tier ${tierClass}" style="font-size:11px;flex-shrink:0">${tierLabel}</span>
+                </div>
+
+                <!-- KI Stats Row -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+                  <div style="background:var(--bg-light,#f8f6f1);border-radius:10px;padding:0.5rem 0.65rem;text-align:center">
+                    <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">KI-Sessions</div>
+                    <div style="font-size:1.15rem;font-weight:800;color:${aiSessPct >= 90 ? '#dc2626' : aiSessPct >= 60 ? '#d97706' : '#059669'}">${aiSessUsed}<span style="font-size:0.75rem;font-weight:500;color:var(--text-muted)">/${aiSessTotal}</span></div>
+                    <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;background:${aiSessPct >= 90 ? '#dc2626' : aiSessPct >= 60 ? '#d97706' : '#059669'};border-radius:2px;width:${Math.min(aiSessPct, 100)}%;transition:width 0.3s"></div></div>
+                  </div>
+                  <div style="background:var(--bg-light,#f8f6f1);border-radius:10px;padding:0.5rem 0.65rem;text-align:center">
+                    <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">KI-Bilder</div>
+                    <div style="font-size:1.15rem;font-weight:800;color:${aiImgPct >= 90 ? '#dc2626' : aiImgPct >= 60 ? '#d97706' : '#059669'}">${aiImgUsed}<span style="font-size:0.75rem;font-weight:500;color:var(--text-muted)">/${aiImgTotal}</span></div>
+                    <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;background:${aiImgPct >= 90 ? '#dc2626' : aiImgPct >= 60 ? '#d97706' : '#059669'};border-radius:2px;width:${Math.min(aiImgPct, 100)}%;transition:width 0.3s"></div></div>
+                  </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);padding-top:0.25rem;border-top:1px solid var(--border)">
+                  <span>📝 ${up.total} Fragen${accuracy > 0 ? ` (${accuracy}%)` : ''}</span>
+                  <span>💰 ${creditsUsed}/${creditsTotal}</span>
+                  <span>📅 ${lastActive}</span>
+                </div>
+
+                <!-- Actions -->
+                <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  <button class="adm-btn-sm adm-user-link" data-userid="${u.user_id}" style="flex:1;justify-content:center">👁️ Details</button>
+                  ${isUpgraded
+                    ? '<span class="adm-badge-ok" style="flex:1;text-align:center;padding:0.35rem">✓ Vollzugang</span>'
+                    : `<button class="adm-btn-sm adm-btn-upgrade" data-userid="${u.user_id}" data-username="${name}" style="flex:1;justify-content:center">⚡ Freischalten</button>`
+                  }
+                  ${isBlocked
+                    ? `<button class="adm-btn-sm adm-btn-unblock" data-userid="${u.user_id}" style="flex:1;justify-content:center">Entsperren</button>`
+                    : `<button class="adm-btn-sm adm-btn-block" data-userid="${u.user_id}" data-username="${name}" style="flex:1;justify-content:center">🔒</button>`
+                  }
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
         </div>
       </div>
 
@@ -582,9 +614,9 @@ const Admin = {
     // User search
     document.getElementById('adm-user-search')?.addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase();
-      document.querySelectorAll('#adm-users-tbody tr').forEach(row => {
-        const match = !q || (row.dataset.search || '').includes(q);
-        row.style.display = match ? '' : 'none';
+      document.querySelectorAll('#adm-user-cards .adm-user-card').forEach(card => {
+        const match = !q || (card.dataset.search || '').includes(q);
+        card.style.display = match ? '' : 'none';
       });
     });
 
@@ -905,6 +937,17 @@ const Admin = {
     const tierLabel = (u.license_tier || 'free').toUpperCase();
     const isBlocked = !!u.blocked;
 
+    // Credits/KI data
+    const cr = (this._credits || []).find(c => c.user_id === userId) || {};
+    const aiSessUsed = cr.ai_sessions_used || 0;
+    const aiSessTotal = cr.ai_sessions_total || 0;
+    const aiImgUsed = cr.ai_images_used || 0;
+    const aiImgTotal = cr.ai_images_total || 0;
+    const creditsUsed = cr.credits_used || 0;
+    const creditsTotal = cr.credits_total || 0;
+    const questionsLimit = cr.questions_limit || 0;
+    const lernplanResets = cr.lernplan_resets || 0;
+
     let html = `
       <div class="adm-modal-section-title">Allgemein</div>
       <table>
@@ -925,6 +968,26 @@ const Admin = {
         <tr><td style="color:var(--text-muted)">Genauigkeit</td><td>${accuracy > 0 ? `<span style="color:${accuracy >= 70 ? '#059669' : accuracy >= 50 ? '#d97706' : '#dc2626'};font-weight:600">${accuracy}%</span>` : '–'}</td></tr>
         <tr><td style="color:var(--text-muted)">PDFs erstellt</td><td>${u.pdfs_created || 0}</td></tr>
         <tr><td style="color:var(--text-muted)">Simulationen</td><td>${u.simulations_completed || 0}</td></tr>
+      </table>
+
+      <div class="adm-modal-section-title">KI-Nutzung & Credits</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
+        <div style="background:var(--bg-light,#f8f6f1);border-radius:10px;padding:0.75rem;text-align:center">
+          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">KI-Sessions</div>
+          <div style="font-size:1.4rem;font-weight:800;margin:4px 0">${aiSessUsed}<span style="font-size:0.85rem;font-weight:500;color:var(--text-muted)">/${aiSessTotal}</span></div>
+          <div style="height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden"><div style="height:100%;background:${aiSessTotal > 0 && aiSessUsed/aiSessTotal >= 0.9 ? '#dc2626' : '#059669'};border-radius:3px;width:${aiSessTotal > 0 ? Math.min(Math.round(aiSessUsed/aiSessTotal*100),100) : 0}%"></div></div>
+        </div>
+        <div style="background:var(--bg-light,#f8f6f1);border-radius:10px;padding:0.75rem;text-align:center">
+          <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">KI-Bilder</div>
+          <div style="font-size:1.4rem;font-weight:800;margin:4px 0">${aiImgUsed}<span style="font-size:0.85rem;font-weight:500;color:var(--text-muted)">/${aiImgTotal}</span></div>
+          <div style="height:5px;background:#e5e7eb;border-radius:3px;overflow:hidden"><div style="height:100%;background:${aiImgTotal > 0 && aiImgUsed/aiImgTotal >= 0.9 ? '#dc2626' : '#059669'};border-radius:3px;width:${aiImgTotal > 0 ? Math.min(Math.round(aiImgUsed/aiImgTotal*100),100) : 0}%"></div></div>
+        </div>
+      </div>
+      <table>
+        <tr><td style="width:40%;color:var(--text-muted)">Credits</td><td><strong>${creditsUsed}</strong> / ${creditsTotal} verbraucht</td></tr>
+        <tr><td style="color:var(--text-muted)">Fragen-Limit</td><td>${questionsLimit || '–'}</td></tr>
+        <tr><td style="color:var(--text-muted)">Lernplan-Resets</td><td>${lernplanResets}</td></tr>
+        <tr><td style="color:var(--text-muted)">Reset-Monat</td><td>${cr.ai_reset_month || '–'}</td></tr>
       </table>
 
       ${secEntries.length > 0 ? `
