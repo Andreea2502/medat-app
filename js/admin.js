@@ -102,13 +102,7 @@ const Admin = {
   async _loadOnboarding() { try { return await this._adminCall('list-onboarding') || []; } catch { return []; } },
   async _loadSimulations() { try { return await this._adminCall('list-simulations') || []; } catch { return []; } },
   async _loadNotes() { try { return await this._adminCall('list-notes') || []; } catch { return []; } },
-  async _loadCredits() {
-    if (!Auth.supabase) return [];
-    try {
-      const { data, error } = await Auth.supabase.from('user_credits').select('*');
-      return error ? [] : (data || []);
-    } catch { return []; }
-  },
+  async _loadCredits() { try { return await this._adminCall('list-credits') || []; } catch { return []; } },
   async _loadQuestionCount() {
     if (!Auth.supabase) return 0;
     const { count, error } = await Auth.supabase.from('questions').select('id', { count: 'exact', head: true });
@@ -288,82 +282,84 @@ const Admin = {
 
       <!-- USERS TAB -->
       <div id="adm-tab-users" class="adm-tab-content">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
-          <div style="font-size:1.1rem;font-weight:700">${uniqueUsers} Nutzer</div>
-          <div style="display:flex;gap:0.5rem;align-items:center;flex:1;max-width:500px">
-            <input type="text" id="adm-user-search" class="adm-search-input" placeholder="Nutzer suchen (Name, Email)..." style="flex:1;min-width:200px">
-            <button class="adm-btn adm-btn-ghost" id="adm-export-users" style="white-space:nowrap">📥 CSV</button>
+        <div class="adm-card">
+          <div class="adm-card-header">
+            Alle Nutzer
+            <span class="adm-card-badge">${uniqueUsers} registriert</span>
           </div>
-        </div>
-        <div id="adm-user-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem;max-height:800px;overflow-y:auto;padding:2px">
-          ${users.map(u => {
-            const isUpgraded = u.license_tier === 'basic' || u.license_tier === 'premium';
-            const tierLabel = (u.license_tier || 'free').toUpperCase();
-            const tierClass = isUpgraded ? 'adm-tier-paid' : 'adm-tier-free';
-            const isBlocked = !!u.blocked;
-            const name = u.username || u.display_name || '–';
-            const lastActive = u.last_active_date ? this._formatDate(u.last_active_date + 'T00:00:00') : '–';
-            const up = userProgress[u.user_id] || { total: 0, correct: 0 };
-            const accuracy = up.total > 0 ? Math.round(up.correct / up.total * 100) : 0;
-            const cr = creditsByUser[u.user_id] || {};
-            const aiSessUsed = cr.ai_sessions_used || 0;
-            const aiSessTotal = cr.ai_sessions_total || 0;
-            const aiImgUsed = cr.ai_images_used || 0;
-            const aiImgTotal = cr.ai_images_total || 0;
-            const creditsUsed = cr.credits_used || 0;
-            const creditsTotal = cr.credits_total || 0;
-            const aiSessPct = aiSessTotal > 0 ? Math.round(aiSessUsed / aiSessTotal * 100) : 0;
-            const aiImgPct = aiImgTotal > 0 ? Math.round(aiImgUsed / aiImgTotal * 100) : 0;
+          <div class="adm-search-row" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+            <input type="text" id="adm-user-search" class="adm-search-input" placeholder="Nutzer suchen (Name, Email)..." style="flex:1;min-width:200px">
+            <button class="adm-btn adm-btn-ghost" id="adm-export-users" style="white-space:nowrap">📥 CSV Export</button>
+          </div>
+          <div class="adm-table-wrap" style="max-height:700px;overflow-y:auto">
+            <table class="adm-table adm-table-users">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Abo</th>
+                  <th>KI-Sessions</th>
+                  <th>KI-Bilder</th>
+                  <th>Fragen</th>
+                  <th>Letzte Aktivität</th>
+                  <th>Aktion</th>
+                </tr>
+              </thead>
+              <tbody id="adm-users-tbody">
+                ${users.map(u => {
+                  const isUpgraded = u.license_tier === 'basic' || u.license_tier === 'premium';
+                  const tierLabel = (u.license_tier || 'free').toUpperCase();
+                  const tierClass = isUpgraded ? 'adm-tier-paid' : 'adm-tier-free';
+                  const isBlocked = !!u.blocked;
+                  const lastActive = u.last_active_date ? this._formatDateTime(u.last_active_date + 'T00:00:00') : '–';
+                  const cr = creditsByUser[u.user_id] || {};
+                  const aiSU = cr.ai_sessions_used || 0;
+                  const aiST = cr.ai_sessions_total || 0;
+                  const aiIU = cr.ai_images_used || 0;
+                  const aiIT = cr.ai_images_total || 0;
+                  const up = userProgress[u.user_id] || { total: 0, correct: 0 };
+                  const aiSPct = aiST > 0 ? Math.round(aiSU / aiST * 100) : 0;
+                  const aiIPct = aiIT > 0 ? Math.round(aiIU / aiIT * 100) : 0;
+                  const aiSColor = aiSPct >= 90 ? '#dc2626' : aiSPct >= 60 ? '#d97706' : '#059669';
+                  const aiIColor = aiIPct >= 90 ? '#dc2626' : aiIPct >= 60 ? '#d97706' : '#059669';
 
-            return `
-            <div class="adm-card adm-user-card" data-userid="${u.user_id}" data-search="${(name).toLowerCase()} ${(u.email || '').toLowerCase()}" style="cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;margin:0${isBlocked ? ';opacity:0.6;border:1px solid #fecaca' : ''}">
-              <div style="padding:1rem;display:flex;flex-direction:column;gap:0.75rem">
-                <!-- Header: Avatar + Name + Tier -->
-                <div style="display:flex;align-items:center;gap:0.75rem">
-                  <div class="adm-avatar" style="width:42px;height:42px;font-size:1.1rem;flex-shrink:0">${name[0].toUpperCase()}</div>
-                  <div style="flex:1;min-width:0">
-                    <div style="font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}${isBlocked ? ' 🚫' : ''}</div>
-                    <div style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${u.email || '–'}</div>
-                  </div>
-                  <span class="adm-tier ${tierClass}" style="font-size:11px;flex-shrink:0">${tierLabel}</span>
-                </div>
-
-                <!-- KI Stats Row -->
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
-                  <div style="background:var(--bg-light,#f8f6f1);border-radius:10px;padding:0.5rem 0.65rem;text-align:center">
-                    <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">KI-Sessions</div>
-                    <div style="font-size:1.15rem;font-weight:800;color:${aiSessPct >= 90 ? '#dc2626' : aiSessPct >= 60 ? '#d97706' : '#059669'}">${aiSessUsed}<span style="font-size:0.75rem;font-weight:500;color:var(--text-muted)">/${aiSessTotal}</span></div>
-                    <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;background:${aiSessPct >= 90 ? '#dc2626' : aiSessPct >= 60 ? '#d97706' : '#059669'};border-radius:2px;width:${Math.min(aiSessPct, 100)}%;transition:width 0.3s"></div></div>
-                  </div>
-                  <div style="background:var(--bg-light,#f8f6f1);border-radius:10px;padding:0.5rem 0.65rem;text-align:center">
-                    <div style="font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px">KI-Bilder</div>
-                    <div style="font-size:1.15rem;font-weight:800;color:${aiImgPct >= 90 ? '#dc2626' : aiImgPct >= 60 ? '#d97706' : '#059669'}">${aiImgUsed}<span style="font-size:0.75rem;font-weight:500;color:var(--text-muted)">/${aiImgTotal}</span></div>
-                    <div style="height:4px;background:#e5e7eb;border-radius:2px;margin-top:4px;overflow:hidden"><div style="height:100%;background:${aiImgPct >= 90 ? '#dc2626' : aiImgPct >= 60 ? '#d97706' : '#059669'};border-radius:2px;width:${Math.min(aiImgPct, 100)}%;transition:width 0.3s"></div></div>
-                  </div>
-                </div>
-
-                <!-- Quick Stats -->
-                <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);padding-top:0.25rem;border-top:1px solid var(--border)">
-                  <span>📝 ${up.total} Fragen${accuracy > 0 ? ` (${accuracy}%)` : ''}</span>
-                  <span>💰 ${creditsUsed}/${creditsTotal}</span>
-                  <span>📅 ${lastActive}</span>
-                </div>
-
-                <!-- Actions -->
-                <div style="display:flex;gap:4px;flex-wrap:wrap">
-                  <button class="adm-btn-sm adm-user-link" data-userid="${u.user_id}" style="flex:1;justify-content:center">👁️ Details</button>
-                  ${isUpgraded
-                    ? '<span class="adm-badge-ok" style="flex:1;text-align:center;padding:0.35rem">✓ Vollzugang</span>'
-                    : `<button class="adm-btn-sm adm-btn-upgrade" data-userid="${u.user_id}" data-username="${name}" style="flex:1;justify-content:center">⚡ Freischalten</button>`
-                  }
-                  ${isBlocked
-                    ? `<button class="adm-btn-sm adm-btn-unblock" data-userid="${u.user_id}" style="flex:1;justify-content:center">Entsperren</button>`
-                    : `<button class="adm-btn-sm adm-btn-block" data-userid="${u.user_id}" data-username="${name}" style="flex:1;justify-content:center">🔒</button>`
-                  }
-                </div>
-              </div>
-            </div>`;
-          }).join('')}
+                  return `
+                  <tr data-userid="${u.user_id}" data-search="${(u.display_name || '').toLowerCase()} ${(u.username || '').toLowerCase()} ${(u.email || '').toLowerCase()}"${isBlocked ? ' class="adm-row-blocked"' : ''}>
+                    <td>
+                      <div class="adm-user-cell">
+                        <div class="adm-avatar">${(u.username || u.display_name || '?')[0].toUpperCase()}</div>
+                        <a href="#" class="adm-user-link" data-userid="${u.user_id}">${u.username || u.display_name || '–'}${isBlocked ? ' 🚫' : ''}</a>
+                      </div>
+                    </td>
+                    <td>${u.email ? `<a href="mailto:${u.email}" class="adm-email-link">${u.email}</a>` : '<span class="adm-muted">–</span>'}</td>
+                    <td><span class="adm-tier ${tierClass}">${tierLabel}</span></td>
+                    <td style="white-space:nowrap">
+                      <strong style="color:${aiSColor}">${aiSU}</strong><span style="color:var(--text-muted)">/${aiST}</span>
+                      <div style="height:3px;background:#e5e7eb;border-radius:2px;margin-top:2px;width:60px"><div style="height:100%;background:${aiSColor};border-radius:2px;width:${Math.min(aiSPct,100)}%"></div></div>
+                    </td>
+                    <td style="white-space:nowrap">
+                      <strong style="color:${aiIColor}">${aiIU}</strong><span style="color:var(--text-muted)">/${aiIT}</span>
+                      <div style="height:3px;background:#e5e7eb;border-radius:2px;margin-top:2px;width:60px"><div style="height:100%;background:${aiIColor};border-radius:2px;width:${Math.min(aiIPct,100)}%"></div></div>
+                    </td>
+                    <td>${up.total > 0 ? `<strong>${up.total}</strong>` : '<span class="adm-muted">0</span>'}</td>
+                    <td style="white-space:nowrap">${lastActive}</td>
+                    <td style="white-space:nowrap">
+                      <div style="display:flex;gap:4px;flex-wrap:wrap">
+                        ${isUpgraded
+                          ? '<span class="adm-badge-ok">✓ Vollzugang</span>'
+                          : `<button class="adm-btn-sm adm-btn-upgrade" data-userid="${u.user_id}" data-username="${u.username || u.display_name || ''}">⚡ Freischalten</button>`
+                        }
+                        ${isBlocked
+                          ? `<button class="adm-btn-sm adm-btn-unblock" data-userid="${u.user_id}">Entsperren</button>`
+                          : `<button class="adm-btn-sm adm-btn-block" data-userid="${u.user_id}" data-username="${u.username || u.display_name || ''}">🔒 Sperren</button>`
+                        }
+                      </div>
+                    </td>
+                  </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -614,9 +610,9 @@ const Admin = {
     // User search
     document.getElementById('adm-user-search')?.addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase();
-      document.querySelectorAll('#adm-user-cards .adm-user-card').forEach(card => {
-        const match = !q || (card.dataset.search || '').includes(q);
-        card.style.display = match ? '' : 'none';
+      document.querySelectorAll('#adm-users-tbody tr').forEach(row => {
+        const match = !q || (row.dataset.search || '').includes(q);
+        row.style.display = match ? '' : 'none';
       });
     });
 
@@ -1012,6 +1008,19 @@ const Admin = {
 
     // Add admin action buttons
     html += `
+      <div class="adm-modal-section-title">Plan zuweisen</div>
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <select id="adm-plan-select" style="padding:0.5rem 0.75rem;border-radius:10px;border:1px solid var(--border);font-size:0.85rem;background:var(--bg-light,#f8f6f1);font-weight:600">
+          <option value="free"${(u.license_tier || 'free') === 'free' ? ' selected' : ''}>Free</option>
+          <option value="basic"${u.license_tier === 'basic' ? ' selected' : ''}>Basic (€17)</option>
+          <option value="premium"${u.license_tier === 'premium' ? ' selected' : ''}>Premium (€29)</option>
+        </select>
+        <input type="number" id="adm-plan-days" value="180" min="1" max="365" style="width:70px;padding:0.5rem;border-radius:10px;border:1px solid var(--border);font-size:0.85rem;text-align:center" title="Gültigkeitstage">
+        <span style="font-size:0.78rem;color:var(--text-muted)">Tage</span>
+        <button onclick="Admin.changePlan('${userId}')" style="background:var(--primary);color:#fff;border:none;border-radius:10px;padding:0.5rem 1rem;font-weight:700;font-size:0.82rem;cursor:pointer">Plan ändern</button>
+      </div>
+      <p style="font-size:0.72rem;color:var(--text-muted);margin-top:0.3rem">Ändert Plan + passt KI-Limits automatisch an (Free: 10 Sessions/3 Bilder, Basic: 200/50, Premium: 400/100)</p>
+
       <div class="adm-modal-section-title">Admin-Aktionen</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
         <button onclick="Admin.startImpersonation('${userId}')" style="background:var(--dark);color:var(--yellow);border:none;border-radius:10px;padding:0.6rem 1rem;font-weight:700;font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:0.4rem">
@@ -1304,6 +1313,25 @@ const Admin = {
       this.render(); // Refresh admin dashboard
     } catch (err) {
       alert('Löschen fehlgeschlagen: ' + err.message);
+    }
+  },
+
+  async changePlan(userId) {
+    const select = document.getElementById('adm-plan-select');
+    const daysInput = document.getElementById('adm-plan-days');
+    if (!select || !daysInput) return;
+    const newTier = select.value;
+    const days = parseInt(daysInput.value) || 180;
+    const tierNames = { free: 'Free', basic: 'Basic', premium: 'Premium' };
+    if (!confirm(`Plan auf "${tierNames[newTier]}" ändern (${days} Tage)?`)) return;
+    try {
+      App.showToast('Plan wird geändert...', 'info');
+      await this._adminCall('change-plan', { userId, tier: newTier, validityDays: days });
+      App.showToast(`Plan auf ${tierNames[newTier]} geändert!`, 'success');
+      this._closeUserModal();
+      this.render();
+    } catch (err) {
+      alert('Plan-Änderung fehlgeschlagen: ' + err.message);
     }
   },
 
