@@ -78,7 +78,10 @@
     </div>
 
     <!-- ===== HAUPT-AKTIONEN ===== -->
-    <div class="home-main-actions fade-up" style="margin-top:1rem">
+    
+  <!-- Fragen-Limit Anzeige -->
+  <div id="question-limit-card" class="fade-up" style="margin:0.6rem 1.25rem 0"></div>
+  <div class="home-main-actions fade-up" style="margin-top:1rem">
 
       <!-- Hauptkategorie 1: Üben in der App -->
       <button class="main-action-btn main-action-practice" id="btn-practice">
@@ -726,151 +729,166 @@
   </div>
 
   <!-- ===== ONBOARDING SCREEN ===== -->
-  <div id="screen-onboarding" class="screen">
-    <div class="ob-container">
-      <!-- Progress bar -->
-      <div class="ob-progress">
-        <div class="ob-progress-bar" id="ob-progress-bar" style="width:0%"></div>
-      </div>
+<!-- ===== ONBOARDING SCREEN (NEU: 7 Schritte) ===== -->
+<!-- Ersetzt den bestehenden <div id="screen-onboarding"> Block in index.html -->
+<!-- Nutzt die bestehenden .ob- CSS Klassen aus style.css -->
 
-      <!-- Step 1: Uni-Wahl -->
-      <div class="ob-step active" data-step="1">
-        <div class="ob-emoji">🎓</div>
-        <h2>An welcher Uni möchtest du studieren?</h2>
-        <p class="ob-sub">Wir passen dein Training an deinen Standort an.</p>
-        <div class="ob-options" data-field="target_uni">
-          <button class="ob-option" data-value="wien">🏛️ Wien</button>
-          <button class="ob-option" data-value="graz">🏔️ Graz</button>
-          <button class="ob-option" data-value="innsbruck">⛰️ Innsbruck</button>
-          <button class="ob-option" data-value="linz">🌉 Linz</button>
-        </div>
-      </div>
-
-      <!-- Step 2: Erster Antritt -->
-      <div class="ob-step" data-step="2">
-        <div class="ob-emoji">📋</div>
-        <h2>Ist das dein erster MedAT-Antritt?</h2>
-        <p class="ob-sub">So können wir deinen Wissensstand besser einschätzen.</p>
-        <div class="ob-options" data-field="is_first_attempt">
-          <button class="ob-option" data-value="true">✨ Ja, mein erstes Mal</button>
-          <button class="ob-option" data-value="false">🔄 Nein, ich wiederhole</button>
-        </div>
-      </div>
-
-      <!-- Step 3: Größte Sorge -->
-      <div class="ob-step" data-step="3">
-        <div class="ob-emoji">😰</div>
-        <h2>Welcher Testteil bereitet dir die größten Sorgen?</h2>
-        <p class="ob-sub">Wir starten mit dem, was dir am meisten Stress macht.</p>
-        <div class="ob-options" data-field="weakest_section">
-          <button class="ob-option" data-value="bms">🧬 BMS – Bio, Chemie, Physik, Mathe</button>
-          <button class="ob-option" data-value="tv">📖 TV – Textverständnis</button>
-          <button class="ob-option" data-value="kff">🧩 KFF – Kognitive Fähigkeiten</button>
-          <button class="ob-option" data-value="sek">💬 SEK – Soziales Entscheiden</button>
-        </div>
-      </div>
-
-      <!-- Step 4: Sicherheits-Gefühl -->
-      <div class="ob-step" data-step="4">
-        <div class="ob-emoji">💭</div>
-        <h2>Wie sicher fühlst du dich gerade?</h2>
-        <p class="ob-sub">Sei ehrlich — es gibt keine falsche Antwort.</p>
-        <div class="ob-options" data-field="confidence_level">
-          <button class="ob-option" data-value="sehr_sicher">💪 Ziemlich sicher – ich brauch nur Feinschliff</button>
-          <button class="ob-option" data-value="unsicher">🤔 Unsicher – ich weiß nicht, wo ich stehe</button>
-          <button class="ob-option" data-value="angst">😟 Große Angst – ich fühl mich noch nicht bereit</button>
-        </div>
-      </div>
-
-      <!-- Step 5: Quick Win — 3 easy questions -->
-      <div class="ob-step" data-step="5">
-        <div class="ob-emoji">⚡</div>
-        <h2>Kleiner Schnelltest – 3 Fragen</h2>
-        <p class="ob-sub">Lass uns sehen, was du schon draufhast!</p>
-        <div class="ob-quiz" id="ob-quiz">
-          <!-- Quiz question rendered by JS -->
-        </div>
-      </div>
-
-      <!-- Step 6: Lernzeit-Präferenz -->
-      <div class="ob-step" data-step="6">
-        <div class="ob-emoji">⏰</div>
-        <h2>Wann lernst du am liebsten?</h2>
-        <p class="ob-sub">Wir erinnern dich zur perfekten Zeit.</p>
-        <div class="ob-options" data-field="preferred_study_time">
-          <button class="ob-option" data-value="morgens">🌅 Morgens – Frisch und ausgeruht</button>
-          <button class="ob-option" data-value="mittags">☀️ Mittags – Zwischen den Vorlesungen</button>
-          <button class="ob-option" data-value="abends">🌙 Abends – Wenn alles ruhig ist</button>
-        </div>
-      </div>
-
-      <!-- Step 7: Arbeits-Animation -->
-      <div class="ob-step" data-step="7">
-        <div class="ob-emoji">🔬</div>
-        <h2>Dein persönlicher Lernplan wird erstellt...</h2>
-        <div class="ob-loading" id="ob-loading">
-          <div class="ob-load-item" data-delay="0">
-            <div class="ob-load-check">⏳</div>
-            <span>Analysiere deine Schwächen...</span>
-          </div>
-          <div class="ob-load-item" data-delay="1500">
-            <div class="ob-load-check">⏳</div>
-            <span>Erstelle maßgeschneiderten MedAT-Lernplan...</span>
-          </div>
-          <div class="ob-load-item" data-delay="3000">
-            <div class="ob-load-check">⏳</div>
-            <span>Wähle deine ersten Übungsfragen aus...</span>
-          </div>
-          <div class="ob-load-item" data-delay="4500">
-            <div class="ob-load-check">⏳</div>
-            <span>Generiere deine PDF-Prüfungssimulationen...</span>
-          </div>
-          <div class="ob-load-item" data-delay="6000">
-            <div class="ob-load-check">⏳</div>
-            <span>Alles bereit!</span>
-          </div>
-        </div>
-        <div class="ob-load-progress">
-          <div class="ob-load-progress-bar" id="ob-load-bar"></div>
-        </div>
-      </div>
-
-      <!-- Step 8: Roadmap Preview -->
-      <div class="ob-step" data-step="8">
-        <div class="ob-emoji">🗺️</div>
-        <h2>Dein persönlicher Trainingsplan</h2>
-        <p class="ob-sub">Basierend auf deinen Angaben haben wir diesen Plan für dich erstellt:</p>
-        <div class="ob-roadmap" id="ob-roadmap">
-          <!-- Rendered by JS based on answers -->
-        </div>
-        <button class="btn-primary btn-large btn-full ob-next-btn" id="ob-to-paywall">Jetzt loslegen 🚀</button>
-      </div>
-
-      <!-- Step 9: Paywall -->
-      <div class="ob-step" data-step="9">
-        <div class="ob-emoji">🔓</div>
-        <h2>Dein Lernplan ist fertig!</h2>
-        <p class="ob-sub">Schalte jetzt alle <strong>2.896+ Fragen</strong> und <strong>10+ PDF-Simulationen</strong> frei.</p>
-        <div class="ob-paywall">
-          <div class="ob-pay-card">
-            <div class="ob-pay-badge">Einmalzahlung</div>
-            <div class="ob-pay-price">€17</div>
-            <div class="ob-pay-desc">Kein Abo · Kein Kleingedrucktes</div>
-            <ul class="ob-pay-features">
-              <li>✓ Alle 2.896+ Übungsfragen</li>
-              <li>✓ 10+ PDF-Prüfungssimulationen</li>
-              <li>✓ Schwächen-Fokus & Statistiken</li>
-              <li>✓ Dein persönlicher Lernplan</li>
-              <li>✓ Laufend neue Fragen & Updates</li>
-            </ul>
-            <button class="btn-primary btn-large btn-full" id="ob-buy-btn">Vollzugang freischalten – €17</button>
-          </div>
-          <button class="ob-skip-link" id="ob-skip-paywall">Erstmal kostenlos testen →</button>
-        </div>
-      </div>
-
+<div id="screen-onboarding" class="screen">
+  <div class="ob-container">
+    <!-- Progress bar -->
+    <div class="ob-progress">
+      <div class="ob-progress-bar" id="ob-progress-bar" style="width:0%"></div>
     </div>
+
+    <!-- Schritt 1: Spitzname (NEU) -->
+    <div class="ob-step active" data-step="1">
+      <div class="ob-emoji">👋</div>
+      <h2>Wie dürfen wir dich nennen?</h2>
+      <p class="ob-sub">Dein Spitzname wird überall in der App verwendet — von deinem Dashboard bis zu deinen Tutoren.</p>
+      <div style="width:100%;max-width:380px">
+        <input type="text" id="ob-nickname"
+               placeholder="z.B. Andi, Lena, Doc..."
+               maxlength="30"
+               style="width:100%;padding:1rem 1.25rem;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);font-size:1rem;font-weight:600;color:var(--dark);font-family:inherit;outline:none;transition:all 0.25s ease;box-sizing:border-box"
+               onfocus="this.style.borderColor='var(--yellow)';this.style.boxShadow='0 0 0 3px var(--yellow-shadow)'"
+               onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+        <button class="btn-primary btn-large btn-full" id="ob-nickname-next" style="margin-top:1.25rem">
+          Weiter →
+        </button>
+      </div>
+    </div>
+
+    <!-- Schritt 2: Uni-Wahl (wie Original) -->
+    <div class="ob-step" data-step="2">
+      <div class="ob-emoji">🎓</div>
+      <h2>An welcher Uni möchtest du studieren?</h2>
+      <p class="ob-sub">Wir passen dein Training an deinen Standort an.</p>
+      <div class="ob-options" data-field="target_uni">
+        <button class="ob-option" data-value="wien">🏛️ Wien</button>
+        <button class="ob-option" data-value="graz">🏔️ Graz</button>
+        <button class="ob-option" data-value="innsbruck">⛰️ Innsbruck</button>
+        <button class="ob-option" data-value="linz">🌉 Linz</button>
+      </div>
+    </div>
+
+    <!-- Schritt 3: Erster Antritt (wie Original) -->
+    <div class="ob-step" data-step="3">
+      <div class="ob-emoji">📋</div>
+      <h2>Ist das dein erster MedAT-Antritt?</h2>
+      <p class="ob-sub">So können wir deinen Wissensstand besser einschätzen.</p>
+      <div class="ob-options" data-field="is_first_attempt">
+        <button class="ob-option" data-value="true">✨ Ja, mein erstes Mal</button>
+        <button class="ob-option" data-value="false">🔄 Nein, ich wiederhole</button>
+      </div>
+    </div>
+
+    <!-- Schritt 4: Größte Sorgen (NEU — Multi-Select) -->
+    <div class="ob-step" data-step="4">
+      <div class="ob-emoji">😰</div>
+      <h2>Was bereitet dir die größten Sorgen?</h2>
+      <p class="ob-sub">Wähle alles aus, was dich stresst — wir kümmern uns drum. <strong>Mehrfachauswahl möglich.</strong></p>
+      <div class="ob-options" id="ob-worry-options">
+        <button class="ob-option ob-multi" data-worry="zeitdruck">⏱️ Zeitdruck bei der Prüfung</button>
+        <button class="ob-option ob-multi" data-worry="bms">🧬 BMS – Bio, Chemie, Physik, Mathe</button>
+        <button class="ob-option ob-multi" data-worry="tv">📖 Textverständnis</button>
+        <button class="ob-option ob-multi" data-worry="kff">🧩 Kognitive Fähigkeiten</button>
+        <button class="ob-option ob-multi" data-worry="sek">💬 Soziales Entscheiden</button>
+        <button class="ob-option ob-multi" data-worry="orientierung">🧭 Ich weiß nicht, wo ich anfangen soll</button>
+        <button class="ob-option ob-multi" data-worry="angst">😟 Angst, es nicht zu schaffen</button>
+      </div>
+      <button class="btn-primary btn-large btn-full" id="ob-worry-next" style="margin-top:1.25rem;display:none">
+        Weiter →
+      </button>
+    </div>
+
+    <!-- Schritt 5: Konkrete Schwachstellen (NEU — Freitext) -->
+    <div class="ob-step" data-step="5">
+      <div class="ob-emoji">🎯</div>
+      <h2>Welche Themen kannst du noch gar nicht?</h2>
+      <p class="ob-sub">Schreib rein, was dir Probleme macht — unsere Tutoren erstellen dann <strong>genau dafür</strong> passende Übungen.</p>
+      <div style="width:100%;max-width:420px">
+        <textarea id="ob-weak-topics"
+                  placeholder="z.B. Hormone, Stöchiometrie, Zahlenfolgen, Implikationen, p-Werte..."
+                  rows="4"
+                  style="width:100%;padding:1rem 1.25rem;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);font-size:0.95rem;font-weight:500;color:var(--dark);font-family:inherit;outline:none;transition:all 0.25s ease;resize:vertical;line-height:1.5;box-sizing:border-box"
+                  onfocus="this.style.borderColor='var(--yellow)';this.style.boxShadow='0 0 0 3px var(--yellow-shadow)'"
+                  onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"></textarea>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;text-align:left">💡 Je genauer du schreibst, desto besser können wir helfen.</p>
+        <button class="btn-primary btn-large btn-full" id="ob-topics-next" style="margin-top:1rem">
+          Weiter →
+        </button>
+        <button class="ob-skip-link" id="ob-topics-skip" style="margin-top:0.5rem;display:block;text-align:center;width:100%">
+          Überspringen →
+        </button>
+      </div>
+    </div>
+
+    <!-- Schritt 6: Lade-Animation (angepasst) -->
+    <div class="ob-step" data-step="6">
+      <div class="ob-emoji">🔬</div>
+      <h2>Dein Training wird vorbereitet...</h2>
+      <div class="ob-loading" id="ob-loading">
+        <div class="ob-load-item" data-delay="0">
+          <div class="ob-load-check">⏳</div>
+          <span>Analysiere deine Schwachstellen...</span>
+        </div>
+        <div class="ob-load-item" data-delay="1500">
+          <div class="ob-load-check">⏳</div>
+          <span>Erstelle persönliche Tutor-Prompts...</span>
+        </div>
+        <div class="ob-load-item" data-delay="3000">
+          <div class="ob-load-check">⏳</div>
+          <span>Richte deinen Trainingsplan ein...</span>
+        </div>
+        <div class="ob-load-item" data-delay="4500">
+          <div class="ob-load-check">⏳</div>
+          <span>Alles bereit!</span>
+        </div>
+      </div>
+      <div class="ob-load-progress">
+        <div class="ob-load-progress-bar" id="ob-load-bar"></div>
+      </div>
+    </div>
+
+    <!-- Schritt 7: Willkommen + Paywall (angepasst) -->
+    <div class="ob-step" data-step="7">
+      <div class="ob-emoji">🎉</div>
+      <h2 id="ob-welcome-title">Dein Training ist bereit!</h2>
+      <p class="ob-sub">Starte jetzt kostenlos mit <strong>100 Fragen</strong>, oder schalte den vollen Zugang frei.</p>
+      <div class="ob-paywall" style="width:100%;max-width:400px">
+        <!-- Basic Plan -->
+        <div class="ob-pay-card" id="ob-plan-basic"
+             style="border:2px solid var(--border);border-radius:var(--radius-sm);padding:1.15rem 1.25rem;margin-bottom:0.65rem;cursor:pointer;transition:all 0.25s ease;background:var(--surface)"
+             onmouseover="this.style.borderColor='var(--yellow)';this.style.background='var(--yellow-soft)'"
+             onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:800;font-size:1rem;color:var(--dark)">Basic</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Alle Fragen + Statistiken</div>
+            </div>
+            <div style="font-size:1.3rem;font-weight:800;color:var(--dark)">€19,90</div>
+          </div>
+        </div>
+        <!-- Premium Plan -->
+        <div class="ob-pay-card" id="ob-plan-premium"
+             style="border:2px solid var(--yellow);border-radius:var(--radius-sm);padding:1.15rem 1.25rem;margin-bottom:0.65rem;position:relative;background:var(--yellow-soft);cursor:pointer;box-shadow:0 4px 16px var(--yellow-shadow);transition:all 0.25s ease">
+          <div style="position:absolute;top:-8px;right:12px;background:linear-gradient(90deg,var(--yellow),var(--yellow-deep));color:var(--dark);font-size:0.65rem;font-weight:800;padding:2px 10px;border-radius:10px">BELIEBT</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-weight:800;font-size:1rem;color:var(--dark)">Premium</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Alles + KI-Tutoren + PDF-Simulationen</div>
+            </div>
+            <div style="font-size:1.3rem;font-weight:800;color:var(--dark)">€29,90</div>
+          </div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin:0.5rem 0 1rem">Einmalzahlung · Kein Abo · Kein Kleingedrucktes</div>
+        <button class="ob-skip-link" id="ob-skip-paywall">Erstmal kostenlos testen →</button>
+      </div>
+    </div>
+
   </div>
+</div>
+
 
   <!-- ===== PROFIL-SCREEN ===== -->
   <div id="screen-profile" class="screen">
