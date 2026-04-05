@@ -273,10 +273,13 @@ const App = {
             return;
           }
 
-          // Save AGB + Datenschutz acceptance timestamp
+          // Save AGB + Datenschutz acceptance timestamp + email consent
           try {
             const now = new Date().toISOString();
-            await Auth.updateProfile({ privacy_accepted_at: now, agb_accepted_at: now });
+            const emailConsent = document.getElementById('signup-email-consent')?.checked || false;
+            const profileData = { privacy_accepted_at: now, agb_accepted_at: now };
+            if (emailConsent) profileData.email_consent_at = now;
+            await Auth.updateProfile(profileData);
           } catch(ae) { console.warn('AGB/Datenschutz Timestamp speichern fehlgeschlagen:', ae); }
 
           // Set username
@@ -543,7 +546,7 @@ const App = {
       banner.id = 'license-expired-banner';
       banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;padding:0.9rem 1.2rem;text-align:center;font-size:0.9rem;font-weight:600;box-shadow:0 2px 12px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;gap:0.8rem;flex-wrap:wrap;';
       banner.innerHTML = `
-        <span>⚠️ Dein Vollzugang ist${expDateStr ? ' am ' + expDateStr : ''} abgelaufen. Du nutzt jetzt nur 20% der Fragen.</span>
+        <span>⚠️ Dein Vollzugang ist${expDateStr ? ' am ' + expDateStr : ''} abgelaufen. Du nutzt jetzt nur eine begrenzte Auswahl an Fragen.</span>
         <button onclick="App.showScreen('screen-konto')" style="background:#fff;color:#c0392b;border:none;border-radius:8px;padding:0.4rem 1rem;font-weight:700;cursor:pointer;font-size:0.85rem;">Jetzt verlängern</button>
         <button onclick="document.getElementById('license-expired-banner').remove();localStorage.setItem('${dismissKey}','1')" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.5);border-radius:8px;padding:0.4rem 0.8rem;cursor:pointer;font-size:0.8rem;">×</button>
       `;
@@ -770,7 +773,7 @@ const App = {
 
     const feats = [
       { label: 'Alle Testbereiche (BMS, TV, KFF, SEK)', free: chk, paid: chk },
-      { label: 'Fragen pro Untertest', free: '<span style="font-weight:700;color:#9e9eae">20%</span>', paid: '<span style="font-weight:800;color:#16a34a">100%</span>' },
+      { label: 'Fragen pro Untertest', free: '<span style="font-weight:700;color:#9e9eae">Begrenzt</span>', paid: '<span style="font-weight:800;color:#16a34a">Unbegrenzt</span>' },
       { label: 'PDF-Simulationen', free: '<span style="font-weight:700;color:#9e9eae">2</span>', paid: '<span style="font-weight:800;color:#16a34a">10+</span>' },
       { label: 'Schwächen-Trainer', free: chk, paid: chk },
       { label: 'Tägliche Challenge', free: chk, paid: chk },
@@ -1464,7 +1467,7 @@ const App = {
     setTimeout(() => this._pollForLicenseActivation(attempt + 1), 3000);
   },
 
-  // ===== FREE TIER CONTENT LIMIT (20% per Untertest) =====
+  // ===== FREE TIER CONTENT LIMIT (begrenzte Fragen) =====
   _isAdmin() {
     return typeof Admin !== 'undefined' && Admin.isAdmin();
   },
@@ -1474,8 +1477,7 @@ const App = {
     return Auth.licenseTier === 'free';
   },
 
-  // Limit question count for free users: 20% of the requested amount
-  // --- 100-Fragen-Limit ---
+  // --- Begrenztes Fragen-Kontingent für Free User ---
   _limitCache: null,
 
   async getFreeQuestionLimit(requestedCount) {
