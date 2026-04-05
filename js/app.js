@@ -1534,8 +1534,8 @@ const App = {
   showUpgradeOverlay(reason) {
     let ov = document.getElementById('upgrade-overlay');
     if (ov) ov.remove();
-    const t = reason === 'limit_reached' ? '🔒 Deine kostenlosen Fragen sind aufgebraucht!' : '🚀 Mehr Fragen freischalten';
-    const s = reason === 'limit_reached' ? 'Du hast alle 100 kostenlosen Fragen beantwortet. Schalte jetzt unbegrenzten Zugang frei!' : 'Upgrade auf unbegrenzten Zugang und trainiere ohne Limit.';
+    const t = reason === 'limit_reached' ? '🔒 Dein kostenloses Kontingent ist aufgebraucht!' : '🚀 Alle Fragen freischalten';
+    const s = reason === 'limit_reached' ? 'Du hast deine 100 kostenlosen Fragen aufgebraucht. Schalte jetzt den Vollzugang frei!' : 'Upgrade für unbegrenzten Zugang zu allen Fragen, Simulationen und KI-Tutoren.';
     ov = document.createElement('div');
     ov.id = 'upgrade-overlay';
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
@@ -1598,7 +1598,7 @@ const App = {
     if (this._simulationCount !== null) this._simulationCount++;
   },
 
-  MAX_SIMULATIONS_FREE: 3,
+  MAX_SIMULATIONS_FREE: 1,
 
   async checkSimulationLimit() {
     if (!this.isFreeUser()) return true; // paid users: unlimited
@@ -1614,9 +1614,9 @@ const App = {
         <div class="sim-limit-icon">🔒</div>
         <div class="sim-limit-title">Kostenloses Kontingent aufgebraucht</div>
         <div class="sim-limit-desc">
-          Du hast bereits ${count} von ${this.MAX_SIMULATIONS_FREE} kostenlosen Simulationen erstellt.
+          Du hast deine kostenlose Simulation bereits verwendet.
           Schalte den Vollzugang frei, um unbegrenzt Simulationen zu generieren
-          und auf 100% aller Fragen zuzugreifen.
+          und auf alle Fragen zuzugreifen.
         </div>
         <button class="sim-limit-btn" onclick="App.showScreen('screen-konto');App.renderKonto();">
           Jetzt für €17 freischalten →
@@ -2650,17 +2650,7 @@ const App = {
 
   _updateCreditCostHint() {
     const hint = document.getElementById('credit-cost-hint');
-    const text = document.getElementById('credit-cost-text');
-    if (!hint || !text) return;
-    if (Credits.isUnlimited()) { hint.style.display = 'none'; return; }
-    const count = parseInt(document.getElementById('prac-count')?.value || '10');
-    hint.style.display = '';
-    const rem = Credits.remaining;
-    if (rem <= 0) {
-      text.innerHTML = `<span style="color:#ef4444">Keine Credits mehr — <a href="#" onclick="Credits.showPaywall();return false" style="color:var(--yellow);font-weight:600">Upgraden</a></span>`;
-    } else {
-      text.textContent = `Diese Übung kostet ${count} Credit${count !== 1 ? 's' : ''} · ${rem} übrig`;
-    }
+    if (hint) hint.style.display = 'none'; // Credits-System entfernt
   },
 
   async _loadWeaknessHint(subtype, topicSelect) {
@@ -2726,15 +2716,17 @@ const App = {
   },
 
   async loadAndStartQuestions(section, difficulty, count, minutes, isSimulation) {
-    // Credit check
-    if (!Credits.isUnlimited() && !Credits.hasEnough(count)) {
-      if (Credits.remaining <= 0) {
-        Credits.showPaywall();
+    // Free user: 100 Fragen-Limit
+    if (this.isFreeUser() && !isSimulation) {
+      const access = await this.checkQuestionAccess();
+      if (!access.allowed) {
+        this.showUpgradeOverlay('limit_reached');
         return;
       }
-      // Reduce to available credits
-      count = Credits.remaining;
-      this.showToast(`Nur noch ${count} Credits — Fragenanzahl angepasst`);
+      if (access.remaining < count) {
+        count = access.remaining;
+        this.showToast(`Nur noch ${count} Fragen verfügbar`);
+      }
     }
 
     this.questions = [];
@@ -3839,8 +3831,8 @@ const App = {
 
     API.saveProgress(progressData, this.currentSectionKey).catch(() => {});
 
-    // Deduct 1 credit per answered question
-    Credits.use(1, 'question', this.currentSectionKey || 'practice');
+    // Track question count for free user limit (100 Fragen)
+    this._limitCache = null; // Invalidate cache after each answer
 
     // Auto-scroll to feedback
     fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
