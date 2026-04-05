@@ -205,6 +205,10 @@ const Admin = {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
           Tools
         </button>
+        <button class="adm-tab" data-tab="emails">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          E-Mails
+        </button>
       </div>
 
       <!-- OVERVIEW TAB -->
@@ -515,6 +519,16 @@ const Admin = {
           </div>
         </div>
       </div>
+
+      <!-- EMAILS TAB -->
+      <div id="adm-tab-emails" class="adm-tab-content">
+        <div id="admin-email-container">
+          <div style="text-align:center;padding:2rem;color:var(--text-muted)">
+            <div class="spinner"></div>
+            E-Mails werden geladen...
+          </div>
+        </div>
+      </div>
     `;
   },
 
@@ -560,6 +574,8 @@ const Admin = {
         document.querySelectorAll('.adm-tab-content').forEach(c => c.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById('adm-tab-' + tab.dataset.tab)?.classList.add('active');
+        // E-Mail Tab: Lade Daten beim ersten Öffnen
+        if (tab.dataset.tab === 'emails') { this._renderEmailTab(); }
       });
     });
 
@@ -1326,5 +1342,129 @@ const Admin = {
   isImpersonating() {
     return !!this._impersonating;
   },
+
+  // ============================================================================
+  // E-MAIL MANAGEMENT TAB
+  // ============================================================================
+  
+  _emailDrafts: [],
+  _emailFilter: 'draft',
+
+  async _loadEmailDrafts() {
+    try {
+      let query = Auth.supabase
+        .from('email_drafts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (this._emailFilter !== 'all') {
+        query = query.eq('status', this._emailFilter);
+      }
+      
+      const { data, error } = await query.limit(100);
+      if (error) throw error;
+      this._emailDrafts = data || [];
+    } catch (e) {
+      console.error('Fehler beim Laden der E-Mail-Entwürfe:', e);
+      this._emailDrafts = [];
+    }
+  },
+
+  async _renderEmailTab() {
+    await this._loadEmailDrafts();
+    const container = document.getElementById('admin-email-container');
+    if (!container) return;
+    
+    const counts = { draft: 0, approved: 0, sent: 0, cancelled: 0 };
+    this._emailDrafts.forEach(d => { if (counts[d.status] !== undefined) counts[d.status]++; });
+    
+    const filterBtns = ['draft', 'approved', 'sent', 'cancelled', 'all'].map(f => 
+      `<button onclick="Admin._emailFilter='${f}';Admin._renderEmailTab()" style="padding:0.4rem 0.8rem;border-radius:8px;border:${this._emailFilter===f?'2px solid #667eea':'1px solid #ddd'};background:${this._emailFilter===f?'#667eea10':'#fff'};color:${this._emailFilter===f?'#667eea':'#666'};font-size:0.78rem;font-weight:600;cursor:pointer">${f==='draft'?'Entwürfe ('+counts.draft+')':f==='approved'?'Freigegeben ('+counts.approved+')':f==='sent'?'Gesendet ('+counts.sent+')':f==='cancelled'?'Abgelehnt ('+counts.cancelled+')':'Alle'}</button>`
+    ).join('');
+    
+    const draftsHTML = this._emailDrafts.length === 0 
+      ? '<div style="text-align:center;padding:2rem;color:#999">Keine E-Mails in dieser Kategorie.</div>'
+      : this._emailDrafts.map(d => {
+        const statusColors = { draft: '#ff9800', approved: '#4caf50', sent: '#667eea', cancelled: '#999' };
+        const statusLabels = { draft: 'Entwurf', approved: 'Freigegeben', sent: 'Gesendet', cancelled: 'Abgelehnt' };
+        const date = new Date(d.created_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+        return `<div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:1rem;margin:0.5rem 0;box-shadow:0 1px 4px rgba(0,0,0,0.04)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+            <div style="display:flex;align-items:center;gap:0.5rem">
+              <span style="background:${statusColors[d.status]||'#999'}20;color:${statusColors[d.status]||'#999'};padding:2px 8px;border-radius:6px;font-size:0.7rem;font-weight:700">${statusLabels[d.status]||d.status}</span>
+              <span style="font-size:0.75rem;color:#999">${d.email_type === 'daily_impulse' ? '💡 Täglicher Impuls' : '📈 Wochenbericht'}</span>
+            </div>
+            <span style="font-size:0.72rem;color:#aaa">${date}</span>
+          </div>
+          <div style="font-weight:700;font-size:0.9rem;color:#1a1a2e;margin-bottom:0.3rem">${d.subject || '(Kein Betreff)'}</div>
+          <div style="font-size:0.8rem;color:#666;margin-bottom:0.3rem">An: ${d.user_nickname || 'Unbekannt'} &lt;${d.user_email || '?'}&gt;</div>
+          <div style="font-size:0.78rem;color:#888">${d.body_preview || ''}</div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+            <button onclick="Admin._previewEmail('${d.id}')" style="padding:0.35rem 0.7rem;border-radius:8px;border:1px solid #667eea;background:#fff;color:#667eea;font-size:0.75rem;font-weight:600;cursor:pointer">👁 Vorschau</button>
+            ${d.status === 'draft' ? `
+              <button onclick="Admin._approveEmail('${d.id}')" style="padding:0.35rem 0.7rem;border-radius:8px;border:none;background:#4caf50;color:#fff;font-size:0.75rem;font-weight:600;cursor:pointer">✓ Freigeben</button>
+              <button onclick="Admin._rejectEmail('${d.id}')" style="padding:0.35rem 0.7rem;border-radius:8px;border:1px solid #e53935;background:#fff;color:#e53935;font-size:0.75rem;font-weight:600;cursor:pointer">✕ Ablehnen</button>
+            ` : ''}
+          </div>
+        </div>`;
+      }).join('');
+    
+    const bulkApproveBtn = counts.draft > 0 
+      ? `<button onclick="Admin._bulkApproveEmails()" style="padding:0.5rem 1rem;border-radius:8px;border:none;background:#4caf50;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;margin-left:auto">✓ Alle ${counts.draft} Entwürfe freigeben</button>`
+      : '';
+    
+    container.innerHTML = `
+      <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;align-items:center">
+        ${filterBtns}
+        ${bulkApproveBtn}
+      </div>
+      <div style="display:flex;gap:0.75rem;margin-bottom:1rem;flex-wrap:wrap">
+        <div style="flex:1;min-width:100px;background:#ff980010;border-radius:10px;padding:0.7rem;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#ff9800">${counts.draft}</div><div style="font-size:0.7rem;color:#888">Entwürfe</div></div>
+        <div style="flex:1;min-width:100px;background:#4caf5010;border-radius:10px;padding:0.7rem;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#4caf50">${counts.approved}</div><div style="font-size:0.7rem;color:#888">Freigegeben</div></div>
+        <div style="flex:1;min-width:100px;background:#667eea10;border-radius:10px;padding:0.7rem;text-align:center"><div style="font-size:1.2rem;font-weight:800;color:#667eea">${counts.sent}</div><div style="font-size:0.7rem;color:#888">Gesendet</div></div>
+      </div>
+      ${draftsHTML}`;
+  },
+
+  _previewEmail(id) {
+    const draft = this._emailDrafts.find(d => d.id === id);
+    if (!draft) return;
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+    modal.innerHTML = '<div style="background:#fff;border-radius:16px;max-width:620px;width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column"><div style="padding:1rem 1.2rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0;font-size:1rem">E-Mail Vorschau</h3><button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:none;border:none;font-size:1.3rem;cursor:pointer">✕</button></div><div style="padding:0.8rem 1.2rem;background:#f8f8ff;font-size:0.8rem"><div><strong>An:</strong> ' + (draft.user_nickname||'') + ' &lt;' + (draft.user_email||'') + '&gt;</div><div><strong>Betreff:</strong> ' + (draft.subject||'') + '</div></div><iframe style="flex:1;border:none;min-height:400px" srcdoc="' + (draft.body_html||'').replace(/"/g, '&quot;') + '"></iframe></div>';
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+  },
+
+  async _approveEmail(id) {
+    if (!confirm('E-Mail freigeben und zum Senden markieren?')) return;
+    try {
+      const { error } = await Auth.supabase.from('email_drafts').update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: Auth.currentUser?.email }).eq('id', id);
+      if (error) throw error;
+      App.showToast('E-Mail freigegeben ✓');
+      this._renderEmailTab();
+    } catch (e) { App.showToast('Fehler: ' + e.message, 'error'); }
+  },
+
+  async _rejectEmail(id) {
+    if (!confirm('E-Mail ablehnen?')) return;
+    try {
+      const { error } = await Auth.supabase.from('email_drafts').update({ status: 'cancelled' }).eq('id', id);
+      if (error) throw error;
+      App.showToast('E-Mail abgelehnt');
+      this._renderEmailTab();
+    } catch (e) { App.showToast('Fehler: ' + e.message, 'error'); }
+  },
+
+  async _bulkApproveEmails() {
+    const drafts = this._emailDrafts.filter(d => d.status === 'draft');
+    if (drafts.length === 0) return;
+    if (!confirm('Alle ' + drafts.length + ' Entwürfe freigeben?')) return;
+    try {
+      const { error } = await Auth.supabase.from('email_drafts').update({ status: 'approved', approved_at: new Date().toISOString(), approved_by: Auth.currentUser?.email }).eq('status', 'draft');
+      if (error) throw error;
+      App.showToast(drafts.length + ' E-Mails freigegeben ✓');
+      this._renderEmailTab();
+    } catch (e) { App.showToast('Fehler: ' + e.message, 'error'); }
+  },
 };
- 
