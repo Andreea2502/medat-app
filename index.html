@@ -694,6 +694,12 @@
             Ich akzeptiere die <a href="#" id="link-agb" style="color:var(--primary);text-decoration:underline">AGB</a> und die <a href="#" id="link-datenschutz" style="color:var(--primary);text-decoration:underline">Datenschutzerklärung</a> und bin damit einverstanden, dass meine Daten zur Nutzung der App verarbeitet werden.
           </label>
         </div>
+        <div class="auth-input-group" style="flex-direction:row;align-items:flex-start;gap:0.5rem">
+          <input type="checkbox" id="signup-email-consent" style="margin-top:0.2rem;width:18px;height:18px;flex-shrink:0;accent-color:var(--primary)">
+          <label for="signup-email-consent" style="font-size:0.8rem;line-height:1.4;font-weight:normal;color:var(--text-muted);cursor:pointer">
+            Ich möchte Lern-Impulse (alle 3 Tage) sowie Infos zu neuen Features und Angeboten per E-Mail erhalten. Abmeldung jederzeit möglich.
+          </label>
+        </div>
         <div id="signup-error" class="auth-error hidden"></div>
         <button class="btn-primary btn-large btn-full" id="btn-signup">Registrieren</button>
 
@@ -1063,6 +1069,13 @@
         <p><strong>4. Rechtsgrundlage</strong><br>
         Die Verarbeitung erfolgt auf Grundlage der Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO) — dein Account ist notwendig, um dir die Dienste bereitzustellen. Für darüber hinausgehende Verarbeitungen (z.B. E-Mail-Kommunikation) nutzen wir deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO).</p>
 
+        <p><strong>4a. E-Mail-Kommunikation</strong><br>
+        Mit deiner gesonderten Einwilligung (Opt-in bei der Registrierung) senden wir dir folgende E-Mails:<br>
+        <em>Lern-Impulse:</em> Alle 3 Tage erhältst du personalisierte Lerntipps, Erinnerungen und Fortschrittsberichte, die auf deinem Lernverhalten basieren.<br>
+        <em>Produkt- und Angebots-Informationen:</em> Gelegentlich informieren wir dich über neue Funktionen, Aktionen und Angebote rund um den MedAT Trainer.<br>
+        <em>Transaktionale E-Mails:</em> Kaufbestätigungen, Passwort-Zurücksetzungen und sicherheitsrelevante Benachrichtigungen werden ohne separate Einwilligung versendet, da sie zur Vertragserfüllung notwendig sind (Art. 6 Abs. 1 lit. b DSGVO).<br><br>
+        Du kannst deine Einwilligung jederzeit widerrufen — entweder über den Abmelde-Link in jeder E-Mail oder per Nachricht an office@ai-guide.at. Der Widerruf berührt nicht die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung) sowie § 174 TKG 2021 (österreichisches Telekommunikationsgesetz).</p>
+
         <p><strong>5. Speicherdauer</strong><br>
         Deine Daten werden gespeichert, solange dein Account besteht. Nach Löschung deines Accounts werden alle personenbezogenen Daten innerhalb von 30 Tagen gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten bestehen. Zahlungsdaten werden gemäß steuerrechtlicher Vorgaben (BAO) 7 Jahre aufbewahrt.</p>
 
@@ -1078,7 +1091,7 @@
         <p><strong>9. Beschwerderecht</strong><br>
         Du hast das Recht, dich bei einer Datenschutzbehörde zu beschweren. Die zuständige Aufsichtsbehörde in Österreich ist die Österreichische Datenschutzbehörde, Barichgasse 40-42, 1030 Wien, dsb.gv.at.</p>
 
-        <p><strong>Stand:</strong> März 2026</p>
+        <p><strong>Stand:</strong> April 2026</p>
       </div>
       <button onclick="document.getElementById('modal-datenschutz').style.display='none'" style="margin-top:1.5rem;width:100%;padding:0.75rem;background:var(--primary,#1a1a2e);color:white;border:none;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:600">Verstanden</button>
     </div>
@@ -1099,7 +1112,7 @@
         Für die Nutzung ist eine Registrierung mit gültiger E-Mail-Adresse erforderlich. Du bist für die Geheimhaltung deiner Zugangsdaten verantwortlich. Pro Person darf nur ein Account erstellt werden. Der Anbieter behält sich das Recht vor, Accounts bei Missbrauch zu sperren.</p>
 
         <p><strong>4. Kostenlose und kostenpflichtige Nutzung</strong><br>
-        Die App bietet eine kostenlose Basisversion mit eingeschränktem Funktionsumfang (300 Credits). Der „Vollzugang" ist als Einmalzahlung erhältlich und schaltet alle Funktionen bis zum MedAT-Prüfungstermin frei. Die aktuellen Preise werden auf der Konto-Seite der App angezeigt.</p>
+        Die App bietet eine kostenlose Basisversion mit eingeschränktem Funktionsumfang (begrenztes Fragenkontingent). Der „Vollzugang" ist als Einmalzahlung erhältlich und schaltet alle Funktionen bis zum MedAT-Prüfungstermin frei. Die aktuellen Preise werden auf der Konto-Seite der App angezeigt.</p>
 
         <p><strong>5. Zahlungsbedingungen</strong><br>
         Die Bezahlung des Vollzugangs erfolgt über den Zahlungsdienstleister Stripe. Mit dem Kauf wird der Gesamtbetrag sofort fällig. Alle Preise verstehen sich inklusive der gesetzlichen Umsatzsteuer (sofern anwendbar). Die Bezahlung ist eine Einmalzahlung — es entsteht kein Abonnement.</p>
@@ -1136,7 +1149,7 @@
         <p><strong>15. Salvatorische Klausel</strong><br>
         Sollten einzelne Bestimmungen dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
 
-        <p><strong>Stand:</strong> März 2026</p>
+        <p><strong>Stand:</strong> April 2026</p>
       </div>
       <button onclick="document.getElementById('modal-agb').style.display='none'" style="margin-top:1.5rem;width:100%;padding:0.75rem;background:var(--primary,#1a1a2e);color:white;border:none;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:600">Verstanden</button>
     </div>
