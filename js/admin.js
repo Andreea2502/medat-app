@@ -980,8 +980,7 @@ const Admin = {
         </div>
       </div>
       <table>
-        <tr><td style="width:40%;color:var(--text-muted)">Credits</td><td><strong>${creditsUsed}</strong> / ${creditsTotal} verbraucht</td></tr>
-        <tr><td style="color:var(--text-muted)">Fragen-Limit</td><td>${questionsLimit || '–'}</td></tr>
+        <tr><td style="width:40%;color:var(--text-muted)">Fragen-Limit</td><td>${questionsLimit || '100'} (Free)</td></tr>
         <tr><td style="color:var(--text-muted)">Lernplan-Resets</td><td>${lernplanResets}</td></tr>
         <tr><td style="color:var(--text-muted)">Reset-Monat</td><td>${cr.ai_reset_month || '–'}</td></tr>
       </table>
