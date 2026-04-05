@@ -553,6 +553,7 @@ const App = {
 
   // ===== HOME STATS LADEN =====
   async loadHomeStats() {
+    this.updateDashboardLimitDisplay();
     try {
       const stats = await API.getSessionStats();
       if (!stats) return;
@@ -1474,9 +1475,71 @@ const App = {
   },
 
   // Limit question count for free users: 20% of the requested amount
-  getFreeQuestionLimit(requestedCount) {
+  // --- 100-Fragen-Limit ---
+  _limitCache: null,
+
+  async getFreeQuestionLimit(requestedCount) {
     if (!this.isFreeUser()) return requestedCount;
-    return Math.max(2, Math.ceil(requestedCount * 0.2));
+    if (!this._limitCache) this._limitCache = { lastFetch: 0, data: null };
+    const now = Date.now();
+    if (this._limitCache.data && (now - this._limitCache.lastFetch) < 60000) {
+      const remaining = this._limitCache.data.limit - this._limitCache.data.totalAnswered;
+      return Math.min(requestedCount, Math.max(0, remaining));
+    }
+    try {
+      const uid = Auth.currentUser.id;
+      const [creditsRes, profileRes] = await Promise.all([
+        Auth.supabase.from('user_credits').select('questions_limit').eq('user_id', uid).maybeSingle(),
+        Auth.supabase.from('user_profiles').select('total_questions_answered').eq('user_id', uid).maybeSingle()
+      ]);
+      const limit = creditsRes.data?.questions_limit ?? 100;
+      const totalAnswered = profileRes.data?.total_questions_answered ?? 0;
+      this._limitCache = { lastFetch: now, data: { limit, totalAnswered } };
+      return Math.min(requestedCount, Math.max(0, limit - totalAnswered));
+    } catch (e) { console.error('Limit-Fehler:', e); return requestedCount; }
+  },
+
+  async checkQuestionAccess() {
+    if (!this.isFreeUser()) return { allowed: true, remaining: 999999, limit: 999999, totalAnswered: 0 };
+    try {
+      const uid = Auth.currentUser.id;
+      const [cr, pr] = await Promise.all([
+        Auth.supabase.from('user_credits').select('questions_limit').eq('user_id', uid).maybeSingle(),
+        Auth.supabase.from('user_profiles').select('total_questions_answered').eq('user_id', uid).maybeSingle()
+      ]);
+      const limit = cr.data?.questions_limit ?? 100;
+      const totalAnswered = pr.data?.total_questions_answered ?? 0;
+      const remaining = Math.max(0, limit - totalAnswered);
+      return { allowed: remaining > 0, remaining, limit, totalAnswered };
+    } catch (e) { console.error('Access-Check-Fehler:', e); return { allowed: true, remaining: 100, limit: 100, totalAnswered: 0 }; }
+  },
+
+  async updateDashboardLimitDisplay() {
+    const card = document.getElementById('question-limit-card');
+    if (!card) return;
+    if (!this.isFreeUser()) {
+      card.innerHTML = '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.8rem 1rem;background:#e8f5e9;border-radius:12px;font-size:0.85rem;color:#2e7d32;font-weight:600"><span>✓</span> Unbegrenzter Zugang</div>';
+      return;
+    }
+    try {
+      const a = await this.checkQuestionAccess();
+      const pct = Math.round((a.totalAnswered / a.limit) * 100);
+      const clr = a.remaining <= 10 ? '#e53935' : a.remaining <= 25 ? '#ff9800' : 'var(--primary, #667eea)';
+      card.innerHTML = `<div style="background:var(--surface,#fff);border:2px solid var(--border,#e8e8ef);border-radius:var(--radius-sm,14px);padding:1rem 1.1rem;box-shadow:0 2px 8px rgba(26,26,46,0.05)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem"><span style="font-size:0.88rem;font-weight:700;color:var(--dark,#1a1a2e)">📊 Noch ${a.remaining} von ${a.limit} Fragen</span><button onclick="App.showUpgradeOverlay('dashboard')" style="background:var(--dark,#1a1a2e);color:var(--yellow,#f5c542);border:none;border-radius:8px;padding:0.35rem 0.75rem;font-size:0.75rem;font-weight:700;cursor:pointer">Upgrade</button></div><div style="background:var(--bg-warm,#f0f0f5);border-radius:6px;height:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--yellow,#f5c542),var(--yellow-deep,#d4a017));border-radius:6px;transition:width 0.5s ease"></div></div><div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted,#9e9eae);margin-top:0.35rem"><span>${a.totalAnswered} beantwortet</span><span>${a.remaining} verfügbar</span></div></div>`;
+    } catch (e) { console.error('Dashboard-Limit-Fehler:', e); }
+  },
+
+  showUpgradeOverlay(reason) {
+    let ov = document.getElementById('upgrade-overlay');
+    if (ov) ov.remove();
+    const t = reason === 'limit_reached' ? '🔒 Deine kostenlosen Fragen sind aufgebraucht!' : '🚀 Mehr Fragen freischalten';
+    const s = reason === 'limit_reached' ? 'Du hast alle 100 kostenlosen Fragen beantwortet. Schalte jetzt unbegrenzten Zugang frei!' : 'Upgrade auf unbegrenzten Zugang und trainiere ohne Limit.';
+    ov = document.createElement('div');
+    ov.id = 'upgrade-overlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+    ov.innerHTML = `<div style="background:var(--surface,#fff);border-radius:var(--radius,20px);max-width:400px;width:100%;padding:2rem;text-align:center;position:relative"><button onclick="document.getElementById('upgrade-overlay').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted)">✕</button><h2 style="font-size:1.3rem;margin:0 0 0.5rem;color:var(--dark)">${t}</h2><p style="color:var(--text-muted);font-size:0.9rem;margin:0 0 1.5rem">${s}</p><div style="display:flex;flex-direction:column;gap:0.65rem"><div onclick="App.startStripeCheckout('basic')" style="border:2px solid var(--border);border-radius:var(--radius-sm,14px);padding:1rem;cursor:pointer;text-align:left;transition:all 0.2s"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800;color:var(--dark)">Basic</div><div style="font-size:0.8rem;color:var(--text-muted)">Alle Fragen + Statistiken</div></div><div style="font-size:1.2rem;font-weight:800;color:var(--dark)">€19,90</div></div></div><div onclick="App.startStripeCheckout('premium')" style="border:2px solid var(--yellow);border-radius:var(--radius-sm,14px);padding:1rem;cursor:pointer;background:var(--yellow-soft);position:relative;text-align:left"><div style="position:absolute;top:-8px;right:12px;background:linear-gradient(90deg,var(--yellow),var(--yellow-deep));color:var(--dark);font-size:0.65rem;font-weight:800;padding:2px 10px;border-radius:10px">BELIEBT</div><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800;color:var(--dark)">Premium</div><div style="font-size:0.8rem;color:var(--text-muted)">Alles + KI-Tutoren + PDF-Simulationen</div></div><div style="font-size:1.2rem;font-weight:800;color:var(--dark)">€29,90</div></div></div></div><p style="font-size:0.72rem;color:var(--text-muted);margin:1rem 0 0">Einmalzahlung · Kein Abo · Kein Kleingedrucktes</p></div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('click', (e) => { if (e.target === ov) ov.remove(); });
   },
 
   // ===== SHARE / FREUNDE EINLADEN =====
@@ -5347,34 +5410,32 @@ const Scratchpad = {
 // ============================================================
 // ONBOARDING MODULE
 // ============================================================
+/**
+ * Neues Onboarding-Modul für MedAT Trainer App (7 Schritte)
+ * Ersetzt den bestehenden "const Onboarding = {...}" Block in app.js
+ *
+ * Nutzt dieselben .ob- CSS-Klassen wie das bisherige Onboarding.
+ *
+ * Schritte:
+ * 1. Spitzname ("Wie dürfen wir dich nennen?")
+ * 2. Uni-Wahl (wie Original)
+ * 3. Erster Antritt (wie Original)
+ * 4. Größte Sorgen (Multi-Select, NEU)
+ * 5. Konkrete Schwachstellen (Freitext, NEU)
+ * 6. Lade-Animation (angepasste Texte)
+ * 7. Willkommen + Paywall (€19,90 Basic / €29,90 Premium)
+ */
+
 const Onboarding = {
   currentStep: 1,
-  totalSteps: 9,
+  totalSteps: 7,
   data: {},
-  quizQuestions: [
-    {
-      q: 'Welches Vitamin ist fettlöslich?',
-      options: ['Vitamin C', 'Vitamin D', 'Vitamin B12', 'Folsäure'],
-      correct: 1
-    },
-    {
-      q: 'Was beschreibt die Osmose?',
-      options: ['Gasaustausch', 'Diffusion von Wasser durch eine semipermeable Membran', 'Aktiver Transport von Ionen', 'Enzymkatalyse'],
-      correct: 1
-    },
-    {
-      q: 'Wie viele Kammern hat das menschliche Herz?',
-      options: ['2', '3', '4', '6'],
-      correct: 2
-    }
-  ],
-  quizIdx: 0,
-  quizScore: 0,
+  selectedWorries: [],
 
+  // --- Prüfe ob Onboarding nötig ist (von App.init() aufgerufen) ---
   async checkOnboardingNeeded() {
     if (!Auth.isLoggedIn) return false;
     const uid = Auth.currentUser.id;
-    // Fast localStorage check first (bulletproof fallback)
     const lsKey = 'medat_onboarding_done_' + uid;
     if (localStorage.getItem(lsKey) === 'true') return false;
     try {
@@ -5384,9 +5445,8 @@ const Onboarding = {
         .eq('user_id', uid)
         .maybeSingle();
       if (error) { console.error('Onboarding check error:', error); return false; }
-      if (!data) return true; // No record → needs onboarding
+      if (!data) return true;
       if (data.onboarding_completed) {
-        // Sync localStorage so future checks are instant
         localStorage.setItem(lsKey, 'true');
         return false;
       }
@@ -5397,141 +5457,129 @@ const Onboarding = {
     }
   },
 
+  // --- Starte Onboarding ---
   start() {
     this.currentStep = 1;
     this.data = {};
-    this.quizIdx = 0;
-    this.quizScore = 0;
+    this.selectedWorries = [];
     App.showScreen('screen-onboarding');
     this._showStep(1);
     this._bindEvents();
   },
 
+  // --- Alle Events binden ---
   _bindEvents() {
-    // Option buttons (steps 1-4, 6)
-    document.querySelectorAll('.ob-options').forEach(group => {
-      group.querySelectorAll('.ob-option').forEach(btn => {
+    // Schritt 1: Nickname → Weiter-Button
+    const nicknameNext = document.getElementById('ob-nickname-next');
+    const nicknameInput = document.getElementById('ob-nickname');
+    if (nicknameNext) nicknameNext.onclick = () => {
+      const val = nicknameInput?.value?.trim();
+      if (!val) { nicknameInput?.focus(); App.showToast('Bitte gib einen Namen ein 😊'); return; }
+      this.data.display_nickname = val;
+      this._nextStep();
+    };
+    // Enter-Taste für Nickname
+    if (nicknameInput) nicknameInput.onkeydown = (e) => {
+      if (e.key === 'Enter') nicknameNext?.click();
+    };
+
+    // Schritte 2 + 3: ob-option Buttons mit auto-advance (wie Original)
+    document.querySelectorAll('.ob-options:not(#ob-worry-options)').forEach(group => {
+      group.querySelectorAll('.ob-option:not(.ob-multi)').forEach(btn => {
         btn.onclick = () => {
           const field = group.dataset.field;
           const value = btn.dataset.value;
-          // Visual selection
           group.querySelectorAll('.ob-option').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
-          // Store
           this.data[field] = value;
-          // Auto-advance after brief delay
           setTimeout(() => this._nextStep(), 400);
         };
       });
     });
 
-    // Paywall buttons
-    const buyBtn = document.getElementById('ob-buy-btn');
-    if (buyBtn) buyBtn.onclick = () => {
-      this._saveOnboarding(true);
-      App.startStripeCheckout();
+    // Schritt 4: Sorgen — Multi-Select (kein auto-advance)
+    document.querySelectorAll('.ob-multi').forEach(btn => {
+      btn.onclick = () => {
+        btn.classList.toggle('selected');
+        const worry = btn.dataset.worry;
+        if (btn.classList.contains('selected')) {
+          if (!this.selectedWorries.includes(worry)) this.selectedWorries.push(worry);
+        } else {
+          this.selectedWorries = this.selectedWorries.filter(w => w !== worry);
+        }
+        // Weiter-Button zeigen wenn mindestens 1 ausgewählt
+        const nextBtn = document.getElementById('ob-worry-next');
+        if (nextBtn) nextBtn.style.display = this.selectedWorries.length > 0 ? 'block' : 'none';
+      };
+    });
+    const worryNext = document.getElementById('ob-worry-next');
+    if (worryNext) worryNext.onclick = () => {
+      this.data.biggest_worry = [...this.selectedWorries];
+      this._nextStep();
     };
-    const skipBtn = document.getElementById('ob-skip-paywall');
-    if (skipBtn) skipBtn.onclick = () => {
+
+    // Schritt 5: Schwachstellen → Weiter + Überspringen
+    const topicsNext = document.getElementById('ob-topics-next');
+    if (topicsNext) topicsNext.onclick = () => {
+      this.data.weak_topics_freetext = document.getElementById('ob-weak-topics')?.value?.trim() || '';
+      this._nextStep();
+    };
+    const topicsSkip = document.getElementById('ob-topics-skip');
+    if (topicsSkip) topicsSkip.onclick = () => {
+      this.data.weak_topics_freetext = '';
+      this._nextStep();
+    };
+
+    // Schritt 7: Paywall
+    const planBasic = document.getElementById('ob-plan-basic');
+    if (planBasic) planBasic.onclick = () => {
+      this._saveOnboarding(true);
+      App.startStripeCheckout('basic');
+    };
+    const planPremium = document.getElementById('ob-plan-premium');
+    if (planPremium) planPremium.onclick = () => {
+      this._saveOnboarding(true);
+      App.startStripeCheckout('premium');
+    };
+    const skipPaywall = document.getElementById('ob-skip-paywall');
+    if (skipPaywall) skipPaywall.onclick = () => {
       this._saveOnboarding(true);
       App.showScreen('screen-home');
-      App.loadHomeStats();
-      App.showToast('Willkommen beim MedAT Trainer! 🎉');
-      // Show PWA install prompt after onboarding completes
+      if (App.loadHomeStats) App.loadHomeStats();
+      const name = this.data.display_nickname || '';
+      App.showToast(`Willkommen${name ? ', ' + name : ''}! 🎉`);
       setTimeout(() => { if (window.showPWAInstallBanner) window.showPWAInstallBanner(); }, 3000);
     };
-
-    // Roadmap → paywall button
-    const toPaywall = document.getElementById('ob-to-paywall');
-    if (toPaywall) toPaywall.onclick = () => this._nextStep();
   },
 
+  // --- Nächster Schritt ---
   _nextStep() {
     if (this.currentStep >= this.totalSteps) return;
     this.currentStep++;
     this._showStep(this.currentStep);
   },
 
+  // --- Zeige Schritt ---
   _showStep(step) {
-    // Hide all, show current
+    // Alle Steps verstecken, aktuellen zeigen
     document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
     const el = document.querySelector(`.ob-step[data-step="${step}"]`);
     if (el) {
       el.classList.remove('active');
-      // Force re-trigger animation
-      void el.offsetWidth;
+      void el.offsetWidth; // Re-trigger Animation
       el.classList.add('active');
     }
-    // Update progress bar
+    // Fortschrittsbalken aktualisieren
     const pct = ((step - 1) / (this.totalSteps - 1)) * 100;
     const bar = document.getElementById('ob-progress-bar');
     if (bar) bar.style.width = pct + '%';
 
-    // Step-specific init
-    if (step === 5) this._initQuiz();
-    if (step === 7) this._runLoadingAnimation();
-    if (step === 8) this._renderRoadmap();
+    // Spezielle Logik pro Schritt
+    if (step === 6) this._runLoadingAnimation();
+    if (step === 7) this._prepareWelcome();
   },
 
-  // ---- Quick Win Quiz ----
-  _initQuiz() {
-    this.quizIdx = 0;
-    this.quizScore = 0;
-    this._renderQuizQuestion();
-  },
-
-  _renderQuizQuestion() {
-    const container = document.getElementById('ob-quiz');
-    if (this.quizIdx >= this.quizQuestions.length) {
-      // Show result
-      const emoji = this.quizScore >= 2 ? '🎉' : '💪';
-      const msg = this.quizScore === 3
-        ? 'Perfekt! Du hast eine starke Basis.'
-        : this.quizScore === 2
-          ? 'Super, 2 von 3 richtig! Du bist auf einem guten Weg.'
-          : 'Kein Problem – genau dafür ist der MedAT Trainer da!';
-      container.innerHTML = `
-        <div class="ob-quiz-result">
-          <div class="ob-emoji">${emoji}</div>
-          <h3>${this.quizScore} von 3 richtig!</h3>
-          <p>${msg}</p>
-          <button class="btn-primary btn-large btn-full" id="ob-quiz-next">Weiter</button>
-        </div>`;
-      document.getElementById('ob-quiz-next').onclick = () => this._nextStep();
-      return;
-    }
-
-    const q = this.quizQuestions[this.quizIdx];
-    container.innerHTML = `
-      <div class="ob-quiz-counter">Frage ${this.quizIdx + 1} von ${this.quizQuestions.length}</div>
-      <div class="ob-quiz-q">${q.q}</div>
-      <div class="ob-quiz-options">
-        ${q.options.map((opt, i) => `<button class="ob-quiz-opt" data-idx="${i}">${opt}</button>`).join('')}
-      </div>`;
-
-    container.querySelectorAll('.ob-quiz-opt').forEach(btn => {
-      btn.onclick = () => {
-        const idx = parseInt(btn.dataset.idx);
-        const isCorrect = idx === q.correct;
-        if (isCorrect) this.quizScore++;
-
-        // Disable all, highlight correct/wrong
-        container.querySelectorAll('.ob-quiz-opt').forEach(b => {
-          b.classList.add('disabled');
-          if (parseInt(b.dataset.idx) === q.correct) b.classList.add('correct');
-          else if (b === btn && !isCorrect) b.classList.add('wrong');
-        });
-
-        // Next question after delay
-        setTimeout(() => {
-          this.quizIdx++;
-          this._renderQuizQuestion();
-        }, 1000);
-      };
-    });
-  },
-
-  // ---- Loading Animation (step 7) ----
+  // --- Lade-Animation (Schritt 6) ---
   _runLoadingAnimation() {
     const items = document.querySelectorAll('.ob-load-item');
     const bar = document.getElementById('ob-load-bar');
@@ -5544,24 +5592,22 @@ const Onboarding = {
     });
     if (bar) bar.style.width = '0%';
 
+    // Speichere Daten im Hintergrund während Animation läuft
+    this._saveOnboarding(false);
+    this._generateTutorPrompts();
+
     items.forEach((item, i) => {
       const delay = parseInt(item.dataset.delay) || i * 1500;
-
-      // Start
       setTimeout(() => {
         item.classList.add('active');
         if (bar) bar.style.width = ((i + 0.5) / items.length * 100) + '%';
       }, delay);
-
-      // Complete
       setTimeout(() => {
         item.classList.remove('active');
         item.classList.add('done');
         item.querySelector('.ob-load-check').textContent = '✓';
         completed++;
         if (bar) bar.style.width = (completed / items.length * 100) + '%';
-
-        // All done → auto-advance
         if (completed === items.length) {
           setTimeout(() => this._nextStep(), 800);
         }
@@ -5569,38 +5615,82 @@ const Onboarding = {
     });
   },
 
-  // ---- Roadmap (step 8) ----
-  _renderRoadmap() {
-    const container = document.getElementById('ob-roadmap');
-    const weak = this.data.weakest_section || 'bms';
-    const names = { bms: 'BMS', tv: 'Textverständnis', kff: 'Kognitive Fähigkeiten', sek: 'Soziales Entscheiden' };
-    const weakName = names[weak] || 'BMS';
-
-    // Sections minus the weak one (it comes first)
-    const others = Object.entries(names).filter(([k]) => k !== weak);
-
-    const steps = [
-      { label: 'Jetzt', title: `${weakName} – Dein Fokus-Bereich`, desc: 'Starte mit dem, was dir Sorgen macht. Gezielte Übungen und Erklärungen.', now: true },
-      { label: 'W2', title: `${others[0][1]} aufbauen`, desc: 'Erweitere dein Training auf den nächsten Testteil.', now: false },
-      { label: 'W3', title: `${others[1][1]} & ${others[2][1]}`, desc: 'Alle Testteile abdecken und Schwächen ausgleichen.', now: false },
-      { label: 'W4+', title: 'PDF-Simulationen unter Zeitdruck', desc: 'Komplette Prüfungssimulationen – wie am echten MedAT-Tag.', now: false },
-    ];
-
-    container.innerHTML = steps.map(s => `
-      <div class="ob-road-item">
-        <div class="ob-road-dot ${s.now ? 'now' : 'later'}">${s.label}</div>
-        <div class="ob-road-text">
-          <h4>${s.title}</h4>
-          <p>${s.desc}</p>
-        </div>
-      </div>`).join('');
+  // --- Welcome-Schritt vorbereiten ---
+  _prepareWelcome() {
+    const title = document.getElementById('ob-welcome-title');
+    if (title && this.data.display_nickname) {
+      title.textContent = `${this.data.display_nickname}, dein Training ist bereit!`;
+    }
   },
 
-  // ---- Save to Supabase ----
+  // --- Tutor-Prompts generieren basierend auf weak_topics_freetext ---
+  async _generateTutorPrompts() {
+    if (!Auth.isLoggedIn) return;
+    const uid = Auth.currentUser.id;
+    const topics = (this.data.weak_topics_freetext || '').toLowerCase();
+    if (!topics) return;
+
+    const tutors = [
+      {
+        name: 'Banana',
+        keywords: ['bms', 'bio', 'chemie', 'physik', 'mathe', 'hormone', 'stöchiometrie', 'aminosäuren', 'kohlenwasserstoffe', 'enzyme', 'zelle'],
+        prompt: `Erstelle ein lustiges Merkbild (Mnemonic) für: ${this.data.weak_topics_freetext}. Nutze visuelle Assoziationen und Geschichten, die man nicht vergisst.`
+      },
+      {
+        name: 'Professor Grimm',
+        keywords: ['bms', 'bio', 'chemie', 'physik', 'mathe', 'hormone', 'stöchiometrie', 'galvanisch', 'osmose', 'enzyme', 'dna'],
+        prompt: `Erkläre mir Schritt für Schritt: ${this.data.weak_topics_freetext}. Nutze Analogien und Beispiele, als würde ich es zum ersten Mal hören.`
+      },
+      {
+        name: 'Rico',
+        keywords: ['kff', 'zahlenfolgen', 'kognitiv', 'muster', 'logik', 'sequenz'],
+        prompt: `Gib mir 5 typische MedAT-Zahlenfolgen zu: ${this.data.weak_topics_freetext}. Zeig mir die Muster und Lösungsstrategien.`
+      },
+      {
+        name: 'Jojo',
+        keywords: ['kff', 'figuren', 'räumlich', 'geometrie', 'figural', 'würfel'],
+        prompt: `Trainiere mich in figuralem Reasoning: ${this.data.weak_topics_freetext}. Gib mir Übungen mit Erklärungen.`
+      },
+      {
+        name: 'Drillmaster',
+        keywords: ['schnell', 'speed', 'drill', 'zeitdruck', 'bms'],
+        prompt: `Erstelle einen Schnelltest zu: ${this.data.weak_topics_freetext}. 10 Fragen, maximale Geschwindigkeit!`
+      },
+      {
+        name: 'Lilly',
+        keywords: ['sek', 'sozial', 'entscheiden', 'ethik', 'emotion'],
+        prompt: `Gib mir realistische SEK-Szenarien zu: ${this.data.weak_topics_freetext}. Erkläre die ethische Dimension.`
+      }
+    ];
+
+    const prompts = [];
+    for (const tutor of tutors) {
+      const isRelevant = tutor.keywords.some(kw => topics.includes(kw));
+      // Drillmaster immer, wenn Themen angegeben
+      if (isRelevant || tutor.name === 'Drillmaster') {
+        prompts.push({
+          user_id: uid,
+          tutor_name: tutor.name,
+          prompt_text: tutor.prompt,
+          topic: this.data.weak_topics_freetext.substring(0, 200),
+          created_at: new Date().toISOString()
+        });
+      }
+    }
+
+    if (prompts.length > 0) {
+      try {
+        await Auth.supabase.from('onboarding_saved_prompts').insert(prompts);
+      } catch (e) {
+        console.warn('Prompts speichern fehlgeschlagen:', e);
+      }
+    }
+  },
+
+  // --- Onboarding-Daten in Supabase speichern ---
   async _saveOnboarding(completed) {
     if (!Auth.isLoggedIn) return;
     const uid = Auth.currentUser.id;
-    // Always set localStorage immediately (bulletproof)
     if (completed) {
       localStorage.setItem('medat_onboarding_done_' + uid, 'true');
     }
@@ -5609,25 +5699,30 @@ const Onboarding = {
         user_id: uid,
         target_uni: this.data.target_uni || null,
         is_first_attempt: this.data.is_first_attempt === 'true' ? true : this.data.is_first_attempt === 'false' ? false : null,
-        weakest_section: this.data.weakest_section || null,
-        confidence_level: this.data.confidence_level || null,
-        preferred_study_time: this.data.preferred_study_time || null,
+        biggest_worry: this.data.biggest_worry || this.selectedWorries || [],
+        weak_topics_freetext: this.data.weak_topics_freetext || null,
         onboarding_completed: completed,
         onboarding_completed_at: completed ? new Date().toISOString() : null,
         updated_at: new Date().toISOString()
       };
-
       const { error } = await Auth.supabase
         .from('user_onboarding')
         .upsert(payload, { onConflict: 'user_id' });
-
       if (error) console.error('Onboarding save error:', error);
-      else console.log('Onboarding saved successfully:', completed);
+
+      // Nickname in user_profiles speichern
+      if (this.data.display_nickname) {
+        await Auth.supabase
+          .from('user_profiles')
+          .update({ display_nickname: this.data.display_nickname })
+          .eq('user_id', uid);
+      }
     } catch (e) {
       console.error('Onboarding save error:', e);
     }
   }
 };
+
 
 // Start
 document.addEventListener('DOMContentLoaded', () => App.init().catch(e => {
