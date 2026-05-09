@@ -1123,7 +1123,8 @@ const App = {
   // die anderen ausgegraut + Klick öffnet Upgrade-Modal.
   _applyToolsLocks() {
     const tier = (Auth && Auth.licenseTier) || 'free';
-    const hasAll = tier === 'premium';
+    const isAdmin = typeof Admin !== 'undefined' && Admin.isAdmin?.();
+    const hasAll = tier === 'premium' || isAdmin;
 
     document.querySelectorAll('#screen-tools .tools-card').forEach(card => {
       const isLockedByDefault = card.dataset.toolLocked === '1';
