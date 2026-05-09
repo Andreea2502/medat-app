@@ -19,7 +19,8 @@ const Admin = {
 
   isAdmin() {
     if (!Auth.isLoggedIn || !Auth.currentUser) return false;
-    return this.ADMIN_EMAILS.includes(Auth.currentUser.email);
+    const email = (Auth.currentUser.email || '').toLowerCase().trim();
+    return this.ADMIN_EMAILS.some(e => e.toLowerCase().trim() === email);
   },
 
   async render() {
