@@ -226,16 +226,8 @@ const PDFExport = {
       if (checked.length === 0) {
         summary.textContent = 'Keine Sektionen ausgewählt';
       } else {
-        // Estimate page count (~3 questions per page for BMS, ~2 for KFF, rough estimate)
-        const estPages = Math.max(1, Math.ceil(totalQ / 2.5) + checked.length);
-        let creditNote = '';
-        if (!Credits.isUnlimited()) {
-          creditNote = ` · ca. ${estPages} Credits (1/Seite)`;
-          if (Credits.remaining < estPages) {
-            creditNote = ` · <span style="color:#ef4444">ca. ${estPages} Credits nötig (${Credits.remaining} übrig)</span>`;
-          }
-        }
-        summary.innerHTML = `${checked.length} Sektion${checked.length !== 1 ? 'en' : ''} · ${totalQ} Fragen · ca. ${totalMin} Min${creditNote}`;
+        // PDF-Generierung ist nicht mehr Credit-gebunden (Credit-System entfernt).
+        summary.innerHTML = `${checked.length} Sektion${checked.length !== 1 ? 'en' : ''} · ${totalQ} Fragen · ca. ${totalMin} Min`;
       }
     }
   },
@@ -3413,17 +3405,9 @@ const PDFExport = {
   async _saveWithPrompt(pdf, fileName, category, pdfType, questionCount) {
     const pageCount = pdf.getNumberOfPages();
 
-    // Credit check for PDF generation
-    if (!Credits.isUnlimited()) {
-      if (!Credits.hasEnough(pageCount)) {
-        if (Credits.remaining <= 0) {
-          Credits.showPaywall();
-          return;
-        }
-      }
-      // Deduct credits for PDF pages
-      await Credits.use(pageCount, 'pdf_page', `${fileName} (${pageCount} Seiten)`);
-    }
+    // PDF-Generierung ist nicht mehr Credit-gebunden — Free-User dürfen
+    // beliebig viele PDFs ziehen, der eigentliche Tier-Gate sitzt am
+    // Frage-Limit (150 Fragen) das vor dem Üben greift.
 
     // Get blob before showing prompt
     const blob = pdf.output('blob');

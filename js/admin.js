@@ -966,7 +966,7 @@ const Admin = {
         <tr><td style="color:var(--text-muted)">Simulationen</td><td>${u.simulations_completed || 0}</td></tr>
       </table>
 
-      <div class="adm-modal-section-title">KI-Nutzung & Credits</div>
+      <div class="adm-modal-section-title">KI-Nutzung & Free-Limits</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
         <div style="background:var(--bg-light,#f8f6f1);border-radius:10px;padding:0.75rem;text-align:center">
           <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">KI-Sessions</div>
@@ -1301,7 +1301,7 @@ const Admin = {
   async deleteUser(userId, userName) {
     // Double confirmation for safety
     const label = userName || 'diesen Nutzer';
-    if (!confirm(`"${label}" wirklich LÖSCHEN?\n\nAlle Daten (Fortschritt, PDFs, Credits, Simulationen) werden unwiderruflich entfernt.\nDie E-Mail-Adresse wird für eine neue Registrierung freigegeben.\n\nDies kann NICHT rückgängig gemacht werden!`)) return;
+    if (!confirm(`"${label}" wirklich LÖSCHEN?\n\nAlle Daten (Fortschritt, PDFs, KI-Sessions, Simulationen) werden unwiderruflich entfernt.\nDie E-Mail-Adresse wird für eine neue Registrierung freigegeben.\n\nDies kann NICHT rückgängig gemacht werden!`)) return;
     if (!confirm(`Bist du SICHER? Letzte Warnung!\n\nUser "${label}" wird endgültig gelöscht.`)) return;
 
     try {
