@@ -68,15 +68,15 @@
   .step .num{width:22px;height:22px;border-radius:50%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800}
   .step-arrow [data-lucide]{color:var(--muted);width:16px;height:16px}
 
-  /* PEDIGREE */
-  .tree-wrap{background:var(--dark);border-radius:var(--radius);padding:18px 12px;overflow-x:auto;margin:14px 0;position:relative}
-  .tree-wrap svg{display:block;margin:0 auto;max-width:100%;height:auto}
-  .legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
-  .legend-i{display:flex;align-items:center;gap:6px;font-size:.74rem;color:#d8d8e0}
-  .lg-shape{width:18px;height:18px;border:2px solid #fff;display:inline-block}
+  /* PEDIGREE — plastic 3D look */
+  .tree-wrap{background:linear-gradient(165deg,#fff 0%,#faf6ee 50%,var(--lavender) 100%);border-radius:var(--radius);padding:24px 16px 18px;overflow-x:auto;margin:14px 0;position:relative;box-shadow:inset 0 0 60px rgba(155,127,196,0.08), var(--shadow);border:1px solid rgba(155,127,196,0.18)}
+  .tree-wrap svg{display:block;margin:0 auto;max-width:100%;height:auto;min-height:340px}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;padding-top:14px;border-top:1px dashed rgba(155,127,196,.25)}
+  .legend-i{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--text-secondary);font-weight:600}
+  .lg-shape{width:18px;height:18px;border:2.5px solid var(--text);display:inline-block;box-shadow:0 2px 4px rgba(26,26,46,0.12)}
   .lg-circle{border-radius:50%}
-  .lg-fill-affected{background:#e07b8b;border-color:#e07b8b}
-  .lg-fill-carrier{background:repeating-linear-gradient(45deg,#fff,#fff 3px,#9b7fc4 3px,#9b7fc4 6px)}
+  .lg-fill-affected{background:linear-gradient(135deg,#fae0e6,#e07b8b);border-color:#c8505f}
+  .lg-fill-carrier{background:repeating-linear-gradient(45deg,#fff,#fff 3px,#9b7fc4 3px,#9b7fc4 6px);border-color:#9b7fc4}
   .lg-fill-healthy{background:transparent}
   .lg-fill-deceased{background:transparent;position:relative}
   .lg-fill-deceased::after{content:'';position:absolute;left:-3px;right:-3px;top:50%;height:2px;background:#fff;transform:rotate(-30deg)}
@@ -88,16 +88,19 @@
   .ctl-row:last-child{margin-bottom:0}
 
   /* PERSON SVG */
-  .ped-node{cursor:pointer;transition:all .2s}
-  .ped-shape{fill:transparent;stroke:#fff;stroke-width:2.5;transition:all .2s}
-  .ped-node:hover .ped-shape{stroke:#f5c542;stroke-width:3.5}
-  .ped-node.affected .ped-shape{fill:#e07b8b;stroke:#e07b8b}
-  .ped-node.carrier .ped-shape{fill:url(#carrierPattern);stroke:#9b7fc4}
-  .ped-node.deceased .ped-deceased-line{stroke:#fff;stroke-width:2.5}
-  .ped-line{stroke:#fff;stroke-width:2;fill:none}
-  .ped-label{fill:#a0a0b8;font-size:11px;font-weight:600;pointer-events:none}
+  .ped-node{cursor:pointer;transition:transform .2s}
+  .ped-node:hover{transform:translateY(-2px)}
+  /* Healthy = white plastic ball / cube with subtle gradient + drop shadow */
+  .ped-shape{fill:url(#healthyGrad);stroke:#5c5c6e;stroke-width:2;transition:all .2s;filter:url(#shadowFilter)}
+  .ped-node:hover .ped-shape{stroke:#7a60a8;stroke-width:3}
+  .ped-node.affected .ped-shape{fill:url(#affectedGrad);stroke:#c8505f;stroke-width:2.5}
+  .ped-node.carrier .ped-shape{fill:url(#carrierGrad);stroke:#7a60a8;stroke-width:2.5}
+  .ped-node.deceased .ped-deceased-line{stroke:#1a1a2e;stroke-width:3;stroke-linecap:round}
+  .ped-line{stroke:#5c5c6e;stroke-width:2.2;fill:none;stroke-linecap:round}
+  .ped-label{fill:#7a60a8;font-size:12px;font-weight:800;pointer-events:none;letter-spacing:.4px;text-transform:uppercase}
   .ped-id{fill:#1a1a2e;font-size:11px;font-weight:700;pointer-events:none;text-anchor:middle}
   .ped-node.affected .ped-id{fill:#fff}
+  .ped-highlight{fill:rgba(255,255,255,.55);pointer-events:none}
 
   /* PERSON TOOLBAR */
   .person-tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
@@ -285,10 +288,28 @@
       <div class="tree-wrap">
         <svg id="ped" viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet">
           <defs>
+            <radialGradient id="healthyGrad" cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#f5f0e8"/>
+              <stop offset="100%" stop-color="#d8d2c5"/>
+            </radialGradient>
+            <radialGradient id="affectedGrad" cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#fae0e6"/>
+              <stop offset="55%" stop-color="#e07b8b"/>
+              <stop offset="100%" stop-color="#9a3d4d"/>
+            </radialGradient>
+            <radialGradient id="carrierGrad" cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#f5e8ff"/>
+              <stop offset="55%" stop-color="#c8b3e0"/>
+              <stop offset="100%" stop-color="#7a60a8"/>
+            </radialGradient>
             <pattern id="carrierPattern" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-              <rect width="6" height="6" fill="#fff"/>
+              <rect width="6" height="6" fill="#ede4f5"/>
               <rect width="3" height="6" fill="#9b7fc4"/>
             </pattern>
+            <filter id="shadowFilter" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1a1a2e" flood-opacity="0.18"/>
+            </filter>
           </defs>
         </svg>
         <div class="legend">
@@ -328,10 +349,28 @@
       <div class="quiz-pedigree">
         <svg id="erratePed" viewBox="0 0 720 360" preserveAspectRatio="xMidYMid meet">
           <defs>
+            <radialGradient id="healthyGrad2" cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="55%" stop-color="#f5f0e8"/>
+              <stop offset="100%" stop-color="#d8d2c5"/>
+            </radialGradient>
+            <radialGradient id="affectedGrad2" cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#fae0e6"/>
+              <stop offset="55%" stop-color="#e07b8b"/>
+              <stop offset="100%" stop-color="#9a3d4d"/>
+            </radialGradient>
+            <radialGradient id="carrierGrad2" cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#f5e8ff"/>
+              <stop offset="55%" stop-color="#c8b3e0"/>
+              <stop offset="100%" stop-color="#7a60a8"/>
+            </radialGradient>
             <pattern id="carrierPattern2" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-              <rect width="6" height="6" fill="#fff"/>
+              <rect width="6" height="6" fill="#ede4f5"/>
               <rect width="3" height="6" fill="#9b7fc4"/>
             </pattern>
+            <filter id="shadowFilter2" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1a1a2e" flood-opacity="0.18"/>
+            </filter>
           </defs>
         </svg>
       </div>
@@ -560,30 +599,56 @@ function drawPed(svgId='ped',status=state.status){
     t.setAttribute('class','ped-label'); t.textContent=`Gen ${roman(i)}`;
     g.appendChild(t);
   }
+  // Suffix für gradient/filter-IDs (zweites SVG hat Suffix "2")
+  const sfx = (svgId === 'ped') ? '' : '2';
+  const NS = 'http://www.w3.org/2000/svg';
   NODES.forEach(n=>{
-    const node=document.createElementNS('http://www.w3.org/2000/svg','g');
+    const node=document.createElementNS(NS,'g');
     node.setAttribute('class','ped-node '+status[n.id]);
     node.setAttribute('transform',`translate(${n.x},${n.y})`);
-    let shape;
+    let shape, highlight;
+    const r = 22;
     if(n.sex==='M'){
-      shape=document.createElementNS('http://www.w3.org/2000/svg','rect');
-      shape.setAttribute('x',-18);shape.setAttribute('y',-18);
-      shape.setAttribute('width',36);shape.setAttribute('height',36);
+      shape=document.createElementNS(NS,'rect');
+      shape.setAttribute('x',-r);shape.setAttribute('y',-r);
+      shape.setAttribute('width',r*2);shape.setAttribute('height',r*2);
+      shape.setAttribute('rx',5); // leicht abgerundete Ecken (plastisch)
+      // plastic top-light highlight (Quader)
+      highlight=document.createElementNS(NS,'rect');
+      highlight.setAttribute('x',-r+5);highlight.setAttribute('y',-r+5);
+      highlight.setAttribute('width',r*2-10);highlight.setAttribute('height',8);
+      highlight.setAttribute('rx',3);
+      highlight.setAttribute('class','ped-highlight');
     } else {
-      shape=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      shape.setAttribute('r',18);
+      shape=document.createElementNS(NS,'circle');
+      shape.setAttribute('r',r);
+      // plastic glossy highlight (Kreis)
+      highlight=document.createElementNS(NS,'ellipse');
+      highlight.setAttribute('cx',-5);highlight.setAttribute('cy',-9);
+      highlight.setAttribute('rx',9);highlight.setAttribute('ry',5);
+      highlight.setAttribute('class','ped-highlight');
     }
     shape.setAttribute('class','ped-shape');
+    // Setze Gradient-Refs explizit damit's mit /2-Suffix richtig auflöst
+    const fillByState = {
+      healthy:  `url(#healthyGrad${sfx})`,
+      affected: `url(#affectedGrad${sfx})`,
+      carrier:  `url(#carrierGrad${sfx})`,
+      deceased: `url(#healthyGrad${sfx})`,
+    };
+    shape.setAttribute('fill', fillByState[status[n.id]] || fillByState.healthy);
+    shape.setAttribute('filter', `url(#shadowFilter${sfx})`);
     node.appendChild(shape);
+    node.appendChild(highlight);
     if(status[n.id]==='deceased'){
-      const dl=document.createElementNS('http://www.w3.org/2000/svg','line');
-      dl.setAttribute('x1',-22);dl.setAttribute('y1',16);
-      dl.setAttribute('x2',22);dl.setAttribute('y2',-16);
+      const dl=document.createElementNS(NS,'line');
+      dl.setAttribute('x1',-r-4);dl.setAttribute('y1',r-4);
+      dl.setAttribute('x2',r+4);dl.setAttribute('y2',-r+4);
       dl.setAttribute('class','ped-deceased-line');
       node.appendChild(dl);
     }
-    const idText=document.createElementNS('http://www.w3.org/2000/svg','text');
-    idText.setAttribute('class','ped-id'); idText.setAttribute('y',32); idText.textContent=n.id;
+    const idText=document.createElementNS(NS,'text');
+    idText.setAttribute('class','ped-id'); idText.setAttribute('y',r+12); idText.textContent=n.id;
     node.appendChild(idText);
     if(svgId==='ped'){
       node.addEventListener('click',()=>{
@@ -700,7 +765,32 @@ function diagnoseAll(){
   if(window.lucide) lucide.createIcons();
 }
 
-drawPed(); diagnoseAll();
+function _initStammbaum(){
+  try {
+    drawPed();
+    diagnoseAll();
+    if (window.lucide) lucide.createIcons();
+  } catch (e) {
+    console.error('Stammbaum init failed:', e);
+    // Fallback: zeige eine sichtbare Fehlermeldung statt schwarzem Screen
+    const svg = document.getElementById('ped');
+    if (svg) {
+      const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x','360'); t.setAttribute('y','180');
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('fill','#c8505f');
+      t.setAttribute('font-size','16');
+      t.setAttribute('font-weight','700');
+      t.textContent = 'Render-Fehler — bitte Seite neu laden';
+      svg.appendChild(t);
+    }
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initStammbaum);
+} else {
+  _initStammbaum();
+}
 
 /* ===== BEISPIELFÄLLE ===== */
 const CASES = {
