@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNA → Protein Translator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --bA:#e07b8b;--bT:#6db8e0;--bU:#9b7fc4;--bG:#6db88a;--bC:#f5c542;
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  /* HEADER */
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#d4ebf8,#fff);display:flex;align-items:center;justify-content:center;color:var(--blue-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  /* TABS */
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(109,184,224,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--blue);color:var(--blue-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  /* CARDS */
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--blue-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:6px;color:var(--blue-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  /* HERO STRIP */
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,#e6f1f8 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(109,184,224,.18);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--blue-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* INPUT */
+  .input-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .dna-input{flex:1;min-width:240px;padding:12px 16px;border:1.5px solid var(--border);border-radius:14px;font-family:'JetBrains Mono',monospace;font-size:1rem;letter-spacing:1.5px;background:var(--bg-warm);color:var(--text);text-transform:uppercase;font-weight:700;transition:all .2s}
+  .dna-input:focus{outline:none;border-color:var(--blue);background:var(--surface);box-shadow:0 0 0 3px rgba(109,184,224,.15)}
+  .examples{display:flex;gap:6px;flex-wrap:wrap}
+  .ex-btn{padding:8px 12px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.74rem;font-weight:700;cursor:pointer;color:var(--text-secondary);transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+  .ex-btn [data-lucide]{width:13px;height:13px}
+  .ex-btn:hover{border-color:var(--blue);color:var(--blue-deep);transform:translateY(-1px)}
+
+  /* SEQUENCE rows */
+  .seq-row{margin:14px 0}
+  .seq-strip{display:flex;flex-wrap:wrap;gap:0;background:var(--bg-warm);border:1px solid var(--border);border-radius:14px;padding:12px;font-family:'JetBrains Mono',monospace;overflow-x:auto;min-height:56px;align-items:center}
+  .base{display:inline-flex;align-items:center;justify-content:center;width:28px;height:38px;font-weight:700;font-size:.95rem;color:#fff;border-radius:6px;margin:1px;cursor:default;transition:all .15s}
+  .base.clickable{cursor:pointer}
+  .base.clickable:hover{transform:translateY(-2px) scale(1.1);box-shadow:0 4px 8px rgba(0,0,0,.15);z-index:2;position:relative}
+  .base.A{background:var(--bA)}
+  .base.T{background:var(--bT)}
+  .base.U{background:var(--bU)}
+  .base.G{background:var(--bG)}
+  .base.C{background:var(--bC);color:var(--dark)}
+  .base.highlight{outline:3px solid var(--gold);outline-offset:1px;animation:basePulse .6s ease}
+  @keyframes basePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+  .codon-strip{display:flex;flex-wrap:wrap;gap:6px;background:var(--bg-warm);border:1px solid var(--border);border-radius:14px;padding:12px;font-family:'JetBrains Mono',monospace;min-height:56px}
+  .codon{display:flex;flex-direction:column;align-items:center;background:var(--surface);padding:6px 8px;border-radius:10px;border:2px solid var(--border);min-width:54px}
+  .codon .nt{font-size:.85rem;font-weight:700;color:var(--text);letter-spacing:1px}
+  .codon .aa{font-size:.7rem;color:var(--text-secondary);margin-top:2px;font-weight:600}
+  .codon.start{background:var(--mint);border-color:var(--green)}
+  .codon.start .aa{color:var(--success)}
+  .codon.stop{background:var(--coral-soft);border-color:var(--coral)}
+  .codon.stop .aa{color:var(--pink-deep)}
+
+  .protein-strip{display:flex;flex-wrap:wrap;gap:6px;background:linear-gradient(135deg,var(--mint),var(--lavender));border-radius:14px;padding:14px;font-family:'JetBrains Mono',monospace;min-height:56px;align-items:center}
+  .aa-pill{background:var(--surface);padding:7px 12px;border-radius:18px;font-weight:700;font-size:.78rem;color:var(--dark);box-shadow:var(--shadow-sm)}
+  .aa-pill.start{background:var(--green);color:#fff}
+  .aa-pill.stop{background:var(--pink);color:#fff}
+
+  .label-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:14px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .label-tag [data-lucide]{width:12px;height:12px}
+  .lt-dna{background:var(--lavender);color:var(--purple-deep)}
+  .lt-mrna{background:rgba(109,184,224,.2);color:var(--blue-deep)}
+  .lt-trna{background:var(--yellow-soft);color:var(--gold-deep)}
+  .lt-prot{background:var(--mint);color:var(--success)}
+
+  /* MUTATION cards */
+  .mut-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+  .mut-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:14px;cursor:pointer;text-align:center;transition:all .25s cubic-bezier(.4,0,.2,1)}
+  .mut-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+  .mut-card h4{font-size:.86rem;margin-bottom:4px;color:var(--text);font-weight:800}
+  .mut-card p{font-size:.7rem;color:var(--text-secondary);line-height:1.4}
+
+  .mut-result{background:var(--coral-soft);border-left:4px solid var(--coral);padding:14px;border-radius:0 14px 14px 0;margin-top:14px;font-size:.85rem;line-height:1.6;display:none}
+  .mut-result.show{display:block;animation:fadeUp .3s ease}
+  .mut-result b{color:var(--pink-deep)}
+
+  /* CODON WHEEL */
+  .wheel-wrap{background:linear-gradient(135deg,#fff,var(--bg-light));border-radius:var(--radius);padding:14px;display:flex;justify-content:center}
+  #codonWheel .codon-sector{cursor:pointer;transition:all .15s}
+  #codonWheel .codon-sector:hover{filter:brightness(1.15);stroke:var(--gold);stroke-width:2}
+  #codonWheel .codon-sector.selected{stroke:var(--gold);stroke-width:3}
+  #codonWheel text{pointer-events:none;font-family:'Inter',sans-serif}
+  .wheel-readout{margin-top:14px;background:var(--bg-warm);border-radius:14px;padding:14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+  .wheel-readout .wr-label{font-size:.74rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .wheel-readout .wr-codon{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--blue-deep);letter-spacing:2px}
+  .wheel-readout .wr-aa{background:var(--surface);padding:6px 14px;border-radius:18px;font-weight:800;font-size:1rem;color:var(--dark);box-shadow:var(--shadow-sm)}
+  .wheel-readout .wr-aa.start{background:var(--green);color:#fff}
+  .wheel-readout .wr-aa.stop{background:var(--pink);color:#fff}
+
+  /* CODON TABLE */
+  .ct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-family:'JetBrains Mono',monospace;font-size:.75rem}
+  .ct-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 4px;text-align:center;transition:all .15s}
+  .ct-cell:hover{transform:scale(1.05);box-shadow:var(--shadow-sm)}
+  .ct-cell .c-nt{font-weight:700;color:var(--text)}
+  .ct-cell .c-aa{font-size:.7rem;color:var(--text-secondary);margin-top:2px}
+  .ct-cell.start{background:var(--mint);border-color:var(--green)}
+  .ct-cell.stop{background:var(--coral-soft);border-color:var(--coral)}
+
+  /* REVERSE MODE */
+  .protein-input{padding:12px 16px;border:1.5px solid var(--border);border-radius:14px;font-family:'JetBrains Mono',monospace;font-size:.95rem;background:var(--bg-warm);color:var(--text);width:100%;letter-spacing:1px;font-weight:600}
+  .protein-input:focus{outline:none;border-color:var(--blue)}
+
+  .reverse-result{background:var(--bg-warm);border-radius:14px;padding:14px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:.85rem;line-height:1.7;word-break:break-all}
+  .reverse-aa{display:inline-block;padding:3px 7px;background:var(--surface);border-radius:6px;margin:2px;border:1px solid var(--border-light);font-size:.74rem;font-weight:700}
+
+  /* ORF FRAMES */
+  .frame-block{margin:8px 0;background:var(--bg-warm);border-radius:14px;padding:12px;border:1px solid var(--border-light)}
+  .frame-block .frame-label{font-size:.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+  .frame-block .frame-label [data-lucide]{width:12px;height:12px;color:var(--blue-deep)}
+  .frame-row{font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.5;letter-spacing:1px;word-break:break-all}
+  .frame-row .codon-mini{display:inline-block;padding:2px 6px;border-radius:5px;margin:1px;font-weight:700;color:#fff;background:var(--blue)}
+  .frame-row .codon-mini.start{background:var(--green)}
+  .frame-row .codon-mini.stop{background:var(--pink)}
+  .frame-row .codon-mini.mid{background:var(--blue);opacity:.85}
+
+  /* LEGEND */
+  .legend-row{display:flex;flex-wrap:wrap;gap:12px;padding:12px;background:var(--bg-warm);border-radius:14px;margin-top:8px}
+  .lg-i{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-secondary)}
+  .lg-d{width:22px;height:22px;border-radius:5px;display:inline-block;color:#fff;font-family:'JetBrains Mono',monospace;font-weight:700;text-align:center;font-size:.85rem;line-height:22px}
+
+  /* FACTS */
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--yellow-soft);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.84rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--gold-deep);flex-shrink:0;margin-top:2px}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--blue);background:rgba(109,184,224,.04);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .4s}
+
+  /* BUTTONS */
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:#fff;box-shadow:0 4px 14px rgba(109,184,224,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(109,184,224,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--blue);color:var(--blue-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  /* BASE PICKER popup */
+  .picker{position:absolute;background:var(--surface);border-radius:14px;box-shadow:var(--shadow-md);padding:6px;display:none;z-index:200;border:1px solid var(--border)}
+  .picker.show{display:flex;gap:4px;animation:fadeUp .15s ease}
+  .picker .base{cursor:pointer;width:32px;height:36px}
+
+  @media(max-width:520px){
+    .mut-grid{grid-template-columns:1fr 1fr}
+    .ct-grid{grid-template-columns:repeat(2,1fr);font-size:.7rem}
+    .header h1{font-size:1.15rem}
+  }
+
+  /* ===== STECKBRIEF-MODAL (Konzepte) ===== */
+  .sb-modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .sb-modal.show{display:flex;animation:fadeUp .3s ease}
+  .sb-modal-card{background:var(--surface);border-radius:var(--radius);max-width:560px;width:100%;box-shadow:0 16px 48px rgba(26,26,46,.18);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .sb-modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,#e6f1f8,var(--bg-light))}
+  .sb-modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .sb-modal-head .symbol{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:800;color:var(--blue-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .sb-modal-body{padding:18px 24px 24px;display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--blue-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--blue-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--blue-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--blue-deep);font-weight:700}
+  .sb-section.klinik{background:#fde0e5;border-left-color:#c8505f}
+  .sb-section.klinik h4, .sb-section.klinik h4 [data-lucide]{color:#c8505f}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4, .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+  .sb-modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.18);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+  .sb-cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}
+  .sb-tile{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;text-align:left;font-family:inherit}
+  .sb-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--blue-deep)}
+  .sb-tile h5{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:4px}
+  .sb-tile .nm{font-size:.72rem;color:var(--text-secondary);font-weight:600;font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="dna"></i></div>
+    <div>
+      <h1>DNA → Protein</h1>
+      <p>Translator · Mutationen · Reverse · ORF</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="translate"><i data-lucide="play"></i>Translator</button>
+  <button class="tab" data-tab="mutation"><i data-lucide="zap"></i>Mutationen</button>
+  <button class="tab" data-tab="reverse"><i data-lucide="rotate-cw"></i>Reverse</button>
+  <button class="tab" data-tab="orf"><i data-lucide="search"></i>ORF-Finder</button>
+  <button class="tab" data-tab="wheel"><i data-lucide="sun"></i>Codon-Sonne</button>
+  <button class="tab" data-tab="table"><i data-lucide="grid-3x3"></i>Tabelle</button>
+  <button class="tab" data-tab="steckbriefe"><i data-lucide="book-open"></i>Steckbriefe</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: TRANSLATOR ============ -->
+  <div class="section active" id="translate">
+    <div class="hero-strip">
+      <h2><i data-lucide="play"></i>Live-Translator</h2>
+      <p>Tippe oder ändere die DNA-Sequenz und sieh in Echtzeit: Komplementärstrang, mRNA, tRNA-Anti-Codons, Codons in 3er-Blöcken und das fertige Protein. <b>Tipp:</b> Klick auf eine Base in einer Reihe, um sie zu ändern.</p>
+    </div>
+
+    <div class="card">
+      <h3>1. DNA-codierender Strang (5' → 3')</h3>
+      <div class="input-row">
+        <input class="dna-input" id="dnaIn" maxlength="120" value="ATGGCCAAGTTGGAGTAA" />
+      </div>
+      <div class="examples">
+        <button class="ex-btn" data-ex="ATGGCCAAGTTGGAGTAA"><i data-lucide="dna"></i>Kurz (6 AS)</button>
+        <button class="ex-btn" data-ex="ATGGAACATGGAGCAGCATAA"><i data-lucide="dna"></i>Mittel</button>
+        <button class="ex-btn" data-ex="ATGGTGCATCTGACTCCTGAGGAGAAGTCTGCCGTTACTGCCCTGTGGGGCAAGGTGAACGTGGATGAAGTTGGTGGTGAGGCCCTGGGCAGGTAA"><i data-lucide="dna"></i>β-Globin</button>
+        <button class="ex-btn" id="randomDna"><i data-lucide="shuffle"></i>Zufall</button>
+      </div>
+
+      <div class="legend-row">
+        <div class="lg-i"><span class="lg-d" style="background:var(--bA)">A</span>Adenin</div>
+        <div class="lg-i"><span class="lg-d" style="background:var(--bT)">T</span>Thymin</div>
+        <div class="lg-i"><span class="lg-d" style="background:var(--bU)">U</span>Uracil</div>
+        <div class="lg-i"><span class="lg-d" style="background:var(--bG)">G</span>Guanin</div>
+        <div class="lg-i"><span class="lg-d" style="background:var(--bC);color:var(--dark)">C</span>Cytosin</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="seq-row">
+        <span class="label-tag lt-dna"><i data-lucide="dna"></i>DNA codierend (5'→3') · klickbar</span>
+        <div class="seq-strip" id="rowCoding"></div>
+      </div>
+      <div class="seq-row">
+        <span class="label-tag lt-dna"><i data-lucide="dna"></i>DNA Matrize (3'→5')</span>
+        <div class="seq-strip" id="rowTemplate"></div>
+      </div>
+      <div class="seq-row">
+        <span class="label-tag lt-mrna"><i data-lucide="chevron-right"></i>mRNA (5'→3')</span>
+        <div class="seq-strip" id="rowMRNA"></div>
+      </div>
+      <div class="seq-row">
+        <span class="label-tag lt-trna"><i data-lucide="chevron-right"></i>tRNA Anti-Codons (3'→5')</span>
+        <div class="seq-strip" id="rowTRNA"></div>
+      </div>
+      <div class="seq-row">
+        <span class="label-tag lt-mrna"><i data-lucide="chevron-right"></i>Codons (3er-Blöcke)</span>
+        <div class="codon-strip" id="rowCodons"></div>
+      </div>
+      <div class="seq-row">
+        <span class="label-tag lt-prot"><i data-lucide="chevron-right"></i>Polypeptid (N→C)</span>
+        <div class="protein-strip" id="rowProtein"></div>
+      </div>
+      <div class="key-fact"><i data-lucide="info"></i><div><b>So liest du die Tabelle:</b> 1. Nukleotid des Codons = Zeile, 2. = Spalte, 3. = innere Position. Start: <b>AUG → Met</b>. Stopp: <b>UAA, UAG, UGA</b>.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: MUTATIONEN ============ -->
+  <div class="section" id="mutation">
+    <div class="hero-strip">
+      <h2><i data-lucide="zap"></i>Mutationen-Lab</h2>
+      <p>Wähle einen Mutationstyp — das Tool wendet ihn auf deine Sequenz an und zeigt, was sich am Protein ändert.</p>
+    </div>
+
+    <div class="card">
+      <div class="seq-row">
+        <span class="label-tag lt-dna"><i data-lucide="dna"></i>Original DNA</span>
+        <div class="seq-strip" id="origDNA"></div>
+      </div>
+      <div class="seq-row">
+        <span class="label-tag lt-prot"><i data-lucide="chevron-right"></i>Original Protein</span>
+        <div class="protein-strip" id="origProt"></div>
+      </div>
+
+      <h3 style="margin-top:18px">Wähle Mutationstyp</h3>
+      <div class="mut-grid">
+        <div class="mut-card" data-mut="silent"><h4>Stille Mutation</h4><p>Codon ändert sich, AS bleibt gleich</p></div>
+        <div class="mut-card" data-mut="missense"><h4>Missense</h4><p>Andere Aminosäure</p></div>
+        <div class="mut-card" data-mut="nonsense"><h4>Nonsense</h4><p>Stoppcodon entsteht</p></div>
+        <div class="mut-card" data-mut="frameshift-ins"><h4>Insertion (+1)</h4><p>Leseraster verschiebt sich</p></div>
+        <div class="mut-card" data-mut="frameshift-del"><h4>Deletion (–1)</h4><p>Leseraster verschiebt sich</p></div>
+      </div>
+
+      <div class="seq-row" style="margin-top:18px">
+        <span class="label-tag lt-dna"><i data-lucide="dna"></i>Mutierte DNA</span>
+        <div class="seq-strip" id="mutDNA"></div>
+      </div>
+      <div class="seq-row">
+        <span class="label-tag lt-prot"><i data-lucide="chevron-right"></i>Mutiertes Protein</span>
+        <div class="protein-strip" id="mutProt"></div>
+      </div>
+
+      <div class="mut-result" id="mutFb"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: REVERSE ============ -->
+  <div class="section" id="reverse">
+    <div class="hero-strip">
+      <h2><i data-lucide="rotate-cw"></i>Reverse-Modus</h2>
+      <p>Gib eine Aminosäure-Sequenz ein (3-Buchstaben-Code, durch Bindestrich getrennt) — das Tool zeigt alle möglichen mRNA-Codons. Wegen der <b>Code-Degeneration</b> gibt es oft mehrere Möglichkeiten.</p>
+    </div>
+
+    <div class="card">
+      <h3>Aminosäure-Sequenz</h3>
+      <input class="protein-input" id="protIn" value="Met-Phe-Lys-Trp" placeholder="z. B. Met-Ala-Lys-Stop" />
+      <div class="btn-row">
+        <button class="btn ghost" data-prot="Met-Phe-Lys-Trp">Met-Phe-Lys-Trp</button>
+        <button class="btn ghost" data-prot="Met-Ser-Leu-Stop">Met-Ser-Leu-Stop</button>
+        <button class="btn ghost" data-prot="Met-Val-Gly-His-Tyr-Stop">Met-Val-Gly-His-Tyr-Stop</button>
+      </div>
+
+      <h3 style="margin-top:18px">Mögliche mRNA-Codons</h3>
+      <div class="reverse-result" id="reverseResult"></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div>Die Anzahl der Möglichkeiten zeigt den <b>Degenerationsgrad</b> des Codes. Met und Trp haben jeweils nur 1 Codon, Leu und Arg haben jeweils 6.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: ORF-FINDER ============ -->
+  <div class="section" id="orf">
+    <div class="hero-strip">
+      <h2><i data-lucide="search"></i>Open-Reading-Frame-Finder</h2>
+      <p>Zeigt alle 3 Leseraster der eingegebenen mRNA. Start-Codons (AUG) sind grün, Stopp-Codons (UAA/UAG/UGA) sind rot. So findest du den korrekten ORF.</p>
+    </div>
+
+    <div class="card">
+      <h3>mRNA-Sequenz (verwendet die DNA aus Tab 1)</h3>
+      <div class="seq-row">
+        <span class="label-tag lt-mrna"><i data-lucide="dna"></i>mRNA</span>
+        <div class="seq-strip" id="orfMRNA"></div>
+      </div>
+
+      <div class="frame-block">
+        <div class="frame-label"><i data-lucide="chevron-right"></i>Frame +1 (Position 0)</div>
+        <div class="frame-row" id="frame0"></div>
+      </div>
+      <div class="frame-block">
+        <div class="frame-label"><i data-lucide="chevron-right"></i>Frame +2 (Position 1)</div>
+        <div class="frame-row" id="frame1"></div>
+      </div>
+      <div class="frame-block">
+        <div class="frame-label"><i data-lucide="chevron-right"></i>Frame +3 (Position 2)</div>
+        <div class="frame-row" id="frame2"></div>
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div>Ein <b>ORF</b> ist eine durchgehende Sequenz von Codons, die mit AUG beginnt und mit einem Stoppcodon endet, ohne dazwischen einen Stopp zu treffen. Bakterien haben oft mehrere ORFs auf einer mRNA, Eukaryoten meist einen.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: CODON-SONNE ============ -->
+  <div class="section" id="wheel">
+    <div class="hero-strip">
+      <h2><i data-lucide="sun"></i>Codon-Sonne</h2>
+      <p>Lies <b>von innen nach außen</b>: 1. Base → 2. Base → 3. Base → Aminosäure. Tippe einen Sektor an, um Codon &amp; AS anzuzeigen.</p>
+    </div>
+
+    <div class="card">
+      <div class="wheel-wrap">
+        <svg id="codonWheel" viewBox="0 0 440 440" width="100%" style="max-width:520px;display:block;margin:0 auto"></svg>
+      </div>
+
+      <div class="wheel-readout" id="wheelReadout">
+        <span class="wr-label">Tippe einen Sektor</span>
+        <span class="wr-codon" id="wrCodon">—</span>
+        <span class="wr-aa" id="wrAA">—</span>
+      </div>
+
+      <div class="legend-row" style="margin-top:14px">
+        <div class="lg-i"><span class="lg-d" style="background:rgba(155,127,196,.7)">U</span>1. Ring innen</div>
+        <div class="lg-i"><span class="lg-d" style="background:rgba(155,127,196,.4);color:var(--dark)">U</span>2. Ring</div>
+        <div class="lg-i"><span class="lg-d" style="background:rgba(155,127,196,.2);color:var(--dark)">U</span>3. Ring</div>
+        <div class="lg-i"><span class="lg-d" style="background:rgba(109,184,138,.85)">M</span>Start (AUG)</div>
+        <div class="lg-i"><span class="lg-d" style="background:rgba(224,123,139,.85)">■</span>Stopp</div>
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>So liest du die Sonne:</b> Suche die <b>1. Base</b> deines Codons im inneren Kreis (4 Sektoren U/C/A/G), dann die <b>2. Base</b> im mittleren Ring, dann die <b>3. Base</b> im äußeren Ring. Direkt daneben außen steht die kodierte <b>Aminosäure</b>.</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Beispiel:</b> Codon <b>AUG</b> → 1. Base A (rosa), 2. Base U (lila), 3. Base G → <b>Met</b> (Start). Codon <b>UAA</b> → U + A + A → <b>Stop</b>.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 6: TABELLE ============ -->
+  <div class="section" id="table">
+    <div class="card">
+      <h2><i data-lucide="grid-3x3"></i>Codon-Tabelle <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">mRNA, 5'→3'</span></h2>
+      <p class="lead">Alle 64 Codons. Grün = Start (AUG). Coral = Stopp.</p>
+      <div class="ct-grid" id="codonTable"></div>
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Degenerierter Code:</b> Mehrere Codons codieren dieselbe Aminosäure (außer Met &amp; Trp). Drittes Nukleotid = "Wobble"-Position → erlaubt stille Mutationen.</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Universalität:</b> Der genetische Code ist (fast) universell — Bakterien, Pflanzen, Menschen nutzen dasselbe Codon-Wörterbuch. Ausnahmen: Mitochondrien.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 6.5: STECKBRIEFE ============ -->
+  <div class="section" id="steckbriefe">
+    <div class="hero-strip">
+      <h2><i data-lucide="book-open"></i>DNA & Translation – Steckbriefe</h2>
+      <p>Die wichtigsten Konzepte rund um DNA, RNA und Proteinbiosynthese als kompakte Steckbriefe – mit <b>Aufbau</b>, <b>Funktion</b>, <b>Klinik</b> und <b>MedAT-Wissen</b>.</p>
+    </div>
+    <div class="card">
+      <div class="sb-cards-grid" id="sbConceptsGrid"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 7: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">12 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BASE PICKER POPUP -->
+<div class="picker" id="basePicker">
+  <span class="base A clickable" data-pick="A">A</span>
+  <span class="base T clickable" data-pick="T">T</span>
+  <span class="base G clickable" data-pick="G">G</span>
+  <span class="base C clickable" data-pick="C">C</span>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='mutation') renderMutBase();
+    if(t.dataset.tab==='table') renderCodonTable();
+    if(t.dataset.tab==='reverse') renderReverse();
+    if(t.dataset.tab==='orf') renderORF();
+    if(t.dataset.tab==='wheel') renderCodonWheel();
+  });
+});
+
+/* ===== Codon dictionary ===== */
+const CODONS = {
+  UUU:'Phe',UUC:'Phe',UUA:'Leu',UUG:'Leu',
+  UCU:'Ser',UCC:'Ser',UCA:'Ser',UCG:'Ser',
+  UAU:'Tyr',UAC:'Tyr',UAA:'STOP',UAG:'STOP',
+  UGU:'Cys',UGC:'Cys',UGA:'STOP',UGG:'Trp',
+  CUU:'Leu',CUC:'Leu',CUA:'Leu',CUG:'Leu',
+  CCU:'Pro',CCC:'Pro',CCA:'Pro',CCG:'Pro',
+  CAU:'His',CAC:'His',CAA:'Gln',CAG:'Gln',
+  CGU:'Arg',CGC:'Arg',CGA:'Arg',CGG:'Arg',
+  AUU:'Ile',AUC:'Ile',AUA:'Ile',AUG:'Met',
+  ACU:'Thr',ACC:'Thr',ACA:'Thr',ACG:'Thr',
+  AAU:'Asn',AAC:'Asn',AAA:'Lys',AAG:'Lys',
+  AGU:'Ser',AGC:'Ser',AGA:'Arg',AGG:'Arg',
+  GUU:'Val',GUC:'Val',GUA:'Val',GUG:'Val',
+  GCU:'Ala',GCC:'Ala',GCA:'Ala',GCG:'Ala',
+  GAU:'Asp',GAC:'Asp',GAA:'Glu',GAG:'Glu',
+  GGU:'Gly',GGC:'Gly',GGA:'Gly',GGG:'Gly'
+};
+const COMPLEMENT_DNA = {A:'T',T:'A',G:'C',C:'G'};
+const DNA_TO_RNA = {A:'A',T:'U',G:'G',C:'C'};
+const RNA_COMPL = {A:'U',U:'A',G:'C',C:'G'};
+
+/* === Reverse codon lookup (AA → list of codons) === */
+const AA_TO_CODONS = {};
+Object.entries(CODONS).forEach(([cod,aa])=>{
+  if(!AA_TO_CODONS[aa]) AA_TO_CODONS[aa]=[];
+  AA_TO_CODONS[aa].push(cod);
+});
+
+function cleanDNA(s){return s.toUpperCase().replace(/[^ATGC]/g,'')}
+function complement(s){return s.split('').map(c=>COMPLEMENT_DNA[c]||'').join('')}
+function transcribe(s){return s.split('').map(c=>DNA_TO_RNA[c]||'').join('')}
+function antiCodon(rna){return rna.split('').map(c=>RNA_COMPL[c]||'').join('')}
+
+function translate(rna){
+  const result=[];
+  for(let i=0;i+3<=rna.length;i+=3){
+    const cod=rna.slice(i,i+3);
+    const aa=CODONS[cod]||'?';
+    result.push({cod,aa});
+    if(aa==='STOP') break;
+  }
+  return result;
+}
+
+/* ===== Renderers ===== */
+function renderBaseStrip(el,seq,clickable=false){
+  el.innerHTML='';
+  if(!seq){el.innerHTML='<span style="color:var(--muted);font-size:.85rem">— leer —</span>';return}
+  seq.split('').forEach((c,i)=>{
+    const s=document.createElement('span');
+    s.className='base '+c+(clickable?' clickable':'');
+    s.textContent=c;
+    if(clickable){
+      s.dataset.idx=i;
+      s.addEventListener('click',e=>showPicker(e,s,i));
+    }
+    el.appendChild(s);
+  });
+}
+function renderCodons(el,codons){
+  el.innerHTML='';
+  if(!codons.length){el.innerHTML='<span style="color:var(--muted);font-size:.85rem">— leer —</span>';return}
+  codons.forEach(({cod,aa})=>{
+    const c=document.createElement('div');
+    let cls='codon';
+    if(cod==='AUG') cls+=' start';
+    if(aa==='STOP') cls+=' stop';
+    c.className=cls;
+    c.innerHTML=`<div class="nt">${cod}</div><div class="aa">${aa==='STOP'?'■':aa}</div>`;
+    el.appendChild(c);
+  });
+}
+function renderProtein(el,codons){
+  el.innerHTML='';
+  if(!codons.length){el.innerHTML='<span style="color:var(--muted);font-size:.85rem">— leer —</span>';return}
+  codons.forEach((c,i)=>{
+    const p=document.createElement('span');
+    p.className='aa-pill';
+    if(i===0&&c.cod==='AUG') p.className+=' start';
+    if(c.aa==='STOP') p.className+=' stop';
+    p.textContent=c.aa==='STOP'?'STOP':c.aa;
+    el.appendChild(p);
+  });
+}
+
+/* ===== Main render ===== */
+function render(){
+  const raw=cleanDNA(document.getElementById('dnaIn').value);
+  const compl=complement(raw);
+  const mrna=transcribe(raw);
+  const trna=antiCodon(mrna);
+  const cods=[];
+  for(let i=0;i+3<=mrna.length;i+=3){
+    const cod=mrna.slice(i,i+3);
+    cods.push({cod,aa:CODONS[cod]||'?'});
+  }
+  const cappedCods=[];
+  for(const c of cods){ cappedCods.push(c); if(c.aa==='STOP') break; }
+  renderBaseStrip(document.getElementById('rowCoding'),raw,true);
+  renderBaseStrip(document.getElementById('rowTemplate'),compl);
+  renderBaseStrip(document.getElementById('rowMRNA'),mrna);
+  renderBaseStrip(document.getElementById('rowTRNA'),trna);
+  renderCodons(document.getElementById('rowCodons'),cods);
+  renderProtein(document.getElementById('rowProtein'),cappedCods);
+}
+document.getElementById('dnaIn').addEventListener('input',render);
+document.querySelectorAll('.ex-btn[data-ex]').forEach(b=>{
+  b.addEventListener('click',()=>{document.getElementById('dnaIn').value=b.dataset.ex;render()});
+});
+document.getElementById('randomDna').onclick=()=>{
+  const bases=['A','T','G','C'];
+  let seq='ATG';
+  const len=Math.floor(Math.random()*8)+5;
+  for(let i=0;i<len*3;i++) seq+=bases[Math.floor(Math.random()*4)];
+  seq+=['TAA','TAG','TGA'][Math.floor(Math.random()*3)];
+  document.getElementById('dnaIn').value=seq; render();
+};
+
+/* ===== BASE PICKER ===== */
+const picker=document.getElementById('basePicker');
+let pickerIdx=-1;
+function showPicker(e,baseEl,idx){
+  e.stopPropagation();
+  pickerIdx=idx;
+  const rect=baseEl.getBoundingClientRect();
+  picker.style.left=(rect.left+window.scrollX-4)+'px';
+  picker.style.top=(rect.bottom+window.scrollY+6)+'px';
+  picker.classList.add('show');
+}
+document.addEventListener('click',()=>picker.classList.remove('show'));
+picker.querySelectorAll('.base[data-pick]').forEach(p=>{
+  p.addEventListener('click',e=>{
+    e.stopPropagation();
+    const newBase=p.dataset.pick;
+    const input=document.getElementById('dnaIn');
+    const seq=cleanDNA(input.value);
+    if(pickerIdx>=0&&pickerIdx<seq.length){
+      input.value=seq.slice(0,pickerIdx)+newBase+seq.slice(pickerIdx+1);
+      render();
+    }
+    picker.classList.remove('show');
+  });
+});
+
+render();
+
+/* ===== MUTATIONEN ===== */
+function renderMutBase(){
+  const raw=cleanDNA(document.getElementById('dnaIn').value);
+  renderBaseStrip(document.getElementById('origDNA'),raw);
+  const mrna=transcribe(raw);
+  const cods=translate(mrna);
+  renderProtein(document.getElementById('origProt'),cods);
+  renderBaseStrip(document.getElementById('mutDNA'),raw);
+  renderProtein(document.getElementById('mutProt'),cods);
+  document.getElementById('mutFb').classList.remove('show');
+}
+document.querySelectorAll('.mut-card').forEach(c=>{
+  c.addEventListener('click',()=>applyMutation(c.dataset.mut));
+});
+function applyMutation(type){
+  const raw=cleanDNA(document.getElementById('dnaIn').value);
+  if(raw.length<6){alert('Sequenz zu kurz für Mutation');return}
+  let mut=raw, msg='', highlightPos=-1;
+
+  if(type==='silent'){
+    for(let i=0;i+3<=raw.length;i+=3){
+      const cod=raw.slice(i,i+3);
+      const orig=CODONS[transcribe(cod)];
+      const bases=['A','T','G','C'];
+      for(const b of bases){
+        if(b===cod[2]) continue;
+        const newCod=cod[0]+cod[1]+b;
+        if(CODONS[transcribe(newCod)]===orig && orig!=='STOP'){
+          mut=raw.slice(0,i+2)+b+raw.slice(i+3); highlightPos=i+2;
+          msg=`<b>Stille Mutation</b> an Position ${i+3}: ${cod} → ${newCod}. Beide codieren ${orig}. → Protein bleibt unverändert.<br><i>Erlaubt durch die Wobble-Position.</i>`;
+          break;
+        }
+      }
+      if(mut!==raw) break;
+    }
+    if(mut===raw) msg='<b>Keine stille Mutation möglich</b> in dieser Sequenz.';
+  }
+  else if(type==='missense'){
+    for(let i=0;i+3<=raw.length;i+=3){
+      const cod=raw.slice(i,i+3);
+      const orig=CODONS[transcribe(cod)];
+      if(orig==='Met'||orig==='STOP') continue;
+      const bases=['A','T','G','C'];
+      for(const b of bases){
+        if(b===cod[1]) continue;
+        const newCod=cod[0]+b+cod[2];
+        const newAA=CODONS[transcribe(newCod)];
+        if(newAA && newAA!==orig && newAA!=='STOP'){
+          mut=raw.slice(0,i+1)+b+raw.slice(i+2); highlightPos=i+1;
+          msg=`<b>Missense-Mutation</b> an Position ${i+2}: ${cod} → ${newCod}. <b>${orig} → ${newAA}</b>. Eine Aminosäure wird ausgetauscht — Funktion kann erhalten bleiben oder gestört sein.`;
+          break;
+        }
+      }
+      if(mut!==raw) break;
+    }
+  }
+  else if(type==='nonsense'){
+    for(let i=0;i+3<=raw.length;i+=3){
+      const cod=raw.slice(i,i+3);
+      const aa=CODONS[transcribe(cod)];
+      if(aa==='STOP'||aa==='Met') continue;
+      const tries=['TAA','TAG','TGA'];
+      for(const t of tries){
+        let diff=0,pos=-1;
+        for(let k=0;k<3;k++){if(t[k]!==cod[k]){diff++;pos=k}}
+        if(diff===1){
+          mut=raw.slice(0,i+pos)+t[pos]+raw.slice(i+pos+1); highlightPos=i+pos;
+          msg=`<b>Nonsense-Mutation</b>: ${cod} → ${t} (Stoppcodon). Translation bricht hier ab → <b>verkürztes, meist nicht-funktionales Protein</b>.`;
+          break;
+        }
+      }
+      if(mut!==raw) break;
+    }
+  }
+  else if(type==='frameshift-ins'){
+    mut=raw.slice(0,3)+'A'+raw.slice(3); highlightPos=3;
+    msg=`<b>Insertion</b> einer Base an Position 4: <b>+1 Verschiebung des Leserasters</b>. Alle nachfolgenden Codons ändern sich → meist frühes Stoppcodon.`;
+  }
+  else if(type==='frameshift-del'){
+    mut=raw.slice(0,3)+raw.slice(4); highlightPos=3;
+    msg=`<b>Deletion</b> einer Base an Position 4: <b>–1 Verschiebung des Leserasters</b>. Alle nachfolgenden Codons ändern sich.`;
+  }
+
+  const el=document.getElementById('mutDNA'); el.innerHTML='';
+  mut.split('').forEach((c,i)=>{
+    const s=document.createElement('span');
+    s.className='base '+c;
+    if(i===highlightPos) s.classList.add('highlight');
+    s.textContent=c;
+    el.appendChild(s);
+  });
+  const cods=translate(transcribe(mut));
+  renderProtein(document.getElementById('mutProt'),cods);
+  const fb=document.getElementById('mutFb');
+  fb.innerHTML=msg||'Keine Mutation angewendet.';
+  fb.classList.add('show');
+}
+
+/* ===== REVERSE ===== */
+function renderReverse(){
+  const txt=document.getElementById('protIn').value.trim();
+  if(!txt){document.getElementById('reverseResult').innerHTML='<span style="color:var(--muted)">— keine Eingabe —</span>';return}
+  const aas=txt.split(/[-\s]+/).map(a=>a.trim()).filter(Boolean);
+  let html='';
+  let totalCombos=1;
+  aas.forEach(a=>{
+    const aa=a.charAt(0).toUpperCase()+a.slice(1).toLowerCase();
+    const aaCheck=aa==='Stop'?'STOP':aa;
+    const codons=AA_TO_CODONS[aaCheck];
+    if(!codons){
+      html+=`<div style="margin:8px 0;color:var(--pink-deep)"><b>${aa}</b>: unbekannte Aminosäure</div>`;
+      return;
+    }
+    totalCombos*=codons.length;
+    html+=`<div style="margin:8px 0"><span class="reverse-aa">${aaCheck}</span> → `;
+    html+=codons.map(c=>`<span class="reverse-aa" style="background:var(--lavender);color:var(--purple-deep)">${c}</span>`).join(' · ');
+    html+=` <span style="color:var(--muted);font-size:.74rem">(${codons.length} Optionen)</span></div>`;
+  });
+  html+=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"><b style="color:var(--blue-deep)">Insgesamt ${totalCombos} mögliche mRNA-Sequenzen</b></div>`;
+  document.getElementById('reverseResult').innerHTML=html;
+}
+document.getElementById('protIn').addEventListener('input',renderReverse);
+document.querySelectorAll('.btn[data-prot]').forEach(b=>{
+  b.addEventListener('click',()=>{document.getElementById('protIn').value=b.dataset.prot;renderReverse()});
+});
+
+/* ===== ORF FINDER ===== */
+function renderORF(){
+  const raw=cleanDNA(document.getElementById('dnaIn').value);
+  const mrna=transcribe(raw);
+  renderBaseStrip(document.getElementById('orfMRNA'),mrna);
+  for(let f=0;f<3;f++){
+    const el=document.getElementById('frame'+f); el.innerHTML='';
+    let s=mrna.slice(f);
+    let i=0;
+    while(i+3<=s.length){
+      const cod=s.slice(i,i+3);
+      const aa=CODONS[cod]||'?';
+      const span=document.createElement('span');
+      span.className='codon-mini '+(cod==='AUG'?'start':aa==='STOP'?'stop':'mid');
+      span.textContent=cod;
+      span.title=aa;
+      el.appendChild(span);
+      i+=3;
+    }
+    if(s.length-i>0){
+      const span=document.createElement('span');
+      span.style.cssText='display:inline-block;padding:2px 6px;color:var(--muted);font-size:.74rem';
+      span.textContent='+'+s.slice(i);
+      el.appendChild(span);
+    }
+  }
+  if(window.lucide) lucide.createIcons();
+}
+
+/* ===== CODON WHEEL ===== */
+function arcPath(cx,cy,rIn,rOut,a1,a2){
+  const s1=Math.sin(a1),c1=Math.cos(a1),s2=Math.sin(a2),c2=Math.cos(a2);
+  const x1a=cx+rIn*s1,y1a=cy-rIn*c1, x1b=cx+rIn*s2,y1b=cy-rIn*c2;
+  const x2a=cx+rOut*s1,y2a=cy-rOut*c1, x2b=cx+rOut*s2,y2b=cy-rOut*c2;
+  const large=(a2-a1)>Math.PI?1:0;
+  return `M ${x1a},${y1a} L ${x2a},${y2a} A ${rOut},${rOut} 0 ${large} 1 ${x2b},${y2b} L ${x1b},${y1b} A ${rIn},${rIn} 0 ${large} 0 ${x1a},${y1a} Z`;
+}
+function renderCodonWheel(){
+  const svg=document.getElementById('codonWheel');
+  if(svg.children.length>0) return;
+  const cx=220,cy=220, r0=42,r1=100,r2=158,r3=200,rAA=216;
+  const bases=['U','C','A','G'];
+  const colorBase={U:'rgba(155,127,196,1)',C:'rgba(245,197,66,1)',A:'rgba(224,123,139,1)',G:'rgba(109,184,138,1)'};
+  const colorMid={U:'rgba(155,127,196,.45)',C:'rgba(245,197,66,.45)',A:'rgba(224,123,139,.45)',G:'rgba(109,184,138,.45)'};
+  const colorOut={U:'rgba(155,127,196,.18)',C:'rgba(245,197,66,.18)',A:'rgba(224,123,139,.22)',G:'rgba(109,184,138,.22)'};
+  let html='';
+  bases.forEach((b1,i1)=>{
+    const a1s=(i1/4)*2*Math.PI, a1e=((i1+1)/4)*2*Math.PI, a1m=(a1s+a1e)/2;
+    html+=`<path d="${arcPath(cx,cy,r0,r1,a1s,a1e)}" fill="${colorBase[b1]}" stroke="#fff" stroke-width="1.5"/>`;
+    const r1m=(r0+r1)/2, x1l=cx+r1m*Math.sin(a1m), y1l=cy-r1m*Math.cos(a1m);
+    html+=`<text x="${x1l}" y="${y1l}" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="800" fill="#fff">${b1}</text>`;
+    bases.forEach((b2,i2)=>{
+      const a2s=a1s+(i2/4)*(a1e-a1s), a2e=a1s+((i2+1)/4)*(a1e-a1s), a2m=(a2s+a2e)/2;
+      html+=`<path d="${arcPath(cx,cy,r1,r2,a2s,a2e)}" fill="${colorMid[b2]}" stroke="#fff" stroke-width="1"/>`;
+      const r2m=(r1+r2)/2, x2l=cx+r2m*Math.sin(a2m), y2l=cy-r2m*Math.cos(a2m);
+      html+=`<text x="${x2l}" y="${y2l}" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="700" fill="#1a1a2e">${b2}</text>`;
+      bases.forEach((b3,i3)=>{
+        const a3s=a2s+(i3/4)*(a2e-a2s), a3e=a2s+((i3+1)/4)*(a2e-a2s), a3m=(a3s+a3e)/2;
+        const codon=b1+b2+b3, aa=CODONS[codon];
+        const isStart=codon==='AUG', isStop=aa==='STOP';
+        let fill=colorOut[b3];
+        if(isStart) fill='rgba(109,184,138,.85)';
+        if(isStop) fill='rgba(224,123,139,.85)';
+        html+=`<path d="${arcPath(cx,cy,r2,r3,a3s,a3e)}" fill="${fill}" stroke="#fff" stroke-width="0.5" data-codon="${codon}" class="codon-sector"/>`;
+        const r3m=(r2+r3)/2, x3l=cx+r3m*Math.sin(a3m), y3l=cy-r3m*Math.cos(a3m);
+        html+=`<text x="${x3l}" y="${y3l}" text-anchor="middle" dominant-baseline="central" font-size="9" font-weight="600" fill="${isStart||isStop?'#fff':'#1a1a2e'}">${b3}</text>`;
+        const xAA=cx+rAA*Math.sin(a3m), yAA=cy-rAA*Math.cos(a3m);
+        let rot=a3m*180/Math.PI;
+        if(a3m>Math.PI/2 && a3m<3*Math.PI/2) rot+=180;
+        const aaText=aa==='STOP'?'Stop':aa;
+        const aaColor=isStart?'#2d8a54':isStop?'#c8505f':'#1a1a2e';
+        html+=`<text x="${xAA}" y="${yAA}" text-anchor="middle" dominant-baseline="central" font-size="7.5" font-weight="700" fill="${aaColor}" transform="rotate(${rot},${xAA},${yAA})">${aaText}</text>`;
+      });
+    });
+  });
+  // Center label
+  html+=`<circle cx="${cx}" cy="${cy}" r="${r0-2}" fill="#1a1a2e"/>`;
+  html+=`<text x="${cx}" y="${cy-6}" text-anchor="middle" dominant-baseline="central" font-size="9" font-weight="700" fill="#a0a0b8" letter-spacing="1">5'</text>`;
+  html+=`<text x="${cx}" y="${cy+6}" text-anchor="middle" dominant-baseline="central" font-size="8" font-weight="600" fill="#6db8e0">mRNA</text>`;
+  svg.innerHTML=html;
+
+  svg.querySelectorAll('.codon-sector').forEach(s=>{
+    s.addEventListener('click',()=>{
+      svg.querySelectorAll('.codon-sector.selected').forEach(x=>x.classList.remove('selected'));
+      s.classList.add('selected');
+      const cod=s.dataset.codon, aa=CODONS[cod];
+      document.getElementById('wrCodon').textContent=cod;
+      const aaEl=document.getElementById('wrAA');
+      aaEl.textContent=aa==='STOP'?'STOP':aa;
+      aaEl.className='wr-aa'+(cod==='AUG'?' start':aa==='STOP'?' stop':'');
+    });
+  });
+}
+
+/* ===== Codon Table ===== */
+function renderCodonTable(){
+  const el=document.getElementById('codonTable'); if(el.children.length) return;
+  const order=['U','C','A','G'];
+  const codons=[];
+  order.forEach(a=>order.forEach(b=>order.forEach(c=>codons.push(a+b+c))));
+  codons.forEach(cod=>{
+    const aa=CODONS[cod];
+    const div=document.createElement('div');
+    let cls='ct-cell';
+    if(cod==='AUG') cls+=' start';
+    if(aa==='STOP') cls+=' stop';
+    div.className=cls;
+    div.innerHTML=`<div class="c-nt">${cod}</div><div class="c-aa">${aa==='STOP'?'STOP':aa}</div>`;
+    el.appendChild(div);
+  });
+}
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:"Welches Codon ist das Start-Codon?",o:["UAA","AUG","GUC","UGA"],c:1,e:"AUG codiert für Methionin und ist gleichzeitig das Start-Codon."},
+  {q:"Welche Codons sind Stoppcodons?",o:["AUG, AUC, AUA","UAA, UAG, UGA","UCA, UCG, UCU","GAA, GAG, GAC"],c:1,e:"Die drei Stoppcodons sind UAA, UAG, UGA — sie codieren keine Aminosäure."},
+  {q:"Was bedeutet 'degenerierter Code'?",o:["Code funktioniert nicht","Mehrere Codons codieren dieselbe AS","Wenige Codons","Mutationen häufiger"],c:1,e:"61 Sense-Codons für 20 AS → die meisten AS haben mehrere Codons (außer Met und Trp)."},
+  {q:"Wo liegt die 'Wobble-Position' im Codon?",o:["1. Position","2. Position","3. Position","keine"],c:2,e:"Die 3. Base ist oft austauschbar — daher viele stille Mutationen an dieser Stelle."},
+  {q:"Welche Mutation hat die <b>schwerwiegendsten</b> Folgen?",o:["Stille","Missense","Nonsense","Synonyme"],c:2,e:"Nonsense erzeugt ein Stoppcodon → vorzeitiger Translationsabbruch → meist funktionsloses Protein."},
+  {q:"Eine Frameshift-Mutation entsteht durch…",o:["Punktmutation an 3. Position","Insertion oder Deletion (nicht Vielfaches von 3)","Stoppcodon","Methylierung"],c:1,e:"Eine Insertion oder Deletion, die nicht durch 3 teilbar ist, verschiebt das Leseraster."},
+  {q:"Wie viele Codons gibt es insgesamt?",o:["20","61","64","256"],c:2,e:"4³ = 64 Codons. Davon 61 Sense-Codons + 3 Stoppcodons."},
+  {q:"Die mRNA wird in welcher Richtung gelesen?",o:["3' → 5'","5' → 3'","beide gleichzeitig","ungerichtet"],c:1,e:"mRNA wird vom 5'- zum 3'-Ende gelesen, das Protein wächst von N nach C."},
+  {q:"Welche Aminosäure hat <b>nur ein</b> Codon?",o:["Leucin","Methionin","Serin","Arginin"],c:1,e:"Met (AUG) und Trp (UGG) haben jeweils nur ein einziges Codon."},
+  {q:"Was passiert bei Sichelzellanämie auf Codon-Ebene?",o:["Frameshift im β-Globin","Missense Glu → Val (Codon 6)","Nonsense im α-Globin","Stille Mutation"],c:1,e:"GAG → GTG, Glutaminsäure wird zu Valin → veränderte Hämoglobin-Faltung."},
+  {q:"In Eukaryoten findet die Translation statt im…",o:["Nucleolus","Ribosomen (Cytoplasma/rER)","Golgi","Mitochondrium nur"],c:1,e:"Ribosomen translatieren mRNA — frei im Cytoplasma oder am rauen ER."},
+  {q:"Was ist der Unterschied zwischen mRNA und tRNA?",o:["Keiner","mRNA trägt die Information, tRNA bringt Aminosäuren","tRNA ist DNA","mRNA hat Anti-Codons"],c:1,e:"mRNA = Informationsträger, tRNA = Adapter mit Anti-Codon, der die passende AS bringt."}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('.q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+renderReverse();
+
+/* ===== STECKBRIEFE: Konzepte ===== */
+const SB_CONCEPTS = [
+  {id:'dna', name:'DNA', symbol:'2′-Desoxy­ribose',
+    aufbau:'Doppelhelix aus zwei antiparallelen Strängen. Bausteine: <b>Desoxy-Nukleotide</b> mit den Basen <b>A, T, G, C</b>. Rückgrat aus Phosphat & Desoxyribose.',
+    funktion:'Speicherung der Erbinformation. Replikation semikonservativ. Transkription liefert mRNA als Arbeitskopie.',
+    klinik:'<b>Mutationen</b> können zu Krebs oder Erbkrankheiten führen. <b>Reparaturdefekte</b>: z.B. Xeroderma pigmentosum (UV-Schaden).',
+    medat:'Basenpaarung: <b>A=T</b> (2 H-Brücken), <b>G≡C</b> (3 H-Brücken). Chargaff-Regeln: A=T, G=C.'
+  },
+  {id:'rna', name:'RNA', symbol:'Ribose · U statt T',
+    aufbau:'Einzelsträngig, mit <b>Ribose</b> (statt Desoxyribose) und Base <b>Uracil</b> statt Thymin. Drei Typen: mRNA, tRNA, rRNA.',
+    funktion:'<b>mRNA</b> trägt Code zum Ribosom. <b>tRNA</b> bringt passende Aminosäuren. <b>rRNA</b> bildet Ribosomenkern.',
+    klinik:'mRNA-Impfstoffe (Covid-19) nutzen den natürlichen Translations-Mechanismus. <b>RNA-Viren</b>: Influenza, HIV, Coronaviren.',
+    medat:'Reife eukaryotische mRNA: <b>5′-Cap</b>, <b>3′-Poly-A-Schwanz</b>, gespleißte Introns entfernt.'
+  },
+  {id:'transkr', name:'Transkription', symbol:'DNA → mRNA',
+    aufbau:'Im <b>Zellkern</b> (Eukaryoten) bzw. Cytoplasma (Prokaryoten). RNA-Polymerase liest den 3′→5′ Matrizenstrang und synthetisiert mRNA in 5′→3′-Richtung.',
+    funktion:'Erstellt eine Arbeitskopie des Gens als mRNA. Promotor markiert Start, Terminator das Ende.',
+    klinik:'<b>Rifampicin</b> hemmt bakterielle RNA-Polymerase – Antibiotikum bei TBC. <b>α-Amanitin</b> (Knollenblätterpilz): hemmt RNA-Pol II.',
+    medat:'Eukaryot: <b>Splicing</b> (Introns raus, Exons bleiben), 5′-Cap, Poly-A-Schwanz. Prokaryot: direkt translatiert.'
+  },
+  {id:'transl', name:'Translation', symbol:'mRNA → Protein',
+    aufbau:'Findet am <b>Ribosom</b> statt (im Cytoplasma oder am rER). tRNAs lesen mit ihren Anti-Codons die mRNA-Codons.',
+    funktion:'Drei Phasen: <b>Initiation</b> (Startcodon AUG, Methionin) → <b>Elongation</b> (Codon für Codon AS anhängen) → <b>Termination</b> (Stoppcodon UAA/UAG/UGA).',
+    klinik:'Antibiotika hemmen die bakterielle Translation: <b>Tetrazykline</b> (Aminoacyl-tRNA-Bindung), <b>Streptomycin</b> (Initiation), <b>Erythromycin</b> (Translokation).',
+    medat:'<b>Genetischer Code</b>: 3 Basen = 1 Codon = 1 Aminosäure. 64 Codons → 20 AS + 3 Stopp. Code ist <b>degeneriert</b> (mehrere Codons pro AS).'
+  },
+  {id:'codon', name:'Codon & Anti-Codon', symbol:'5′-AUG-3′',
+    aufbau:'<b>Codon</b> = 3 Basen auf der mRNA. <b>Anti-Codon</b> = komplementäre 3 Basen auf der tRNA, antiparallel.',
+    funktion:'tRNA bindet mit Anti-Codon ans Codon und liefert die passende AS. Erste Position der tRNA: oft Wobble (z.B. Inosin) → mehrere Codons möglich.',
+    klinik:'<b>Sichelzellanämie</b>: GAG (Glu) → GTG (Val) im β-Globin-Gen, Codon 6. Eine einzige Punktmutation, große Wirkung.',
+    medat:'<b>Startcodon AUG</b> = Methionin. <b>Stoppcodons</b>: UAA („ochre"), UAG („amber"), UGA („opal"). Code-Lesen immer 5′→3′.'
+  },
+  {id:'mutation', name:'Mutationstypen', symbol:'Punkt vs. Frameshift',
+    aufbau:'<b>Punktmutationen</b>: Austausch einer Base (Missense, Nonsense, Silent). <b>Frameshift</b>: Insertion oder Deletion einer/mehrerer Basen, Leseraster verschoben.',
+    funktion:'Konsequenz hängt vom Typ ab: Silent = keine Auswirkung, Missense = AS-Tausch, Nonsense = vorzeitiges Stopp, Frameshift = meist verheerend.',
+    klinik:'<b>Cystische Fibrose</b>: ΔF508 (Frameshift-ähnlich, AS-Verlust). <b>Sichelzellanämie</b>: Missense. <b>Duchenne-MD</b>: oft Frameshift (kein Dystrophin).',
+    medat:'Stille Mutation: Codon-Tausch ohne AS-Wechsel (Code degeneriert!). Frameshift verändert <b>alle</b> nachfolgenden Aminosäuren.'
+  }
+];
+function buildSbConceptsGrid(){
+  const grid = document.getElementById('sbConceptsGrid');
+  if(!grid || grid.children.length) return;
+  grid.innerHTML = SB_CONCEPTS.map(c=>`<button class="sb-tile" data-id="${c.id}"><h5>${c.name}</h5><div class="nm">${c.symbol}</div></button>`).join('');
+  grid.querySelectorAll('.sb-tile').forEach(t=>t.addEventListener('click',()=>openSbConcept(t.dataset.id)));
+  if(window.lucide) lucide.createIcons();
+}
+function openSbConcept(id){
+  const data = SB_CONCEPTS.find(x=>x.id===id);
+  if(!data) return;
+  document.getElementById('sbTitle').textContent = data.name;
+  document.getElementById('sbSymbol').textContent = data.symbol;
+  document.getElementById('sbBody').innerHTML = `
+    <div class="sb-section"><h4><i data-lucide="layout-grid"></i>Aufbau</h4><p>${data.aufbau}</p></div>
+    <div class="sb-section"><h4><i data-lucide="settings"></i>Funktion</h4><p>${data.funktion}</p></div>
+    <div class="sb-section klinik"><h4><i data-lucide="stethoscope"></i>Klinik</h4><p>${data.klinik}</p></div>
+    <div class="sb-section medat"><h4><i data-lucide="graduation-cap"></i>MedAT-Wissen</h4><p>${data.medat}</p></div>
+  `;
+  document.getElementById('sbModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeSbConcept(){ document.getElementById('sbModal').classList.remove('show'); }
+buildSbConceptsGrid();
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{ if(t.dataset.tab==='steckbriefe') buildSbConceptsGrid(); });
+});
+
+if(window.lucide) lucide.createIcons();
+</script>
+
+<!-- STECKBRIEF MODAL -->
+<div class="sb-modal" id="sbModal" onclick="if(event.target===this)closeSbConcept()">
+  <div class="sb-modal-card">
+    <button class="sb-modal-close" onclick="closeSbConcept()"><i data-lucide="x"></i></button>
+    <div class="sb-modal-head">
+      <h3 id="sbTitle"></h3>
+      <span class="symbol" id="sbSymbol"></span>
+    </div>
+    <div class="sb-modal-body" id="sbBody"></div>
+  </div>
+</div>
+
+</body>
+</html>

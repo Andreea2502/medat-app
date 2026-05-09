@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mitose &amp; Meiose Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--yellow-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--gold-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--gold-deep),#bf8c0a);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(230,168,23,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--gold-deep);color:var(--gold-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--gold-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--yellow-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(245,197,66,.25);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--gold-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* MODE TOGGLE */
+  .mode-row{display:flex;gap:10px;margin-bottom:14px}
+  .mode-btn{flex:1;padding:14px;border-radius:14px;border:1.5px solid var(--border);background:var(--bg-warm);font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--text-secondary);display:inline-flex;align-items:center;justify-content:center;gap:8px}
+  .mode-btn [data-lucide]{width:16px;height:16px}
+  .mode-btn.active{background:linear-gradient(135deg,var(--gold-deep),#bf8c0a);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(230,168,23,.3)}
+  .mode-btn:hover:not(.active){border-color:var(--gold-deep);color:var(--text)}
+
+  /* STAGE */
+  .scrub-wrap{background:var(--dark);border-radius:var(--radius);padding:18px;color:#fff}
+  .stage{background:#13131f;border-radius:14px;height:300px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:14px}
+  .cell-membrane{width:240px;height:240px;border-radius:50%;border:3px dashed rgba(255,255,255,.2);position:relative;display:flex;align-items:center;justify-content:center}
+
+  .ph-info{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+  .ph-stat{background:rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center}
+  .ph-stat .lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.6px;color:#a0a0b8;font-weight:600}
+  .ph-stat .val{font-size:1.4rem;font-weight:800;color:var(--gold);margin-top:3px}
+
+  .scrubber{margin-top:14px}
+  .scrubber-bar{display:flex;gap:4px;background:rgba(255,255,255,.06);border-radius:12px;padding:4px;flex-wrap:wrap}
+  .ph-btn{flex:1;min-width:80px;padding:9px 6px;background:transparent;border:none;color:#a0a0b8;font-family:inherit;font-size:.74rem;font-weight:700;cursor:pointer;border-radius:8px;transition:all .2s;text-align:center}
+  .ph-btn:hover{background:rgba(255,255,255,.05);color:#fff}
+  .ph-btn.active{background:var(--gold);color:var(--dark)}
+
+  .controls{display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .ctl-btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .2s;background:var(--gold);color:var(--dark);box-shadow:0 2px 10px rgba(245,197,66,.3);display:inline-flex;align-items:center;gap:7px}
+  .ctl-btn:hover{transform:translateY(-1px)}
+  .ctl-btn.ghost{background:rgba(255,255,255,.1);color:#fff;box-shadow:none}
+  .ctl-btn [data-lucide]{width:15px;height:15px}
+
+  .desc-box{background:linear-gradient(135deg,var(--mint),var(--yellow-soft));border-radius:var(--radius);padding:18px;margin-top:14px}
+  .desc-box h3{font-size:1rem;color:var(--purple-deep);margin-bottom:8px;font-weight:800}
+  .desc-box p{font-size:.88rem;line-height:1.65;color:var(--text)}
+  .desc-box .key{display:inline-block;background:rgba(255,255,255,.7);padding:2px 8px;border-radius:6px;font-weight:700;margin:0 2px}
+
+  /* ===== SORTIER-CHALLENGE ===== */
+  .sort-mode-row{display:flex;gap:8px;margin-bottom:14px;justify-content:center;flex-wrap:wrap}
+  .sort-mode-btn{padding:8px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--text-secondary);transition:all .2s}
+  .sort-mode-btn.active{background:var(--gold-deep);color:#fff;border-color:var(--gold-deep)}
+  .sort-mode-btn:hover:not(.active){border-color:var(--gold-deep)}
+
+  .sort-pool{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:14px;background:var(--bg-warm);border-radius:14px;margin-bottom:12px;min-height:120px}
+  .sort-target{display:flex;gap:8px;padding:14px;background:linear-gradient(180deg,var(--mint),var(--bg-light));border:2px dashed var(--green);border-radius:14px;min-height:120px;flex-wrap:wrap;justify-content:center;align-items:center;transition:all .2s}
+  .sort-target.over{background:linear-gradient(180deg,var(--lavender),var(--bg-light));border-color:var(--purple)}
+
+  .phase-card{width:120px;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:10px;cursor:grab;user-select:none;text-align:center;transition:all .15s;box-shadow:var(--shadow-sm)}
+  .phase-card:active{cursor:grabbing}
+  .phase-card.dragging{opacity:.4}
+  .phase-card svg{display:block;margin:0 auto 6px;width:80px;height:60px;background:#13131f;border-radius:6px}
+  .phase-card .pc-name{font-size:.75rem;font-weight:700;color:var(--text)}
+  .phase-card .pc-num{font-size:.6rem;color:var(--muted);margin-top:2px}
+  .phase-card.placed{background:linear-gradient(180deg,#fff,var(--mint));border-color:var(--green)}
+
+  .sort-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;line-height:1.55;text-align:center;font-weight:600;display:none}
+  .sort-status.show{display:block;animation:fadeUp .3s ease}
+  .sort-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+  .sort-status.fail{background:rgba(224,123,139,.12);color:var(--pink-deep)}
+
+  /* ===== WELCHE PHASE ===== */
+  .quiz-stage{background:#13131f;border-radius:var(--radius);padding:18px;margin-bottom:14px;display:flex;align-items:center;justify-content:center}
+  .quiz-stage svg{display:block;background:#0f0f1a;border-radius:14px;width:280px;height:240px}
+  .wp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+  .wp-opt{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 10px;cursor:pointer;transition:all .2s;font-family:inherit;font-size:.82rem;font-weight:700;text-align:center;color:var(--text)}
+  .wp-opt:hover:not(:disabled){border-color:var(--gold-deep);transform:translateY(-2px)}
+  .wp-opt.correct{border-color:var(--success);background:rgba(109,184,138,.12);color:var(--success)}
+  .wp-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);color:var(--pink-deep)}
+
+  /* ===== VERGLEICH TABLE ===== */
+  .cmp-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.84rem;margin-top:8px;background:var(--surface);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .cmp-table th{background:var(--dark);color:#fff;padding:12px 14px;text-align:left;font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px}
+  .cmp-table th.mit{background:#5a87a8}
+  .cmp-table th.mei{background:var(--purple-deep)}
+  .cmp-table td{padding:12px 14px;border-bottom:1px solid var(--border-light);line-height:1.55;vertical-align:top;color:var(--text-secondary)}
+  .cmp-table td:first-child{font-weight:700;color:var(--text);background:var(--bg-light)}
+  .cmp-table tr:last-child td{border-bottom:none}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--gold-deep);background:var(--yellow-soft);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--purple));transition:width .4s}
+
+  /* BUTTONS */
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--gold-deep),#bf8c0a);color:#fff;box-shadow:0 4px 14px rgba(230,168,23,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(230,168,23,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--gold-deep);color:var(--gold-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:520px){
+    .ph-info{grid-template-columns:1fr 1fr}
+    .cmp-table{font-size:.78rem}
+    .header h1{font-size:1.15rem}
+    .phase-card{width:100px}
+    .phase-card svg{width:64px;height:48px}
+  }
+
+  /* ===== STECKBRIEF-MODAL ===== */
+  .sb-modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .sb-modal.show{display:flex;animation:fadeUp .3s ease}
+  .sb-modal-card{background:var(--surface);border-radius:var(--radius);max-width:560px;width:100%;box-shadow:0 16px 48px rgba(26,26,46,.18);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .sb-modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,var(--yellow-soft),var(--bg-light))}
+  .sb-modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .sb-modal-head .symbol{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:800;color:var(--gold-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .sb-modal-body{padding:18px 24px 24px;display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--gold-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--gold-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--gold-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--gold-deep);font-weight:700}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4, .sb-section.klinik h4 [data-lucide]{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4, .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+  .sb-modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.18);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+  .sb-cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px}
+  .sb-tile{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:12px;cursor:pointer;transition:all .2s;text-align:center}
+  .sb-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--gold-deep)}
+  .sb-tile h5{font-size:.92rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .sb-tile .nm{font-size:.7rem;color:var(--text-secondary);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="atom"></i></div>
+    <div>
+      <h1>Mitose &amp; Meiose</h1>
+      <p>Visualizer · Sortieren · Welche Phase · Vergleich</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="visualizer"><i data-lucide="play"></i>Visualizer</button>
+  <button class="tab" data-tab="sortieren"><i data-lucide="layout-list"></i>Sortieren</button>
+  <button class="tab" data-tab="welche"><i data-lucide="target"></i>Welche Phase?</button>
+  <button class="tab" data-tab="steckbriefe"><i data-lucide="book-open"></i>Steckbriefe</button>
+  <button class="tab" data-tab="compare"><i data-lucide="columns-2"></i>Vergleich</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: VISUALIZER ============ -->
+  <div class="section active" id="visualizer">
+    <div class="hero-strip">
+      <h2><i data-lucide="play"></i>Phasen-Visualizer</h2>
+      <p>Wähle Mitose oder Meiose und durchlaufe die Phasen. Tracker zeigt live Chromosomenzahl, DNA-Menge und Chromatiden-Status.</p>
+    </div>
+
+    <div class="card">
+      <div class="mode-row">
+        <button class="mode-btn active" data-mode="mitose"><i data-lucide="copy"></i>Mitose</button>
+        <button class="mode-btn" data-mode="meiose"><i data-lucide="git-merge"></i>Meiose</button>
+      </div>
+
+      <div class="scrub-wrap">
+        <div class="stage" id="stage">
+          <div class="cell-membrane" id="cell">
+            <svg id="chromoSvg" width="220" height="220" viewBox="-110 -110 220 220"></svg>
+          </div>
+        </div>
+
+        <div class="ph-info">
+          <div class="ph-stat"><div class="lbl">Chromosomenzahl</div><div class="val" id="ploidy">2n</div></div>
+          <div class="ph-stat"><div class="lbl">DNA-Menge</div><div class="val" id="dna">2C</div></div>
+          <div class="ph-stat"><div class="lbl">Chromatiden</div><div class="val" id="chromatids">2</div></div>
+        </div>
+
+        <div class="scrubber">
+          <div class="scrubber-bar" id="scrubBar"></div>
+        </div>
+
+        <div class="controls">
+          <button class="ctl-btn ghost" id="prevBtn"><i data-lucide="chevron-left"></i>Zurück</button>
+          <button class="ctl-btn" id="playBtn"><i data-lucide="play"></i>Auto-Play</button>
+          <button class="ctl-btn ghost" id="nextBtn">Weiter<i data-lucide="chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="desc-box">
+        <h3 id="phName">Interphase</h3>
+        <p id="phDesc">Wähle eine Phase, um Details zu sehen.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: SORTIEREN ============ -->
+  <div class="section" id="sortieren">
+    <div class="hero-strip">
+      <h2><i data-lucide="layout-list"></i>Phasen-Sortieren</h2>
+      <p>Die Phasen liegen unten — schiebe sie per Drag &amp; Drop in die richtige Reihenfolge in die Ziel-Box. Auf Mobil: tippen markiert die Karte, nochmal tippen platziert.</p>
+    </div>
+
+    <div class="card">
+      <div class="sort-mode-row">
+        <button class="sort-mode-btn active" data-sort-mode="mitose">Mitose-Phasen</button>
+        <button class="sort-mode-btn" data-sort-mode="meiose">Meiose-Phasen</button>
+      </div>
+
+      <h3 style="font-size:.85rem;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;text-align:center">Pool</h3>
+      <div class="sort-pool" id="sortPool"></div>
+
+      <h3 style="font-size:.85rem;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px;font-weight:700;text-align:center">In richtiger Reihenfolge ablegen</h3>
+      <div class="sort-target" id="sortTarget"></div>
+
+      <div class="sort-status" id="sortStatus"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="sortReset"><i data-lucide="rotate-ccw"></i>Zurücksetzen</button>
+        <button class="btn" id="sortCheck"><i data-lucide="check"></i>Prüfen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: WELCHE PHASE ============ -->
+  <div class="section" id="welche">
+    <div class="hero-strip">
+      <h2><i data-lucide="target"></i>Welche Phase ist das?</h2>
+      <p>Das Tool zeigt eine Phase als Bild — du erkennst sie an der Chromosomen-Anordnung. Klick die richtige Antwort.</p>
+    </div>
+
+    <div class="card">
+      <div class="quiz-stage">
+        <svg id="wpSvg" viewBox="-110 -110 220 220" width="280" height="240"></svg>
+      </div>
+
+      <h3 style="text-align:center;margin-bottom:10px;color:var(--gold-deep);font-size:.85rem;text-transform:uppercase;letter-spacing:.6px;font-weight:700">Antwort</h3>
+      <div class="wp-grid" id="wpGrid"></div>
+
+      <div class="q-feedback" id="wpFb"></div>
+
+      <div class="btn-row">
+        <button class="btn" id="wpNext">Nächste Phase<i data-lucide="arrow-right"></i></button>
+      </div>
+      <p style="text-align:center;margin-top:10px;color:var(--muted);font-size:.78rem">Score: <b id="wpScore">0 / 0</b></p>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3.5: STECKBRIEFE ============ -->
+  <div class="section" id="steckbriefe">
+    <div class="hero-strip">
+      <h2><i data-lucide="book-open"></i>Phasen-Steckbriefe</h2>
+      <p>Jede Phase als kompakter Steckbrief mit <b>Aufbau</b>, <b>Funktion</b>, <b>Klinik</b> und <b>MedAT-Wissen</b>. Klick eine Karte an.</p>
+    </div>
+    <div class="card">
+      <h2><i data-lucide="layers"></i>Mitose</h2>
+      <div class="sb-cards-grid" id="sbMitoseGrid"></div>
+    </div>
+    <div class="card">
+      <h2><i data-lucide="git-branch"></i>Meiose</h2>
+      <div class="sb-cards-grid" id="sbMeioseGrid"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: VERGLEICH ============ -->
+  <div class="section" id="compare">
+    <div class="card">
+      <h2><i data-lucide="columns-2"></i>Mitose vs. Meiose</h2>
+      <p class="lead">Direkter Vergleich der wichtigsten Merkmale.</p>
+      <table class="cmp-table">
+        <thead><tr><th>Merkmal</th><th class="mit">Mitose</th><th class="mei">Meiose</th></tr></thead>
+        <tbody>
+          <tr><td>Zweck</td><td>Wachstum, Regeneration</td><td>Bildung von Keimzellen (Gameten)</td></tr>
+          <tr><td>Anzahl Teilungen</td><td>1</td><td>2 (Reduktions- + Äquationsteilung)</td></tr>
+          <tr><td>Tochterzellen</td><td>2</td><td>4</td></tr>
+          <tr><td>Chromosomenzahl</td><td>2n → 2n (diploid)</td><td>2n → n (haploid)</td></tr>
+          <tr><td>Genetische Identität</td><td>identisch zur Mutterzelle</td><td>genetisch verschieden (Crossing-over &amp; Rekombination)</td></tr>
+          <tr><td>Crossing-over</td><td>nein</td><td>ja (Prophase I, Tetraden)</td></tr>
+          <tr><td>Synapsis Homologer</td><td>nein</td><td>ja (Prophase I)</td></tr>
+          <tr><td>Ort beim Menschen</td><td>somatische Zellen</td><td>Keimdrüsen (Ovar, Hoden)</td></tr>
+        </tbody>
+      </table>
+      <div class="key-fact"><i data-lucide="brain"></i><div><b>Eselsbrücke:</b> <b>M</b>itose = <b>M</b>ehr derselben Zellen. <b>Mei</b>ose = <b>Mei</b>nungsverschiedenheit der Chromosomen → durchmischt &amp; halbiert.</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>3 Quellen genetischer Vielfalt durch die Meiose:</b><br>1. <b>Crossing-over</b> in Prophase I<br>2. <b>Zufällige Verteilung</b> der Homologen in Anaphase I (2²³ Möglichkeiten beim Menschen)<br>3. <b>Befruchtung</b> selbst (Zufallspartner)</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">10 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='sortieren') initSort();
+    if(t.dataset.tab==='welche') newWPPuzzle();
+  });
+});
+
+/* ===== PHASE DATA ===== */
+const PHASES = {
+  mitose: [
+    {key:'interphase',name:'Interphase',ploidy:'2n',dna:'2C → 4C',chromatids:'1 → 2',
+     desc:'Zelle wächst und repliziert ihre DNA in der <span class="key">S-Phase</span>. Aus jedem Chromosom werden zwei <span class="key">Schwesterchromatiden</span>. DNA: 2C → 4C, Chromosomenzahl bleibt 2n.',layout:'interphase'},
+    {key:'prophase',name:'Prophase',ploidy:'2n',dna:'4C',chromatids:'2',
+     desc:'Chromosomen <span class="key">kondensieren</span>, Kernhülle löst sich auf, Spindelapparat bildet sich. Jedes Chromosom besteht aus 2 Schwesterchromatiden.',layout:'condensed'},
+    {key:'metaphase',name:'Metaphase',ploidy:'2n',dna:'4C',chromatids:'2',
+     desc:'Chromosomen ordnen sich in der <span class="key">Äquatorialebene</span> an (Metaphasenplatte). Spindelfasern haften an Kinetochoren.',layout:'metaphase'},
+    {key:'anaphase',name:'Anaphase',ploidy:'2n → 4n*',dna:'4C',chromatids:'1',
+     desc:'<span class="key">Schwesterchromatiden trennen sich</span> am Centromer und werden zu den Polen gezogen. Jede Chromatide zählt als eigenes Chromosom.',layout:'anaphaseM'},
+    {key:'telophase',name:'Telophase &amp; Cytokinese',ploidy:'2n',dna:'2C',chromatids:'1',
+     desc:'Chromosomen <span class="key">dekondensieren</span>, Kernhülle bildet sich neu. Cytokinese: <b>2 identische Tochterzellen mit je 2n / 2C</b>.',layout:'telophaseM'}
+  ],
+  meiose: [
+    {key:'interphase',name:'Interphase',ploidy:'2n',dna:'2C → 4C',chromatids:'1 → 2',
+     desc:'DNA wird in der S-Phase repliziert. Jedes Chromosom trägt 2 Schwesterchromatiden.',layout:'interphase'},
+    {key:'prophase1',name:'Prophase I',ploidy:'2n',dna:'4C',chromatids:'2',
+     desc:'Homologe Chromosomen <span class="key">paaren sich</span> (Synapsis) und bilden <span class="key">Tetraden</span>. <span class="key">Crossing-over</span> findet statt.',layout:'tetrade'},
+    {key:'metaphase1',name:'Metaphase I',ploidy:'2n',dna:'4C',chromatids:'2',
+     desc:'Bivalente ordnen sich in der Äquatorialebene an. <span class="key">Zufällige Orientierung</span> jedes Paares.',layout:'metaphase1'},
+    {key:'anaphase1',name:'Anaphase I',ploidy:'n + n',dna:'2C + 2C',chromatids:'2',
+     desc:'<span class="key">Homologe Chromosomen trennen sich</span> — anders als in der Mitose! Schwesterchromatiden bleiben zusammen. <b>Reduktion 2n → n.</b>',layout:'anaphase1'},
+    {key:'telophase1',name:'Telophase I',ploidy:'n',dna:'2C',chromatids:'2',
+     desc:'Zwei haploide Zellen mit je 2-Chromatid-Chromosomen.',layout:'telophase1'},
+    {key:'metaphase2',name:'Metaphase II',ploidy:'n',dna:'2C',chromatids:'2',
+     desc:'Wie eine "Mini-Mitose" in haploider Zelle. Chromosomen ordnen sich erneut in der Äquatorialebene an.',layout:'metaphase2'},
+    {key:'anaphase2',name:'Anaphase II',ploidy:'n → 2n*',dna:'2C',chromatids:'1',
+     desc:'Jetzt trennen sich die <span class="key">Schwesterchromatiden</span> (wie in der Mitose).',layout:'anaphase2'},
+    {key:'telophase2',name:'Telophase II',ploidy:'n',dna:'C',chromatids:'1',
+     desc:'<b>4 haploide Tochterzellen</b> entstehen — genetisch verschieden. ♂: 4 Spermien, ♀: 1 Eizelle + 3 Polkörper.',layout:'telophase2'}
+  ]
+};
+
+const state = {mode:'mitose',idx:0,playing:false,timer:null};
+
+document.querySelectorAll('.mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    state.mode=b.dataset.mode; state.idx=0;
+    renderScrubber(); renderPhase();
+  });
+});
+
+function renderScrubber(){
+  const bar=document.getElementById('scrubBar'); bar.innerHTML='';
+  PHASES[state.mode].forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='ph-btn'+(i===state.idx?' active':'');
+    b.textContent=p.name.replace(/&amp;.*$/,'').trim().split(' ')[0];
+    b.title=p.name;
+    b.addEventListener('click',()=>{state.idx=i;renderPhase()});
+    bar.appendChild(b);
+  });
+}
+
+function renderPhase(){
+  const ph=PHASES[state.mode][state.idx];
+  document.getElementById('ploidy').textContent=ph.ploidy;
+  document.getElementById('dna').textContent=ph.dna;
+  document.getElementById('chromatids').textContent=ph.chromatids;
+  document.getElementById('phName').innerHTML=ph.name;
+  document.getElementById('phDesc').innerHTML=ph.desc;
+  document.querySelectorAll('.ph-btn').forEach((b,i)=>b.classList.toggle('active',i===state.idx));
+  drawChromosomes('chromoSvg',ph.layout);
+}
+
+const COLORS={A1:'#e07b8b',A2:'#c85f70',B1:'#6db8e0',B2:'#4a99c4'};
+function shade(hex,p){
+  const num=parseInt(hex.slice(1),16);
+  let r=(num>>16)+p,g=((num>>8)&0xff)+p,b=(num&0xff)+p;
+  r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+  return '#'+(0x1000000+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function chr(x,y,color,condensed,double,rot=0){
+  if(!condensed) return `<g transform="translate(${x},${y}) rotate(${rot})"><path d="M -22 0 Q -10 -8 0 0 T 22 0" stroke="${color}" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
+  if(double) return `<g transform="translate(${x},${y}) rotate(${rot})"><rect x="-10" y="-14" width="6" height="28" rx="2.5" fill="${color}"/><rect x="4" y="-14" width="6" height="28" rx="2.5" fill="${color}"/><circle cx="0" cy="0" r="3" fill="${shade(color,-15)}"/></g>`;
+  return `<g transform="translate(${x},${y}) rotate(${rot})"><rect x="-3" y="-13" width="6" height="26" rx="2.5" fill="${color}"/><circle cx="0" cy="0" r="2.5" fill="${shade(color,-15)}"/></g>`;
+}
+function drawChromosomes(svgId,layout){
+  const svg=document.getElementById(svgId);
+  let html='';
+  switch(layout){
+    case 'interphase':
+      html+=chr(-40,-30,COLORS.A1,false,false,20);
+      html+=chr(30,-25,COLORS.A2,false,false,-30);
+      html+=chr(-25,35,COLORS.B1,false,false,-15);
+      html+=chr(35,30,COLORS.B2,false,false,40);
+      break;
+    case 'condensed':
+      html+=chr(-45,-35,COLORS.A1,true,true,15);
+      html+=chr(35,-30,COLORS.A2,true,true,-20);
+      html+=chr(-30,40,COLORS.B1,true,true,-10);
+      html+=chr(40,35,COLORS.B2,true,true,25);
+      break;
+    case 'metaphase':
+      html+=`<line x1="-90" y1="0" x2="90" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;
+      html+=chr(-60,0,COLORS.A1,true,true);
+      html+=chr(-20,0,COLORS.B1,true,true);
+      html+=chr(20,0,COLORS.A2,true,true);
+      html+=chr(60,0,COLORS.B2,true,true);
+      break;
+    case 'anaphaseM':
+      html+=chr(-65,-30,COLORS.A1,true,false);html+=chr(-50,-30,COLORS.A1,true,false);
+      html+=chr(-35,-30,COLORS.B1,true,false);html+=chr(-20,-30,COLORS.B1,true,false);
+      html+=chr(20,-30,COLORS.A2,true,false);html+=chr(35,-30,COLORS.A2,true,false);
+      html+=chr(50,-30,COLORS.B2,true,false);html+=chr(65,-30,COLORS.B2,true,false);
+      break;
+    case 'telophaseM':
+      html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;
+      html+=chr(-55,-15,COLORS.A1,true,false);html+=chr(-35,-15,COLORS.B1,true,false);
+      html+=chr(-55,15,COLORS.A2,true,false);html+=chr(-35,15,COLORS.B2,true,false);
+      html+=chr(35,-15,COLORS.A1,true,false);html+=chr(55,-15,COLORS.B1,true,false);
+      html+=chr(35,15,COLORS.A2,true,false);html+=chr(55,15,COLORS.B2,true,false);
+      break;
+    case 'tetrade':
+      html+=chr(-50,-25,COLORS.A1,true,true);html+=chr(-25,-25,COLORS.A2,true,true);
+      html+=chr(25,25,COLORS.B1,true,true);html+=chr(50,25,COLORS.B2,true,true);
+      html+=`<circle cx="-37" cy="-25" r="14" fill="none" stroke="#f5c542" stroke-width="2" stroke-dasharray="3 3"/>`;
+      html+=`<text x="-37" y="-50" fill="#f5c542" font-size="10" text-anchor="middle" font-weight="700">Crossing-over</text>`;
+      break;
+    case 'metaphase1':
+      html+=`<line x1="-90" y1="0" x2="90" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;
+      html+=chr(-50,-12,COLORS.A1,true,true);html+=chr(-50,12,COLORS.A2,true,true);
+      html+=chr(50,-12,COLORS.B1,true,true);html+=chr(50,12,COLORS.B2,true,true);
+      break;
+    case 'anaphase1':
+      html+=chr(-60,-30,COLORS.A1,true,true);html+=chr(-40,30,COLORS.A2,true,true);
+      html+=chr(40,-30,COLORS.B1,true,true);html+=chr(60,30,COLORS.B2,true,true);
+      break;
+    case 'telophase1':
+      html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;
+      html+=chr(-50,-20,COLORS.A1,true,true);html+=chr(-50,20,COLORS.B1,true,true);
+      html+=chr(50,-20,COLORS.A2,true,true);html+=chr(50,20,COLORS.B2,true,true);
+      break;
+    case 'metaphase2':
+      html+=`<line x1="-100" y1="0" x2="-15" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;
+      html+=`<line x1="15" y1="0" x2="100" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;
+      html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;
+      html+=chr(-65,0,COLORS.A1,true,true);html+=chr(-30,0,COLORS.B1,true,true);
+      html+=chr(30,0,COLORS.A2,true,true);html+=chr(65,0,COLORS.B2,true,true);
+      break;
+    case 'anaphase2':
+      html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;
+      html+=chr(-75,-25,COLORS.A1,true,false);html+=chr(-30,-25,COLORS.A1,true,false);
+      html+=chr(-75,25,COLORS.B1,true,false);html+=chr(-30,25,COLORS.B1,true,false);
+      html+=chr(30,-25,COLORS.A2,true,false);html+=chr(75,-25,COLORS.A2,true,false);
+      html+=chr(30,25,COLORS.B2,true,false);html+=chr(75,25,COLORS.B2,true,false);
+      break;
+    case 'telophase2':
+      html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;
+      html+=`<line x1="-100" y1="0" x2="100" y2="0" stroke="rgba(255,255,255,.2)"/>`;
+      html+=chr(-55,-50,COLORS.A1,true,false);html+=chr(-35,-50,COLORS.B1,true,false);
+      html+=chr(35,-50,COLORS.A1,true,false);html+=chr(55,-50,COLORS.B1,true,false);
+      html+=chr(-55,50,COLORS.A2,true,false);html+=chr(-35,50,COLORS.B2,true,false);
+      html+=chr(35,50,COLORS.A2,true,false);html+=chr(55,50,COLORS.B2,true,false);
+      break;
+  }
+  svg.innerHTML=html;
+}
+
+document.getElementById('prevBtn').onclick=()=>{state.idx=Math.max(0,state.idx-1);renderPhase()};
+document.getElementById('nextBtn').onclick=()=>{state.idx=Math.min(PHASES[state.mode].length-1,state.idx+1);renderPhase()};
+document.getElementById('playBtn').onclick=()=>{
+  const btn=document.getElementById('playBtn');
+  if(state.playing){
+    clearInterval(state.timer); state.playing=false;
+    btn.innerHTML='<i data-lucide="play"></i>Auto-Play';
+  } else {
+    state.playing=true;
+    btn.innerHTML='<i data-lucide="pause"></i>Pause';
+    state.timer=setInterval(()=>{
+      state.idx++;
+      if(state.idx>=PHASES[state.mode].length){state.idx=0}
+      renderPhase();
+    },2200);
+  }
+  if(window.lucide) lucide.createIcons();
+};
+renderScrubber(); renderPhase();
+
+/* ===== SORTIEREN ===== */
+let sortMode='mitose', sortPlaced=[];
+document.querySelectorAll('.sort-mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.sort-mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    sortMode=b.dataset.sortMode;
+    initSort();
+  });
+});
+
+function initSort(){
+  const phs=PHASES[sortMode];
+  const pool=document.getElementById('sortPool'); pool.innerHTML='';
+  const target=document.getElementById('sortTarget'); target.innerHTML='';
+  sortPlaced=[];
+  document.getElementById('sortStatus').classList.remove('show');
+  // shuffle
+  const shuffled=[...phs].map((p,i)=>({...p,origIdx:i})).sort(()=>Math.random()-.5);
+  shuffled.forEach(p=>{
+    const card=createPhaseCard(p);
+    card.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('id',p.key);
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend',()=>card.classList.remove('dragging'));
+    pool.appendChild(card);
+  });
+  target.addEventListener('dragover',e=>{e.preventDefault();target.classList.add('over')});
+  target.addEventListener('dragleave',()=>target.classList.remove('over'));
+  target.addEventListener('drop',e=>{
+    e.preventDefault();target.classList.remove('over');
+    const id=e.dataTransfer.getData('id');
+    const cardInPool=pool.querySelector(`[data-key="${id}"]`);
+    if(cardInPool){
+      cardInPool.classList.add('placed');
+      target.appendChild(cardInPool);
+      sortPlaced.push(id);
+    }
+  });
+  if(window.lucide) lucide.createIcons();
+}
+function createPhaseCard(p){
+  const card=document.createElement('div');
+  card.className='phase-card';
+  card.draggable=true;
+  card.dataset.key=p.key;
+  card.dataset.origIdx=p.origIdx;
+  card.innerHTML=`<svg viewBox="-110 -110 220 220"></svg>
+    <div class="pc-name">${p.name.replace('&amp;','&')}</div>`;
+  drawChromosomes(card.querySelector('svg'),p.layout); // wrong: needs ID. Redo:
+  // Actually drawChromosomes uses getElementById, so we need to pass elements. Let's inline:
+  card.querySelector('svg').innerHTML=getPhaseHtml(p.layout);
+  return card;
+}
+function getPhaseHtml(layout){
+  // Build SVG inline using same logic as drawChromosomes
+  const tempDiv=document.createElement('div');
+  let html='';
+  switch(layout){
+    case 'interphase':html+=chr(-40,-30,COLORS.A1,false,false,20);html+=chr(30,-25,COLORS.A2,false,false,-30);html+=chr(-25,35,COLORS.B1,false,false,-15);html+=chr(35,30,COLORS.B2,false,false,40);break;
+    case 'condensed':html+=chr(-45,-35,COLORS.A1,true,true,15);html+=chr(35,-30,COLORS.A2,true,true,-20);html+=chr(-30,40,COLORS.B1,true,true,-10);html+=chr(40,35,COLORS.B2,true,true,25);break;
+    case 'metaphase':html+=`<line x1="-90" y1="0" x2="90" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;html+=chr(-60,0,COLORS.A1,true,true);html+=chr(-20,0,COLORS.B1,true,true);html+=chr(20,0,COLORS.A2,true,true);html+=chr(60,0,COLORS.B2,true,true);break;
+    case 'anaphaseM':html+=chr(-65,-30,COLORS.A1,true,false);html+=chr(-50,-30,COLORS.A1,true,false);html+=chr(-35,-30,COLORS.B1,true,false);html+=chr(-20,-30,COLORS.B1,true,false);html+=chr(20,-30,COLORS.A2,true,false);html+=chr(35,-30,COLORS.A2,true,false);html+=chr(50,-30,COLORS.B2,true,false);html+=chr(65,-30,COLORS.B2,true,false);break;
+    case 'telophaseM':html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;html+=chr(-55,-15,COLORS.A1,true,false);html+=chr(-35,-15,COLORS.B1,true,false);html+=chr(-55,15,COLORS.A2,true,false);html+=chr(-35,15,COLORS.B2,true,false);html+=chr(35,-15,COLORS.A1,true,false);html+=chr(55,-15,COLORS.B1,true,false);html+=chr(35,15,COLORS.A2,true,false);html+=chr(55,15,COLORS.B2,true,false);break;
+    case 'tetrade':html+=chr(-50,-25,COLORS.A1,true,true);html+=chr(-25,-25,COLORS.A2,true,true);html+=chr(25,25,COLORS.B1,true,true);html+=chr(50,25,COLORS.B2,true,true);break;
+    case 'metaphase1':html+=`<line x1="-90" y1="0" x2="90" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;html+=chr(-50,-12,COLORS.A1,true,true);html+=chr(-50,12,COLORS.A2,true,true);html+=chr(50,-12,COLORS.B1,true,true);html+=chr(50,12,COLORS.B2,true,true);break;
+    case 'anaphase1':html+=chr(-60,-30,COLORS.A1,true,true);html+=chr(-40,30,COLORS.A2,true,true);html+=chr(40,-30,COLORS.B1,true,true);html+=chr(60,30,COLORS.B2,true,true);break;
+    case 'telophase1':html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;html+=chr(-50,-20,COLORS.A1,true,true);html+=chr(-50,20,COLORS.B1,true,true);html+=chr(50,-20,COLORS.A2,true,true);html+=chr(50,20,COLORS.B2,true,true);break;
+    case 'metaphase2':html+=`<line x1="-100" y1="0" x2="-15" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;html+=`<line x1="15" y1="0" x2="100" y2="0" stroke="rgba(255,255,255,.15)" stroke-dasharray="4 4"/>`;html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;html+=chr(-65,0,COLORS.A1,true,true);html+=chr(-30,0,COLORS.B1,true,true);html+=chr(30,0,COLORS.A2,true,true);html+=chr(65,0,COLORS.B2,true,true);break;
+    case 'anaphase2':html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;html+=chr(-75,-25,COLORS.A1,true,false);html+=chr(-30,-25,COLORS.A1,true,false);html+=chr(-75,25,COLORS.B1,true,false);html+=chr(-30,25,COLORS.B1,true,false);html+=chr(30,-25,COLORS.A2,true,false);html+=chr(75,-25,COLORS.A2,true,false);html+=chr(30,25,COLORS.B2,true,false);html+=chr(75,25,COLORS.B2,true,false);break;
+    case 'telophase2':html+=`<line x1="0" y1="-100" x2="0" y2="100" stroke="rgba(255,255,255,.2)"/>`;html+=`<line x1="-100" y1="0" x2="100" y2="0" stroke="rgba(255,255,255,.2)"/>`;html+=chr(-55,-50,COLORS.A1,true,false);html+=chr(-35,-50,COLORS.B1,true,false);html+=chr(35,-50,COLORS.A1,true,false);html+=chr(55,-50,COLORS.B1,true,false);html+=chr(-55,50,COLORS.A2,true,false);html+=chr(-35,50,COLORS.B2,true,false);html+=chr(35,50,COLORS.A2,true,false);html+=chr(55,50,COLORS.B2,true,false);break;
+  }
+  return html;
+}
+
+document.getElementById('sortReset').onclick=initSort;
+document.getElementById('sortCheck').onclick=()=>{
+  const phs=PHASES[sortMode];
+  const status=document.getElementById('sortStatus');
+  if(sortPlaced.length!==phs.length){
+    status.className='sort-status show fail';
+    status.textContent=`Du hast ${sortPlaced.length} von ${phs.length} Phasen platziert. Lege alle ab und prüfe nochmal.`;
+    return;
+  }
+  let correct=true;
+  for(let i=0;i<phs.length;i++){
+    if(phs[i].key!==sortPlaced[i]){correct=false;break}
+  }
+  if(correct){
+    status.className='sort-status show success';
+    status.textContent='Perfekt! Reihenfolge stimmt.';
+  } else {
+    status.className='sort-status show fail';
+    status.textContent='Reihenfolge nicht ganz richtig. Korrekte Reihenfolge: '+phs.map(p=>p.name.replace('&amp;','&')).join(' → ');
+  }
+};
+
+/* ===== WELCHE PHASE ===== */
+let wpScore=0,wpTotal=0,wpAnswer=null;
+function newWPPuzzle(){
+  // pick a random phase from either mode
+  const allPhases=[...PHASES.mitose.map(p=>({...p,mode:'Mitose'})),...PHASES.meiose.map(p=>({...p,mode:'Meiose'}))];
+  const pick=allPhases[Math.floor(Math.random()*allPhases.length)];
+  wpAnswer=pick.key+'|'+pick.mode;
+  document.getElementById('wpSvg').innerHTML=getPhaseHtml(pick.layout);
+  // generate 4 options including correct
+  const options=[pick];
+  while(options.length<4){
+    const o=allPhases[Math.floor(Math.random()*allPhases.length)];
+    if(!options.some(x=>x.key+'|'+x.mode===o.key+'|'+o.mode)) options.push(o);
+  }
+  options.sort(()=>Math.random()-.5);
+  const grid=document.getElementById('wpGrid'); grid.innerHTML='';
+  options.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='wp-opt';
+    b.textContent=`${o.mode}: ${o.name.replace('&amp;','&')}`;
+    b.dataset.key=o.key+'|'+o.mode;
+    b.onclick=()=>wpAnswer&&checkWP(b);
+    grid.appendChild(b);
+  });
+  document.getElementById('wpFb').classList.remove('show');
+}
+function checkWP(b){
+  if(b.disabled) return;
+  wpTotal++;
+  const correct=b.dataset.key===wpAnswer;
+  document.querySelectorAll('.wp-opt').forEach(x=>{
+    x.disabled=true;
+    if(x.dataset.key===wpAnswer) x.classList.add('correct');
+    else if(x===b&&!correct) x.classList.add('wrong');
+  });
+  if(correct) wpScore++;
+  document.getElementById('wpScore').textContent=`${wpScore} / ${wpTotal}`;
+  const fb=document.getElementById('wpFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  const [k,m]=wpAnswer.split('|');
+  const ph=PHASES[m.toLowerCase()].find(p=>p.key===k);
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz. Richtig: '+m+' '+ph.name.replace('&amp;','&')+'.</b> ')+ph.desc.replace(/<\/?span[^>]*>/g,'');
+}
+document.getElementById('wpNext').onclick=newWPPuzzle;
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'In welcher Phase trennen sich die <b>Schwesterchromatiden</b> in der Mitose?',o:['Prophase','Metaphase','Anaphase','Telophase'],c:2,e:'Anaphase: Centromere lösen sich, Spindelfasern ziehen die Chromatiden an die Pole.'},
+  {q:'Wann findet das <b>Crossing-over</b> statt?',o:['Metaphase Mitose','Prophase I Meiose','Anaphase II Meiose','Interphase'],c:1,e:'Prophase I: homologe Chromosomen liegen als Tetraden vor → Stückaustausch.'},
+  {q:'Eine Zelle hat <b>2n=6 Chromosomen mit je 2 Chromatiden</b>. In welcher Phase ist sie?',o:['G1-Phase','Metaphase Mitose','Telophase II Meiose','Anaphase Mitose'],c:1,e:'G1 wäre 2n / 1 Chromatide. Metaphase Mitose: 2n=6, replizierte Chromosomen mit 2 Chromatiden.'},
+  {q:'Wie viele Tochterzellen entstehen am Ende einer <b>Meiose</b>?',o:['1','2','4','8'],c:2,e:'2 Reifeteilungen × 2 = 4 haploide Tochterzellen.'},
+  {q:'Welcher Vorgang läuft <b>nicht</b> in der Mitose ab?',o:['Spindelapparat-Bildung','Centromer-Teilung','Synapsis homologer Chromosomen','Cytokinese'],c:2,e:'Synapsis (Paarung Homologer) ist exklusiv für die Meiose Prophase I.'},
+  {q:'In welcher Phase ist die <b>DNA-Menge maximal (4C)</b>?',o:['G1','Nach S-Phase bis Anaphase','Telophase','Nach Cytokinese'],c:1,e:'Nach der S-Phase (Replikation) bis zur Anaphase ist die DNA-Menge 4C.'},
+  {q:'Was passiert in <b>Anaphase I</b> der Meiose?',o:['Schwesterchromatiden trennen sich','Homologe Chromosomen trennen sich','Synapsis beginnt','Kernhülle bildet sich'],c:1,e:'Anaphase I: Homologen wandern an die Pole, Schwestern bleiben zusammen.'},
+  {q:'Wo findet die Mitose im menschlichen Körper statt?',o:['Nur in Keimdrüsen','In somatischen Zellen','Nur in Knochenmark','Nur in Hautzellen'],c:1,e:'Mitose: alle somatischen Zellen (Haut, Darm, Knochenmark …). Meiose nur in Keimdrüsen.'},
+  {q:'Wann wird die DNA repliziert?',o:['G1-Phase','S-Phase','M-Phase','G2-Phase'],c:1,e:'Die S-Phase (Synthese) ist die DNA-Replikationsphase, zwischen G1 und G2.'},
+  {q:'Welche Aussage zur Meiose stimmt?',o:['Tochterzellen sind genetisch identisch','Es gibt nur eine Teilung','Tochterzellen sind haploid und unterscheiden sich','Findet in allen Zellen statt'],c:2,e:'4 haploide, genetisch verschiedene Tochterzellen — durch Crossing-over und zufällige Verteilung.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('.q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+/* ===== STECKBRIEFE: Phasen-Daten ===== */
+const SB_MITOSE = [
+  {id:'interphase', name:'Interphase', symbol:'G1 · S · G2',
+    aufbau:'Vor der Teilung: <b>G1</b> (Zellwachstum) → <b>S</b> (DNA-Replikation, jedes Chromosom bekommt ein Schwesterchromatid) → <b>G2</b> (Vorbereitung).',
+    funktion:'Die Zelle verdoppelt ihre DNA und alle Organellen, damit beide Tochterzellen ein vollständiges Erbgut bekommen.',
+    klinik:'Defekte am G1/S-Checkpoint (z.B. p53-Mutation) → unkontrollierte Teilung → <b>Tumorentstehung</b>.',
+    medat:'Nach S-Phase: 2n4C (diploid, 4-facher DNA-Gehalt). Vor S-Phase: 2n2C. Klassiker im MedAT!'
+  },
+  {id:'prophase', name:'Prophase', symbol:'Mitose',
+    aufbau:'Chromosomen <b>kondensieren</b> sichtbar. Kernhülle löst sich auf. Zentrosomen wandern zu den Polen, der <b>Spindelapparat</b> bildet sich.',
+    funktion:'Vorbereitung der Chromosomen-Trennung: kompakte X-förmige Chromosomen lassen sich besser bewegen als verknäuelte DNA.',
+    klinik:'Chemotherapeutika wie Vincristin greifen genau hier an: sie hemmen die Spindelbildung.',
+    medat:'Die <b>Schwesterchromatiden hängen am Centromer zusammen</b>. Chromosomenzahl: 2n4C.'
+  },
+  {id:'metaphase', name:'Metaphase', symbol:'Äquatorialebene',
+    aufbau:'Chromosomen ordnen sich exakt in der <b>Äquatorialebene</b> der Zelle an. Spindelfasern setzen am Centromer (Kinetochor) an.',
+    funktion:'Sicherstellung der korrekten Trennung: jede Tochterzelle bekommt genau ein Chromatid pro Chromosom.',
+    klinik:'Kolchizin (Gicht-Medikament) blockiert die Mitose in der Metaphase – nutzt man auch zur Karyotyp-Bestimmung.',
+    medat:'Bestes Zeitfenster für die <b>Karyogramm-Analyse</b>! Hier erkennt man Trisomien etc. am besten.'
+  },
+  {id:'anaphase', name:'Anaphase', symbol:'Trennung',
+    aufbau:'Centromere teilen sich. Die <b>Schwesterchromatiden werden zu den Polen gezogen</b> und sind jetzt eigenständige Chromosomen.',
+    funktion:'Aktive Trennung des Erbguts. Spindelfasern verkürzen sich, Pole drücken sich auseinander.',
+    klinik:'<b>Non-Disjunction</b> in dieser Phase → Aneuploidie (z.B. Trisomie 21).',
+    medat:'Aus 2n4C werden zwei Sätze 2n2C an den Polen. Schwester-Chromatiden = jetzt eigene Chromosomen.'
+  },
+  {id:'telophase', name:'Telophase', symbol:'Reorganisation',
+    aufbau:'Chromosomen entspiralisieren wieder. Neue Kernhüllen bilden sich um beide Chromosomensätze. Spindelapparat verschwindet.',
+    funktion:'Rückkehr in den Interphase-Zustand: zwei neue, separate Zellkerne entstehen.',
+    klinik:'Defekte hier können zu Mehrkernigkeit führen (manche Tumorzellen).',
+    medat:'Direkt gefolgt von der <b>Cytokinese</b> – der eigentlichen Teilung der Zelle. Beide Tochterzellen sind 2n2C.'
+  },
+  {id:'cytokinese', name:'Cytokinese', symbol:'Zellteilung',
+    aufbau:'Bei tierischen Zellen: <b>Aktin-Myosin-Ring</b> schnürt die Zelle in der Mitte ein. Bei Pflanzen: Zellplatte aus Vesikeln bildet neue Wand.',
+    funktion:'Mechanische Trennung des Cytoplasmas in zwei Tochterzellen.',
+    klinik:'Wachstumsfaktoren wie EGF stimulieren die Cytokinese – Krebsmedikamente blockieren genau diese Signalwege.',
+    medat:'Nicht zu verwechseln mit Telophase! Cytokinese trennt das Cytoplasma, Telophase die Kerne.'
+  }
+];
+const SB_MEIOSE = [
+  {id:'prophase1', name:'Prophase I', symbol:'Crossing-over',
+    aufbau:'Homologe Chromosomen paaren sich (<b>Synapsis</b>) → Tetraden (4 Chromatiden). Es kommt zum <b>Crossing-over</b> an Chiasmata.',
+    funktion:'Genetische Rekombination! Stücke werden zwischen homologen Chromatiden ausgetauscht – Quelle der Vielfalt.',
+    klinik:'Fehler hier können zu Translokationen führen → angeborene Erkrankungen oder Krebs (z.B. Philadelphia-Chromosom).',
+    medat:'<b>Erste der 3 Quellen genetischer Vielfalt!</b> Phasen: Leptotän, Zygotän, Pachytän, Diplotän, Diakinese.'
+  },
+  {id:'metaphase1', name:'Metaphase I', symbol:'Tetraden',
+    aufbau:'Die <b>Tetraden</b> (homologe Paare) ordnen sich in der Äquatorialebene an – nicht einzelne Chromosomen wie bei der Mitose!',
+    funktion:'Vorbereitung der Trennung der Homologen (nicht der Schwesterchromatiden!).',
+    klinik:'Bei zunehmendem mütterlichem Alter steigt das Risiko für Non-Disjunction → Trisomien.',
+    medat:'<b>Zufällige Verteilung</b> der mütterlichen vs. väterlichen Homologen → 2²³ Möglichkeiten beim Menschen!'
+  },
+  {id:'anaphase1', name:'Anaphase I', symbol:'Reduktion',
+    aufbau:'Die <b>homologen Chromosomen</b> werden getrennt – Schwesterchromatiden bleiben am Centromer zusammen.',
+    funktion:'Reduktionsteilung: aus 2n wird n. Hier wird der Chromosomensatz halbiert!',
+    klinik:'<b>Trisomie 21</b> entsteht meist durch Non-Disjunction in dieser Phase (mütterlich).',
+    medat:'Das ist der <b>entscheidende Unterschied zur Mitose</b>: hier trennen sich Homologe, nicht Chromatiden.'
+  },
+  {id:'telophase1', name:'Telophase I & Meiose II', symbol:'n2C → n1C',
+    aufbau:'Zwei haploide Zellen entstehen (n2C). Direkt anschließend folgt die <b>Meiose II</b> ohne weitere DNA-Replikation – wie eine Mitose.',
+    funktion:'Trennung der Schwesterchromatiden in Meiose II → vier haploide Zellen mit n1C.',
+    klinik:'Bei Männern: 4 funktionale Spermien. Bei Frauen: 1 Eizelle + 3 Polkörperchen.',
+    medat:'<b>Endprodukt: 4 haploide Tochterzellen</b> mit je halbem Chromosomensatz. Befruchtung stellt 2n wieder her.'
+  }
+];
+function buildSbCards(){
+  const mit = document.getElementById('sbMitoseGrid');
+  if(mit && !mit.children.length){
+    mit.innerHTML = SB_MITOSE.map(p=>`<button class="sb-tile" data-set="mitose" data-id="${p.id}"><h5>${p.name}</h5><div class="nm">${p.symbol}</div></button>`).join('');
+    mit.querySelectorAll('.sb-tile').forEach(t=>t.addEventListener('click',()=>openSb(t.dataset.set, t.dataset.id)));
+  }
+  const mei = document.getElementById('sbMeioseGrid');
+  if(mei && !mei.children.length){
+    mei.innerHTML = SB_MEIOSE.map(p=>`<button class="sb-tile" data-set="meiose" data-id="${p.id}"><h5>${p.name}</h5><div class="nm">${p.symbol}</div></button>`).join('');
+    mei.querySelectorAll('.sb-tile').forEach(t=>t.addEventListener('click',()=>openSb(t.dataset.set, t.dataset.id)));
+  }
+  if(window.lucide) lucide.createIcons();
+}
+function openSb(set, id){
+  const data = (set==='mitose'?SB_MITOSE:SB_MEIOSE).find(x=>x.id===id);
+  if(!data) return;
+  document.getElementById('sbTitle').textContent = data.name;
+  document.getElementById('sbSymbol').textContent = data.symbol;
+  document.getElementById('sbBody').innerHTML = `
+    <div class="sb-section"><h4><i data-lucide="layout-grid"></i>Aufbau</h4><p>${data.aufbau}</p></div>
+    <div class="sb-section"><h4><i data-lucide="settings"></i>Funktion</h4><p>${data.funktion}</p></div>
+    <div class="sb-section klinik"><h4><i data-lucide="stethoscope"></i>Klinik</h4><p>${data.klinik}</p></div>
+    <div class="sb-section medat"><h4><i data-lucide="graduation-cap"></i>MedAT-Wissen</h4><p>${data.medat}</p></div>
+  `;
+  document.getElementById('sbModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeSb(){ document.getElementById('sbModal').classList.remove('show'); }
+buildSbCards();
+
+// Build cards when entering tab if needed
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{ if(t.dataset.tab==='steckbriefe') buildSbCards(); });
+});
+
+if(window.lucide) lucide.createIcons();
+</script>
+
+<!-- STECKBRIEF MODAL -->
+<div class="sb-modal" id="sbModal" onclick="if(event.target===this)closeSb()">
+  <div class="sb-modal-card">
+    <button class="sb-modal-close" onclick="closeSb()"><i data-lucide="x"></i></button>
+    <div class="sb-modal-head">
+      <h3 id="sbTitle"></h3>
+      <span class="symbol" id="sbSymbol"></span>
+    </div>
+    <div class="sb-modal-body" id="sbBody"></div>
+  </div>
+</div>
+
+</body>
+</html>

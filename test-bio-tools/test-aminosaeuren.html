@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aminosäuren · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --shadow-lg:0 16px 48px rgba(26,26,46,.12);
+
+    /* Property colors */
+    --p-unpolar:#a8c5e0;
+    --p-aromatic:#9b7fc4;
+    --p-polar:#6db88a;
+    --p-acid:#e07a55;
+    --p-basic:#6db8e0;
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--coral-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--coral-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(245,166,142,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--coral);color:var(--coral-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--coral-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--coral-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--coral-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(245,166,142,.25);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--coral-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* AS-CARDS */
+  .aa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+  .aa-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:14px;padding:12px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+  .aa-card::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:var(--p-unpolar)}
+  .aa-card.unpolar::before{background:var(--p-unpolar)}
+  .aa-card.aromatic::before{background:var(--p-aromatic)}
+  .aa-card.polar::before{background:var(--p-polar)}
+  .aa-card.acid::before{background:var(--p-acid)}
+  .aa-card.basic::before{background:var(--p-basic)}
+  .aa-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--coral-deep)}
+  .aa-card .one{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:900;color:var(--text);line-height:1;letter-spacing:-1px}
+  .aa-card .three{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--coral-deep);font-weight:700;margin-top:2px}
+  .aa-card .name{font-size:.8rem;font-weight:700;color:var(--text);margin-top:6px;line-height:1.25}
+  .aa-card .prop{font-size:.62rem;color:var(--text-secondary);margin-top:5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .aa-card .essential-mark{position:absolute;top:8px;right:8px;background:var(--gold);color:var(--dark);font-size:.6rem;font-weight:800;padding:2px 5px;border-radius:5px;letter-spacing:.3px}
+
+  /* AS Detail Modal */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:480px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+  .modal-head{padding:24px;display:flex;align-items:center;gap:18px}
+  .modal-symbol{width:84px;height:84px;border-radius:18px;background:linear-gradient(135deg,var(--coral-soft),#fff);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow-sm)}
+  .modal-symbol .one{font-family:'JetBrains Mono',monospace;font-size:2.4rem;font-weight:900;color:var(--coral-deep);line-height:1;letter-spacing:-1px}
+  .modal-symbol .three{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--text-secondary);font-weight:700;margin-top:3px}
+  .modal-head h3{font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:4px}
+  .modal-head .prop-tag{display:inline-block;font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;padding:3px 10px;border-radius:8px;font-weight:700}
+  .modal-head .prop-tag.unpolar{background:rgba(168,197,224,.3);color:var(--blue-deep)}
+  .modal-head .prop-tag.aromatic{background:var(--lavender);color:var(--purple-deep)}
+  .modal-head .prop-tag.polar{background:var(--mint);color:var(--green-deep)}
+  .modal-head .prop-tag.acid{background:var(--coral-soft);color:var(--coral-deep)}
+  .modal-head .prop-tag.basic{background:rgba(109,184,224,.2);color:var(--blue-deep)}
+  .modal-body{padding:0 24px 24px}
+  .modal-body p{font-size:.88rem;color:var(--text-secondary);line-height:1.6;margin-bottom:8px}
+  .modal-body p b{color:var(--text)}
+  .modal-stat-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .modal-stat{background:var(--bg-light);border-radius:10px;padding:9px 12px}
+  .modal-stat .lbl{font-size:.62rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .modal-stat .val{font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--text);font-weight:700;margin-top:2px}
+  .modal-info{background:var(--bg-light);border-radius:12px;padding:11px 14px;margin-top:10px;font-size:.82rem;line-height:1.55}
+  .modal-info b{color:var(--coral-deep)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.06);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);z-index:2}
+  .modal-close:hover{background:rgba(0,0,0,.12)}
+
+  /* Property filter */
+  .prop-filter{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+  .prop-btn{padding:7px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+  .prop-btn .dot{width:10px;height:10px;border-radius:3px}
+  .prop-btn.unpolar .dot{background:var(--p-unpolar)}
+  .prop-btn.aromatic .dot{background:var(--p-aromatic)}
+  .prop-btn.polar .dot{background:var(--p-polar)}
+  .prop-btn.acid .dot{background:var(--p-acid)}
+  .prop-btn.basic .dot{background:var(--p-basic)}
+  .prop-btn:hover{border-color:var(--coral-deep);transform:translateY(-1px)}
+  .prop-btn.active{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .aa-card.dim{opacity:.25}
+
+  /* Property categories grid */
+  .prop-categories{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+  .prop-category{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;padding:14px}
+  .prop-category h4{font-size:.92rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .prop-category h4 .swatch{width:14px;height:14px;border-radius:4px}
+  .prop-category .members{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .prop-mini{padding:6px 10px;border-radius:10px;background:var(--bg-light);font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.82rem;color:var(--text);cursor:pointer;transition:all .15s}
+  .prop-mini:hover{background:var(--coral-soft)}
+
+  /* CODE TRAINER */
+  .code-arena{background:linear-gradient(135deg,var(--coral-soft),var(--yellow-soft));border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0}
+  .code-prompt{font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:8px}
+  .code-display{font-family:'JetBrains Mono',monospace;font-size:2.6rem;font-weight:900;color:var(--coral-deep);letter-spacing:-1px;line-height:1;margin:6px 0}
+  .code-display.small{font-size:1.5rem}
+  .code-options{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:500px;margin:14px auto 0}
+  @media(max-width:520px){.code-options{grid-template-columns:1fr}}
+  .code-opt{padding:13px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;color:var(--text)}
+  .code-opt .one{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:900;margin-right:8px;color:var(--coral-deep)}
+  .code-opt:hover:not(:disabled){border-color:var(--coral-deep);transform:translateY(-2px)}
+  .code-opt.correct{border-color:var(--success);background:rgba(109,184,138,.12);color:var(--success)}
+  .code-opt.correct .one{color:var(--success)}
+  .code-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);color:var(--pink-deep)}
+
+  .code-mode-row{display:flex;gap:6px;margin-bottom:14px;justify-content:center;flex-wrap:wrap}
+  .code-mode-btn{padding:7px 12px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.74rem;font-weight:700;cursor:pointer;color:var(--text-secondary);transition:all .2s}
+  .code-mode-btn:hover{border-color:var(--coral-deep)}
+  .code-mode-btn.active{background:var(--coral-deep);color:#fff;border-color:var(--coral-deep)}
+
+  /* SORT GAME */
+  .sort-pool{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px dashed var(--border);border-radius:14px;padding:14px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:60px;margin-bottom:14px}
+  .sort-chip{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:9px 14px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:.92rem;color:var(--text);user-select:none;transition:all .15s;min-width:60px;text-align:center}
+  .sort-chip:hover{transform:translateY(-2px);border-color:var(--coral-deep);box-shadow:var(--shadow-sm)}
+  .sort-chip.selected{border-color:var(--gold);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(245,197,66,.25);transform:translateY(-2px)}
+  .sort-chip.placed{cursor:default}
+  .sort-chip.dragging{opacity:.4}
+
+  .sort-bins{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:680px){.sort-bins{grid-template-columns:1fr 1fr}}
+  .sort-bin{background:var(--surface);border:2px dashed var(--border);border-radius:14px;padding:12px 14px;min-height:80px;transition:all .2s}
+  .sort-bin .bin-label{font-size:.76rem;text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sort-bin .bin-label .swatch{width:12px;height:12px;border-radius:4px}
+  .sort-bin.unpolar .bin-label{color:var(--blue-deep)}.sort-bin.unpolar .swatch{background:var(--p-unpolar)}.sort-bin.unpolar.over{border-color:var(--p-unpolar);background:rgba(168,197,224,.12)}
+  .sort-bin.aromatic .bin-label{color:var(--purple-deep)}.sort-bin.aromatic .swatch{background:var(--p-aromatic)}.sort-bin.aromatic.over{border-color:var(--p-aromatic);background:rgba(155,127,196,.1)}
+  .sort-bin.polar .bin-label{color:var(--green-deep)}.sort-bin.polar .swatch{background:var(--p-polar)}.sort-bin.polar.over{border-color:var(--p-polar);background:rgba(109,184,138,.1)}
+  .sort-bin.acid .bin-label{color:var(--coral-deep)}.sort-bin.acid .swatch{background:var(--p-acid)}.sort-bin.acid.over{border-color:var(--p-acid);background:rgba(224,122,85,.1)}
+  .sort-bin.basic .bin-label{color:var(--blue-deep)}.sort-bin.basic .swatch{background:var(--p-basic)}.sort-bin.basic.over{border-color:var(--p-basic);background:rgba(109,184,224,.12)}
+  .sort-bin .bin-content{display:flex;flex-wrap:wrap;gap:5px;min-height:40px}
+  .sort-chip.in-bin.correct{background:rgba(109,184,138,.15);border-color:var(--success);color:var(--success)}
+  .sort-chip.in-bin.wrong{background:rgba(220,38,38,.1);border-color:var(--danger);color:var(--danger);animation:wrongShake .35s}
+  @keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  .sort-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .sort-stat{background:var(--surface);padding:10px;border-radius:12px;text-align:center;border:1px solid var(--border-light)}
+  .sort-stat .num{font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .sort-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--coral-deep);background:rgba(245,166,142,.06);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--coral),var(--gold));transition:width .4s}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff;box-shadow:0 4px 14px rgba(245,166,142,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(245,166,142,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--coral-deep);color:var(--coral-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:520px){.header h1{font-size:1.15rem}.code-display{font-size:2rem}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="bean"></i></div>
+    <div>
+      <h1>Aminosäuren</h1>
+      <p>20 AS · Eigenschaften · Code-Trainer · Sortier-Spiel · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="overview"><i data-lucide="grid-3x3"></i>Übersicht</button>
+  <button class="tab" data-tab="props"><i data-lucide="palette"></i>Eigenschaften</button>
+  <button class="tab" data-tab="code"><i data-lucide="repeat"></i>Code-Trainer</button>
+  <button class="tab" data-tab="sort"><i data-lucide="sliders-horizontal"></i>Sortieren</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: ÜBERSICHT ============ -->
+  <div class="section active" id="overview">
+    <div class="hero-strip">
+      <h2><i data-lucide="grid-3x3"></i>Alle 20 proteinogenen Aminosäuren</h2>
+      <p>Tippe auf eine Karte für Details. Filtere nach Eigenschaft, oder zeige nur essenzielle (= müssen mit Nahrung zugeführt werden, gold markiert).</p>
+    </div>
+
+    <div class="card">
+      <div class="prop-filter" id="propFilter"></div>
+      <div class="aa-grid" id="aaGrid"></div>
+      <div class="key-fact" style="margin-top:14px"><i data-lucide="info"></i><div><b>Eselsbrücke „PVT TIM HALL":</b> 9 essenzielle AS (Phe, Val, Thr, Trp, Ile, Met, His, Arg, Lys, Leu — Arg semi-essenziell). Die anderen 11 kann der Körper selbst herstellen.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: EIGENSCHAFTEN ============ -->
+  <div class="section" id="props">
+    <div class="hero-strip">
+      <h2><i data-lucide="palette"></i>Sortiert nach Seitenketten-Eigenschaften</h2>
+      <p>Die Eigenschaft der Seitenkette bestimmt, wie sich die AS in einem Protein verhält — innen (hydrophob) oder außen (hydrophil), saure/basische Aktive Zentren etc.</p>
+    </div>
+
+    <div class="card">
+      <div class="prop-categories" id="propCategories"></div>
+
+      <div class="key-fact" style="margin-top:14px"><i data-lucide="info"></i><div><b>Hydrophob/-phil:</b> Unpolare AS (inkl. aromatische außer Tyr/Trp) lagern sich im Protein-Inneren zusammen → Tertiärstruktur. Polare/geladene AS kommen meist an die Oberfläche.</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Klinik:</b> Cystein bildet <b>Disulfidbrücken</b> (S–S) → Tertiär-/Quartärstruktur (z. B. Insulin). Histidin in <b>aktiven Zentren</b> vieler Enzyme. Phenylketonurie (PKU): Phe kann nicht zu Tyr abgebaut werden.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: CODE-TRAINER ============ -->
+  <div class="section" id="code">
+    <div class="hero-strip">
+      <h2><i data-lucide="repeat"></i>Code-Trainer</h2>
+      <p>Trainiere die Umrechnung zwischen Name, 3-Buchstaben-Code und 1-Buchstaben-Code. Wähle einen Modus.</p>
+    </div>
+
+    <div class="card">
+      <div class="code-mode-row" id="codeModeRow">
+        <button class="code-mode-btn active" data-mode="three-to-one">3-Letter → 1-Letter</button>
+        <button class="code-mode-btn" data-mode="one-to-three">1-Letter → 3-Letter</button>
+        <button class="code-mode-btn" data-mode="name-to-three">Name → 3-Letter</button>
+        <button class="code-mode-btn" data-mode="three-to-name">3-Letter → Name</button>
+      </div>
+
+      <div class="code-arena">
+        <div class="code-prompt" id="codePrompt">Welcher 1-Letter-Code?</div>
+        <div class="code-display" id="codeDisplay">Met</div>
+        <div class="code-options" id="codeOptions"></div>
+      </div>
+
+      <div class="q-feedback" id="codeFb"></div>
+
+      <div class="btn-row">
+        <button class="btn" id="codeNext">Nächste Aufgabe<i data-lucide="arrow-right"></i></button>
+      </div>
+
+      <p style="text-align:center;margin-top:10px;color:var(--muted);font-size:.78rem">Score: <b id="codeScore">0 / 0</b></p>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: SORTIEREN ============ -->
+  <div class="section" id="sort">
+    <div class="hero-strip">
+      <h2><i data-lucide="sliders-horizontal"></i>Sortier-Spiel</h2>
+      <p>Ziehe oder tippe jede Aminosäure in die richtige Eigenschaftskategorie. Auf Mobile: tippe Chip → tippe Box.</p>
+    </div>
+
+    <div class="card">
+      <div class="sort-stats">
+        <div class="sort-stat"><div class="num" id="sortOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="sort-stat"><div class="num" id="sortBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="sort-stat"><div class="num" id="sortLeft">20</div><div class="lbl">Übrig</div></div>
+      </div>
+
+      <h3>Pool</h3>
+      <div class="sort-pool" id="sortPool"></div>
+
+      <h3 style="margin-top:14px">Kategorien</h3>
+      <div class="sort-bins" id="sortBins"></div>
+
+      <div class="match-status" id="sortStatus" style="margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;background:rgba(109,184,138,.12);color:var(--success);line-height:1.55"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="sortReset"><i data-lucide="rotate-ccw"></i>Neu starten</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">15 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- AS Detail Modal -->
+<div class="modal" id="aaModal" onclick="if(event.target===this)closeAaModal()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeAaModal()"><i data-lucide="x"></i></button>
+    <div class="modal-head">
+      <div class="modal-symbol">
+        <div class="one" id="mOne">M</div>
+        <div class="three" id="mThree">Met</div>
+      </div>
+      <div>
+        <h3 id="mName">Methionin</h3>
+        <span class="prop-tag" id="mProp">unpolar</span>
+      </div>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='sort') initSort();
+    if(t.dataset.tab==='code') newCodeQuestion();
+  });
+});
+
+/* ===== AMINO ACID DATA ===== */
+const AA=[
+  {one:'G',three:'Gly',name:'Glycin',prop:'unpolar',essential:false,side:'-H',mw:75,info:'Kleinste AS (nur ein H als Seitenkette). Sehr flexibel — kommt oft in Schleifen vor. Inhibitorischer Neurotransmitter im Rückenmark.'},
+  {one:'A',three:'Ala',name:'Alanin',prop:'unpolar',essential:false,side:'-CH₃',mw:89,info:'Methyl-Seitenkette. Häufigste AS. Pyruvat-Vorstufe (Alanin-Glucose-Cyclus).'},
+  {one:'V',three:'Val',name:'Valin',prop:'unpolar',essential:true,side:'-CH(CH₃)₂',mw:117,info:'Verzweigtkettige AS (BCAA), neben Leu und Ile. Sichelzellanämie: Glu→Val-Mutation an Position 6 von β-Globin.'},
+  {one:'L',three:'Leu',name:'Leucin',prop:'unpolar',essential:true,side:'-CH₂CH(CH₃)₂',mw:131,info:'BCAA. Aktiviert mTOR → Muskelaufbau. Häufigste AS in Proteinen.'},
+  {one:'I',three:'Ile',name:'Isoleucin',prop:'unpolar',essential:true,side:'-CH(CH₃)CH₂CH₃',mw:131,info:'BCAA. Konstitutionsisomer von Leu — gleiche Summenformel, andere Verzweigung.'},
+  {one:'M',three:'Met',name:'Methionin',prop:'unpolar',essential:true,side:'-CH₂CH₂SCH₃',mw:149,info:'<b>Start-AS</b> jedes Proteins (AUG). Schwefel-haltig. SAM = wichtigster Methylgruppen-Donor.'},
+  {one:'P',three:'Pro',name:'Prolin',prop:'unpolar',essential:false,side:'zyklisch',mw:115,info:'<b>Imino</b>säure: Seitenkette bildet Ring zur α-Aminogruppe → starre Struktur. Bricht α-Helix. Wichtig in Kollagen.'},
+  {one:'F',three:'Phe',name:'Phenylalanin',prop:'aromatic',essential:true,side:'Phenyl',mw:165,info:'<b>Aromatisch</b>, hydrophob. Vorstufe von Tyrosin. Defekt → <b>Phenylketonurie (PKU)</b>: kann nicht zu Tyr abgebaut werden.'},
+  {one:'W',three:'Trp',name:'Tryptophan',prop:'aromatic',essential:true,side:'Indol',mw:204,info:'<b>Größte AS.</b> Indolring. Vorstufe von Serotonin und Niacin (Vitamin B3). Selten in Proteinen.'},
+  {one:'Y',three:'Tyr',name:'Tyrosin',prop:'aromatic',essential:false,side:'4-OH-Phenyl',mw:181,info:'Aromatisch <b>+ polar</b> (OH). Vorstufe von Catecholaminen (Dopamin, Adrenalin), T3/T4, Melanin. Wichtig in Tyrosin-Kinasen.'},
+  {one:'S',three:'Ser',name:'Serin',prop:'polar',essential:false,side:'-CH₂OH',mw:105,info:'OH-Gruppe. Phosphorylierungsstelle (Serin-Kinasen). Aktives Zentrum von Serinproteasen (Trypsin, Chymotrypsin).'},
+  {one:'T',three:'Thr',name:'Threonin',prop:'polar',essential:true,side:'-CH(OH)CH₃',mw:119,info:'Auch OH-Gruppe → kann phosphoryliert werden. Glykosylierungsstelle (O-glykosyliert).'},
+  {one:'C',three:'Cys',name:'Cystein',prop:'polar',essential:false,side:'-CH₂SH',mw:121,info:'<b>Schwefel-haltige SH-Gruppe.</b> Bildet <b>Disulfidbrücken</b> (S–S) → stabilisiert Tertiär-/Quartärstruktur (z. B. Insulin, Antikörper).'},
+  {one:'N',three:'Asn',name:'Asparagin',prop:'polar',essential:false,side:'-CH₂CONH₂',mw:132,info:'Amid-Seitenkette. Wichtigste Stelle für N-Glykosylierung von Proteinen.'},
+  {one:'Q',three:'Gln',name:'Glutamin',prop:'polar',essential:false,side:'-CH₂CH₂CONH₂',mw:146,info:'Amid-Seitenkette, eine CH₂-Gruppe länger als Asn. Wichtigster N-Transporter im Blut.'},
+  {one:'D',three:'Asp',name:'Asparaginsäure',prop:'acid',essential:false,side:'-CH₂COOH',mw:133,info:'<b>Sauer</b> (COOH → COO⁻ bei physiol. pH). Hat eine Säure-Gruppe in der Seitenkette.'},
+  {one:'E',three:'Glu',name:'Glutaminsäure',prop:'acid',essential:false,side:'-CH₂CH₂COOH',mw:147,info:'<b>Sauer.</b> <b>Glutamat</b> = wichtigster exzitatorischer Neurotransmitter im ZNS. Auch in Geschmacksverstärker (MSG = Umami).'},
+  {one:'K',three:'Lys',name:'Lysin',prop:'basic',essential:true,side:'-(CH₂)₄NH₂',mw:146,info:'<b>Basisch</b> (positive Ladung). Wichtige Acetylierungsstelle in Histonen → Genregulation.'},
+  {one:'R',three:'Arg',name:'Arginin',prop:'basic',essential:false,side:'-(CH₂)₃NHC(NH)NH₂',mw:174,info:'<b>Basischste AS</b> (Guanidinium-Gruppe, pKa 12,5). Vorstufe von NO (über NO-Synthase). Bei Kindern semi-essenziell.'},
+  {one:'H',three:'His',name:'Histidin',prop:'basic',essential:true,side:'Imidazol',mw:155,info:'<b>Imidazol</b>-Ring. pKa nahe 7 → kann bei physiol. pH protoniert oder neutral sein → in <b>aktiven Zentren</b> vieler Enzyme. Vorstufe von Histamin.'}
+];
+
+/* ===== TAB 1: ÜBERSICHT ===== */
+const PROPS=[
+  {key:'unpolar',label:'Unpolar (aliph.)',color:'var(--p-unpolar)'},
+  {key:'aromatic',label:'Aromatisch',color:'var(--p-aromatic)'},
+  {key:'polar',label:'Polar (neutral)',color:'var(--p-polar)'},
+  {key:'acid',label:'Sauer',color:'var(--p-acid)'},
+  {key:'basic',label:'Basisch',color:'var(--p-basic)'}
+];
+const propLabel=k=>({unpolar:'Unpolar',aromatic:'Aromatisch',polar:'Polar',acid:'Sauer',basic:'Basisch'})[k];
+
+let activeProp=null;
+const propFilter=document.getElementById('propFilter');
+PROPS.forEach(p=>{
+  const btn=document.createElement('button');
+  btn.className='prop-btn '+p.key;
+  btn.dataset.key=p.key;
+  btn.innerHTML=`<span class="dot"></span>${p.label}`;
+  btn.onclick=()=>{
+    if(activeProp===p.key){activeProp=null;btn.classList.remove('active')}
+    else{
+      document.querySelectorAll('.prop-btn').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');activeProp=p.key;
+    }
+    applyPropFilter();
+  };
+  propFilter.appendChild(btn);
+});
+const essentialBtn=document.createElement('button');
+essentialBtn.className='prop-btn';
+essentialBtn.innerHTML=`<span class="dot" style="background:var(--gold)"></span>Nur essenzielle`;
+let essentialOnly=false;
+essentialBtn.onclick=()=>{
+  essentialOnly=!essentialOnly;
+  essentialBtn.classList.toggle('active',essentialOnly);
+  applyPropFilter();
+};
+propFilter.appendChild(essentialBtn);
+
+const aaGrid=document.getElementById('aaGrid');
+AA.forEach(a=>{
+  const card=document.createElement('div');
+  card.className='aa-card '+a.prop;
+  card.dataset.prop=a.prop;
+  card.dataset.essential=a.essential;
+  card.innerHTML=`
+    ${a.essential?'<span class="essential-mark">ESS</span>':''}
+    <div class="one">${a.one}</div>
+    <div class="three">${a.three}</div>
+    <div class="name">${a.name}</div>
+    <div class="prop">${propLabel(a.prop)}</div>
+  `;
+  card.onclick=()=>showAA(a);
+  aaGrid.appendChild(card);
+});
+function applyPropFilter(){
+  document.querySelectorAll('.aa-card').forEach(c=>{
+    let show=true;
+    if(activeProp && c.dataset.prop!==activeProp) show=false;
+    if(essentialOnly && c.dataset.essential!=='true') show=false;
+    c.classList.toggle('dim',!show);
+  });
+}
+
+/* ===== MODAL ===== */
+function showAA(a){
+  document.getElementById('mOne').textContent=a.one;
+  document.getElementById('mThree').textContent=a.three;
+  document.getElementById('mName').textContent=a.name;
+  const propTag=document.getElementById('mProp');
+  propTag.textContent=propLabel(a.prop);
+  propTag.className='prop-tag '+a.prop;
+  let body=`
+    <div class="modal-stat-row">
+      <div class="modal-stat"><div class="lbl">Seitenkette</div><div class="val">${a.side}</div></div>
+      <div class="modal-stat"><div class="lbl">Molgewicht</div><div class="val">${a.mw} u</div></div>
+      <div class="modal-stat"><div class="lbl">Essenziell?</div><div class="val">${a.essential?'Ja':'Nein'}</div></div>
+      <div class="modal-stat"><div class="lbl">Eigenschaft</div><div class="val">${propLabel(a.prop)}</div></div>
+    </div>
+    <div class="modal-info">${a.info}</div>
+  `;
+  document.getElementById('mBody').innerHTML=body;
+  document.getElementById('aaModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeAaModal(){document.getElementById('aaModal').classList.remove('show')}
+window.closeAaModal=closeAaModal;
+
+/* ===== TAB 2: EIGENSCHAFTEN ===== */
+const propCategories=document.getElementById('propCategories');
+PROPS.forEach(p=>{
+  const cat=document.createElement('div');
+  cat.className='prop-category';
+  const members=AA.filter(a=>a.prop===p.key);
+  cat.innerHTML=`
+    <h4><span class="swatch" style="background:${p.color}"></span>${p.label} <span style="font-weight:500;color:var(--text-secondary);font-size:.74rem;margin-left:6px">(${members.length})</span></h4>
+    <div style="font-size:.78rem;color:var(--text-secondary);line-height:1.55"></div>
+    <div class="members"></div>
+  `;
+  const note=cat.querySelector('div[style*="font-size"]');
+  const propNotes={
+    unpolar:'Hydrophobe Seitenketten. Liegen im Protein-Inneren, weg vom Wasser. Wichtig für Membranproteine und Tertiärstruktur.',
+    aromatic:'Ringstrukturen mit π-Elektronen. Phe und Trp sind hydrophob, Tyr ist polar (OH). Absorbieren UV-Licht (280 nm).',
+    polar:'Können H-Brücken bilden. Liegen meist an der Protein-Oberfläche. Cys bildet S–S-Brücken, Ser/Thr sind Phosphorylierungsstellen.',
+    acid:'Negative Ladung bei physiol. pH (COO⁻). Glu = wichtigster Neurotransmitter im ZNS. In aktiven Zentren häufig.',
+    basic:'Positive Ladung bei physiol. pH. Lys/Arg in DNA-Bindungs-Regionen. His mit pKa ~6 als pH-Sensor in vielen Enzymen.'
+  };
+  note.textContent=propNotes[p.key];
+  const memDiv=cat.querySelector('.members');
+  members.forEach(a=>{
+    const m=document.createElement('span');
+    m.className='prop-mini';
+    m.textContent=`${a.three} (${a.one})`;
+    m.onclick=()=>showAA(a);
+    memDiv.appendChild(m);
+  });
+  propCategories.appendChild(cat);
+});
+
+/* ===== TAB 3: CODE-TRAINER ===== */
+let codeMode='three-to-one', codeCurrent=null, codeScore=0, codeTotal=0;
+document.querySelectorAll('.code-mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.code-mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    codeMode=b.dataset.mode;
+    newCodeQuestion();
+  });
+});
+function newCodeQuestion(){
+  codeCurrent=AA[Math.floor(Math.random()*AA.length)];
+  const promptEl=document.getElementById('codePrompt');
+  const dispEl=document.getElementById('codeDisplay');
+  const optsEl=document.getElementById('codeOptions');
+  optsEl.innerHTML='';
+  document.getElementById('codeFb').classList.remove('show');
+
+  let promptText, displayText, displaySize='', correctVal, optionGetter;
+  if(codeMode==='three-to-one'){
+    promptText='Welcher 1-Letter-Code?'; displayText=codeCurrent.three; correctVal=codeCurrent.one;
+    optionGetter=a=>a.one;
+  } else if(codeMode==='one-to-three'){
+    promptText='Welcher 3-Letter-Code?'; displayText=codeCurrent.one; correctVal=codeCurrent.three;
+    optionGetter=a=>a.three;
+  } else if(codeMode==='name-to-three'){
+    promptText='Welcher 3-Letter-Code?'; displayText=codeCurrent.name; displaySize='small'; correctVal=codeCurrent.three;
+    optionGetter=a=>a.three;
+  } else { // three-to-name
+    promptText='Welche Aminosäure?'; displayText=codeCurrent.three; correctVal=codeCurrent.name;
+    optionGetter=a=>a.name;
+  }
+  promptEl.textContent=promptText;
+  dispEl.textContent=displayText;
+  dispEl.className='code-display'+(displaySize?' '+displaySize:'');
+  // Generate 4 options including correct
+  const choices=[codeCurrent];
+  while(choices.length<4){
+    const r=AA[Math.floor(Math.random()*AA.length)];
+    if(!choices.includes(r)) choices.push(r);
+  }
+  choices.sort(()=>Math.random()-.5);
+  choices.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='code-opt';
+    b.dataset.val=optionGetter(c);
+    b.innerHTML=codeMode==='three-to-name'?optionGetter(c):`<span class="one">${optionGetter(c)}</span><span style="font-size:.7rem;color:var(--muted)">(${c.three})</span>`;
+    b.onclick=()=>checkCodeAnswer(c,b,correctVal,optionGetter);
+    optsEl.appendChild(b);
+  });
+}
+function checkCodeAnswer(picked,btn,correctVal,optionGetter){
+  codeTotal++;
+  const correct=optionGetter(picked)===correctVal;
+  document.querySelectorAll('.code-opt').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.val===correctVal) b.classList.add('correct');
+    else if(b===btn&&!correct) b.classList.add('wrong');
+  });
+  if(correct) codeScore++;
+  document.getElementById('codeScore').textContent=`${codeScore} / ${codeTotal}`;
+  const fb=document.getElementById('codeFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=correct
+    ?`<b>Richtig.</b> ${codeCurrent.name} = ${codeCurrent.three} = ${codeCurrent.one}.`
+    :`<b>Nicht ganz.</b> ${codeCurrent.name} = ${codeCurrent.three} = ${codeCurrent.one}.`;
+}
+document.getElementById('codeNext').onclick=newCodeQuestion;
+newCodeQuestion();
+
+/* ===== TAB 4: SORTIER-SPIEL ===== */
+let sortOk=0,sortBad=0,sortSelected=null,sortTotal=0;
+function initSort(){
+  sortOk=0; sortBad=0; sortSelected=null; sortTotal=AA.length;
+  document.getElementById('sortOk').textContent=0;
+  document.getElementById('sortBad').textContent=0;
+  document.getElementById('sortLeft').textContent=sortTotal;
+  document.getElementById('sortStatus').style.display='none';
+  // Build pool
+  const pool=document.getElementById('sortPool');
+  pool.innerHTML='';
+  const shuffled=[...AA].sort(()=>Math.random()-.5);
+  shuffled.forEach(a=>{
+    const chip=document.createElement('div');
+    chip.className='sort-chip';
+    chip.draggable=true;
+    chip.dataset.prop=a.prop;
+    chip.dataset.three=a.three;
+    chip.textContent=a.three;
+    chip.onclick=(e)=>{e.stopPropagation();selectSortChip(chip)};
+    chip.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('three',a.three);chip.classList.add('dragging')});
+    chip.addEventListener('dragend',()=>chip.classList.remove('dragging'));
+    pool.appendChild(chip);
+  });
+  // Build bins
+  const bins=document.getElementById('sortBins');
+  bins.innerHTML='';
+  PROPS.forEach(p=>{
+    const bin=document.createElement('div');
+    bin.className='sort-bin '+p.key;
+    bin.dataset.key=p.key;
+    bin.innerHTML=`<div class="bin-label"><span class="swatch"></span>${p.label}</div>
+      <div class="bin-content"></div>`;
+    bin.addEventListener('dragover',(e)=>{e.preventDefault();bin.classList.add('over')});
+    bin.addEventListener('dragleave',()=>bin.classList.remove('over'));
+    bin.addEventListener('drop',(e)=>{
+      e.preventDefault();bin.classList.remove('over');
+      const three=e.dataTransfer.getData('three');
+      const chip=document.querySelector(`.sort-chip[data-three="${three}"]:not(.placed)`);
+      if(chip) placeChip(chip,bin);
+    });
+    bin.onclick=(e)=>{
+      if(sortSelected && !e.target.closest('.sort-chip.placed')){
+        placeChip(sortSelected,bin);
+        sortSelected=null;
+      }
+    };
+    bins.appendChild(bin);
+  });
+}
+function selectSortChip(chip){
+  if(chip.classList.contains('placed')) return;
+  document.querySelectorAll('.sort-chip.selected').forEach(c=>c.classList.remove('selected'));
+  if(sortSelected===chip){sortSelected=null;chip.classList.remove('selected');return}
+  chip.classList.add('selected');
+  sortSelected=chip;
+}
+function placeChip(chip,bin){
+  const correct=chip.dataset.prop===bin.dataset.key;
+  if(correct){
+    chip.classList.remove('selected');
+    chip.classList.add('placed','in-bin','correct');
+    bin.querySelector('.bin-content').appendChild(chip);
+    sortOk++;
+    document.getElementById('sortOk').textContent=sortOk;
+    document.getElementById('sortLeft').textContent=sortTotal-sortOk;
+    if(sortOk===sortTotal){
+      const status=document.getElementById('sortStatus');
+      status.style.display='block';
+      status.innerHTML=`<b>Alle 20 richtig zugeordnet!</b> ${sortBad===0?'Perfekt — keine Fehler.':sortBad+' Fehlversuche unterwegs.'}`;
+    }
+  } else {
+    chip.classList.add('wrong');
+    setTimeout(()=>chip.classList.remove('wrong','selected'),400);
+    sortBad++;
+    document.getElementById('sortBad').textContent=sortBad;
+    sortSelected=null;
+  }
+}
+document.getElementById('sortReset').onclick=initSort;
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Wie viele <b>proteinogene</b> Aminosäuren gibt es?',o:['16','18','20','22'],c:2,e:'Standardmäßig 20. Selenocystein und Pyrrolysin sind „21. & 22.", aber selten.'},
+  {q:'Welche AS ist die <b>Start-Aminosäure</b> jedes Proteins?',o:['Glycin','Methionin','Alanin','Lysin'],c:1,e:'Met (AUG = Start-Codon). In Bakterien als fMet (Formyl-Met).'},
+  {q:'Wie viele <b>essenzielle</b> AS gibt es beim Menschen?',o:['5','9','12','20'],c:1,e:'9 essenzielle AS: Phe, Val, Thr, Trp, Ile, Met, His, Lys, Leu (Eselsbrücke „PVT TIM HALL"). Arg ist semi-essenziell.'},
+  {q:'Welche AS bildet <b>Disulfidbrücken</b>?',o:['Methionin','Cystein','Serin','Threonin'],c:1,e:'Cys mit seiner SH-Gruppe. Zwei Cys werden zu R-S-S-R oxidiert → stabilisiert Tertiär-/Quartärstruktur.'},
+  {q:'Welche AS ist <b>aromatisch und polar</b>?',o:['Phenylalanin','Tryptophan','Tyrosin','Histidin'],c:2,e:'Tyr hat eine OH-Gruppe am Phenylring → polar. Phe ist nur Phenyl, Trp ist Indol-aromat.'},
+  {q:'Welcher 1-Letter-Code steht für <b>Glutamin</b>?',o:['G','E','Q','N'],c:2,e:'Gln = Q. Verwechslungsfalle: G ist Gly, E ist Glu (Glutaminsäure), N ist Asn.'},
+  {q:'Welcher 1-Letter-Code steht für <b>Lysin</b>?',o:['L','K','Y','R'],c:1,e:'Lys = K. L ist Leucin, R ist Arginin, Y ist Tyrosin.'},
+  {q:'Bei <b>Sichelzellanämie</b> wird welche Mutation an Position 6 von β-Globin verursacht?',o:['Glu → Val','Val → Glu','Lys → Glu','Met → Val'],c:0,e:'GAG → GTG (Glu → Val): hydrophobes Val statt saurer Glu → Hb-Polymerisation in deoxygeniertem Zustand.'},
+  {q:'Welche AS ist die <b>Vorstufe von Catecholaminen</b> (Dopamin, Adrenalin)?',o:['Phenylalanin','Tyrosin','Tryptophan','Histidin'],c:1,e:'Tyr → DOPA → Dopamin → Noradrenalin → Adrenalin. Phe wird vorher zu Tyr umgewandelt.'},
+  {q:'Welche AS ist Vorstufe von <b>Serotonin</b>?',o:['Tyrosin','Tryptophan','Histidin','Glycin'],c:1,e:'Trp → 5-HTP → Serotonin. Daher: Trp-haltige Mahlzeiten heben angeblich die Stimmung.'},
+  {q:'Welche AS hat eine <b>zyklische Seitenkette</b>?',o:['Lysin','Prolin','Arginin','Glutamat'],c:1,e:'Pro: Seitenkette schließt Ring zur α-Aminogruppe → starre Struktur, bricht α-Helix.'},
+  {q:'<b>Phenylketonurie (PKU)</b> ist ein Defekt im Abbau welcher AS?',o:['Methionin','Phenylalanin','Cystein','Tyrosin'],c:1,e:'Phe-Hydroxylase fehlt → Phe kann nicht zu Tyr werden → Phe akkumuliert → ZNS-Schäden. Behandlung: Phe-arme Diät.'},
+  {q:'Was ist <b>Glutamat</b> im ZNS?',o:['Inhibitor. Neurotransmitter','Wichtigster exzitatorischer Neurotransmitter','Hormon','Cofaktor'],c:1,e:'Glutamat = wichtigster exzitatorischer NT. Wirkt auf NMDA-, AMPA-, Kainat-, mGlu-Rezeptoren.'},
+  {q:'Welche AS hat einen <b>pKa nahe 7</b> in der Seitenkette?',o:['Lysin','Histidin','Arginin','Glutamat'],c:1,e:'His: Imidazol-pKa ≈ 6. Daher in aktiven Zentren — kann Protonen aufnehmen oder abgeben bei physiol. pH.'},
+  {q:'Was sind <b>BCAAs</b>?',o:['Verzweigtkettige AS: Val, Leu, Ile','Aromatische AS','Saure AS','Basische AS'],c:0,e:'Branched-chain amino acids: Valin, Leucin, Isoleucin. Werden direkt im Muskel verstoffwechselt — beliebt im Sport-Supplement.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

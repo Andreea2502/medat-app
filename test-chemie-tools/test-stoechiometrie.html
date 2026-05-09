@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stöchiometrie · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#d4ebf8,#fff);display:flex;align-items:center;justify-content:center;color:var(--blue-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(109,184,224,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--blue);color:var(--blue-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--blue-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--blue-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,#e6f1f8 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(109,184,224,.18);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--blue-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* REACTION BALANCER */
+  .react-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;background:var(--bg-warm);border-radius:14px;padding:18px 14px;margin:14px 0;font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700}
+  .react-term{display:flex;align-items:center;gap:4px}
+  .coef-control{display:flex;flex-direction:column;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:2px;box-shadow:var(--shadow-sm);font-family:'JetBrains Mono',monospace}
+  .coef-btn{width:24px;height:18px;background:transparent;border:none;font-family:inherit;font-size:.7rem;font-weight:800;color:var(--blue-deep);cursor:pointer;transition:all .15s}
+  .coef-btn:hover{background:var(--bg-light)}
+  .coef-val{font-size:1rem;font-weight:800;color:var(--text);min-width:18px;text-align:center;padding:1px 4px;font-variant-numeric:tabular-nums}
+  .react-term .formula{font-size:1.2rem}
+  .react-term .formula sub{font-size:.7em}
+  .react-arrow{font-size:1.4rem;color:var(--blue-deep);font-weight:800;margin:0 6px}
+  .react-plus{font-size:1.2rem;color:var(--text-secondary);font-weight:700}
+
+  .balance-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:14px}
+  .balance-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:12px;padding:11px;text-align:center;transition:all .25s}
+  .balance-card.balanced{border-color:var(--success);background:rgba(109,184,138,.08)}
+  .balance-card.unbalanced{border-color:var(--coral);background:rgba(245,166,142,.08)}
+  .balance-card .atom-name{font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+  .balance-card .atom-counts{font-size:.78rem;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+  .balance-card.balanced .atom-counts{color:var(--success);font-weight:700}
+  .balance-card.unbalanced .atom-counts{color:var(--pink-deep);font-weight:700}
+
+  .balance-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.9rem;text-align:center;font-weight:700}
+  .balance-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+  .balance-status.fail{background:rgba(245,166,142,.12);color:var(--pink-deep)}
+
+  /* MOLMASSE */
+  .mm-input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;background:var(--bg-warm);color:var(--text);text-align:center;letter-spacing:1px}
+  .mm-input:focus{outline:none;border-color:var(--blue);background:var(--surface);box-shadow:0 0 0 3px rgba(109,184,224,.15)}
+
+  .mm-result{background:linear-gradient(135deg,#e6f1f8,var(--mint));border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0}
+  .mm-num{font-size:2.6rem;font-weight:900;color:var(--blue-deep);letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1}
+  .mm-unit{font-size:1rem;color:var(--text-secondary);margin-left:6px;font-weight:700}
+  .mm-label{font-size:.78rem;color:var(--text-secondary);margin-top:8px;font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+
+  .mm-breakdown{background:var(--bg-warm);border-radius:14px;padding:14px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:.86rem}
+  .mm-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light)}
+  .mm-row:last-child{border-bottom:none;padding-top:8px;margin-top:4px;border-top:2px solid var(--border);font-weight:800;color:var(--blue-deep)}
+
+  /* MOL UMRECHNER */
+  .conv-grid{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0}
+  @media(min-width:600px){.conv-grid{grid-template-columns:1fr 1fr 1fr}}
+  .conv-input{background:var(--bg-light);border:1.5px solid var(--border);border-radius:14px;padding:14px}
+  .conv-input.calc{background:linear-gradient(135deg,var(--mint),#fff);border-color:var(--green)}
+  .conv-input label{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700;display:block;margin-bottom:4px}
+  .conv-input.calc label{color:var(--green-deep)}
+  .conv-input input{width:100%;border:none;background:transparent;font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+  .conv-input input:focus{outline:none}
+  .conv-input.calc input{color:var(--green-deep)}
+  .conv-input .unit{font-size:.78rem;color:var(--text-secondary);font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:2px}
+
+  .formula-box{background:var(--bg-warm);border-radius:14px;padding:14px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;line-height:1.7;margin:10px 0}
+  .formula-box .var{color:var(--blue-deep);font-weight:800}
+
+  /* LIMITER */
+  .limiter-result{background:linear-gradient(135deg,var(--coral-soft),#fff);border-radius:var(--radius);padding:18px;margin:14px 0;text-align:center}
+  .limiter-result.green{background:linear-gradient(135deg,var(--mint),#fff)}
+  .limiter-name{font-size:1.4rem;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace;letter-spacing:.5px;margin:6px 0}
+  .limiter-label{font-size:.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+
+  /* FACTS */
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:#e6f1f8;border-left:3px solid var(--blue);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--blue-deep);flex-shrink:0;margin-top:2px}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--blue);background:rgba(109,184,224,.04);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .4s}
+
+  /* COMPOUND PICKER */
+  .cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+  .cmp-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:11px;cursor:pointer;transition:all .2s;text-align:center}
+  .cmp-card:hover{border-color:var(--blue);transform:translateY(-1px)}
+  .cmp-card.active{background:linear-gradient(135deg,#e6f1f8,#fff);border-color:var(--blue);box-shadow:0 4px 14px rgba(109,184,224,.2)}
+  .cmp-card .cmp-name{font-size:.78rem;color:var(--text-secondary);font-weight:600}
+  .cmp-card .cmp-formula{font-size:.95rem;color:var(--text);font-family:'JetBrains Mono',monospace;font-weight:800;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:#fff;box-shadow:0 4px 14px rgba(109,184,224,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(109,184,224,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--blue);color:var(--blue-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media (max-width:520px){
+    .header h1{font-size:1.15rem}
+    .react-row{font-size:1rem}
+    .mm-num{font-size:2rem}
+    .react-term .formula{font-size:1rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="sigma"></i></div>
+    <div>
+      <h1>Stöchiometrie</h1>
+      <p>Reaktionen · Molmasse · Umrechner · Limitierender Reaktant</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="balance"><i data-lucide="scale"></i>Ausgleichen</button>
+  <button class="tab" data-tab="molmass"><i data-lucide="weight"></i>Molmasse</button>
+  <button class="tab" data-tab="convert"><i data-lucide="repeat"></i>Umrechner</button>
+  <button class="tab" data-tab="limit"><i data-lucide="alert-triangle"></i>Limitierend</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: AUSGLEICHEN ============ -->
+  <div class="section active" id="balance">
+    <div class="hero-strip">
+      <h2><i data-lucide="scale"></i>Reaktionsgleichung ausgleichen</h2>
+      <p>Stelle die Koeffizienten so ein, dass auf beiden Seiten gleich viele Atome jedes Elements stehen.</p>
+    </div>
+
+    <div class="card">
+      <h3>Reaktion wählen</h3>
+      <div class="cmp-grid" id="reactGrid"></div>
+
+      <div class="react-row" id="reactRow"></div>
+
+      <h3 style="margin-top:14px">Atom-Bilanz</h3>
+      <div class="balance-grid" id="balanceGrid"></div>
+
+      <div class="balance-status" id="balanceStatus" style="display:none"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="balanceReset"><i data-lucide="rotate-ccw"></i>Reset (alle = 1)</button>
+        <button class="btn ghost" id="balanceShow"><i data-lucide="eye"></i>Lösung zeigen</button>
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Faustregel:</b> Erst die komplexen Moleküle ausgleichen (z. B. KMnO₄), dann einfache (H₂O, O₂ zuletzt). Bei organischen Verbrennungen: erst C, dann H, dann O.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: MOLMASSE ============ -->
+  <div class="section" id="molmass">
+    <div class="hero-strip">
+      <h2><i data-lucide="weight"></i>Molmasse berechnen</h2>
+      <p>Gib eine Summenformel ein (z. B. <code>H2SO4</code> oder <code>C6H12O6</code>) — Tool zerlegt in Elemente und summiert die Atommassen.</p>
+    </div>
+
+    <div class="card">
+      <input class="mm-input" id="mmInput" value="C6H12O6" maxlength="40" autocomplete="off" autocapitalize="off">
+
+      <div class="cmp-grid" style="margin-top:14px">
+        <div class="cmp-card" data-mm="H2O"><div class="cmp-name">Wasser</div><div class="cmp-formula">H₂O</div></div>
+        <div class="cmp-card" data-mm="CO2"><div class="cmp-name">CO₂</div><div class="cmp-formula">CO₂</div></div>
+        <div class="cmp-card" data-mm="C6H12O6"><div class="cmp-name">Glucose</div><div class="cmp-formula">C₆H₁₂O₆</div></div>
+        <div class="cmp-card" data-mm="NaCl"><div class="cmp-name">Kochsalz</div><div class="cmp-formula">NaCl</div></div>
+        <div class="cmp-card" data-mm="H2SO4"><div class="cmp-name">Schwefels.</div><div class="cmp-formula">H₂SO₄</div></div>
+        <div class="cmp-card" data-mm="CaCO3"><div class="cmp-name">Calcit</div><div class="cmp-formula">CaCO₃</div></div>
+        <div class="cmp-card" data-mm="Fe2O3"><div class="cmp-name">Hämatit</div><div class="cmp-formula">Fe₂O₃</div></div>
+        <div class="cmp-card" data-mm="C2H5OH"><div class="cmp-name">Ethanol</div><div class="cmp-formula">C₂H₅OH</div></div>
+      </div>
+
+      <div class="mm-result">
+        <div class="mm-num" id="mmNum">180,16<span class="mm-unit">g/mol</span></div>
+        <div class="mm-label" id="mmLabel">Molare Masse von C₆H₁₂O₆</div>
+      </div>
+
+      <h3>Aufschlüsselung</h3>
+      <div class="mm-breakdown" id="mmBreakdown"></div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Avogadro-Konstante:</b> 1 mol = 6,022 × 10²³ Teilchen. <b>Molmasse</b> ist die Masse von 1 mol einer Substanz, in g/mol — entspricht zahlenmäßig der Atom-/Molekülmasse in u.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: UMRECHNER ============ -->
+  <div class="section" id="convert">
+    <div class="hero-strip">
+      <h2><i data-lucide="repeat"></i>Stoffmengen-Umrechner</h2>
+      <p>Verbinde <b>m, n, M, V, c</b> — gib zwei Werte ein, der dritte wird berechnet. Klassische MedAT-Aufgaben.</p>
+    </div>
+
+    <div class="card">
+      <h3>m · n · M (Masse, Stoffmenge, Molmasse)</h3>
+      <div class="conv-grid">
+        <div class="conv-input" data-conv="m"><label>Masse m</label><input type="number" id="convM" step="any" placeholder="g"><div class="unit">g</div></div>
+        <div class="conv-input" data-conv="n"><label>Stoffmenge n</label><input type="number" id="convN" step="any" placeholder="mol"><div class="unit">mol</div></div>
+        <div class="conv-input" data-conv="mm"><label>Molmasse M</label><input type="number" id="convMM" step="any" value="18" placeholder="g/mol"><div class="unit">g/mol</div></div>
+      </div>
+      <div class="formula-box"><span class="var">n</span> = <span class="var">m</span> / <span class="var">M</span> &nbsp;·&nbsp; <span class="var">m</span> = <span class="var">n</span> · <span class="var">M</span></div>
+      <p style="font-size:.78rem;color:var(--muted);text-align:center">Tippe in eines der Felder — die anderen zwei werden berechnet, sobald 2 Werte gefüllt sind.</p>
+    </div>
+
+    <div class="card">
+      <h3>c · n · V (Konzentration, Stoffmenge, Volumen)</h3>
+      <div class="conv-grid">
+        <div class="conv-input" data-conv="c"><label>Konzentration c</label><input type="number" id="convC" step="any" placeholder="mol/L"><div class="unit">mol/L</div></div>
+        <div class="conv-input" data-conv="n2"><label>Stoffmenge n</label><input type="number" id="convN2" step="any" placeholder="mol"><div class="unit">mol</div></div>
+        <div class="conv-input" data-conv="v"><label>Volumen V</label><input type="number" id="convV" step="any" placeholder="L"><div class="unit">L</div></div>
+      </div>
+      <div class="formula-box"><span class="var">c</span> = <span class="var">n</span> / <span class="var">V</span> &nbsp;·&nbsp; <span class="var">n</span> = <span class="var">c</span> · <span class="var">V</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Idealgas pV = nRT</h3>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Molvolumen bei Standardbedingungen</b> (0°C, 1013 hPa): <b>22,4 L/mol</b>. Bei 25°C: 24,5 L/mol. So rechnest du Gasvolumen ↔ Stoffmenge.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: LIMITIEREND ============ -->
+  <div class="section" id="limit">
+    <div class="hero-strip">
+      <h2><i data-lucide="alert-triangle"></i>Limitierender Reaktant</h2>
+      <p>Welcher Stoff ist im Unterschuss und stoppt die Reaktion zuerst? Tool berechnet aus deinen Eingaben den limitierenden Reaktanten und die maximale Produktmenge.</p>
+    </div>
+
+    <div class="card">
+      <h3>Reaktion</h3>
+      <div class="cmp-grid">
+        <div class="cmp-card active" data-lim="h2-o2"><div class="cmp-name">Knallgas</div><div class="cmp-formula">2H₂ + O₂ → 2H₂O</div></div>
+        <div class="cmp-card" data-lim="n2-h2"><div class="cmp-name">Haber-Bosch</div><div class="cmp-formula">N₂ + 3H₂ → 2NH₃</div></div>
+        <div class="cmp-card" data-lim="al-fe2o3"><div class="cmp-name">Thermit</div><div class="cmp-formula">2Al + Fe₂O₃ → Al₂O₃ + 2Fe</div></div>
+      </div>
+
+      <div class="conv-grid">
+        <div class="conv-input"><label id="limAName">A: H₂</label><input type="number" id="limA" step="any" value="4" placeholder="mol"><div class="unit">mol</div></div>
+        <div class="conv-input"><label id="limBName">B: O₂</label><input type="number" id="limB" step="any" value="1" placeholder="mol"><div class="unit">mol</div></div>
+      </div>
+
+      <div class="limiter-result" id="limResult"></div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Vorgehen:</b> Stoffmenge jedes Edukts durch seinen Koeffizienten dividieren — der kleinste Quotient ist der limitierende Reaktant. Der bestimmt, wie viel Produkt maximal entstehen kann.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">12 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ===== ATOMIC MASSES ===== */
+const ATOMIC_MASSES={H:1.008,He:4.003,Li:6.94,Be:9.012,B:10.81,C:12.01,N:14.01,O:16.00,F:19.00,Ne:20.18,Na:22.99,Mg:24.31,Al:26.98,Si:28.09,P:30.97,S:32.07,Cl:35.45,Ar:39.95,K:39.10,Ca:40.08,Fe:55.85,Cu:63.55,Zn:65.38,Br:79.90,I:126.90,Ag:107.87,Pb:207.2,Hg:200.59,Au:196.97,Mn:54.94,Cr:52.00,Co:58.93,Ni:58.69,Sn:118.71};
+
+/* ===== TAB 1: REACTION BALANCER ===== */
+const REACTIONS=[
+  {key:'h2o',name:'Wasser-Bildung',edu:[{f:'H₂',a:{H:2}},{f:'O₂',a:{O:2}}],pro:[{f:'H₂O',a:{H:2,O:1}}],sol:[2,1,2]},
+  {key:'methan',name:'Methan-Verbrennung',edu:[{f:'CH₄',a:{C:1,H:4}},{f:'O₂',a:{O:2}}],pro:[{f:'CO₂',a:{C:1,O:2}},{f:'H₂O',a:{H:2,O:1}}],sol:[1,2,1,2]},
+  {key:'glucose',name:'Glucose-Verbrennung',edu:[{f:'C₆H₁₂O₆',a:{C:6,H:12,O:6}},{f:'O₂',a:{O:2}}],pro:[{f:'CO₂',a:{C:1,O:2}},{f:'H₂O',a:{H:2,O:1}}],sol:[1,6,6,6]},
+  {key:'nh3',name:'Ammoniak-Synthese',edu:[{f:'N₂',a:{N:2}},{f:'H₂',a:{H:2}}],pro:[{f:'NH₃',a:{N:1,H:3}}],sol:[1,3,2]},
+  {key:'fe',name:'Eisenoxid-Reduktion',edu:[{f:'Fe₂O₃',a:{Fe:2,O:3}},{f:'C',a:{C:1}}],pro:[{f:'Fe',a:{Fe:1}},{f:'CO₂',a:{C:1,O:2}}],sol:[2,3,4,3]},
+  {key:'al',name:'Thermit-Reaktion',edu:[{f:'Al',a:{Al:1}},{f:'Fe₂O₃',a:{Fe:2,O:3}}],pro:[{f:'Al₂O₃',a:{Al:2,O:3}},{f:'Fe',a:{Fe:1}}],sol:[2,1,1,2]}
+];
+let curReact=REACTIONS[0];
+let coefs=[];
+
+const reactGrid=document.getElementById('reactGrid');
+REACTIONS.forEach((r,i)=>{
+  const card=document.createElement('div');
+  card.className='cmp-card'+(i===0?' active':'');
+  card.innerHTML=`<div class="cmp-name">${r.name}</div>
+    <div class="cmp-formula">${r.edu.map(e=>e.f).join(' + ')} → ${r.pro.map(p=>p.f).join(' + ')}</div>`;
+  card.onclick=()=>{
+    document.querySelectorAll('#reactGrid .cmp-card').forEach(x=>x.classList.remove('active'));
+    card.classList.add('active');
+    curReact=r;
+    resetCoefs();
+    renderReaction();
+  };
+  reactGrid.appendChild(card);
+});
+function resetCoefs(){
+  coefs=Array(curReact.edu.length+curReact.pro.length).fill(1);
+}
+resetCoefs();
+function renderReaction(){
+  const row=document.getElementById('reactRow');
+  row.innerHTML='';
+  let idx=0;
+  curReact.edu.forEach((t,i)=>{
+    if(i>0){const p=document.createElement('span');p.className='react-plus';p.textContent='+';row.appendChild(p)}
+    row.appendChild(makeTerm(t,idx++));
+  });
+  const arr=document.createElement('span');arr.className='react-arrow';arr.textContent='→';row.appendChild(arr);
+  curReact.pro.forEach((t,i)=>{
+    if(i>0){const p=document.createElement('span');p.className='react-plus';p.textContent='+';row.appendChild(p)}
+    row.appendChild(makeTerm(t,idx++));
+  });
+  renderBalance();
+}
+function makeTerm(term,idx){
+  const t=document.createElement('span');t.className='react-term';
+  const ctl=document.createElement('div');ctl.className='coef-control';
+  const up=document.createElement('button');up.className='coef-btn';up.textContent='▲';up.onclick=()=>{coefs[idx]=Math.min(9,coefs[idx]+1);renderReaction()};
+  const val=document.createElement('div');val.className='coef-val';val.textContent=coefs[idx];
+  const dn=document.createElement('button');dn.className='coef-btn';dn.textContent='▼';dn.onclick=()=>{coefs[idx]=Math.max(1,coefs[idx]-1);renderReaction()};
+  ctl.appendChild(up);ctl.appendChild(val);ctl.appendChild(dn);
+  t.appendChild(ctl);
+  const f=document.createElement('span');f.className='formula';f.innerHTML=' '+term.f;
+  t.appendChild(f);
+  return t;
+}
+function renderBalance(){
+  const grid=document.getElementById('balanceGrid');
+  grid.innerHTML='';
+  const atoms=new Set();
+  [...curReact.edu,...curReact.pro].forEach(t=>Object.keys(t.a).forEach(a=>atoms.add(a)));
+  let allOk=true;
+  atoms.forEach(a=>{
+    let left=0,right=0;
+    curReact.edu.forEach((t,i)=>{left+=(t.a[a]||0)*coefs[i]});
+    curReact.pro.forEach((t,i)=>{right+=(t.a[a]||0)*coefs[curReact.edu.length+i]});
+    const ok=left===right;
+    if(!ok) allOk=false;
+    const card=document.createElement('div');
+    card.className='balance-card '+(ok?'balanced':'unbalanced');
+    card.innerHTML=`<div class="atom-name">${a}</div>
+      <div class="atom-counts">${left} ${ok?'=':'≠'} ${right}</div>`;
+    grid.appendChild(card);
+  });
+  const status=document.getElementById('balanceStatus');
+  if(allOk){
+    status.style.display='block';
+    status.className='balance-status success';
+    status.innerHTML='Reaktionsgleichung ist <b>ausgeglichen</b>.';
+  } else {
+    status.style.display='block';
+    status.className='balance-status fail';
+    status.textContent='Noch nicht ausgeglichen — pass die Koeffizienten an.';
+  }
+}
+document.getElementById('balanceReset').onclick=()=>{resetCoefs();renderReaction()};
+document.getElementById('balanceShow').onclick=()=>{coefs=[...curReact.sol];renderReaction()};
+renderReaction();
+
+/* ===== TAB 2: MOLMASSE ===== */
+function parseFormula(f){
+  // Replace subscript digits with normal
+  f=f.replace(/[₀₁₂₃₄₅₆₇₈₉]/g,c=>'0123456789'['₀₁₂₃₄₅₆₇₈₉'.indexOf(c)]);
+  const re=/([A-Z][a-z]?)(\d*)/g;
+  const counts={};
+  let m;
+  while((m=re.exec(f))!==null){
+    if(!m[1]) continue;
+    const el=m[1], n=m[2]?+m[2]:1;
+    counts[el]=(counts[el]||0)+n;
+  }
+  return counts;
+}
+function formatSubFormula(f){
+  return f.replace(/([0-9]+)/g,'<sub>$1</sub>');
+}
+function renderMM(){
+  const inp=document.getElementById('mmInput').value.trim();
+  if(!inp){
+    document.getElementById('mmNum').innerHTML='—';
+    document.getElementById('mmBreakdown').innerHTML='';
+    return;
+  }
+  const counts=parseFormula(inp);
+  let total=0;
+  let rows='';
+  Object.entries(counts).forEach(([el,n])=>{
+    const m=ATOMIC_MASSES[el];
+    if(!m){
+      rows+=`<div class="mm-row" style="color:var(--pink-deep)"><span>${el}</span><span>unbekannt</span></div>`;
+      return;
+    }
+    const sub=n*m;
+    total+=sub;
+    rows+=`<div class="mm-row"><span>${el} × ${n}</span><span>${m.toFixed(2)} × ${n} = ${sub.toFixed(2)} g/mol</span></div>`;
+  });
+  rows+=`<div class="mm-row"><span>Σ Molmasse</span><span>${total.toFixed(2)} g/mol</span></div>`;
+  document.getElementById('mmNum').innerHTML=total.toFixed(2).replace('.',',')+'<span class="mm-unit">g/mol</span>';
+  document.getElementById('mmLabel').innerHTML='Molare Masse von '+formatSubFormula(inp);
+  document.getElementById('mmBreakdown').innerHTML=rows;
+}
+document.getElementById('mmInput').addEventListener('input',renderMM);
+document.querySelectorAll('.cmp-card[data-mm]').forEach(c=>{
+  c.onclick=()=>{
+    document.getElementById('mmInput').value=c.dataset.mm;
+    renderMM();
+  };
+});
+renderMM();
+
+/* ===== TAB 3: UMRECHNER ===== */
+let lastEdited={set1:[],set2:[]};
+function calcSet1(triggered){
+  const m=parseFloat(document.getElementById('convM').value);
+  const n=parseFloat(document.getElementById('convN').value);
+  const mm=parseFloat(document.getElementById('convMM').value);
+  // Track last 2 edited
+  lastEdited.set1=lastEdited.set1.filter(x=>x!==triggered);
+  lastEdited.set1.unshift(triggered);
+  if(lastEdited.set1.length>2) lastEdited.set1=lastEdited.set1.slice(0,2);
+  // Calculate the third
+  document.querySelectorAll('#convert .conv-input[data-conv="m"], #convert .conv-input[data-conv="n"], #convert .conv-input[data-conv="mm"]').forEach(el=>el.classList.remove('calc'));
+  if(lastEdited.set1.includes('m')&&lastEdited.set1.includes('mm')&&!isNaN(m)&&!isNaN(mm)&&mm!==0){
+    document.getElementById('convN').value=(m/mm).toFixed(4);
+    document.querySelector('.conv-input[data-conv="n"]').classList.add('calc');
+  } else if(lastEdited.set1.includes('n')&&lastEdited.set1.includes('mm')&&!isNaN(n)&&!isNaN(mm)){
+    document.getElementById('convM').value=(n*mm).toFixed(4);
+    document.querySelector('.conv-input[data-conv="m"]').classList.add('calc');
+  } else if(lastEdited.set1.includes('m')&&lastEdited.set1.includes('n')&&!isNaN(m)&&!isNaN(n)&&n!==0){
+    document.getElementById('convMM').value=(m/n).toFixed(4);
+    document.querySelector('.conv-input[data-conv="mm"]').classList.add('calc');
+  }
+}
+function calcSet2(triggered){
+  const c=parseFloat(document.getElementById('convC').value);
+  const n=parseFloat(document.getElementById('convN2').value);
+  const v=parseFloat(document.getElementById('convV').value);
+  lastEdited.set2=lastEdited.set2.filter(x=>x!==triggered);
+  lastEdited.set2.unshift(triggered);
+  if(lastEdited.set2.length>2) lastEdited.set2=lastEdited.set2.slice(0,2);
+  document.querySelectorAll('#convert .conv-input[data-conv="c"], #convert .conv-input[data-conv="n2"], #convert .conv-input[data-conv="v"]').forEach(el=>el.classList.remove('calc'));
+  if(lastEdited.set2.includes('c')&&lastEdited.set2.includes('v')&&!isNaN(c)&&!isNaN(v)){
+    document.getElementById('convN2').value=(c*v).toFixed(4);
+    document.querySelector('.conv-input[data-conv="n2"]').classList.add('calc');
+  } else if(lastEdited.set2.includes('n2')&&lastEdited.set2.includes('v')&&!isNaN(n)&&!isNaN(v)&&v!==0){
+    document.getElementById('convC').value=(n/v).toFixed(4);
+    document.querySelector('.conv-input[data-conv="c"]').classList.add('calc');
+  } else if(lastEdited.set2.includes('c')&&lastEdited.set2.includes('n2')&&!isNaN(c)&&!isNaN(n)&&c!==0){
+    document.getElementById('convV').value=(n/c).toFixed(4);
+    document.querySelector('.conv-input[data-conv="v"]').classList.add('calc');
+  }
+}
+['convM','convN','convMM'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>calcSet1(id==='convMM'?'mm':id==='convN'?'n':'m'));
+});
+['convC','convN2','convV'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>calcSet2(id==='convN2'?'n2':id==='convV'?'v':'c'));
+});
+
+/* ===== TAB 4: LIMITIEREND ===== */
+const LIM_REACTIONS={
+  'h2-o2':{aName:'H₂',bName:'O₂',pName:'H₂O',aCoef:2,bCoef:1,pCoef:2,
+    info:'Knallgas: 2 mol H₂ reagieren mit 1 mol O₂. Verhältnis 2:1.'},
+  'n2-h2':{aName:'N₂',bName:'H₂',pName:'NH₃',aCoef:1,bCoef:3,pCoef:2,
+    info:'Haber-Bosch: 1 mol N₂ + 3 mol H₂ → 2 mol NH₃. Verhältnis 1:3.'},
+  'al-fe2o3':{aName:'Al',bName:'Fe₂O₃',pName:'Fe',aCoef:2,bCoef:1,pCoef:2,
+    info:'Thermit: 2 Al + Fe₂O₃ → Al₂O₃ + 2 Fe. Verhältnis 2:1.'}
+};
+let limCurrent='h2-o2';
+function setLim(key){
+  limCurrent=key;
+  const r=LIM_REACTIONS[key];
+  document.getElementById('limAName').textContent=`A: ${r.aName}`;
+  document.getElementById('limBName').textContent=`B: ${r.bName}`;
+  document.querySelectorAll('#limit .cmp-card').forEach(c=>c.classList.toggle('active',c.dataset.lim===key));
+  calcLim();
+}
+function calcLim(){
+  const r=LIM_REACTIONS[limCurrent];
+  const a=parseFloat(document.getElementById('limA').value);
+  const b=parseFloat(document.getElementById('limB').value);
+  const result=document.getElementById('limResult');
+  if(isNaN(a)||isNaN(b)||a<=0||b<=0){
+    result.className='limiter-result';
+    result.innerHTML='<div class="limiter-label">Bitte beide Mengen eingeben</div>';
+    return;
+  }
+  const ratioA=a/r.aCoef, ratioB=b/r.bCoef;
+  const limiting=ratioA<ratioB?r.aName:r.bName;
+  const productMol=Math.min(ratioA,ratioB)*r.pCoef;
+  const excess=ratioA<ratioB?{name:r.bName,leftover:b-(a/r.aCoef)*r.bCoef}:{name:r.aName,leftover:a-(b/r.bCoef)*r.aCoef};
+  result.className='limiter-result green';
+  result.innerHTML=`
+    <div class="limiter-label">Limitierender Reaktant</div>
+    <div class="limiter-name">${limiting}</div>
+    <div style="font-size:.85rem;color:var(--text-secondary);margin-top:8px">
+      → maximal <b style="color:var(--blue-deep);font-family:'JetBrains Mono',monospace;font-size:1.1rem">${productMol.toFixed(3)} mol</b> ${r.pName} möglich<br>
+      Im Überschuss: ${excess.leftover.toFixed(3)} mol ${excess.name}
+    </div>
+    <div style="font-size:.78rem;color:var(--muted);margin-top:8px;font-style:italic">${r.info}</div>`;
+}
+document.querySelectorAll('#limit .cmp-card[data-lim]').forEach(c=>{
+  c.onclick=()=>setLim(c.dataset.lim);
+});
+['limA','limB'].forEach(id=>document.getElementById(id).addEventListener('input',calcLim));
+calcLim();
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Wie viele Teilchen sind 1 mol?',o:['6,02 × 10⁵','6,02 × 10²³','3,14 × 10²³','1,38 × 10⁻²³'],c:1,e:'Avogadro-Zahl: 6,022 × 10²³ Teilchen pro mol.'},
+  {q:'Molmasse von Wasser (H₂O)?',o:['16 g/mol','18 g/mol','20 g/mol','36 g/mol'],c:1,e:'2 × 1,008 (H) + 16,00 (O) = 18,02 g/mol.'},
+  {q:'Wie viel mol sind 36 g Wasser?',o:['1 mol','2 mol','0,5 mol','18 mol'],c:1,e:'n = m / M = 36 g / 18 g/mol = 2 mol.'},
+  {q:'Welche Koeffizienten passen für: __ H₂ + __ O₂ → __ H₂O?',o:['1, 1, 1','2, 1, 2','2, 2, 1','1, 2, 2'],c:1,e:'Knallgas: 2 H₂ + 1 O₂ → 2 H₂O. 4 H links und rechts, 2 O links und rechts.'},
+  {q:'10 g NaOH (M=40) in 0,5 L Wasser. c = ?',o:['0,25 mol/L','0,5 mol/L','1 mol/L','5 mol/L'],c:1,e:'n = 10/40 = 0,25 mol → c = 0,25 / 0,5 = 0,5 mol/L.'},
+  {q:'Welches Molvolumen hat ein ideales Gas bei 0°C, 1 atm?',o:['10 L/mol','22,4 L/mol','25 L/mol','100 L/mol'],c:1,e:'Standardbedingungen: V_m = 22,4 L/mol. Bei 25°C ca. 24,5 L/mol.'},
+  {q:'4 mol H₂ + 1 mol O₂ → wie viel H₂O entsteht maximal?',o:['1 mol','2 mol','4 mol','8 mol'],c:1,e:'O₂ ist limitierend (Verhältnis 2:1). 1 mol O₂ → 2 mol H₂O. H₂ ist im Überschuss.'},
+  {q:'Wie viel g sind 0,5 mol Glucose (M=180)?',o:['90 g','180 g','45 g','360 g'],c:0,e:'m = n × M = 0,5 × 180 = 90 g.'},
+  {q:'Stöchiometrisches Verhältnis bei 2 H₂ + O₂ → 2 H₂O?',o:['1:1','2:1','2:2','3:1'],c:1,e:'2 mol H₂ : 1 mol O₂ : 2 mol H₂O. Verhältnis Edukte 2:1.'},
+  {q:'Welche der folgenden Aussagen zu Stöchiometrie stimmt?',o:['Atome werden umgewandelt','Massenerhaltung gilt','Mol-Zahl bleibt immer gleich','Volumen ist erhalten'],c:1,e:'Lavoisier: Masse bleibt erhalten. Mol-Zahlen können sich ändern (z. B. 3 mol Edukte → 2 mol Produkte).'},
+  {q:'M(CO₂) = ?',o:['28 g/mol','32 g/mol','44 g/mol','60 g/mol'],c:2,e:'12,01 (C) + 2 × 16,00 (O) = 44,01 g/mol.'},
+  {q:'Welche Konzentration hat eine Lösung mit 0,1 mol gelöster Substanz in 200 mL?',o:['0,2 mol/L','0,5 mol/L','2 mol/L','0,02 mol/L'],c:1,e:'c = n/V = 0,1 mol / 0,2 L = 0,5 mol/L.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

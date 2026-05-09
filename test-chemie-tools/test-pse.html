@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Periodensystem · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --shadow-lg:0 16px 48px rgba(26,26,46,.12);
+
+    /* Element category colors */
+    --c-alkali:#e07b8b;
+    --c-alkaline:#f5a68e;
+    --c-transition:#f5c542;
+    --c-post:#a8c5e0;
+    --c-metalloid:#e4daf0;
+    --c-nonmetal:#c8e6d0;
+    --c-halogen:#6db8e0;
+    --c-noble:#9b7fc4;
+    --c-lanthanide:#f0c5d4;
+    --c-actinide:#fcd4be;
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--mint),#fff);display:flex;align-items:center;justify-content:center;color:var(--green-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--green),var(--green-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(109,184,138,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--green);color:var(--green-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--green-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:6px;color:var(--green-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--mint) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(109,184,138,.18);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--green-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* ===== PSE GRID ===== */
+  .pse-wrap{overflow-x:auto;padding-bottom:8px}
+  .pse-grid{display:grid;grid-template-columns:repeat(18,minmax(48px,1fr));gap:3px;min-width:900px;margin:0 auto}
+  .pse-grid.lan-act{margin-top:14px;grid-template-columns:repeat(15,minmax(48px,1fr));max-width:calc(15/18 * 100%);margin-left:auto;margin-right:auto}
+
+  .el{background:var(--surface);border:1.5px solid transparent;border-radius:8px;padding:4px 3px;text-align:center;cursor:pointer;transition:all .15s;position:relative;aspect-ratio:1;min-width:46px;display:flex;flex-direction:column;justify-content:center;align-items:center;font-family:inherit}
+  .el:hover{transform:scale(1.15);z-index:5;box-shadow:var(--shadow-md);border-color:var(--gold)}
+  .el .num{font-size:.55rem;color:var(--text-secondary);font-weight:600;position:absolute;top:3px;left:4px}
+  .el .sym{font-size:1.05rem;font-weight:800;color:var(--dark);letter-spacing:-.5px}
+  .el .mass{font-size:.5rem;color:var(--text-secondary);font-weight:500;margin-top:1px}
+  .el.dim{opacity:.25}
+  .el.highlight{box-shadow:0 0 0 3px var(--gold);transform:scale(1.1);z-index:3}
+
+  .el.alkali{background:linear-gradient(135deg,#f5d4dc,var(--c-alkali))}
+  .el.alkaline{background:linear-gradient(135deg,#fbe1d4,var(--c-alkaline))}
+  .el.transition{background:linear-gradient(135deg,#fdecb1,var(--c-transition))}
+  .el.post{background:linear-gradient(135deg,#d6e3f0,var(--c-post))}
+  .el.metalloid{background:linear-gradient(135deg,#f0e6f5,var(--c-metalloid))}
+  .el.nonmetal{background:linear-gradient(135deg,#dff0e3,var(--c-nonmetal))}
+  .el.halogen{background:linear-gradient(135deg,#c5e0f0,var(--c-halogen))}
+  .el.noble{background:linear-gradient(135deg,#cdb8de,var(--c-noble))}
+  .el.lanthanide{background:linear-gradient(135deg,#fadce5,var(--c-lanthanide))}
+  .el.actinide{background:linear-gradient(135deg,#fde2cf,var(--c-actinide))}
+
+  .el-placeholder{background:transparent;border:1.5px dashed var(--border);border-radius:8px;aspect-ratio:1}
+
+  /* CATEGORY LEGEND */
+  .cat-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;padding:12px;background:var(--bg-warm);border-radius:14px}
+  .cat-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:var(--radius-pill);font-size:.74rem;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .2s;font-family:inherit}
+  .cat-pill .cat-dot{width:12px;height:12px;border-radius:4px}
+  .cat-pill:hover{transform:translateY(-1px)}
+  .cat-pill.active{border-color:var(--dark);background:#fff}
+
+  /* ELEMENT MODAL */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:480px;width:100%;box-shadow:var(--shadow-lg);overflow:hidden}
+  .modal-head{padding:24px;display:flex;align-items:center;gap:16px}
+  .modal-symbol{width:88px;height:88px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;color:var(--dark);box-shadow:var(--shadow);position:relative}
+  .modal-symbol .num{font-size:.7rem;position:absolute;top:6px;left:8px}
+  .modal-symbol .sym{font-size:2.4rem;letter-spacing:-2px}
+  .modal-symbol .mass{font-size:.7rem;position:absolute;bottom:6px}
+  .modal-head h3{font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:4px}
+  .modal-head .cat-tag{font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--text-secondary);font-weight:700;background:var(--bg-warm);padding:3px 10px;border-radius:8px;display:inline-block}
+
+  .modal-body{padding:0 24px 24px}
+  .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  .modal-stat{background:var(--bg-light);border-radius:12px;padding:11px 13px}
+  .modal-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .modal-stat .val{font-size:.95rem;color:var(--text);font-weight:700;margin-top:2px}
+  .modal-info{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.55;margin-top:14px;color:var(--text)}
+  .modal-close{position:absolute;top:16px;right:16px;background:rgba(0,0,0,.06);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);transition:all .2s}
+  .modal-close:hover{background:rgba(0,0,0,.12)}
+
+  /* ===== TRENDS ===== */
+  .trend-controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+  .trend-btn{padding:9px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+  .trend-btn:hover{border-color:var(--green-deep)}
+  .trend-btn.active{background:var(--green-deep);color:#fff;border-color:var(--green-deep);box-shadow:0 4px 12px rgba(74,154,106,.3)}
+
+  .el.trend-mode{background:#f5f0e8;color:var(--dark)}
+
+  /* ===== DRAG & DROP ===== */
+  .dnd-modes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+  @media(min-width:680px){.dnd-modes{grid-template-columns:repeat(4,1fr)}}
+  .dnd-mode-btn{padding:12px 10px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.3}
+  .dnd-mode-btn small{font-size:.66rem;color:var(--text-secondary);font-weight:600}
+  .dnd-mode-btn:hover:not(.active){border-color:var(--green-deep);transform:translateY(-1px)}
+  .dnd-mode-btn.active{background:linear-gradient(135deg,var(--green),var(--green-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(74,154,106,.3)}
+  .dnd-mode-btn.active small{color:rgba(255,255,255,.85)}
+
+  .dnd-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+  @media(min-width:600px){.dnd-stats{grid-template-columns:repeat(4,1fr)}}
+  .dnd-stat{background:var(--surface);padding:12px;border-radius:14px;text-align:center;border:1px solid var(--border-light);box-shadow:var(--shadow-sm)}
+  .dnd-stat .num{font-size:1.5rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .dnd-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-top:2px}
+
+  .dnd-instructions{font-size:.78rem;color:var(--text-secondary);background:var(--bg-warm);padding:10px 14px;border-radius:12px;margin-bottom:14px;line-height:1.55;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+  .dnd-instructions [data-lucide]{color:var(--green-deep)}
+
+  .dnd-pool{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px dashed var(--border);border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:80px;margin-bottom:14px;max-height:280px;overflow-y:auto}
+
+  /* NEUTRAL pool elements — same color for all, only symbol shown */
+  .dnd-pool .el{cursor:grab;width:46px;height:46px;flex:0 0 46px;min-width:46px;aspect-ratio:1;background:linear-gradient(135deg,#fff,#f0ebe1);border:1.5px solid var(--border);color:var(--text);transition:all .15s;display:flex;align-items:center;justify-content:center}
+  .dnd-pool .el .sym{font-size:1.25rem;font-weight:800;letter-spacing:-.5px}
+  .dnd-pool .el:hover{transform:scale(1.08);border-color:var(--gold);z-index:5}
+  .dnd-pool .el:active{cursor:grabbing}
+  .dnd-pool .el.dragging{opacity:.4}
+  .dnd-pool .el.selected{border-color:var(--gold);background:linear-gradient(135deg,var(--yellow-soft),#fff);box-shadow:0 0 0 3px rgba(245,197,66,.35);transform:scale(1.1);z-index:6}
+  /* Color hint mode */
+  .dnd-pool.show-cat .el.alkali{background:linear-gradient(135deg,#f5d4dc,var(--c-alkali))}
+  .dnd-pool.show-cat .el.alkaline{background:linear-gradient(135deg,#fbe1d4,var(--c-alkaline))}
+  .dnd-pool.show-cat .el.transition{background:linear-gradient(135deg,#fdecb1,var(--c-transition))}
+  .dnd-pool.show-cat .el.post{background:linear-gradient(135deg,#d6e3f0,var(--c-post))}
+  .dnd-pool.show-cat .el.metalloid{background:linear-gradient(135deg,#f0e6f5,var(--c-metalloid))}
+  .dnd-pool.show-cat .el.nonmetal{background:linear-gradient(135deg,#dff0e3,var(--c-nonmetal))}
+  .dnd-pool.show-cat .el.halogen{background:linear-gradient(135deg,#c5e0f0,var(--c-halogen))}
+  .dnd-pool.show-cat .el.noble{background:linear-gradient(135deg,#cdb8de,var(--c-noble))}
+
+  .el.dnd-target{background:rgba(232,226,216,.4);border:1.5px dashed var(--border);cursor:pointer;min-width:46px}
+  .el.dnd-target .num{font-size:.85rem;font-weight:800;color:var(--purple-deep);position:static;text-align:center;width:100%}
+  .el.dnd-target:hover{background:rgba(245,197,66,.12);border-color:var(--gold)}
+  .el.dnd-target:hover .num{color:var(--gold-deep)}
+  .el.dnd-target.over{background:rgba(245,197,66,.25);border-color:var(--gold);border-style:solid;transform:scale(1.05)}
+  .el.dnd-target.placed-wrong{border:1.5px solid var(--danger);background:rgba(224,123,139,.18);animation:shake .4s ease}
+  @keyframes shake{0%,100%{transform:scale(1)}25%{transform:scale(1.05) translateX(-4px)}75%{transform:scale(1.05) translateX(4px)}}
+  .dnd-grid-wrap{position:relative}
+
+  .dnd-status{margin-top:14px;padding:14px 16px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;line-height:1.6}
+  .dnd-status.show{display:block;animation:fadeUp .3s ease}
+  .dnd-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+  .dnd-status.fail{background:rgba(224,123,139,.12);color:var(--pink-deep)}
+
+  /* Mobile: smaller cells in PSE for D&D tab to fit better */
+  @media(max-width:520px){
+    #dndGrid.pse-grid{min-width:680px;grid-template-columns:repeat(18,minmax(36px,1fr))}
+    #dndGrid .el{min-width:36px}
+    #dndGrid .el .sym{font-size:.78rem}
+    .dnd-pool .el{width:42px;height:42px;flex:0 0 42px;min-width:42px}
+    .dnd-pool .el .sym{font-size:.85rem}
+    .dnd-pool .el .num{font-size:.5rem}
+  }
+
+  /* ===== HAUPTGRUPPEN ===== */
+  .hg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .hg-card{background:linear-gradient(135deg,var(--surface),var(--bg-light));border:1.5px solid var(--border-light);border-radius:18px;padding:16px;cursor:pointer;transition:all .25s}
+  .hg-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--green-deep)}
+  .hg-card .hg-roman{display:inline-block;background:var(--mint);color:var(--green-deep);padding:3px 10px;border-radius:8px;font-weight:800;font-size:.75rem;margin-bottom:8px;letter-spacing:1px}
+  .hg-card h4{font-size:.95rem;color:var(--text);font-weight:800;margin-bottom:4px}
+  .hg-card .hg-elements{font-size:.84rem;color:var(--blue-deep);font-weight:700;margin:6px 0;font-family:'JetBrains Mono',monospace,inherit}
+  .hg-card p{font-size:.78rem;color:var(--text-secondary);line-height:1.5;margin-top:6px}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--green);background:rgba(109,184,138,.04);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .4s}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--yellow-soft);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--gold-deep);flex-shrink:0;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--green),var(--green-deep));color:#fff;box-shadow:0 4px 14px rgba(109,184,138,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(109,184,138,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--green-deep);color:var(--green-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:768px){
+    .el .sym{font-size:.85rem}
+    .el .num{font-size:.5rem}
+    .el .mass{display:none}
+    .header h1{font-size:1.15rem}
+    .modal-head{flex-direction:column;text-align:center}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="atom"></i></div>
+    <div>
+      <h1>Periodensystem</h1>
+      <p>Tabelle · Drag &amp; Drop · Trends · Hauptgruppen · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="table"><i data-lucide="table-2"></i>Tabelle</button>
+  <button class="tab" data-tab="dnd"><i data-lucide="move"></i>Drag &amp; Drop</button>
+  <button class="tab" data-tab="trends"><i data-lucide="trending-up"></i>Trends</button>
+  <button class="tab" data-tab="groups"><i data-lucide="layers"></i>Hauptgruppen</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: TABELLE ============ -->
+  <div class="section active" id="table">
+    <div class="hero-strip">
+      <h2><i data-lucide="atom"></i>Vollständiges Periodensystem</h2>
+      <p>118 Elemente mit allen Hauptgruppen, Übergangsmetallen, Lanthanoiden und Actinoiden. <b>Tippe auf jedes Element</b> für Details: Elektronenkonfiguration, Elektronegativität, Schmelz-/Siedepunkt und MedAT-Klinik-Tipps.</p>
+    </div>
+
+    <div class="card">
+      <div class="cat-legend" id="catLegend"></div>
+
+      <div class="pse-wrap">
+        <div class="pse-grid" id="pseGrid"></div>
+        <div class="pse-grid lan-act" id="lanGrid"></div>
+        <div class="pse-grid lan-act" id="actGrid"></div>
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Tipp:</b> Klick auf eine Kategorie oben — nur diese Elementgruppe wird hervorgehoben (Rest grau). Nochmal klicken hebt den Filter auf.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: DRAG & DROP ============ -->
+  <div class="section" id="dnd">
+    <div class="hero-strip">
+      <h2><i data-lucide="move"></i>PSE auf Zeit</h2>
+      <p>Wähle einen Modus, dann ziehe oder tippe die Elemente an die richtige Stelle. Der Timer läuft mit, deine Bestzeit pro Modus wird gespeichert.</p>
+    </div>
+
+    <div class="card">
+      <h3 style="text-align:center;margin-bottom:8px">Modus wählen</h3>
+      <div class="dnd-modes">
+        <button class="dnd-mode-btn active" data-mode="hg13">Hauptgruppen<small>Periode 1–3 · 18 El.</small></button>
+        <button class="dnd-mode-btn" data-mode="hg14">Hauptgruppen<small>Periode 1–4 · 24 El.</small></button>
+        <button class="dnd-mode-btn" data-mode="hgall">Hauptgruppen<small>komplett · 50 El.</small></button>
+        <button class="dnd-mode-btn" data-mode="full">Mit Übergangsm.<small>P1–7 · 90 El.</small></button>
+      </div>
+
+      <div class="dnd-stats">
+        <div class="dnd-stat"><div class="num" id="dndTime" style="color:var(--green-deep)">00:00</div><div class="lbl">Zeit</div></div>
+        <div class="dnd-stat"><div class="num" id="dndOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="dnd-stat"><div class="num" id="dndBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="dnd-stat"><div class="num" id="dndBest" style="color:var(--gold-deep)">—</div><div class="lbl">Bestzeit</div></div>
+      </div>
+
+      <div class="dnd-instructions">
+        <i data-lucide="hand-pointer" style="width:14px;height:14px;display:inline-block;vertical-align:middle"></i>
+        <b>So geht's:</b> Tippe ein Element im Pool → tippe auf die Zielzelle. Auf Desktop alternativ per Drag &amp; Drop. Timer startet beim ersten Tap.
+      </div>
+
+      <h3 style="text-align:center;margin-top:14px">Pool</h3>
+      <div class="dnd-pool" id="dndPool"></div>
+
+      <h3 style="text-align:center;margin-top:14px">Ziel-Tabelle</h3>
+      <div class="pse-wrap">
+        <div class="pse-grid" id="dndGrid"></div>
+      </div>
+
+      <div class="dnd-status" id="dndStatus"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="dndReset"><i data-lucide="rotate-ccw"></i>Neu starten</button>
+        <button class="btn ghost" id="dndShowCat"><i data-lucide="eye"></i>Hilfe: Farben zeigen</button>
+        <button class="btn ghost" id="dndClearBest"><i data-lucide="trash-2"></i>Bestzeit löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: TRENDS ============ -->
+  <div class="section" id="trends">
+    <div class="hero-strip">
+      <h2><i data-lucide="trending-up"></i>Periodische Trends</h2>
+      <p>Wähle eine Eigenschaft — die Elemente werden als <b>Heatmap</b> gefärbt: dunkel = hoher Wert, hell = niedrig. So siehst du die Trends im PSE auf einen Blick.</p>
+    </div>
+
+    <div class="card">
+      <div class="trend-controls">
+        <button class="trend-btn active" data-trend="en"><i data-lucide="bolt"></i>Elektronegativität</button>
+        <button class="trend-btn" data-trend="radius"><i data-lucide="circle-dot"></i>Atomradius</button>
+        <button class="trend-btn" data-trend="ie"><i data-lucide="zap"></i>Ionisierungsenergie</button>
+        <button class="trend-btn" data-trend="off"><i data-lucide="x"></i>Aus</button>
+      </div>
+
+      <div class="pse-wrap">
+        <div class="pse-grid" id="trendsGrid"></div>
+      </div>
+
+      <div class="key-fact" id="trendsExplain"><i data-lucide="info"></i><div><b>Elektronegativität (Pauling-Skala):</b> Maß für die Fähigkeit eines Atoms, Bindungselektronen anzuziehen. Steigt nach oben rechts (F=4.0 als Maximum), Cs=0.79 als Minimum.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: HAUPTGRUPPEN ============ -->
+  <div class="section" id="groups">
+    <div class="hero-strip">
+      <h2><i data-lucide="layers"></i>Die 8 Hauptgruppen</h2>
+      <p>Charakteristische Eigenschaften, typische Reaktionen, MedAT-relevante Beispiele. Klick auf eine Karte → die Elemente dieser Gruppe werden im PSE hervorgehoben.</p>
+    </div>
+
+    <div class="card">
+      <div class="hg-grid" id="hgGrid"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">15 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ELEMENT MODAL -->
+<div class="modal" id="elModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-symbol" id="mSymbol"><span class="num"></span><span class="sym"></span><span class="mass"></span></div>
+      <div>
+        <h3 id="mName">—</h3>
+        <span class="cat-tag" id="mCat">—</span>
+      </div>
+      <button class="modal-close" onclick="closeModal()" style="position:absolute;top:14px;right:14px"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-stat"><div class="lbl">Ordnungszahl</div><div class="val" id="mNum">—</div></div>
+        <div class="modal-stat"><div class="lbl">Atommasse</div><div class="val" id="mMass">—</div></div>
+        <div class="modal-stat"><div class="lbl">Periode</div><div class="val" id="mPer">—</div></div>
+        <div class="modal-stat"><div class="lbl">Hauptgruppe</div><div class="val" id="mGr">—</div></div>
+        <div class="modal-stat"><div class="lbl">Elektronegativität</div><div class="val" id="mEn">—</div></div>
+        <div class="modal-stat"><div class="lbl">Konfiguration</div><div class="val" id="mConfig" style="font-family:monospace;font-size:.82rem">—</div></div>
+      </div>
+      <div class="modal-info" id="mInfo">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== ELEMENT DATA ===== */
+const ELEMENTS = [
+  {n:1,sym:'H',name:'Wasserstoff',mass:1.008,period:1,group:1,cat:'nonmetal',en:2.20,radius:53,ie:13.6,config:'1s¹',info:'Häufigstes Element im Universum. Bildet H₂. Klinisch: Säure-Base-Haushalt (H⁺ = pH).'},
+  {n:2,sym:'He',name:'Helium',mass:4.003,period:1,group:18,cat:'noble',en:null,radius:31,ie:24.6,config:'1s²',info:'Edelgas. Wird in Atemgas-Mischungen für Tieftaucher verwendet. Sehr inert.'},
+  {n:3,sym:'Li',name:'Lithium',mass:6.94,period:2,group:1,cat:'alkali',en:0.98,radius:167,ie:5.39,config:'[He] 2s¹',info:'Leichtestes Metall. Lithium-Salze in Psychiatrie (bipolare Störung).'},
+  {n:4,sym:'Be',name:'Beryllium',mass:9.012,period:2,group:2,cat:'alkaline',en:1.57,radius:112,ie:9.32,config:'[He] 2s²',info:'Leichtestes Erdalkalimetall. Toxisch! In Legierungen für Federn.'},
+  {n:5,sym:'B',name:'Bor',mass:10.81,period:2,group:13,cat:'metalloid',en:2.04,radius:87,ie:8.30,config:'[He] 2s² 2p¹',info:'Halbmetall. Borsäure als mildes Antiseptikum.'},
+  {n:6,sym:'C',name:'Kohlenstoff',mass:12.01,period:2,group:14,cat:'nonmetal',en:2.55,radius:67,ie:11.3,config:'[He] 2s² 2p²',info:'Basis aller organischen Verbindungen. Hybridisierung sp³/sp²/sp.'},
+  {n:7,sym:'N',name:'Stickstoff',mass:14.01,period:2,group:15,cat:'nonmetal',en:3.04,radius:56,ie:14.5,config:'[He] 2s² 2p³',info:'78% der Atmosphäre. In Aminosäuren, Proteinen, DNA.'},
+  {n:8,sym:'O',name:'Sauerstoff',mass:16.00,period:2,group:16,cat:'nonmetal',en:3.44,radius:48,ie:13.6,config:'[He] 2s² 2p⁴',info:'Lebensnotwendig. O₂ in Atmung, H₂O als Lösungsmittel. Hohe EN.'},
+  {n:9,sym:'F',name:'Fluor',mass:19.00,period:2,group:17,cat:'halogen',en:3.98,radius:42,ie:17.4,config:'[He] 2s² 2p⁵',info:'Höchste Elektronegativität! Fluorid in Zahnpasta gegen Karies.'},
+  {n:10,sym:'Ne',name:'Neon',mass:20.18,period:2,group:18,cat:'noble',en:null,radius:38,ie:21.6,config:'[He] 2s² 2p⁶',info:'Edelgas. Leuchtet rot-orange in Neonröhren.'},
+  {n:11,sym:'Na',name:'Natrium',mass:22.99,period:3,group:1,cat:'alkali',en:0.93,radius:190,ie:5.14,config:'[Ne] 3s¹',info:'Wichtigstes Kation extrazellulär. Na⁺/K⁺-Pumpe. NaCl = Kochsalz.'},
+  {n:12,sym:'Mg',name:'Magnesium',mass:24.31,period:3,group:2,cat:'alkaline',en:1.31,radius:145,ie:7.65,config:'[Ne] 3s²',info:'Zentralatom im Chlorophyll. Cofaktor vieler Enzyme. Antagonist von Calcium.'},
+  {n:13,sym:'Al',name:'Aluminium',mass:26.98,period:3,group:13,cat:'post',en:1.61,radius:118,ie:5.99,config:'[Ne] 3s² 3p¹',info:'Häufigstes Metall der Erdkruste. Leicht. In Antazida.'},
+  {n:14,sym:'Si',name:'Silicium',mass:28.09,period:3,group:14,cat:'metalloid',en:1.90,radius:111,ie:8.15,config:'[Ne] 3s² 3p²',info:'Halbmetall. Basis von Computer-Chips. SiO₂ = Sand/Quarz.'},
+  {n:15,sym:'P',name:'Phosphor',mass:30.97,period:3,group:15,cat:'nonmetal',en:2.19,radius:98,ie:10.5,config:'[Ne] 3s² 3p³',info:'In ATP, DNA, Phospholipiden, Knochen. Phosphat als Puffer.'},
+  {n:16,sym:'S',name:'Schwefel',mass:32.07,period:3,group:16,cat:'nonmetal',en:2.58,radius:88,ie:10.4,config:'[Ne] 3s² 3p⁴',info:'In Aminosäuren Cys, Met. Disulfidbrücken stabilisieren Proteine.'},
+  {n:17,sym:'Cl',name:'Chlor',mass:35.45,period:3,group:17,cat:'halogen',en:3.16,radius:79,ie:13.0,config:'[Ne] 3s² 3p⁵',info:'Cl⁻ wichtigstes extrazelluläres Anion. HCl = Magensäure.'},
+  {n:18,sym:'Ar',name:'Argon',mass:39.95,period:3,group:18,cat:'noble',en:null,radius:71,ie:15.8,config:'[Ne] 3s² 3p⁶',info:'Edelgas, drittes häufigstes in Atmosphäre. Inert.'},
+  {n:19,sym:'K',name:'Kalium',mass:39.10,period:4,group:1,cat:'alkali',en:0.82,radius:243,ie:4.34,config:'[Ar] 4s¹',info:'Wichtigstes Kation intrazellulär. Aktionspotential, Herzrhythmus.'},
+  {n:20,sym:'Ca',name:'Calcium',mass:40.08,period:4,group:2,cat:'alkaline',en:1.00,radius:194,ie:6.11,config:'[Ar] 4s²',info:'In Knochen (Hydroxylapatit), Muskelkontraktion, Blutgerinnung.'},
+  {n:21,sym:'Sc',name:'Scandium',mass:44.96,period:4,group:3,cat:'transition',en:1.36,radius:184,ie:6.56,config:'[Ar] 3d¹ 4s²',info:'Übergangsmetall. Selten. In Speziallegierungen.'},
+  {n:22,sym:'Ti',name:'Titan',mass:47.87,period:4,group:4,cat:'transition',en:1.54,radius:176,ie:6.83,config:'[Ar] 3d² 4s²',info:'Korrosionsbeständig. Implantate (Hüfte, Zahnersatz).'},
+  {n:23,sym:'V',name:'Vanadium',mass:50.94,period:4,group:5,cat:'transition',en:1.63,radius:171,ie:6.75,config:'[Ar] 3d³ 4s²',info:'Übergangsmetall. Spurenelement, Bedeutung umstritten.'},
+  {n:24,sym:'Cr',name:'Chrom',mass:52.00,period:4,group:6,cat:'transition',en:1.66,radius:166,ie:6.77,config:'[Ar] 3d⁵ 4s¹',info:'Edelstahl. Cr³⁺ ist essenziell, Cr⁶⁺ kanzerogen.'},
+  {n:25,sym:'Mn',name:'Mangan',mass:54.94,period:4,group:7,cat:'transition',en:1.55,radius:161,ie:7.43,config:'[Ar] 3d⁵ 4s²',info:'Cofaktor von Enzymen (SOD, Pyruvat-Carboxylase).'},
+  {n:26,sym:'Fe',name:'Eisen',mass:55.85,period:4,group:8,cat:'transition',en:1.83,radius:156,ie:7.90,config:'[Ar] 3d⁶ 4s²',info:'Im Hämoglobin (Sauerstofftransport). Mangel = Anämie.'},
+  {n:27,sym:'Co',name:'Cobalt',mass:58.93,period:4,group:9,cat:'transition',en:1.88,radius:152,ie:7.88,config:'[Ar] 3d⁷ 4s²',info:'Zentralatom in Vitamin B12. Mangel = perniziöse Anämie.'},
+  {n:28,sym:'Ni',name:'Nickel',mass:58.69,period:4,group:10,cat:'transition',en:1.91,radius:149,ie:7.64,config:'[Ar] 3d⁸ 4s²',info:'Übergangsmetall. Häufiges Kontaktallergen (Modeschmuck).'},
+  {n:29,sym:'Cu',name:'Kupfer',mass:63.55,period:4,group:11,cat:'transition',en:1.90,radius:145,ie:7.73,config:'[Ar] 3d¹⁰ 4s¹',info:'Spurenelement. In Cytochrom-Oxidase. Wilson-Krankheit = Cu-Akkumulation.'},
+  {n:30,sym:'Zn',name:'Zink',mass:65.38,period:4,group:12,cat:'transition',en:1.65,radius:142,ie:9.39,config:'[Ar] 3d¹⁰ 4s²',info:'Cofaktor vieler Enzyme. Wundheilung, Immunsystem.'},
+  {n:31,sym:'Ga',name:'Gallium',mass:69.72,period:4,group:13,cat:'post',en:1.81,radius:136,ie:6.00,config:'[Ar] 3d¹⁰ 4s² 4p¹',info:'Schmilzt in der Hand (29.8°C). In Halbleitern.'},
+  {n:32,sym:'Ge',name:'Germanium',mass:72.63,period:4,group:14,cat:'metalloid',en:2.01,radius:125,ie:7.90,config:'[Ar] 3d¹⁰ 4s² 4p²',info:'Halbmetall. In älteren Halbleitern.'},
+  {n:33,sym:'As',name:'Arsen',mass:74.92,period:4,group:15,cat:'metalloid',en:2.18,radius:114,ie:9.81,config:'[Ar] 3d¹⁰ 4s² 4p³',info:'Hochtoxisch. Historisch als Gift. Auch in Halbleitern.'},
+  {n:34,sym:'Se',name:'Selen',mass:78.96,period:4,group:16,cat:'nonmetal',en:2.55,radius:103,ie:9.75,config:'[Ar] 3d¹⁰ 4s² 4p⁴',info:'Spurenelement. In Glutathion-Peroxidase (Antioxidans).'},
+  {n:35,sym:'Br',name:'Brom',mass:79.90,period:4,group:17,cat:'halogen',en:2.96,radius:94,ie:11.8,config:'[Ar] 3d¹⁰ 4s² 4p⁵',info:'Einziges flüssiges Nichtmetall. Bromide als Beruhigungsmittel (historisch).'},
+  {n:36,sym:'Kr',name:'Krypton',mass:83.80,period:4,group:18,cat:'noble',en:3.00,radius:88,ie:14.0,config:'[Ar] 3d¹⁰ 4s² 4p⁶',info:'Edelgas. In manchen Lasern.'},
+  {n:37,sym:'Rb',name:'Rubidium',mass:85.47,period:5,group:1,cat:'alkali',en:0.82,radius:265,ie:4.18,config:'[Kr] 5s¹',info:'Alkalimetall. Sehr reaktiv mit Wasser.'},
+  {n:38,sym:'Sr',name:'Strontium',mass:87.62,period:5,group:2,cat:'alkaline',en:0.95,radius:219,ie:5.69,config:'[Kr] 5s²',info:'Erdalkalimetall. ⁹⁰Sr ist radioaktiv (Atomwaffen-Fallout).'},
+  {n:39,sym:'Y',name:'Yttrium',mass:88.91,period:5,group:3,cat:'transition',en:1.22,radius:212,ie:6.22,config:'[Kr] 4d¹ 5s²',info:'Übergangsmetall. In LED-Phosphoren.'},
+  {n:40,sym:'Zr',name:'Zirconium',mass:91.22,period:5,group:4,cat:'transition',en:1.33,radius:206,ie:6.63,config:'[Kr] 4d² 5s²',info:'Korrosionsbeständig. In Atomreaktoren, Zahnimplantaten.'},
+  {n:41,sym:'Nb',name:'Niob',mass:92.91,period:5,group:5,cat:'transition',en:1.6,radius:198,ie:6.76,config:'[Kr] 4d⁴ 5s¹',info:'Übergangsmetall. In Supraleitern.'},
+  {n:42,sym:'Mo',name:'Molybdän',mass:95.96,period:5,group:6,cat:'transition',en:2.16,radius:190,ie:7.09,config:'[Kr] 4d⁵ 5s¹',info:'Spurenelement. In Xanthinoxidase, Aldehydoxidase.'},
+  {n:43,sym:'Tc',name:'Technetium',mass:98,period:5,group:7,cat:'transition',en:1.9,radius:183,ie:7.28,config:'[Kr] 4d⁵ 5s²',info:'Erstes künstlich erzeugtes Element. ⁹⁹ᵐTc in der Nuklearmedizin.'},
+  {n:44,sym:'Ru',name:'Ruthenium',mass:101.07,period:5,group:8,cat:'transition',en:2.2,radius:178,ie:7.36,config:'[Kr] 4d⁷ 5s¹',info:'Edelmetall. In Katalysatoren.'},
+  {n:45,sym:'Rh',name:'Rhodium',mass:102.91,period:5,group:9,cat:'transition',en:2.28,radius:173,ie:7.46,config:'[Kr] 4d⁸ 5s¹',info:'Edelmetall. In Auto-Katalysatoren.'},
+  {n:46,sym:'Pd',name:'Palladium',mass:106.42,period:5,group:10,cat:'transition',en:2.20,radius:169,ie:8.34,config:'[Kr] 4d¹⁰',info:'Edelmetall. In Auto-Katalysatoren, Schmuck.'},
+  {n:47,sym:'Ag',name:'Silber',mass:107.87,period:5,group:11,cat:'transition',en:1.93,radius:165,ie:7.58,config:'[Kr] 4d¹⁰ 5s¹',info:'Edelmetall. Antibakterielle Wirkung. AgNO₃ in der Medizin.'},
+  {n:48,sym:'Cd',name:'Cadmium',mass:112.41,period:5,group:12,cat:'transition',en:1.69,radius:161,ie:8.99,config:'[Kr] 4d¹⁰ 5s²',info:'Hochtoxisch. Itai-Itai-Krankheit (Niere, Knochen).'},
+  {n:49,sym:'In',name:'Indium',mass:114.82,period:5,group:13,cat:'post',en:1.78,radius:156,ie:5.79,config:'[Kr] 4d¹⁰ 5s² 5p¹',info:'Post-Übergangsmetall. In Touchscreens (ITO).'},
+  {n:50,sym:'Sn',name:'Zinn',mass:118.71,period:5,group:14,cat:'post',en:1.96,radius:145,ie:7.34,config:'[Kr] 4d¹⁰ 5s² 5p²',info:'Konservendosen. Bronze (Cu+Sn). Korrosionsbeständig.'},
+  {n:51,sym:'Sb',name:'Antimon',mass:121.76,period:5,group:15,cat:'metalloid',en:2.05,radius:133,ie:8.61,config:'[Kr] 4d¹⁰ 5s² 5p³',info:'Halbmetall. Toxisch. Brechmittel-Wirkung historisch.'},
+  {n:52,sym:'Te',name:'Tellur',mass:127.60,period:5,group:16,cat:'metalloid',en:2.10,radius:123,ie:9.01,config:'[Kr] 4d¹⁰ 5s² 5p⁴',info:'Halbmetall. Selten. In Solarzellen.'},
+  {n:53,sym:'I',name:'Iod',mass:126.90,period:5,group:17,cat:'halogen',en:2.66,radius:115,ie:10.5,config:'[Kr] 4d¹⁰ 5s² 5p⁵',info:'In Schilddrüsenhormonen T3/T4. Mangel = Kropf.'},
+  {n:54,sym:'Xe',name:'Xenon',mass:131.29,period:5,group:18,cat:'noble',en:2.6,radius:108,ie:12.1,config:'[Kr] 4d¹⁰ 5s² 5p⁶',info:'Edelgas. Anästhetikum. In Hochleistungs-Lampen.'},
+  {n:55,sym:'Cs',name:'Cäsium',mass:132.91,period:6,group:1,cat:'alkali',en:0.79,radius:298,ie:3.89,config:'[Xe] 6s¹',info:'Alkalimetall, niedrigste EN aller stabilen Elemente. Atomuhren.'},
+  {n:56,sym:'Ba',name:'Barium',mass:137.33,period:6,group:2,cat:'alkaline',en:0.89,radius:253,ie:5.21,config:'[Xe] 6s²',info:'Erdalkalimetall. BaSO₄ als Röntgenkontrastmittel.'},
+  {n:57,sym:'La',name:'Lanthan',mass:138.91,period:6,group:3,cat:'lanthanide',en:1.10,radius:240,ie:5.58,config:'[Xe] 5d¹ 6s²',info:'Erstes Lanthanoid.'},
+  {n:58,sym:'Ce',name:'Cer',mass:140.12,period:6,group:0,cat:'lanthanide',en:1.12,radius:235,ie:5.54,config:'[Xe] 4f¹ 5d¹ 6s²',info:'Häufigstes Lanthanoid.'},
+  {n:59,sym:'Pr',name:'Praseodym',mass:140.91,period:6,group:0,cat:'lanthanide',en:1.13,radius:239,ie:5.46,config:'[Xe] 4f³ 6s²',info:'Lanthanoid.'},
+  {n:60,sym:'Nd',name:'Neodym',mass:144.24,period:6,group:0,cat:'lanthanide',en:1.14,radius:229,ie:5.53,config:'[Xe] 4f⁴ 6s²',info:'In starken Permanentmagneten (NdFeB).'},
+  {n:61,sym:'Pm',name:'Promethium',mass:145,period:6,group:0,cat:'lanthanide',en:1.13,radius:236,ie:5.55,config:'[Xe] 4f⁵ 6s²',info:'Radioaktiv, sehr selten.'},
+  {n:62,sym:'Sm',name:'Samarium',mass:150.36,period:6,group:0,cat:'lanthanide',en:1.17,radius:229,ie:5.64,config:'[Xe] 4f⁶ 6s²',info:'Lanthanoid. In Magneten.'},
+  {n:63,sym:'Eu',name:'Europium',mass:151.96,period:6,group:0,cat:'lanthanide',en:1.20,radius:233,ie:5.67,config:'[Xe] 4f⁷ 6s²',info:'Phosphor in Bildschirmen (rot).'},
+  {n:64,sym:'Gd',name:'Gadolinium',mass:157.25,period:6,group:0,cat:'lanthanide',en:1.20,radius:237,ie:6.15,config:'[Xe] 4f⁷ 5d¹ 6s²',info:'In MRT-Kontrastmitteln.'},
+  {n:65,sym:'Tb',name:'Terbium',mass:158.93,period:6,group:0,cat:'lanthanide',en:1.20,radius:221,ie:5.86,config:'[Xe] 4f⁹ 6s²',info:'In LEDs.'},
+  {n:66,sym:'Dy',name:'Dysprosium',mass:162.50,period:6,group:0,cat:'lanthanide',en:1.22,radius:229,ie:5.94,config:'[Xe] 4f¹⁰ 6s²',info:'In Magneten.'},
+  {n:67,sym:'Ho',name:'Holmium',mass:164.93,period:6,group:0,cat:'lanthanide',en:1.23,radius:216,ie:6.02,config:'[Xe] 4f¹¹ 6s²',info:'Lanthanoid.'},
+  {n:68,sym:'Er',name:'Erbium',mass:167.26,period:6,group:0,cat:'lanthanide',en:1.24,radius:235,ie:6.10,config:'[Xe] 4f¹² 6s²',info:'In Glasfasern.'},
+  {n:69,sym:'Tm',name:'Thulium',mass:168.93,period:6,group:0,cat:'lanthanide',en:1.25,radius:227,ie:6.18,config:'[Xe] 4f¹³ 6s²',info:'Selten.'},
+  {n:70,sym:'Yb',name:'Ytterbium',mass:173.05,period:6,group:0,cat:'lanthanide',en:1.10,radius:242,ie:6.25,config:'[Xe] 4f¹⁴ 6s²',info:'Lanthanoid.'},
+  {n:71,sym:'Lu',name:'Lutetium',mass:174.97,period:6,group:0,cat:'lanthanide',en:1.27,radius:221,ie:5.43,config:'[Xe] 4f¹⁴ 5d¹ 6s²',info:'Letztes Lanthanoid.'},
+  {n:72,sym:'Hf',name:'Hafnium',mass:178.49,period:6,group:4,cat:'transition',en:1.3,radius:212,ie:6.83,config:'[Xe] 4f¹⁴ 5d² 6s²',info:'Übergangsmetall.'},
+  {n:73,sym:'Ta',name:'Tantal',mass:180.95,period:6,group:5,cat:'transition',en:1.5,radius:217,ie:7.55,config:'[Xe] 4f¹⁴ 5d³ 6s²',info:'In Kondensatoren.'},
+  {n:74,sym:'W',name:'Wolfram',mass:183.84,period:6,group:6,cat:'transition',en:2.36,radius:210,ie:7.86,config:'[Xe] 4f¹⁴ 5d⁴ 6s²',info:'Höchster Schmelzpunkt aller Metalle (3422°C).'},
+  {n:75,sym:'Re',name:'Rhenium',mass:186.21,period:6,group:7,cat:'transition',en:1.9,radius:217,ie:7.83,config:'[Xe] 4f¹⁴ 5d⁵ 6s²',info:'Sehr selten und teuer.'},
+  {n:76,sym:'Os',name:'Osmium',mass:190.23,period:6,group:8,cat:'transition',en:2.2,radius:216,ie:8.44,config:'[Xe] 4f¹⁴ 5d⁶ 6s²',info:'Dichtestes natürliches Element (22.59 g/cm³).'},
+  {n:77,sym:'Ir',name:'Iridium',mass:192.22,period:6,group:9,cat:'transition',en:2.20,radius:202,ie:8.97,config:'[Xe] 4f¹⁴ 5d⁷ 6s²',info:'Sehr korrosionsbeständig.'},
+  {n:78,sym:'Pt',name:'Platin',mass:195.08,period:6,group:10,cat:'transition',en:2.28,radius:209,ie:8.96,config:'[Xe] 4f¹⁴ 5d⁹ 6s¹',info:'Edelmetall. Cisplatin als Chemotherapeutikum.'},
+  {n:79,sym:'Au',name:'Gold',mass:196.97,period:6,group:11,cat:'transition',en:2.54,radius:166,ie:9.23,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s¹',info:'Edelmetall. Goldsalze in Rheumatherapie historisch.'},
+  {n:80,sym:'Hg',name:'Quecksilber',mass:200.59,period:6,group:12,cat:'transition',en:2.00,radius:209,ie:10.4,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s²',info:'Einziges flüssiges Metall bei RT. Hochtoxisch (Minamata).'},
+  {n:81,sym:'Tl',name:'Thallium',mass:204.38,period:6,group:13,cat:'post',en:1.62,radius:156,ie:6.11,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹',info:'Hochtoxisch. Historisch als Rattengift.'},
+  {n:82,sym:'Pb',name:'Blei',mass:207.2,period:6,group:14,cat:'post',en:2.33,radius:154,ie:7.42,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²',info:'Toxisch (ZNS, Niere, Anämie). Früher in Benzin, Farben.'},
+  {n:83,sym:'Bi',name:'Bismut',mass:208.98,period:6,group:15,cat:'post',en:2.02,radius:143,ie:7.29,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³',info:'Bismut-Verbindungen in Magenmitteln (z.B. Pepto-Bismol).'},
+  {n:84,sym:'Po',name:'Polonium',mass:209,period:6,group:16,cat:'metalloid',en:2.0,radius:135,ie:8.41,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴',info:'Hochradioaktiv. Litvinenko-Mordfall.'},
+  {n:85,sym:'At',name:'Astat',mass:210,period:6,group:17,cat:'halogen',en:2.2,radius:127,ie:9.32,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵',info:'Seltenstes natürliches Element. Halbwertszeit minimal.'},
+  {n:86,sym:'Rn',name:'Radon',mass:222,period:6,group:18,cat:'noble',en:2.2,radius:120,ie:10.7,config:'[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶',info:'Radioaktives Edelgas. In Kellern aus Granitgestein → Lungenkrebsrisiko.'},
+  {n:87,sym:'Fr',name:'Francium',mass:223,period:7,group:1,cat:'alkali',en:0.7,radius:348,ie:4.07,config:'[Rn] 7s¹',info:'Sehr selten und radioaktiv. Niedrigste EN aller Elemente.'},
+  {n:88,sym:'Ra',name:'Radium',mass:226,period:7,group:2,cat:'alkaline',en:0.9,radius:283,ie:5.28,config:'[Rn] 7s²',info:'Radioaktiv. Marie Curie. Früher in Leuchtfarben.'},
+  {n:89,sym:'Ac',name:'Actinium',mass:227,period:7,group:3,cat:'actinide',en:1.1,radius:260,ie:5.17,config:'[Rn] 6d¹ 7s²',info:'Erstes Actinoid.'},
+  {n:90,sym:'Th',name:'Thorium',mass:232.04,period:7,group:0,cat:'actinide',en:1.3,radius:237,ie:6.31,config:'[Rn] 6d² 7s²',info:'Radioaktiv. Brennstoff für Thorium-Reaktoren.'},
+  {n:91,sym:'Pa',name:'Protactinium',mass:231.04,period:7,group:0,cat:'actinide',en:1.5,radius:243,ie:5.89,config:'[Rn] 5f² 6d¹ 7s²',info:'Sehr selten.'},
+  {n:92,sym:'U',name:'Uran',mass:238.03,period:7,group:0,cat:'actinide',en:1.38,radius:240,ie:6.19,config:'[Rn] 5f³ 6d¹ 7s²',info:'²³⁵U in Atomkraftwerken und -waffen.'},
+  {n:93,sym:'Np',name:'Neptunium',mass:237,period:7,group:0,cat:'actinide',en:1.36,radius:221,ie:6.27,config:'[Rn] 5f⁴ 6d¹ 7s²',info:'Erstes Transuran.'},
+  {n:94,sym:'Pu',name:'Plutonium',mass:244,period:7,group:0,cat:'actinide',en:1.28,radius:243,ie:6.03,config:'[Rn] 5f⁶ 7s²',info:'Im Atombomben (Nagasaki). Radioaktiv.'},
+  {n:95,sym:'Am',name:'Americium',mass:243,period:7,group:0,cat:'actinide',en:1.3,radius:244,ie:5.97,config:'[Rn] 5f⁷ 7s²',info:'In Rauchmeldern (Ionisationskammer).'},
+  {n:96,sym:'Cm',name:'Curium',mass:247,period:7,group:0,cat:'actinide',en:1.3,radius:245,ie:5.99,config:'[Rn] 5f⁷ 6d¹ 7s²',info:'Künstlich. Nach Marie & Pierre Curie benannt.'},
+  {n:97,sym:'Bk',name:'Berkelium',mass:247,period:7,group:0,cat:'actinide',en:1.3,radius:244,ie:6.20,config:'[Rn] 5f⁹ 7s²',info:'Künstlich.'},
+  {n:98,sym:'Cf',name:'Californium',mass:251,period:7,group:0,cat:'actinide',en:1.3,radius:245,ie:6.28,config:'[Rn] 5f¹⁰ 7s²',info:'Neutronenquelle.'},
+  {n:99,sym:'Es',name:'Einsteinium',mass:252,period:7,group:0,cat:'actinide',en:1.3,radius:245,ie:6.42,config:'[Rn] 5f¹¹ 7s²',info:'Künstlich.'},
+  {n:100,sym:'Fm',name:'Fermium',mass:257,period:7,group:0,cat:'actinide',en:1.3,radius:0,ie:6.50,config:'[Rn] 5f¹² 7s²',info:'Künstlich.'},
+  {n:101,sym:'Md',name:'Mendelevium',mass:258,period:7,group:0,cat:'actinide',en:1.3,radius:0,ie:6.58,config:'[Rn] 5f¹³ 7s²',info:'Nach Mendelejew.'},
+  {n:102,sym:'No',name:'Nobelium',mass:259,period:7,group:0,cat:'actinide',en:1.3,radius:0,ie:6.65,config:'[Rn] 5f¹⁴ 7s²',info:'Nach Alfred Nobel.'},
+  {n:103,sym:'Lr',name:'Lawrencium',mass:262,period:7,group:0,cat:'actinide',en:1.3,radius:0,ie:4.96,config:'[Rn] 5f¹⁴ 7s² 7p¹',info:'Letztes Actinoid.'},
+  {n:104,sym:'Rf',name:'Rutherfordium',mass:267,period:7,group:4,cat:'transition',en:null,radius:0,ie:6.01,config:'[Rn] 5f¹⁴ 6d² 7s²',info:'Künstlich.'},
+  {n:105,sym:'Db',name:'Dubnium',mass:268,period:7,group:5,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d³ 7s²',info:'Künstlich.'},
+  {n:106,sym:'Sg',name:'Seaborgium',mass:269,period:7,group:6,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d⁴ 7s²',info:'Künstlich.'},
+  {n:107,sym:'Bh',name:'Bohrium',mass:270,period:7,group:7,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d⁵ 7s²',info:'Künstlich.'},
+  {n:108,sym:'Hs',name:'Hassium',mass:269,period:7,group:8,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d⁶ 7s²',info:'Künstlich.'},
+  {n:109,sym:'Mt',name:'Meitnerium',mass:278,period:7,group:9,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d⁷ 7s²',info:'Künstlich.'},
+  {n:110,sym:'Ds',name:'Darmstadtium',mass:281,period:7,group:10,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d⁸ 7s²',info:'Künstlich, in Darmstadt entdeckt.'},
+  {n:111,sym:'Rg',name:'Roentgenium',mass:282,period:7,group:11,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d⁹ 7s²',info:'Künstlich.'},
+  {n:112,sym:'Cn',name:'Copernicium',mass:285,period:7,group:12,cat:'transition',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d¹⁰ 7s²',info:'Künstlich.'},
+  {n:113,sym:'Nh',name:'Nihonium',mass:286,period:7,group:13,cat:'post',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹',info:'Künstlich, in Japan entdeckt.'},
+  {n:114,sym:'Fl',name:'Flerovium',mass:289,period:7,group:14,cat:'post',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²',info:'Künstlich.'},
+  {n:115,sym:'Mc',name:'Moscovium',mass:290,period:7,group:15,cat:'post',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³',info:'Künstlich.'},
+  {n:116,sym:'Lv',name:'Livermorium',mass:293,period:7,group:16,cat:'post',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴',info:'Künstlich.'},
+  {n:117,sym:'Ts',name:'Tenness',mass:294,period:7,group:17,cat:'halogen',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵',info:'Künstlich.'},
+  {n:118,sym:'Og',name:'Oganesson',mass:294,period:7,group:18,cat:'noble',en:null,radius:0,ie:0,config:'[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶',info:'Höchstes bekanntes Element.'}
+];
+
+const CATEGORIES = {
+  alkali:{name:'Alkalimetalle',color:'var(--c-alkali)'},
+  alkaline:{name:'Erdalkalimetalle',color:'var(--c-alkaline)'},
+  transition:{name:'Übergangsmetalle',color:'var(--c-transition)'},
+  post:{name:'Post-Übergangsm.',color:'var(--c-post)'},
+  metalloid:{name:'Halbmetalle',color:'var(--c-metalloid)'},
+  nonmetal:{name:'Nichtmetalle',color:'var(--c-nonmetal)'},
+  halogen:{name:'Halogene',color:'var(--c-halogen)'},
+  noble:{name:'Edelgase',color:'var(--c-noble)'},
+  lanthanide:{name:'Lanthanoide',color:'var(--c-lanthanide)'},
+  actinide:{name:'Actinoide',color:'var(--c-actinide)'}
+};
+
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='dnd') initDnD();
+    if(t.dataset.tab==='trends') renderTrends();
+    if(t.dataset.tab==='groups') renderGroups();
+  });
+});
+
+/* ===== POSITIONING ===== */
+function pos(el){
+  // returns {row, col} for css grid (1-based)
+  if(el.cat==='lanthanide'||el.cat==='actinide') return null;
+  let row=el.period, col=el.group;
+  if(el.n===1) return {row:1,col:1};
+  if(el.n===2) return {row:1,col:18};
+  if(el.period===2 || el.period===3){
+    if(el.group<=2) col=el.group;
+    else col=el.group;
+  }
+  return {row,col};
+}
+
+/* ===== CATEGORY LEGEND ===== */
+const catLegend=document.getElementById('catLegend');
+let activeCat=null;
+Object.entries(CATEGORIES).forEach(([key,info])=>{
+  const pill=document.createElement('button');
+  pill.className='cat-pill';
+  pill.innerHTML=`<span class="cat-dot" style="background:${info.color}"></span>${info.name}`;
+  pill.addEventListener('click',()=>{
+    if(activeCat===key){
+      activeCat=null;
+      pill.classList.remove('active');
+    } else {
+      document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+      pill.classList.add('active');
+      activeCat=key;
+    }
+    applyHighlight();
+  });
+  catLegend.appendChild(pill);
+});
+
+function applyHighlight(){
+  document.querySelectorAll('#pseGrid .el, #lanGrid .el, #actGrid .el').forEach(el=>{
+    el.classList.remove('dim','highlight');
+    if(activeCat){
+      if(el.dataset.cat===activeCat) el.classList.add('highlight');
+      else el.classList.add('dim');
+    }
+  });
+}
+
+/* ===== RENDER TABLE ===== */
+function renderPSE(){
+  const grid=document.getElementById('pseGrid');
+  const lan=document.getElementById('lanGrid');
+  const act=document.getElementById('actGrid');
+  // Build positions
+  // Periods 1-7 main grid
+  const cells={};
+  for(let p=1;p<=7;p++){
+    for(let g=1;g<=18;g++){
+      cells[`${p}-${g}`]=null;
+    }
+  }
+  // Lan/Act references
+  cells['6-3']={isRef:true,label:'57-71'};
+  cells['7-3']={isRef:true,label:'89-103'};
+
+  ELEMENTS.forEach(el=>{
+    if(el.cat==='lanthanide'){
+      // Skip La (will be in main as ref) - actually La is the start
+      return;
+    }
+    if(el.cat==='actinide'){
+      return;
+    }
+    cells[`${el.period}-${el.group}`]=el;
+  });
+
+  // Render main grid
+  grid.innerHTML='';
+  for(let p=1;p<=7;p++){
+    for(let g=1;g<=18;g++){
+      const cell=cells[`${p}-${g}`];
+      if(cell&&cell.isRef){
+        const div=document.createElement('div');
+        div.className='el-placeholder';
+        div.style.gridRow=p;
+        div.style.gridColumn=g;
+        div.style.display='flex';
+        div.style.alignItems='center';
+        div.style.justifyContent='center';
+        div.style.fontSize='.65rem';
+        div.style.color='var(--text-secondary)';
+        div.style.fontWeight='700';
+        div.textContent=cell.label;
+        grid.appendChild(div);
+      } else if(cell){
+        const div=createElCell(cell);
+        div.style.gridRow=p;
+        div.style.gridColumn=g;
+        grid.appendChild(div);
+      } else {
+        const div=document.createElement('div');
+        div.style.gridRow=p;
+        div.style.gridColumn=g;
+        grid.appendChild(div);
+      }
+    }
+  }
+
+  // Lanthanides and Actinides
+  lan.innerHTML='';
+  act.innerHTML='';
+  ELEMENTS.filter(e=>e.cat==='lanthanide').forEach((el,i)=>{
+    const div=createElCell(el);
+    lan.appendChild(div);
+  });
+  ELEMENTS.filter(e=>e.cat==='actinide').forEach((el,i)=>{
+    const div=createElCell(el);
+    act.appendChild(div);
+  });
+}
+function createElCell(el){
+  const div=document.createElement('button');
+  div.className='el '+el.cat;
+  div.dataset.n=el.n;
+  div.dataset.cat=el.cat;
+  div.innerHTML=`<span class="num">${el.n}</span><span class="sym">${el.sym}</span><span class="mass">${el.mass}</span>`;
+  div.onclick=()=>showElement(el);
+  return div;
+}
+renderPSE();
+
+/* ===== MODAL ===== */
+function showElement(el){
+  document.getElementById('mName').textContent=el.name;
+  document.getElementById('mCat').textContent=CATEGORIES[el.cat]?.name||el.cat;
+  const sym=document.getElementById('mSymbol');
+  sym.style.background=`linear-gradient(135deg,#fff,${getCategoryColor(el.cat)})`;
+  sym.querySelector('.num').textContent=el.n;
+  sym.querySelector('.sym').textContent=el.sym;
+  sym.querySelector('.mass').textContent=el.mass;
+  document.getElementById('mNum').textContent=el.n;
+  document.getElementById('mMass').textContent=el.mass+' u';
+  document.getElementById('mPer').textContent=el.period;
+  document.getElementById('mGr').textContent=el.group||'—';
+  document.getElementById('mEn').textContent=el.en?el.en:'—';
+  document.getElementById('mConfig').textContent=el.config;
+  document.getElementById('mInfo').textContent=el.info;
+  document.getElementById('elModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeModal(){document.getElementById('elModal').classList.remove('show')}
+window.closeModal=closeModal;
+function getCategoryColor(c){
+  return getComputedStyle(document.documentElement).getPropertyValue('--c-'+c).trim()||'#fff';
+}
+
+/* ===== TRENDS ===== */
+let trendMode='en';
+function renderTrends(){
+  const grid=document.getElementById('trendsGrid');
+  if(grid.children.length===0){
+    // copy main grid structure
+    for(let p=1;p<=7;p++){
+      for(let g=1;g<=18;g++){
+        const el=ELEMENTS.find(e=>e.period===p&&e.group===g&&e.cat!=='lanthanide'&&e.cat!=='actinide');
+        if(el){
+          const div=createElCell(el);
+          div.style.gridRow=p;
+          div.style.gridColumn=g;
+          grid.appendChild(div);
+        } else {
+          const div=document.createElement('div');
+          div.style.gridRow=p;
+          div.style.gridColumn=g;
+          grid.appendChild(div);
+        }
+      }
+    }
+  }
+  applyTrendColors();
+}
+function applyTrendColors(){
+  const cells=document.querySelectorAll('#trendsGrid .el');
+  if(trendMode==='off'){
+    cells.forEach(c=>{
+      const el=ELEMENTS.find(e=>e.n===+c.dataset.n);
+      c.classList.remove('trend-mode');
+      c.style.background='';
+      c.classList.add(el.cat);
+    });
+    document.getElementById('trendsExplain').querySelector('div').innerHTML='<b>Aus.</b> Elemente werden nach Kategorie eingefärbt.';
+    return;
+  }
+  cells.forEach(c=>c.classList.remove('alkali','alkaline','transition','post','metalloid','nonmetal','halogen','noble'));
+  const values=ELEMENTS.map(e=>e[trendMode]).filter(v=>v!=null&&v!==0);
+  const min=Math.min(...values), max=Math.max(...values);
+  cells.forEach(c=>{
+    const el=ELEMENTS.find(e=>e.n===+c.dataset.n);
+    const v=el[trendMode];
+    if(v==null||v===0){c.style.background='#f0ebe1';return}
+    const t=(v-min)/(max-min);
+    // color from light yellow to deep orange
+    const r=Math.round(245-(t*100));
+    const g=Math.round(225-(t*150));
+    const b=Math.round(200-(t*180));
+    c.style.background=`rgb(${r},${g},${b})`;
+    c.classList.add('trend-mode');
+  });
+  const explanations={
+    en:'<b>Elektronegativität (Pauling):</b> Maß für Anziehung von Bindungselektronen. Steigt nach <b>oben rechts</b> → F (4.0) Maximum, Cs/Fr Minimum.',
+    radius:'<b>Atomradius:</b> Steigt nach <b>unten links</b> (mehr Elektronenschalen, schlechtere Abschirmung). Cs hat den größten Radius.',
+    ie:'<b>Erste Ionisierungsenergie:</b> Energie um 1 Elektron zu entfernen. Steigt nach <b>oben rechts</b> → He hat das Maximum, Edelgase generell hoch.'
+  };
+  document.getElementById('trendsExplain').querySelector('div').innerHTML=explanations[trendMode];
+}
+document.querySelectorAll('.trend-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.trend-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    trendMode=b.dataset.trend;
+    applyTrendColors();
+  });
+});
+
+/* ===== HAUPTGRUPPEN ===== */
+const HAUPTGRUPPEN=[
+  {roman:'I A',name:'Alkalimetalle',cat:'alkali',els:'Li, Na, K, Rb, Cs, Fr',desc:'1 Valenzelektron. Sehr reaktiv (Reaktion mit H₂O). Bilden M⁺-Ionen. Niedrige EN. Klinik: Na⁺ extrazellulär, K⁺ intrazellulär.'},
+  {roman:'II A',name:'Erdalkalimetalle',cat:'alkaline',els:'Be, Mg, Ca, Sr, Ba, Ra',desc:'2 Valenzelektronen. Bilden M²⁺-Ionen. Klinik: Ca²⁺ Knochen + Muskel, Mg²⁺ Enzym-Cofaktor.'},
+  {roman:'III A',name:'Borgruppe',cat:'post',els:'B, Al, Ga, In, Tl',desc:'3 Valenzelektronen. B ist Halbmetall, Al häufigstes Metall der Erdkruste.'},
+  {roman:'IV A',name:'Kohlenstoffgruppe',cat:'nonmetal',els:'C, Si, Ge, Sn, Pb',desc:'4 Valenzelektronen. C als Basis aller organischen Chemie. Si in Halbleitern.'},
+  {roman:'V A',name:'Stickstoffgruppe',cat:'nonmetal',els:'N, P, As, Sb, Bi',desc:'5 Valenzelektronen. N₂ in Atmosphäre. P in ATP, DNA, Knochen.'},
+  {roman:'VI A',name:'Chalkogene',cat:'nonmetal',els:'O, S, Se, Te, Po',desc:'6 Valenzelektronen. O₂ lebensnotwendig. S in Cys/Met, Disulfidbrücken.'},
+  {roman:'VII A',name:'Halogene',cat:'halogen',els:'F, Cl, Br, I, At',desc:'7 Valenzelektronen, fehlt 1 zum Oktett. Sehr reaktiv. Klinik: I in Schilddrüse, F in Zähnen.'},
+  {roman:'VIII A',name:'Edelgase',cat:'noble',els:'He, Ne, Ar, Kr, Xe, Rn',desc:'8 Valenzelektronen (He: 2). Vollständige Oktett-Konfiguration → sehr inert. He in Atemgemischen.'}
+];
+function renderGroups(){
+  const grid=document.getElementById('hgGrid');
+  if(grid.children.length>0) return;
+  HAUPTGRUPPEN.forEach(g=>{
+    const card=document.createElement('div');
+    card.className='hg-card';
+    card.innerHTML=`<span class="hg-roman">${g.roman}</span>
+      <h4>${g.name}</h4>
+      <div class="hg-elements">${g.els}</div>
+      <p>${g.desc}</p>`;
+    card.onclick=()=>{
+      // Switch to table tab and highlight category
+      document.querySelector('.tab[data-tab="table"]').click();
+      setTimeout(()=>{
+        document.querySelectorAll('.cat-pill').forEach(p=>p.classList.remove('active'));
+        const matchPill=[...document.querySelectorAll('.cat-pill')].find(p=>p.textContent.includes(CATEGORIES[g.cat].name));
+        if(matchPill){matchPill.classList.add('active');activeCat=g.cat;applyHighlight()}
+      },100);
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* ===== DRAG & DROP – Modi, Timer, Tap-to-Place ===== */
+let dndMode='hg13';
+let dndTotal=0, dndOk=0, dndBad=0;
+let dndTimer=null, dndStartTime=0, dndStarted=false, dndFinished=false;
+let dndSelectedPool=null;
+const isHG=g=>g===1||g===2||(g>=13&&g<=18);
+
+const DND_MODES={
+  hg13:{filter:e=>e.period<=3&&isHG(e.group),periods:[1,3],groups:'hg'},
+  hg14:{filter:e=>e.period<=4&&isHG(e.group),periods:[1,4],groups:'hg'},
+  hgall:{filter:e=>e.period<=7&&isHG(e.group)&&e.cat!=='lanthanide'&&e.cat!=='actinide',periods:[1,7],groups:'hg'},
+  full:{filter:e=>e.period<=7&&e.cat!=='lanthanide'&&e.cat!=='actinide',periods:[1,7],groups:'all'}
+};
+
+function initDnD(){
+  const grid=document.getElementById('dndGrid');
+  const pool=document.getElementById('dndPool');
+  grid.innerHTML=''; pool.innerHTML='';
+  dndOk=0; dndBad=0; dndStarted=false; dndFinished=false; dndSelectedPool=null;
+  if(dndTimer){clearInterval(dndTimer);dndTimer=null}
+  document.getElementById('dndOk').textContent=0;
+  document.getElementById('dndBad').textContent=0;
+  document.getElementById('dndTime').textContent='00:00';
+  document.getElementById('dndStatus').classList.remove('show');
+  pool.classList.remove('show-cat');
+  document.getElementById('dndShowCat').innerHTML='<i data-lucide="eye"></i>Hilfe: Farben zeigen';
+
+  const cfg=DND_MODES[dndMode];
+  const candidates=ELEMENTS.filter(cfg.filter);
+  dndTotal=candidates.length;
+
+  // Determine which group columns to show
+  const showGroups = cfg.groups==='hg' ? [1,2,13,14,15,16,17,18] : Array.from({length:18},(_,i)=>i+1);
+  // Set grid columns dynamically
+  grid.style.gridTemplateColumns=`repeat(${showGroups.length},minmax(46px,1fr))`;
+  grid.style.minWidth=(showGroups.length*48)+'px';
+
+  // Build target cells
+  for(let p=cfg.periods[0];p<=cfg.periods[1];p++){
+    showGroups.forEach((g,colIdx)=>{
+      const el=ELEMENTS.find(e=>e.period===p&&e.group===g&&e.cat!=='lanthanide'&&e.cat!=='actinide');
+      const div=document.createElement('div');
+      div.style.gridRow=p-cfg.periods[0]+1;
+      div.style.gridColumn=colIdx+1;
+      if(el && cfg.filter(el)){
+        div.className='el dnd-target';
+        div.dataset.targetN=el.n;
+        div.innerHTML=`<span class="num">${el.n}</span>`;
+        attachTargetHandlers(div,el);
+      }
+      grid.appendChild(div);
+    });
+  }
+
+  // Render pool — neutral colored, shuffled, NUR SYMBOL (keine Ordnungszahl!)
+  const shuffled=[...candidates].sort(()=>Math.random()-.5);
+  shuffled.forEach(el=>{
+    const cell=document.createElement('button');
+    cell.className='el dnd-pool-card '+el.cat;
+    cell.dataset.n=el.n;
+    cell.draggable=true;
+    cell.innerHTML=`<span class="sym">${el.sym}</span>`;
+    cell.addEventListener('click',e=>{e.stopPropagation();tapPoolCard(cell)});
+    cell.addEventListener('dragstart',e=>{
+      e.dataTransfer.setData('n',el.n);
+      cell.classList.add('dragging');
+      ensureStarted();
+    });
+    cell.addEventListener('dragend',()=>cell.classList.remove('dragging'));
+    pool.appendChild(cell);
+  });
+
+  updateBest();
+  if(window.lucide) lucide.createIcons();
+}
+
+function attachTargetHandlers(target,correctEl){
+  target.addEventListener('dragover',e=>{e.preventDefault();target.classList.add('over')});
+  target.addEventListener('dragleave',()=>target.classList.remove('over'));
+  target.addEventListener('drop',e=>{
+    e.preventDefault();
+    target.classList.remove('over');
+    const draggedN=+e.dataTransfer.getData('n');
+    handleDrop(target,draggedN,correctEl);
+  });
+  target.addEventListener('click',()=>{
+    if(dndSelectedPool){
+      ensureStarted();
+      const draggedN=+dndSelectedPool.dataset.n;
+      handleDrop(target,draggedN,correctEl);
+    }
+  });
+}
+
+function tapPoolCard(cell){
+  ensureStarted();
+  if(dndSelectedPool===cell){
+    cell.classList.remove('selected');
+    dndSelectedPool=null;
+  } else {
+    document.querySelectorAll('.dnd-pool-card.selected').forEach(c=>c.classList.remove('selected'));
+    cell.classList.add('selected');
+    dndSelectedPool=cell;
+  }
+}
+
+function handleDrop(target,draggedN,correctEl){
+  if(dndFinished) return;
+  ensureStarted();
+  if(draggedN===correctEl.n){
+    const card=document.querySelector(`.dnd-pool-card[data-n="${draggedN}"]`);
+    if(card){
+      // Place card on grid: copy to target, remove from pool
+      const placed=document.createElement('div');
+      placed.className='el '+correctEl.cat;
+      placed.style.gridRow=target.style.gridRow;
+      placed.style.gridColumn=target.style.gridColumn;
+      placed.innerHTML=`<span class="num">${correctEl.n}</span><span class="sym">${correctEl.sym}</span>`;
+      target.replaceWith(placed);
+      card.remove();
+    }
+    dndSelectedPool=null;
+    document.querySelectorAll('.dnd-pool-card.selected').forEach(c=>c.classList.remove('selected'));
+    dndOk++;
+  } else {
+    target.classList.add('placed-wrong');
+    setTimeout(()=>target.classList.remove('placed-wrong'),500);
+    dndBad++;
+  }
+  document.getElementById('dndOk').textContent=dndOk;
+  document.getElementById('dndBad').textContent=dndBad;
+  if(dndOk===dndTotal) finishGame();
+}
+
+function ensureStarted(){
+  if(dndStarted) return;
+  dndStarted=true;
+  dndStartTime=Date.now();
+  dndTimer=setInterval(updateTimer,250);
+}
+function updateTimer(){
+  document.getElementById('dndTime').textContent=fmtTime(Date.now()-dndStartTime);
+}
+function fmtTime(ms){
+  const sec=Math.floor(ms/1000), m=Math.floor(sec/60), s=sec%60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function finishGame(){
+  dndFinished=true;
+  if(dndTimer){clearInterval(dndTimer);dndTimer=null}
+  const elapsed=Date.now()-dndStartTime;
+  document.getElementById('dndTime').textContent=fmtTime(elapsed);
+  const bestKey='pse-best-'+dndMode;
+  const prev=localStorage.getItem(bestKey);
+  let isNewBest=false;
+  if(!prev || elapsed<+prev){
+    localStorage.setItem(bestKey,String(elapsed));
+    isNewBest=true;
+  }
+  const status=document.getElementById('dndStatus');
+  status.className='dnd-status show success';
+  status.innerHTML=`<b>Geschafft!</b> Zeit <b>${fmtTime(elapsed)}</b> · ${dndOk} richtig · ${dndBad} Fehler${isNewBest?' · <b style="color:var(--gold-deep)">Neue Bestzeit!</b>':''}`;
+  updateBest();
+}
+function updateBest(){
+  const prev=localStorage.getItem('pse-best-'+dndMode);
+  document.getElementById('dndBest').textContent=prev?fmtTime(+prev):'—';
+}
+
+document.querySelectorAll('.dnd-mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.dnd-mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    dndMode=b.dataset.mode;
+    initDnD();
+  });
+});
+document.getElementById('dndReset').onclick=initDnD;
+document.getElementById('dndShowCat').onclick=()=>{
+  const pool=document.getElementById('dndPool');
+  const btn=document.getElementById('dndShowCat');
+  pool.classList.toggle('show-cat');
+  btn.innerHTML=pool.classList.contains('show-cat')
+    ?'<i data-lucide="eye-off"></i>Farben verstecken'
+    :'<i data-lucide="eye"></i>Hilfe: Farben zeigen';
+  if(window.lucide) lucide.createIcons();
+};
+document.getElementById('dndClearBest').onclick=()=>{
+  Object.keys(DND_MODES).forEach(m=>localStorage.removeItem('pse-best-'+m));
+  updateBest();
+};
+// Tap empty area to deselect
+document.getElementById('dnd').addEventListener('click',e=>{
+  if(!e.target.closest('.dnd-pool-card')&&!e.target.closest('.dnd-target')){
+    document.querySelectorAll('.dnd-pool-card.selected').forEach(c=>c.classList.remove('selected'));
+    dndSelectedPool=null;
+  }
+});
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Welches Element hat die <b>höchste Elektronegativität</b>?',o:['Sauerstoff','Stickstoff','Fluor','Chlor'],c:2,e:'Fluor (3.98 nach Pauling) ist das elektronegativste Element überhaupt.'},
+  {q:'Welche Hauptgruppe hat eine <b>vollständige Oktettkonfiguration</b>?',o:['I A (Alkalimetalle)','VII A (Halogene)','VIII A (Edelgase)','II A (Erdalkalimetalle)'],c:2,e:'Edelgase haben 8 Valenzelektronen (He hat 2 = vollständige K-Schale) → sehr reaktionsträge.'},
+  {q:'Wieviele <b>Valenzelektronen</b> hat Sauerstoff?',o:['2','4','6','8'],c:2,e:'O ist in Gruppe VI A → 6 Valenzelektronen, fehlen 2 zum Oktett.'},
+  {q:'Welcher Trend gilt für den <b>Atomradius</b>?',o:['Steigt nach oben rechts','Steigt nach unten links','Steigt nach unten rechts','Sinkt überall'],c:1,e:'Mehr Schalen + schlechtere Abschirmung links → größerer Radius. Cs ist am größten.'},
+  {q:'Welches dieser Elemente ist ein <b>Halbmetall</b>?',o:['Aluminium','Silizium','Schwefel','Calcium'],c:1,e:'Si liegt auf der Halbmetalllinie. Halbleiter, Basis von Computer-Chips.'},
+  {q:'Welcher Erdalkali wird als Röntgenkontrastmittel verwendet?',o:['Magnesium','Calcium','Strontium','Barium'],c:3,e:'BaSO₄ ist unlöslich → kein Ba²⁺ wird absorbiert (toxisch wäre es). Röntgendicht.'},
+  {q:'In welcher Hauptgruppe steht <b>Iod</b>?',o:['VI A','VII A','V A','VIII A'],c:1,e:'I ist ein Halogen, Hauptgruppe VII A. Wichtig für Schilddrüsenhormone T3/T4.'},
+  {q:'Welches Übergangsmetall ist im <b>Hämoglobin</b> zentral?',o:['Kupfer','Zink','Eisen','Cobalt'],c:2,e:'Fe²⁺ bindet O₂ im Häm-Komplex. Mangel → Eisenmangelanämie.'},
+  {q:'Welches Element ist Zentralatom in <b>Vitamin B12</b>?',o:['Magnesium','Cobalt','Eisen','Mangan'],c:1,e:'Co (Cobalamin). Mangel → perniziöse Anämie.'},
+  {q:'Welches Element ist Zentralatom im <b>Chlorophyll</b>?',o:['Magnesium','Eisen','Calcium','Zink'],c:0,e:'Mg²⁺ in Chlorophyll. Tetrapyrrol-Struktur ähnlich Häm, aber mit Mg statt Fe.'},
+  {q:'Welche Aussage zu <b>Ionisierungsenergie</b> stimmt?',o:['Sinkt nach oben rechts','Steigt nach oben rechts','Steigt nach unten','Hat keinen Trend'],c:1,e:'Mehr Kernladung + weniger Schalen → fester gebundene e⁻ → höhere IE. He hat das Maximum.'},
+  {q:'Welches dieser Elemente ist <b>flüssig</b> bei Raumtemperatur?',o:['Brom','Chlor','Iod','Schwefel'],c:0,e:'Br ist das einzige flüssige Nichtmetall, Hg das einzige flüssige Metall.'},
+  {q:'Welche Gruppe sind die <b>Alkalimetalle</b>?',o:['I A','II A','VII A','VIII A'],c:0,e:'Hauptgruppe I A: Li, Na, K, Rb, Cs, Fr. Alle haben 1 Valenzelektron.'},
+  {q:'Was bedeutet die <b>Hauptgruppennummer</b>?',o:['Anzahl Schalen','Anzahl Valenzelektronen','Atommasse','Ordnungszahl'],c:1,e:'Hauptgruppen I bis VIII A entsprechen 1 bis 8 Valenzelektronen.'},
+  {q:'Wie viele Elemente hat <b>Periode 2</b>?',o:['2','8','18','32'],c:1,e:'Periode 2: Li, Be, B, C, N, O, F, Ne — also 8 Elemente.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('.q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

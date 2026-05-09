@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hebelgesetz · MedAT Physik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --lead:#e07a55;--lead-deep:#c25a35;--lead-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);--shadow:0 4px 20px rgba(26,26,46,.06);--shadow-md:0 8px 32px rgba(26,26,46,.08);--shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--lead-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--lead-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(224,122,85,.5);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--lead-deep);color:var(--lead-deep);transform:translateY(-1px)}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--lead-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--lead-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--lead-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(224,122,85,.25);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--lead-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* HEBEL-STUDIO */
+  .hebel-stage{background:linear-gradient(180deg,#dbe9f5 0%,#a4c8e0 50%,#8aa0b5 100%);border-radius:var(--radius);padding:14px;overflow:hidden;box-shadow:inset 0 0 60px rgba(0,0,0,0.15);margin-bottom:14px;position:relative}
+  .hebel-stage svg{display:block;margin:0 auto;max-width:100%;cursor:grab}
+  .hebel-stage svg:active{cursor:grabbing}
+  .slider-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px}
+  @media(min-width:560px){.slider-grid{grid-template-columns:1fr 1fr}}
+  @media(min-width:780px){.slider-grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+  .slider-row{background:var(--bg-light);border-radius:14px;padding:14px}
+  .slider-row .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .slider-row label{font-size:.82rem;font-weight:700;color:var(--text)}
+  .slider-row .val{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:.95rem}
+  .h-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bg-warm);border-radius:4px;outline:none;cursor:pointer}
+  .h-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(224,122,85,.4);border:3px solid #fff}
+  .h-slider::-moz-range-thumb{width:24px;height:24px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(224,122,85,.4)}
+  .hebel-readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+  .hebel-readout{background:var(--surface);border:1.5px solid var(--border-light);border-radius:14px;padding:12px;text-align:center}
+  .hebel-readout .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .hebel-readout .val{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--lead-deep);margin-top:3px}
+  .hebel-readout.balance .val{color:var(--success)}
+  .hebel-readout.imbalance .val{color:var(--danger)}
+
+  /* HEBELARTEN */
+  .arten-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:780px){.arten-grid{grid-template-columns:1fr 1fr 1fr}}
+  .art-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;transition:all .25s}
+  .art-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--lead-deep)}
+  .art-img{height:180px;background:linear-gradient(180deg,#dbe9f5,#a4c8e0);display:flex;align-items:center;justify-content:center;padding:12px}
+  .art-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+  .art-info{padding:14px}
+  .art-info h4{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .art-info .badge-num{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--lead-deep);font-weight:800;margin-bottom:6px;background:var(--lead-soft);padding:4px 10px;border-radius:8px;display:inline-block}
+  .art-info p{font-size:.82rem;color:var(--text-secondary);line-height:1.5}
+  .art-info .examples{margin-top:8px;display:flex;flex-wrap:wrap;gap:5px}
+  .art-info .ex{background:var(--bg-light);border:1px solid var(--border-light);padding:4px 10px;border-radius:8px;font-size:.74rem;font-weight:600;color:var(--text)}
+
+  /* ANWENDUNGEN */
+  .anw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .anw-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s}
+  .anw-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--lead-deep)}
+  .anw-img{height:140px;background:linear-gradient(180deg,#dbe9f5,#a4c8e0);display:flex;align-items:center;justify-content:center;padding:12px}
+  .anw-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))}
+  .anw-info{padding:14px}
+  .anw-info h4{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .anw-info .symbol{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--lead-deep);font-weight:800;margin-bottom:6px;background:var(--lead-soft);padding:4px 10px;border-radius:8px;display:inline-block}
+  .anw-info p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:600px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .modal-img{height:200px;background:linear-gradient(180deg,#dbe9f5,#a4c8e0);display:flex;align-items:center;justify-content:center;padding:14px}
+  .modal-img svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.2));max-width:100%;max-height:100%}
+  .modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,var(--lead-soft),var(--bg-light))}
+  .modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .modal-head .symbol{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--lead-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .modal-body{padding:18px 24px 24px}
+  .steckbrief{display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--lead-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--lead-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--lead-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--lead-deep);font-weight:700}
+  .sb-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+  .sb-list li{font-size:.84rem;color:var(--text);line-height:1.55;padding-left:18px;position:relative}
+  .sb-list li::before{content:'•';position:absolute;left:5px;color:var(--lead-deep);font-weight:800}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4{color:var(--green-deep)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.15);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+
+  /* RECHNER */
+  .calc-formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+  .calc-formula-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .2s;text-align:center}
+  .calc-formula-card:hover{transform:translateY(-2px);border-color:var(--lead-deep);box-shadow:var(--shadow-sm)}
+  .calc-formula-card.active{background:linear-gradient(135deg,var(--lead-soft),#fff);border-color:var(--lead-deep);box-shadow:0 4px 14px rgba(224,122,85,.2)}
+  .calc-formula-card .nm{font-size:.78rem;color:var(--text-secondary);font-weight:600;margin-bottom:3px}
+  .calc-formula-card .ltx{min-height:24px;display:flex;align-items:center;justify-content:center}
+  .calc-formula-card .ltx .katex{font-size:.95rem!important;color:var(--lead-deep)}
+  .calc-var-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+  .calc-var-row{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:12px}
+  .calc-var-row .var-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .calc-var-row .var-head label{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:.92rem}
+  .calc-var-row .var-head .unit{font-size:.74rem;color:var(--text-secondary);font-weight:600}
+  .calc-var-row .var-head .solve-btn{background:none;border:1px solid var(--border);font-family:inherit;font-size:.7rem;cursor:pointer;color:var(--text-secondary);padding:3px 8px;border-radius:8px;font-weight:600;transition:all .2s}
+  .calc-var-row .var-head .solve-btn:hover{border-color:var(--lead-deep);color:var(--lead-deep)}
+  .calc-var-row .var-head .solve-btn.solving{background:var(--lead);border-color:var(--lead);color:#fff}
+  .calc-var-row input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;color:var(--text);background:#fff;outline:none;transition:all .2s}
+  .calc-var-row input:focus{border-color:var(--lead-deep);box-shadow:0 0 0 3px rgba(224,122,85,.15)}
+  .calc-var-row input:disabled{background:var(--lead-soft);color:var(--lead-deep);font-weight:800;cursor:not-allowed}
+  .calc-result{background:linear-gradient(135deg,var(--lead-soft),#fff);border:2px solid var(--lead-deep);border-radius:18px;padding:18px}
+  .calc-result h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;color:var(--lead-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .calc-result .step{margin-bottom:8px;display:flex;flex-direction:column;gap:4px}
+  .calc-result .step .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);font-weight:700}
+  .calc-result .step .ltx{padding:8px 12px;background:#fff;border-radius:10px;border:1px solid var(--border-light)}
+  .calc-result .final{margin-top:12px;padding:14px;background:#fff;border-radius:12px;border:2px dashed var(--lead-deep);text-align:center}
+  .calc-result .final .lbl{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+  .calc-result .final .val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:var(--lead-deep)}
+
+  /* MATCH */
+  .match-mode-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+  .match-mode-btn{padding:10px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+  .match-mode-btn:hover:not(.active){border-color:var(--lead-deep)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(224,122,85,.4)}
+  .match-board{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:560px){.match-board{grid-template-columns:1fr}}
+  .match-col{display:flex;flex-direction:column;gap:8px}
+  .match-col-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;color:var(--lead-deep);font-weight:800;margin-bottom:4px}
+  .match-item{padding:12px 14px;background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--text);transition:all .2s;text-align:left;font-family:inherit}
+  .match-item:hover:not(:disabled){border-color:var(--lead-deep);background:var(--lead-soft)}
+  .match-item.selected{background:var(--lead-soft);border-color:var(--lead-deep);transform:scale(1.02)}
+  .match-item.matched{background:var(--mint);border-color:var(--green-deep);color:var(--green-deep);cursor:default;opacity:.85}
+  .match-item.error{background:var(--coral-soft);border-color:var(--pink-deep);animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  /* QUIZ */
+  .q-progress{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:.78rem;color:var(--text-secondary);font-weight:600}
+  .q-progress .pct{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:1rem}
+  .q-bar{width:100%;height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-bottom:14px}
+  .q-bar .fill{height:100%;background:linear-gradient(90deg,var(--lead),var(--lead-deep));transition:width .4s cubic-bezier(.4,0,.2,1)}
+  .q-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .q-question{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.5}
+  .q-options{display:flex;flex-direction:column;gap:8px}
+  .q-option{padding:13px 16px;border-radius:14px;border:1.5px solid var(--border-light);background:var(--bg-light);cursor:pointer;font-size:.88rem;font-weight:600;color:var(--text);text-align:left;font-family:inherit;transition:all .2s}
+  .q-option:hover:not(:disabled){border-color:var(--lead-deep);background:var(--lead-soft)}
+  .q-option.correct{background:var(--mint);border-color:var(--green-deep);color:var(--green-deep)}
+  .q-option.wrong{background:var(--coral-soft);border-color:var(--pink-deep);color:var(--pink-deep)}
+  .q-option:disabled{cursor:not-allowed;opacity:.7}
+  .q-explain{margin-top:14px;padding:14px;background:var(--lead-soft);border-radius:14px;border-left:3px solid var(--lead-deep);font-size:.84rem;color:var(--text);line-height:1.5;display:none}
+  .q-explain.show{display:block;animation:fadeUp .3s ease}
+  .q-next{margin-top:14px;padding:11px 22px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border:none;border-radius:var(--radius-pill);font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(224,122,85,.4)}
+  .q-next.show{display:inline-flex}
+  .q-finish{text-align:center;padding:30px}
+  .q-finish .score{font-size:3rem;font-weight:900;color:var(--lead-deep);font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+  .q-finish .msg{font-size:1rem;color:var(--text-secondary);margin-bottom:16px}
+  .q-finish button{padding:11px 22px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border:none;border-radius:var(--radius-pill);font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer}
+
+  .info-strip{display:flex;align-items:flex-start;gap:10px;background:var(--lead-soft);border-radius:14px;padding:12px 14px;margin-top:10px}
+  .info-strip [data-lucide]{color:var(--lead-deep);margin-top:2px}
+  .info-strip p{font-size:.82rem;color:var(--text);line-height:1.5;margin:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="scale"></i></div>
+    <div>
+      <h1>Hebelgesetz-Werkstatt</h1>
+      <p>Drehmoment, Kraftarme & goldene Regel der Mechanik</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="studio"><i data-lucide="scale"></i>Hebel-Studio</button>
+  <button class="tab" data-tab="arten"><i data-lucide="grid-3x3"></i>Hebelarten</button>
+  <button class="tab" data-tab="anw"><i data-lucide="layers"></i>Anwendungen</button>
+  <button class="tab" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="match"><i data-lucide="shuffle"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="brain"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+<!-- STUDIO -->
+<section class="section active" id="studio">
+  <div class="hero-strip">
+    <h2><i data-lucide="scale"></i>Goldene Regel der Mechanik</h2>
+    <p>Verschiebe die Massen am Hebel und beobachte das Drehmoment. Im Gleichgewicht gilt: <b>F<sub>1</sub> · l<sub>1</sub> = F<sub>2</sub> · l<sub>2</sub></b></p>
+  </div>
+
+  <div class="card">
+    <div class="hebel-stage">
+      <svg id="hebelSvg" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff5cc" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#fff5cc" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#a8956a"/>
+            <stop offset="100%" stop-color="#7a6440"/>
+          </linearGradient>
+          <linearGradient id="bar" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4a878"/>
+            <stop offset="40%" stop-color="#b88857"/>
+            <stop offset="100%" stop-color="#8a6238"/>
+          </linearGradient>
+          <radialGradient id="pivot" cx="50%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#888"/>
+            <stop offset="50%" stop-color="#444"/>
+            <stop offset="100%" stop-color="#1a1a1a"/>
+          </radialGradient>
+          <radialGradient id="mass1Grad" cx="40%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#ff9d6f"/>
+            <stop offset="50%" stop-color="#e07a55"/>
+            <stop offset="100%" stop-color="#a04a28"/>
+          </radialGradient>
+          <radialGradient id="mass2Grad" cx="40%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#7da4d4"/>
+            <stop offset="50%" stop-color="#4a78b0"/>
+            <stop offset="100%" stop-color="#2a4a78"/>
+          </radialGradient>
+          <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.4"/>
+          </filter>
+        </defs>
+
+        <!-- Sun -->
+        <circle cx="650" cy="60" r="45" fill="url(#sun)"/>
+        <circle cx="650" cy="60" r="22" fill="#fff5cc" opacity="0.95"/>
+
+        <!-- Ground -->
+        <rect x="0" y="320" width="800" height="60" fill="url(#ground)"/>
+        <line x1="0" y1="322" x2="800" y2="322" stroke="#5e4a2e" stroke-width="2"/>
+
+        <!-- Pivot triangle (fulcrum) -->
+        <polygon id="fulcrum" points="400,320 360,260 440,260" fill="url(#pivot)" filter="url(#dropShadow)"/>
+        <circle id="pivotPoint" cx="400" cy="240" r="8" fill="#222" stroke="#fff" stroke-width="2"/>
+
+        <!-- Lever bar (rotates) -->
+        <g id="leverGroup" transform="rotate(0 400 240)">
+          <rect x="100" y="232" width="600" height="16" fill="url(#bar)" rx="3" filter="url(#dropShadow)"/>
+          <!-- Tick marks -->
+          <g stroke="#5e4a2e" stroke-width="1" opacity="0.5">
+            <line x1="150" y1="232" x2="150" y2="248"/>
+            <line x1="200" y1="232" x2="200" y2="248"/>
+            <line x1="250" y1="232" x2="250" y2="248"/>
+            <line x1="300" y1="232" x2="300" y2="248"/>
+            <line x1="350" y1="232" x2="350" y2="248"/>
+            <line x1="450" y1="232" x2="450" y2="248"/>
+            <line x1="500" y1="232" x2="500" y2="248"/>
+            <line x1="550" y1="232" x2="550" y2="248"/>
+            <line x1="600" y1="232" x2="600" y2="248"/>
+            <line x1="650" y1="232" x2="650" y2="248"/>
+          </g>
+
+          <!-- Mass 1 (left, red) -->
+          <g id="mass1Group">
+            <rect id="mass1Rope" x="248" y="180" width="2" height="50" fill="#3a3a3a"/>
+            <circle id="mass1" cx="249" cy="170" r="32" fill="url(#mass1Grad)" filter="url(#dropShadow)" style="cursor:grab"/>
+            <ellipse cx="240" cy="158" rx="14" ry="6" fill="#fff" opacity="0.35"/>
+            <text id="mass1Label" x="249" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="900" fill="#fff">5kg</text>
+          </g>
+
+          <!-- Mass 2 (right, blue) -->
+          <g id="mass2Group">
+            <rect id="mass2Rope" x="549" y="180" width="2" height="50" fill="#3a3a3a"/>
+            <circle id="mass2" cx="550" cy="170" r="32" fill="url(#mass2Grad)" filter="url(#dropShadow)" style="cursor:grab"/>
+            <ellipse cx="541" cy="158" rx="14" ry="6" fill="#fff" opacity="0.35"/>
+            <text id="mass2Label" x="550" y="175" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="13" font-weight="900" fill="#fff">5kg</text>
+          </g>
+        </g>
+
+        <!-- Force arrows -->
+        <g id="forceArrows" pointer-events="none">
+          <line id="arrow1" x1="249" y1="200" x2="249" y2="280" stroke="#e07a55" stroke-width="3" marker-end="url(#arrow1Head)"/>
+          <line id="arrow2" x1="550" y1="200" x2="550" y2="280" stroke="#4a78b0" stroke-width="3" marker-end="url(#arrow2Head)"/>
+        </g>
+        <defs>
+          <marker id="arrow1Head" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#e07a55"/>
+          </marker>
+          <marker id="arrow2Head" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#4a78b0"/>
+          </marker>
+        </defs>
+
+        <!-- Status banner -->
+        <text id="statusText" x="400" y="40" text-anchor="middle" font-family="Inter,sans-serif" font-size="20" font-weight="800" fill="#2d8a54">⚖ Im Gleichgewicht</text>
+      </svg>
+    </div>
+
+    <div class="slider-grid">
+      <div class="slider-row">
+        <div class="label-row"><label>Masse links m₁</label><span class="val"><span id="m1Val">5.0</span> kg</span></div>
+        <input type="range" min="1" max="20" step="0.5" value="5" id="m1Slider" class="h-slider">
+      </div>
+      <div class="slider-row">
+        <div class="label-row"><label>Hebelarm links l₁</label><span class="val"><span id="l1Val">1.5</span> m</span></div>
+        <input type="range" min="0.5" max="3" step="0.1" value="1.5" id="l1Slider" class="h-slider">
+      </div>
+      <div class="slider-row">
+        <div class="label-row"><label>Masse rechts m₂</label><span class="val"><span id="m2Val">5.0</span> kg</span></div>
+        <input type="range" min="1" max="20" step="0.5" value="5" id="m2Slider" class="h-slider">
+      </div>
+      <div class="slider-row">
+        <div class="label-row"><label>Hebelarm rechts l₂</label><span class="val"><span id="l2Val">1.5</span> m</span></div>
+        <input type="range" min="0.5" max="3" step="0.1" value="1.5" id="l2Slider" class="h-slider">
+      </div>
+    </div>
+
+    <div class="hebel-readouts">
+      <div class="hebel-readout"><div class="lbl">F₁ (links)</div><div class="val"><span id="f1Out">49.0</span> N</div></div>
+      <div class="hebel-readout"><div class="lbl">F₂ (rechts)</div><div class="val"><span id="f2Out">49.0</span> N</div></div>
+      <div class="hebel-readout"><div class="lbl">M₁ = F₁·l₁</div><div class="val"><span id="m1Out">73.5</span> Nm</div></div>
+      <div class="hebel-readout"><div class="lbl">M₂ = F₂·l₂</div><div class="val"><span id="m2Out">73.5</span> Nm</div></div>
+      <div class="hebel-readout balance" id="balanceCard"><div class="lbl">Status</div><div class="val" id="balanceOut">⚖ Balance</div></div>
+    </div>
+
+    <div class="info-strip">
+      <i data-lucide="info"></i>
+      <p><b>Tipp:</b> Verdoppelst du den Hebelarm, brauchst du nur halb so viel Kraft. Was du an Kraft sparst, musst du an Weg dazugeben - das ist die <i>goldene Regel der Mechanik</i>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HEBELARTEN -->
+<section class="section" id="arten">
+  <div class="hero-strip">
+    <h2><i data-lucide="grid-3x3"></i>Drei Hebelklassen</h2>
+    <p>Je nach Anordnung von Drehpunkt (D), Last (L) und Kraft (K) unterscheidet man drei Hebelarten - jede mit eigenem mechanischem Vorteil.</p>
+  </div>
+
+  <div class="card">
+    <div class="arten-grid">
+      <!-- Klasse 1 -->
+      <div class="art-card">
+        <div class="art-img">
+          <svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="120" width="220" height="20" fill="#a8956a"/>
+            <polygon points="110,120 90,90 130,90" fill="#444"/>
+            <rect x="20" y="80" width="180" height="10" fill="#b88857" rx="2"/>
+            <text x="40" y="74" font-size="13" font-weight="800" fill="#e07a55" text-anchor="middle">L</text>
+            <line x1="40" y1="80" x2="40" y2="100" stroke="#e07a55" stroke-width="3" marker-end="url(#aDown1)"/>
+            <text x="180" y="74" font-size="13" font-weight="800" fill="#4a78b0" text-anchor="middle">K</text>
+            <line x1="180" y1="80" x2="180" y2="100" stroke="#4a78b0" stroke-width="3" marker-end="url(#aDown2)"/>
+            <text x="110" y="116" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">D</text>
+            <defs>
+              <marker id="aDown1" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#e07a55"/></marker>
+              <marker id="aDown2" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#4a78b0"/></marker>
+            </defs>
+          </svg>
+        </div>
+        <div class="art-info">
+          <span class="badge-num">1. Klasse</span>
+          <h4>Zweiseitiger Hebel</h4>
+          <p>Drehpunkt liegt <b>zwischen</b> Last und Kraft. Klassisches Wippen-Prinzip.</p>
+          <div class="examples">
+            <span class="ex">Wippe</span><span class="ex">Schere</span><span class="ex">Zange</span><span class="ex">Brechstange</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Klasse 2 -->
+      <div class="art-card">
+        <div class="art-img">
+          <svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="120" width="220" height="20" fill="#a8956a"/>
+            <polygon points="40,120 25,90 55,90" fill="#444"/>
+            <rect x="40" y="80" width="160" height="10" fill="#b88857" rx="2"/>
+            <text x="120" y="74" font-size="13" font-weight="800" fill="#e07a55" text-anchor="middle">L</text>
+            <line x1="120" y1="80" x2="120" y2="100" stroke="#e07a55" stroke-width="3" marker-end="url(#bDown1)"/>
+            <text x="190" y="74" font-size="13" font-weight="800" fill="#4a78b0" text-anchor="middle">K</text>
+            <line x1="190" y1="80" x2="190" y2="100" stroke="#4a78b0" stroke-width="3" marker-end="url(#bDown2)"/>
+            <text x="40" y="116" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">D</text>
+            <defs>
+              <marker id="bDown1" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#e07a55"/></marker>
+              <marker id="bDown2" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#4a78b0"/></marker>
+            </defs>
+          </svg>
+        </div>
+        <div class="art-info">
+          <span class="badge-num">2. Klasse</span>
+          <h4>Einseitig - Kraftgewinn</h4>
+          <p>Last <b>zwischen</b> Drehpunkt und Kraft. Lastarm < Kraftarm → man spart Kraft.</p>
+          <div class="examples">
+            <span class="ex">Schubkarre</span><span class="ex">Nussknacker</span><span class="ex">Türöffner</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Klasse 3 -->
+      <div class="art-card">
+        <div class="art-img">
+          <svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+            <rect x="0" y="120" width="220" height="20" fill="#a8956a"/>
+            <polygon points="40,120 25,90 55,90" fill="#444"/>
+            <rect x="40" y="80" width="160" height="10" fill="#b88857" rx="2"/>
+            <text x="100" y="74" font-size="13" font-weight="800" fill="#4a78b0" text-anchor="middle">K</text>
+            <line x1="100" y1="80" x2="100" y2="100" stroke="#4a78b0" stroke-width="3" marker-end="url(#cDown1)"/>
+            <text x="190" y="74" font-size="13" font-weight="800" fill="#e07a55" text-anchor="middle">L</text>
+            <line x1="190" y1="80" x2="190" y2="100" stroke="#e07a55" stroke-width="3" marker-end="url(#cDown2)"/>
+            <text x="40" y="116" font-size="11" font-weight="800" fill="#fff" text-anchor="middle">D</text>
+            <defs>
+              <marker id="cDown1" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#4a78b0"/></marker>
+              <marker id="cDown2" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#e07a55"/></marker>
+            </defs>
+          </svg>
+        </div>
+        <div class="art-info">
+          <span class="badge-num">3. Klasse</span>
+          <h4>Einseitig - Weggewinn</h4>
+          <p>Kraft <b>zwischen</b> Drehpunkt und Last. Mehr Kraft nötig, aber Last legt großen Weg zurück.</p>
+          <div class="examples">
+            <span class="ex">Pinzette</span><span class="ex">Bizeps-Arm</span><span class="ex">Angelrute</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-strip" style="margin-top:14px">
+      <i data-lucide="info"></i>
+      <p><b>Im Körper:</b> Die meisten Skelettmuskel-Gelenk-Systeme arbeiten als <b>3. Klasse Hebel</b> (Bizeps am Ellenbogen, Wadenmuskel hebt Ferse) - das gibt schnelle Bewegung bei großem Bewegungsausschlag.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ANWENDUNGEN -->
+<section class="section" id="anw">
+  <div class="hero-strip">
+    <h2><i data-lucide="layers"></i>Hebel im Alltag & Körper</h2>
+    <p>Klick auf eine Anwendung, um Aufbau, Funktion und MedAT-Bezug zu sehen.</p>
+  </div>
+  <div class="card">
+    <div class="anw-grid" id="anwGrid"></div>
+  </div>
+</section>
+
+<!-- RECHNER -->
+<section class="section" id="rechner">
+  <div class="hero-strip">
+    <h2><i data-lucide="calculator"></i>Hebel-Formel-Rechner</h2>
+    <p>Wähle eine Formel, gib Werte ein und löse nach jeder Variable um.</p>
+  </div>
+
+  <div class="card">
+    <h3>Formelauswahl</h3>
+    <div class="calc-formula-grid" id="calcFormulaGrid"></div>
+  </div>
+
+  <div class="card">
+    <h3>Variablen <span style="font-weight:500;color:var(--text-secondary);text-transform:none;letter-spacing:0">— klicke „lösen nach" um Variable umzustellen</span></h3>
+    <div class="calc-var-grid" id="calcVarGrid"></div>
+    <div class="calc-result" id="calcResult"></div>
+  </div>
+</section>
+
+<!-- MATCH -->
+<section class="section" id="match">
+  <div class="hero-strip">
+    <h2><i data-lucide="shuffle"></i>Hebel-Zuordnung</h2>
+    <p>Verbinde die richtigen Begriffe miteinander.</p>
+  </div>
+  <div class="card">
+    <div class="match-mode-row">
+      <button class="match-mode-btn active" data-mode="art"><i data-lucide="grid-3x3"></i>Werkzeug → Hebelklasse</button>
+      <button class="match-mode-btn" data-mode="formel"><i data-lucide="sigma"></i>Größe → Einheit</button>
+      <button class="match-mode-btn" data-mode="anw"><i data-lucide="user"></i>Körper → Hebel</button>
+    </div>
+    <div id="matchMsg" style="text-align:center;color:var(--text-secondary);font-size:.84rem;margin-bottom:10px"></div>
+    <div class="match-board" id="matchBoard"></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="section" id="quiz">
+  <div class="hero-strip">
+    <h2><i data-lucide="brain"></i>Hebel-Quiz</h2>
+    <p>12 Fragen zu Hebelarten, Drehmoment und Anwendung.</p>
+  </div>
+  <div class="card">
+    <div class="q-progress"><span id="qNumLbl">Frage 1 / 12</span><span class="pct"><span id="qScore">0</span>/<span id="qTotal">12</span></span></div>
+    <div class="q-bar"><div class="fill" id="qFill" style="width:8.3%"></div></div>
+    <div id="qBody"></div>
+  </div>
+</section>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="anwModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+    <div class="modal-img" id="modalImg"></div>
+    <div class="modal-head">
+      <h3 id="modalTitle"></h3>
+      <span class="symbol" id="modalSymbol"></span>
+    </div>
+    <div class="modal-body">
+      <div class="steckbrief" id="modalSb"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== TABS ==========
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='rechner') ensureCalc();
+    if(t.dataset.tab==='match') buildMatch();
+    if(t.dataset.tab==='quiz') ensureQuiz();
+  });
+});
+
+// ========== HEBEL-STUDIO ==========
+const G = 9.81;
+const PIVOT_X = 400;
+const PIVOT_Y = 240;
+const PX_PER_M = 100;
+
+function updateHebel(){
+  const m1 = parseFloat(document.getElementById('m1Slider').value);
+  const l1 = parseFloat(document.getElementById('l1Slider').value);
+  const m2 = parseFloat(document.getElementById('m2Slider').value);
+  const l2 = parseFloat(document.getElementById('l2Slider').value);
+
+  document.getElementById('m1Val').textContent = m1.toFixed(1);
+  document.getElementById('l1Val').textContent = l1.toFixed(1);
+  document.getElementById('m2Val').textContent = m2.toFixed(1);
+  document.getElementById('l2Val').textContent = l2.toFixed(1);
+
+  const F1 = m1 * G;
+  const F2 = m2 * G;
+  const M1 = F1 * l1;
+  const M2 = F2 * l2;
+
+  document.getElementById('f1Out').textContent = F1.toFixed(1);
+  document.getElementById('f2Out').textContent = F2.toFixed(1);
+  document.getElementById('m1Out').textContent = M1.toFixed(1);
+  document.getElementById('m2Out').textContent = M2.toFixed(1);
+
+  // Balance status
+  const diff = M2 - M1;
+  const balCard = document.getElementById('balanceCard');
+  const balOut = document.getElementById('balanceOut');
+  const statusText = document.getElementById('statusText');
+  if(Math.abs(diff) < 0.5){
+    balCard.classList.remove('imbalance'); balCard.classList.add('balance');
+    balOut.textContent = '⚖ Balance';
+    statusText.textContent = '⚖ Im Gleichgewicht';
+    statusText.setAttribute('fill', '#2d8a54');
+  } else if(diff > 0){
+    balCard.classList.remove('balance'); balCard.classList.add('imbalance');
+    balOut.textContent = '↻ rechts';
+    statusText.textContent = `↻ Rechts ${(diff).toFixed(1)} Nm Übergewicht`;
+    statusText.setAttribute('fill', '#dc2626');
+  } else {
+    balCard.classList.remove('balance'); balCard.classList.add('imbalance');
+    balOut.textContent = '↺ links';
+    statusText.textContent = `↺ Links ${(-diff).toFixed(1)} Nm Übergewicht`;
+    statusText.setAttribute('fill', '#dc2626');
+  }
+
+  // Position masses on bar
+  const x1 = PIVOT_X - l1 * PX_PER_M;
+  const x2 = PIVOT_X + l2 * PX_PER_M;
+  document.getElementById('mass1').setAttribute('cx', x1);
+  document.getElementById('mass1Rope').setAttribute('x', x1 - 1);
+  document.getElementById('mass1Label').setAttribute('x', x1);
+  document.getElementById('mass2').setAttribute('cx', x2);
+  document.getElementById('mass2Rope').setAttribute('x', x2 - 1);
+  document.getElementById('mass2Label').setAttribute('x', x2);
+  document.getElementById('mass1Label').textContent = m1.toFixed(0) + 'kg';
+  document.getElementById('mass2Label').textContent = m2.toFixed(0) + 'kg';
+
+  // Mass radius scaling
+  const r1 = 18 + Math.sqrt(m1) * 4;
+  const r2 = 18 + Math.sqrt(m2) * 4;
+  document.getElementById('mass1').setAttribute('r', r1);
+  document.getElementById('mass2').setAttribute('r', r2);
+
+  // Force arrow lengths (proportional)
+  const arrLen1 = Math.min(120, 30 + F1 * 0.6);
+  const arrLen2 = Math.min(120, 30 + F2 * 0.6);
+  document.getElementById('arrow1').setAttribute('x1', x1);
+  document.getElementById('arrow1').setAttribute('x2', x1);
+  document.getElementById('arrow1').setAttribute('y1', 200);
+  document.getElementById('arrow1').setAttribute('y2', 200 + arrLen1);
+  document.getElementById('arrow2').setAttribute('x1', x2);
+  document.getElementById('arrow2').setAttribute('x2', x2);
+  document.getElementById('arrow2').setAttribute('y1', 200);
+  document.getElementById('arrow2').setAttribute('y2', 200 + arrLen2);
+
+  // Lever rotation if imbalanced (visual feedback)
+  const tilt = Math.max(-15, Math.min(15, diff * 0.15));
+  document.getElementById('leverGroup').setAttribute('transform', `rotate(${tilt} ${PIVOT_X} ${PIVOT_Y})`);
+}
+['m1Slider','l1Slider','m2Slider','l2Slider'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateHebel);
+});
+updateHebel();
+
+// ========== ANWENDUNGEN ==========
+const ANW = [
+  {
+    id:'wippe', name:'Wippe', symbol:'1. Klasse',
+    aufbau:'Zwei <b>gleich lange</b> Hebelarme, Drehpunkt mittig.',
+    funktion:'Klassischer zweiseitiger Hebel: gleiche Massen halten Gleichgewicht. Verschieben des Drehpunkts ändert das Verhältnis.',
+    klinik:'Modell für <b>Atlanto-Occipital-Gelenk</b> - der Schädel wippt auf der Wirbelsäule (1. Klasse Hebel).',
+    medat:'<b>F<sub>1</sub>·l<sub>1</sub> = F<sub>2</sub>·l<sub>2</sub></b>. Lieblingsaufgabe: „Wo muss Kind X sitzen?"',
+    svg:`<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="wpGrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#9bc472"/><stop offset="100%" stop-color="#5e8e44"/></linearGradient>
+        <linearGradient id="wpBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e0b58a"/><stop offset="40%" stop-color="#b88857"/><stop offset="100%" stop-color="#7a5430"/></linearGradient>
+        <radialGradient id="wpFulcrum" cx="50%" cy="30%" r="60%"><stop offset="0%" stop-color="#bbb"/><stop offset="60%" stop-color="#555"/><stop offset="100%" stop-color="#1a1a1a"/></radialGradient>
+        <radialGradient id="wpRed" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#ffb89a"/><stop offset="50%" stop-color="#e07a55"/><stop offset="100%" stop-color="#8a3a1f"/></radialGradient>
+        <radialGradient id="wpBlue" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#a8c8e8"/><stop offset="50%" stop-color="#4a78b0"/><stop offset="100%" stop-color="#1f3a5e"/></radialGradient>
+        <filter id="wpShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.4"/></filter>
+      </defs>
+      <rect x="0" y="118" width="220" height="22" fill="url(#wpGrass)"/>
+      <g filter="url(#wpShadow)">
+        <polygon points="110,118 86,82 134,82" fill="url(#wpFulcrum)"/>
+      </g>
+      <g transform="rotate(0 110 78)">
+        <animateTransform attributeName="transform" type="rotate" values="-8 110 78;8 110 78;-8 110 78" dur="3s" repeatCount="indefinite"/>
+        <rect x="20" y="72" width="180" height="12" fill="url(#wpBar)" rx="3" filter="url(#wpShadow)"/>
+        <circle cx="38" cy="56" r="14" fill="url(#wpRed)" filter="url(#wpShadow)"/>
+        <ellipse cx="34" cy="50" rx="5" ry="2" fill="#fff" opacity="0.55"/>
+        <circle cx="182" cy="56" r="14" fill="url(#wpBlue)" filter="url(#wpShadow)"/>
+        <ellipse cx="178" cy="50" rx="5" ry="2" fill="#fff" opacity="0.55"/>
+      </g>
+    </svg>`
+  },
+  {
+    id:'schere', name:'Schere', symbol:'1. Klasse · 2-fach',
+    aufbau:'Zwei zusammengenietete Hebel der 1. Klasse. Griff = Kraftarm, Schneide = Lastarm.',
+    funktion:'Kurze Lastarme, lange Kraftarme → großer Kraftgewinn beim Schneiden. Je näher am Drehpunkt geschnitten wird, desto mehr Kraft.',
+    klinik:'<b>OP-Scheren</b> haben unterschiedliche Hebelverhältnisse: Knochenscheren = kurze Schneide für viel Kraft.',
+    medat:'Erkennen, dass kürzerer Lastarm = größere Schnittkraft. Klassische Aufgabe.',
+    svg:`<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="schBlade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0f0f5"/><stop offset="50%" stop-color="#b8b8c0"/><stop offset="100%" stop-color="#5a5a66"/></linearGradient>
+        <linearGradient id="schHandle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e07a55"/><stop offset="50%" stop-color="#c25a35"/><stop offset="100%" stop-color="#7a3a20"/></linearGradient>
+        <radialGradient id="schPivot" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#ddd"/><stop offset="60%" stop-color="#666"/><stop offset="100%" stop-color="#1a1a1a"/></radialGradient>
+        <filter id="schShadow"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.4"/></filter>
+      </defs>
+      <g filter="url(#schShadow)">
+        <g transform="rotate(-8 110 70)">
+          <animateTransform attributeName="transform" type="rotate" values="-12 110 70;-3 110 70;-12 110 70" dur="2.5s" repeatCount="indefinite"/>
+          <path d="M 110 70 L 30 35 L 25 45 L 110 78 Z" fill="url(#schBlade)" stroke="#888" stroke-width="0.5"/>
+          <rect x="110" y="65" width="80" height="6" fill="url(#schHandle)" rx="3" transform="rotate(-12 110 68)"/>
+          <ellipse cx="180" cy="42" rx="13" ry="9" fill="none" stroke="url(#schHandle)" stroke-width="6" transform="rotate(-12 110 68)"/>
+        </g>
+        <g transform="rotate(8 110 70)">
+          <animateTransform attributeName="transform" type="rotate" values="12 110 70;3 110 70;12 110 70" dur="2.5s" repeatCount="indefinite"/>
+          <path d="M 110 70 L 30 105 L 25 95 L 110 62 Z" fill="url(#schBlade)" stroke="#888" stroke-width="0.5"/>
+          <rect x="110" y="69" width="80" height="6" fill="url(#schHandle)" rx="3" transform="rotate(12 110 72)"/>
+          <ellipse cx="180" cy="98" rx="13" ry="9" fill="none" stroke="url(#schHandle)" stroke-width="6" transform="rotate(12 110 72)"/>
+        </g>
+      </g>
+      <circle cx="110" cy="70" r="7" fill="url(#schPivot)" stroke="#000" stroke-width="0.5" filter="url(#schShadow)"/>
+      <circle cx="108" cy="68" r="2" fill="#fff" opacity="0.5"/>
+    </svg>`
+  },
+  {
+    id:'schubkarre', name:'Schubkarre', symbol:'2. Klasse',
+    aufbau:'Rad = Drehpunkt, Last in der Mitte (Mulde), Griffe = Kraftangriff.',
+    funktion:'Lastarm < Kraftarm → man hebt mit weniger Kraft als das Eigengewicht der Last. Kraftgewinn.',
+    klinik:'Modell für <b>Zehengang</b>: Sprunggelenk = Last, Wadenmuskel = Kraft, Zehen = Drehpunkt.',
+    medat:'Erkennen: 2. Klasse = einseitig, Last <b>zwischen</b> Drehpunkt und Kraft.',
+    svg:`<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a8956a"/><stop offset="100%" stop-color="#7a6440"/></linearGradient>
+        <radialGradient id="skTire" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#666"/><stop offset="60%" stop-color="#222"/><stop offset="100%" stop-color="#000"/></radialGradient>
+        <radialGradient id="skHub" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ddd"/><stop offset="60%" stop-color="#888"/><stop offset="100%" stop-color="#444"/></radialGradient>
+        <linearGradient id="skTub" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#d4a878"/><stop offset="50%" stop-color="#a87a48"/><stop offset="100%" stop-color="#5e3a1a"/></linearGradient>
+        <radialGradient id="skBrick" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#d8b878"/><stop offset="50%" stop-color="#9a7a44"/><stop offset="100%" stop-color="#4a3a1a"/></radialGradient>
+        <filter id="skShadow"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.45"/></filter>
+      </defs>
+      <rect x="0" y="118" width="220" height="22" fill="url(#skGround)"/>
+      <g filter="url(#skShadow)">
+        <rect x="40" y="55" width="140" height="35" fill="url(#skTub)" rx="6"/>
+        <ellipse cx="100" cy="55" rx="60" ry="6" fill="#5e3a1a"/>
+        <line x1="60" y1="60" x2="60" y2="48" stroke="#5e3a1a" stroke-width="2"/>
+        <line x1="160" y1="60" x2="160" y2="48" stroke="#5e3a1a" stroke-width="2"/>
+        <rect x="55" y="38" width="50" height="14" fill="url(#skBrick)" rx="2"/>
+        <rect x="110" y="35" width="45" height="17" fill="url(#skBrick)" rx="2"/>
+        <line x1="180" y1="68" x2="208" y2="78" stroke="#5e3a1a" stroke-width="6" stroke-linecap="round"/>
+      </g>
+      <g>
+        <g transform="rotate(0 40 100)">
+          <animateTransform attributeName="transform" type="rotate" from="0 40 100" to="-360 40 100" dur="4s" repeatCount="indefinite"/>
+          <circle cx="40" cy="100" r="22" fill="url(#skTire)"/>
+          <circle cx="40" cy="100" r="14" fill="url(#skHub)"/>
+          <line x1="40" y1="86" x2="40" y2="114" stroke="#444" stroke-width="2"/>
+          <line x1="26" y1="100" x2="54" y2="100" stroke="#444" stroke-width="2"/>
+          <line x1="30" y1="90" x2="50" y2="110" stroke="#444" stroke-width="2"/>
+          <line x1="30" y1="110" x2="50" y2="90" stroke="#444" stroke-width="2"/>
+        </g>
+        <circle cx="40" cy="100" r="4" fill="#222"/>
+      </g>
+    </svg>`
+  },
+  {
+    id:'pinzette', name:'Pinzette', symbol:'3. Klasse',
+    aufbau:'V-förmig zusammenlaufende Hebel, Drehpunkt am hinteren Ende. Daumen = Kraft, Spitze = Last.',
+    funktion:'Kraftarm < Lastarm → man muss mehr Kraft aufbringen, gewinnt aber an Bewegungsweg und Präzision.',
+    klinik:'<b>Anatomische vs chirurgische Pinzette</b> - Mikrochirurgie nutzt 3.-Klasse-Hebel für feinste Bewegungen.',
+    medat:'3. Klasse = einseitig, Kraft <b>zwischen</b> Drehpunkt und Last. Weggewinn statt Kraftgewinn.',
+    svg:`<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pzMetal" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#a8a8b5"/><stop offset="50%" stop-color="#e8e8ee"/><stop offset="100%" stop-color="#6a6a78"/></linearGradient>
+        <radialGradient id="pzPivot" cx="50%" cy="35%" r="55%"><stop offset="0%" stop-color="#fff"/><stop offset="50%" stop-color="#888"/><stop offset="100%" stop-color="#222"/></radialGradient>
+        <filter id="pzShadow"><feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.4"/></filter>
+      </defs>
+      <g filter="url(#pzShadow)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="0 110 35;-2 110 35;0 110 35" dur="2s" repeatCount="indefinite"/>
+          <path d="M 110 35 L 55 115 L 62 118 L 113 38 Z" fill="url(#pzMetal)"/>
+          <line x1="55" y1="115" x2="50" y2="120" stroke="#4a4a52" stroke-width="2"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="0 110 35;2 110 35;0 110 35" dur="2s" repeatCount="indefinite"/>
+          <path d="M 110 35 L 165 115 L 158 118 L 107 38 Z" fill="url(#pzMetal)"/>
+          <line x1="165" y1="115" x2="170" y2="120" stroke="#4a4a52" stroke-width="2"/>
+        </g>
+        <ellipse cx="110" cy="33" rx="18" ry="5" fill="url(#pzMetal)"/>
+      </g>
+      <circle cx="110" cy="33" r="5" fill="url(#pzPivot)"/>
+      <circle cx="108" cy="31" r="1.5" fill="#fff" opacity="0.6"/>
+      <text x="110" y="20" font-size="8" font-weight="800" fill="#7a60a8" text-anchor="middle">D</text>
+      <text x="80" y="80" font-size="8" font-weight="800" fill="#4a78b0" text-anchor="middle">K</text>
+      <text x="55" y="135" font-size="8" font-weight="800" fill="#e07a55" text-anchor="middle">L</text>
+    </svg>`
+  },
+  {
+    id:'unterarm', name:'Unterarm (Bizeps)', symbol:'3. Klasse',
+    aufbau:'Drehpunkt = Ellenbogen. Bizeps-Ansatz nahe Gelenk = Kraft. Hand mit Last weit weg = Last.',
+    funktion:'Sehr kurzer Kraftarm → Bizeps muss <b>5-10× mehr Kraft</b> aufbringen als die Last. Vorteil: schnelle Bewegung mit großer Reichweite.',
+    klinik:'Bei 5kg in der Hand zieht Bizeps mit ~250-400N. Erklärt warum Bizepssehnenrisse passieren.',
+    medat:'<b>Klassiker:</b> „Wieviel Kraft braucht der Bizeps?" - immer F<sub>Muskel</sub>·l<sub>Muskel</sub> = F<sub>Last</sub>·l<sub>Last</sub>',
+    svg:`<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="uaSkin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f5d4b8"/><stop offset="50%" stop-color="#d4a888"/><stop offset="100%" stop-color="#9a7458"/></linearGradient>
+        <radialGradient id="uaJoint" cx="50%" cy="35%" r="55%"><stop offset="0%" stop-color="#f5e0d0"/><stop offset="60%" stop-color="#a87858"/><stop offset="100%" stop-color="#5a3818"/></radialGradient>
+        <linearGradient id="uaMuscle" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8a098"/><stop offset="40%" stop-color="#c8505f"/><stop offset="100%" stop-color="#6a2025"/></linearGradient>
+        <radialGradient id="uaWeight" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#777"/><stop offset="60%" stop-color="#333"/><stop offset="100%" stop-color="#0a0a0a"/></radialGradient>
+        <filter id="uaShadow"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.45"/></filter>
+      </defs>
+      <g filter="url(#uaShadow)">
+        <path d="M 50 70 Q 45 70 45 78 L 45 100 Q 50 115 70 110 L 195 90 Q 210 87 210 80 Q 210 73 195 70 Z" fill="url(#uaSkin)" stroke="#a8785c" stroke-width="0.5"/>
+        <ellipse cx="120" cy="80" rx="30" ry="6" fill="#fff" opacity="0.25"/>
+      </g>
+      <g>
+        <animateTransform attributeName="transform" type="scale" values="1 1;1 0.85;1 1" dur="2s" repeatCount="indefinite" additive="sum"/>
+        <path d="M 55 70 Q 60 25 95 35 Q 110 45 105 65 Z" fill="url(#uaMuscle)" filter="url(#uaShadow)"/>
+        <ellipse cx="78" cy="40" rx="12" ry="4" fill="#fff" opacity="0.35"/>
+      </g>
+      <line x1="95" y1="55" x2="100" y2="68" stroke="#fff" stroke-width="2.5" opacity="0.7"/>
+      <circle cx="50" cy="78" r="11" fill="url(#uaJoint)" filter="url(#uaShadow)"/>
+      <circle cx="46" cy="74" r="3" fill="#fff" opacity="0.6"/>
+      <g filter="url(#uaShadow)">
+        <rect x="195" y="92" width="22" height="32" fill="url(#uaWeight)" rx="2"/>
+        <text x="206" y="113" font-family="JetBrains Mono" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">5kg</text>
+      </g>
+      <text x="50" y="100" font-size="9" font-weight="800" fill="#7a60a8" text-anchor="middle">D</text>
+      <text x="80" y="22" font-size="9" font-weight="800" fill="#c8505f" text-anchor="middle">K</text>
+      <text x="206" y="135" font-size="9" font-weight="800" fill="#222" text-anchor="middle">L</text>
+    </svg>`
+  },
+  {
+    id:'fuss', name:'Fuß (Zehengang)', symbol:'2. Klasse',
+    aufbau:'Drehpunkt = Zehenballen. Kraft = Achillessehne (Wade). Last = Sprunggelenk mit Körpergewicht.',
+    funktion:'Wade hebt gesamtes Körpergewicht. Kraftarm > Lastarm → moderater Kraftgewinn beim Stehen auf Zehenspitzen.',
+    klinik:'Achillessehnenruptur unterbricht diesen Hebel - Patient kann nicht mehr auf Zehen stehen.',
+    medat:'Nur Hebel der 2. Klasse im Körper. <b>Lastarm < Kraftarm</b> = Kraftgewinn.',
+    svg:`<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="fGround" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a8956a"/><stop offset="100%" stop-color="#7a6440"/></linearGradient>
+        <linearGradient id="fSkin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f5d4b8"/><stop offset="60%" stop-color="#c8a888"/><stop offset="100%" stop-color="#7a5838"/></linearGradient>
+        <linearGradient id="fAchilles" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8a098"/><stop offset="50%" stop-color="#c8505f"/><stop offset="100%" stop-color="#7a2535"/></linearGradient>
+        <radialGradient id="fJoint" cx="50%" cy="35%" r="55%"><stop offset="0%" stop-color="#f5e0d0"/><stop offset="60%" stop-color="#a87858"/><stop offset="100%" stop-color="#5a3818"/></radialGradient>
+        <filter id="fShadow"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.45"/></filter>
+      </defs>
+      <rect x="0" y="118" width="220" height="22" fill="url(#fGround)"/>
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="2s" repeatCount="indefinite"/>
+        <g filter="url(#fShadow)">
+          <path d="M 50 105 Q 50 95 60 92 L 165 88 Q 195 88 200 105 Q 195 118 175 118 L 65 118 Q 50 115 50 105 Z" fill="url(#fSkin)" stroke="#9a7458" stroke-width="0.5"/>
+          <ellipse cx="120" cy="98" rx="40" ry="3" fill="#fff" opacity="0.3"/>
+          <path d="M 65 90 L 65 35" stroke="url(#fSkin)" stroke-width="22" stroke-linecap="round"/>
+          <g>
+            <animateTransform attributeName="transform" type="scaleY" values="1;0.85;1" dur="2s" repeatCount="indefinite" additive="sum"/>
+            <path d="M 55 90 Q 50 60 65 35 Q 75 60 75 90 Z" fill="url(#fAchilles)"/>
+            <ellipse cx="63" cy="60" rx="6" ry="14" fill="#fff" opacity="0.2"/>
+          </g>
+          <circle cx="115" cy="92" r="13" fill="url(#fJoint)"/>
+          <circle cx="111" cy="88" r="3" fill="#fff" opacity="0.55"/>
+          <ellipse cx="190" cy="115" rx="10" ry="4" fill="url(#fJoint)"/>
+        </g>
+      </g>
+      <line x1="115" y1="80" x2="115" y2="50" stroke="#4a78b0" stroke-width="3" marker-end="url(#fArrUp)"/>
+      <defs><marker id="fArrUp" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#4a78b0"/></marker></defs>
+      <text x="190" y="135" font-size="9" font-weight="800" fill="#7a60a8" text-anchor="middle">D</text>
+      <text x="115" y="44" font-size="9" font-weight="800" fill="#4a78b0" text-anchor="middle">L</text>
+      <text x="40" y="40" font-size="9" font-weight="800" fill="#c8505f" text-anchor="middle">K</text>
+    </svg>`
+  }
+];
+
+function buildAnwGrid(){
+  const grid = document.getElementById('anwGrid');
+  grid.innerHTML = '';
+  ANW.forEach(a=>{
+    const card = document.createElement('div');
+    card.className = 'anw-card';
+    card.innerHTML = `<div class="anw-img">${a.svg}</div><div class="anw-info"><h4>${a.name}</h4><span class="symbol">${a.symbol}</span><p>${a.aufbau.replace(/<[^>]+>/g,'').slice(0,80)}…</p></div>`;
+    card.addEventListener('click', ()=>openAnwModal(a));
+    grid.appendChild(card);
+  });
+  if(window.lucide) lucide.createIcons();
+}
+buildAnwGrid();
+
+function openAnwModal(a){
+  document.getElementById('modalTitle').textContent = a.name;
+  document.getElementById('modalSymbol').textContent = a.symbol;
+  document.getElementById('modalImg').innerHTML = a.svg;
+  document.getElementById('modalSb').innerHTML = `
+    <div class="sb-section"><h4><i data-lucide="layers"></i>Aufbau</h4><p>${a.aufbau}</p></div>
+    <div class="sb-section"><h4><i data-lucide="zap"></i>Funktion</h4><p>${a.funktion}</p></div>
+    <div class="sb-section klinik"><h4><i data-lucide="stethoscope"></i>Klinik</h4><p>${a.klinik}</p></div>
+    <div class="sb-section medat"><h4><i data-lucide="award"></i>MedAT-Bezug</h4><p>${a.medat}</p></div>`;
+  document.getElementById('anwModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+document.getElementById('modalClose').addEventListener('click',()=>document.getElementById('anwModal').classList.remove('show'));
+document.getElementById('anwModal').addEventListener('click',(e)=>{if(e.target.id==='anwModal') e.target.classList.remove('show')});
+
+// ========== RECHNER ==========
+const CALC_FORMULAS = [
+  {
+    id:'hebel', name:'Hebelgesetz',
+    latex:'F_1 \\cdot l_1 = F_2 \\cdot l_2',
+    vars:[
+      {k:'F1', label:'F_1', unit:'N', def:50},
+      {k:'l1', label:'l_1', unit:'m', def:0.5},
+      {k:'F2', label:'F_2', unit:'N', def:25},
+      {k:'l2', label:'l_2', unit:'m', def:1.0}
+    ],
+    solve:{
+      F1:(v)=>({val:(v.F2*v.l2)/v.l1, latex:`F_1 = \\frac{F_2 \\cdot l_2}{l_1} = \\frac{${v.F2} \\cdot ${v.l2}}{${v.l1}}`}),
+      l1:(v)=>({val:(v.F2*v.l2)/v.F1, latex:`l_1 = \\frac{F_2 \\cdot l_2}{F_1} = \\frac{${v.F2} \\cdot ${v.l2}}{${v.F1}}`}),
+      F2:(v)=>({val:(v.F1*v.l1)/v.l2, latex:`F_2 = \\frac{F_1 \\cdot l_1}{l_2} = \\frac{${v.F1} \\cdot ${v.l1}}{${v.l2}}`}),
+      l2:(v)=>({val:(v.F1*v.l1)/v.F2, latex:`l_2 = \\frac{F_1 \\cdot l_1}{F_2} = \\frac{${v.F1} \\cdot ${v.l1}}{${v.F2}}`})
+    }
+  },
+  {
+    id:'drehmoment', name:'Drehmoment',
+    latex:'M = F \\cdot r',
+    vars:[{k:'M',label:'M',unit:'Nm',def:50},{k:'F',label:'F',unit:'N',def:100},{k:'r',label:'r',unit:'m',def:0.5}],
+    solve:{
+      M:(v)=>({val:v.F*v.r, latex:`M = F \\cdot r = ${v.F} \\cdot ${v.r}`}),
+      F:(v)=>({val:v.M/v.r, latex:`F = \\frac{M}{r} = \\frac{${v.M}}{${v.r}}`}),
+      r:(v)=>({val:v.M/v.F, latex:`r = \\frac{M}{F} = \\frac{${v.M}}{${v.F}}`})
+    }
+  },
+  {
+    id:'gewicht', name:'Gewichtskraft',
+    latex:'F_G = m \\cdot g',
+    vars:[{k:'FG',label:'F_G',unit:'N',def:49.05},{k:'m',label:'m',unit:'kg',def:5},{k:'g',label:'g',unit:'m/s²',def:9.81}],
+    solve:{
+      FG:(v)=>({val:v.m*v.g, latex:`F_G = m \\cdot g = ${v.m} \\cdot ${v.g}`}),
+      m:(v)=>({val:v.FG/v.g, latex:`m = \\frac{F_G}{g} = \\frac{${v.FG}}{${v.g}}`}),
+      g:(v)=>({val:v.FG/v.m, latex:`g = \\frac{F_G}{m} = \\frac{${v.FG}}{${v.m}}`})
+    }
+  },
+  {
+    id:'arbeit', name:'Hub-Arbeit',
+    latex:'W = F \\cdot s',
+    vars:[{k:'W',label:'W',unit:'J',def:100},{k:'F',label:'F',unit:'N',def:50},{k:'s',label:'s',unit:'m',def:2}],
+    solve:{
+      W:(v)=>({val:v.F*v.s, latex:`W = F \\cdot s = ${v.F} \\cdot ${v.s}`}),
+      F:(v)=>({val:v.W/v.s, latex:`F = \\frac{W}{s} = \\frac{${v.W}}{${v.s}}`}),
+      s:(v)=>({val:v.W/v.F, latex:`s = \\frac{W}{F} = \\frac{${v.W}}{${v.F}}`})
+    }
+  },
+  {
+    id:'goldene', name:'Goldene Regel',
+    latex:'F_1 \\cdot s_1 = F_2 \\cdot s_2',
+    vars:[
+      {k:'F1', label:'F_1', unit:'N', def:100},
+      {k:'s1', label:'s_1', unit:'m', def:0.5},
+      {k:'F2', label:'F_2', unit:'N', def:50},
+      {k:'s2', label:'s_2', unit:'m', def:1.0}
+    ],
+    solve:{
+      F1:(v)=>({val:(v.F2*v.s2)/v.s1, latex:`F_1 = \\frac{F_2 \\cdot s_2}{s_1} = \\frac{${v.F2} \\cdot ${v.s2}}{${v.s1}}`}),
+      s1:(v)=>({val:(v.F2*v.s2)/v.F1, latex:`s_1 = \\frac{F_2 \\cdot s_2}{F_1} = \\frac{${v.F2} \\cdot ${v.s2}}{${v.F1}}`}),
+      F2:(v)=>({val:(v.F1*v.s1)/v.s2, latex:`F_2 = \\frac{F_1 \\cdot s_1}{s_2} = \\frac{${v.F1} \\cdot ${v.s1}}{${v.s2}}`}),
+      s2:(v)=>({val:(v.F1*v.s1)/v.F2, latex:`s_2 = \\frac{F_1 \\cdot s_1}{F_2} = \\frac{${v.F1} \\cdot ${v.s1}}{${v.F2}}`})
+    }
+  },
+  {
+    id:'fluefer', name:'Flaschenzug',
+    latex:'F = \\frac{F_L}{n}',
+    vars:[{k:'F',label:'F',unit:'N',def:50},{k:'FL',label:'F_L',unit:'N',def:200},{k:'n',label:'n',unit:'',def:4}],
+    solve:{
+      F:(v)=>({val:v.FL/v.n, latex:`F = \\frac{F_L}{n} = \\frac{${v.FL}}{${v.n}}`}),
+      FL:(v)=>({val:v.F*v.n, latex:`F_L = F \\cdot n = ${v.F} \\cdot ${v.n}`}),
+      n:(v)=>({val:v.FL/v.F, latex:`n = \\frac{F_L}{F} = \\frac{${v.FL}}{${v.F}}`})
+    }
+  }
+];
+
+let calcInited = false;
+let activeFormula = CALC_FORMULAS[0];
+let activeSolveVar = null;
+let calcVals = {};
+
+function ensureCalc(){
+  if(calcInited) return;
+  buildFormulaGrid();
+  selectFormula(CALC_FORMULAS[0]);
+  calcInited = true;
+}
+function buildFormulaGrid(){
+  const grid = document.getElementById('calcFormulaGrid');
+  grid.innerHTML = '';
+  CALC_FORMULAS.forEach(f=>{
+    const c = document.createElement('div');
+    c.className = 'calc-formula-card';
+    c.innerHTML = `<div class="nm">${f.name}</div><div class="ltx" id="ltx-${f.id}"></div>`;
+    c.addEventListener('click', ()=>selectFormula(f));
+    grid.appendChild(c);
+    if(window.katex) katex.render(f.latex, c.querySelector('.ltx'), {throwOnError:false});
+  });
+}
+function selectFormula(f){
+  activeFormula = f;
+  activeSolveVar = f.vars[0].k;
+  calcVals = {};
+  f.vars.forEach(v=>calcVals[v.k]=v.def);
+  document.querySelectorAll('.calc-formula-card').forEach((c,i)=>c.classList.toggle('active', CALC_FORMULAS[i].id===f.id));
+  buildVarGrid();
+  updateCalc();
+}
+function buildVarGrid(){
+  const grid = document.getElementById('calcVarGrid');
+  grid.innerHTML = '';
+  activeFormula.vars.forEach(v=>{
+    const row = document.createElement('div');
+    row.className = 'calc-var-row';
+    const isSolve = v.k===activeSolveVar;
+    row.innerHTML = `
+      <div class="var-head">
+        <label id="varLbl-${v.k}"></label>
+        <span class="unit">${v.unit||''}</span>
+        <button class="solve-btn ${isSolve?'solving':''}" data-var="${v.k}">${isSolve?'lösen':'lösen nach'}</button>
+      </div>
+      <input type="number" step="any" data-var="${v.k}" value="${calcVals[v.k]}" ${isSolve?'disabled':''}>
+    `;
+    grid.appendChild(row);
+    if(window.katex) katex.render(v.label, row.querySelector(`#varLbl-${v.k}`), {throwOnError:false});
+  });
+  grid.querySelectorAll('.solve-btn').forEach(b=>b.addEventListener('click',(e)=>{activeSolveVar=e.currentTarget.dataset.var;buildVarGrid();updateCalc();}));
+  grid.querySelectorAll('input').forEach(i=>i.addEventListener('input',(e)=>{calcVals[e.target.dataset.var]=parseFloat(e.target.value)||0;updateCalc();}));
+}
+function updateCalc(){
+  const result = activeFormula.solve[activeSolveVar](calcVals);
+  if(isFinite(result.val)){
+    const inputEl = document.querySelector(`input[data-var="${activeSolveVar}"]`);
+    if(inputEl) inputEl.value = result.val.toFixed(3);
+    calcVals[activeSolveVar] = result.val;
+  }
+  const r = document.getElementById('calcResult');
+  const unit = activeFormula.vars.find(v=>v.k===activeSolveVar).unit;
+  r.innerHTML = `
+    <h4><i data-lucide="check-circle"></i>Lösung</h4>
+    <div class="step"><span class="label">Ausgangsformel</span><div class="ltx" id="rs-1"></div></div>
+    <div class="step"><span class="label">Umgestellt nach ${activeSolveVar}</span><div class="ltx" id="rs-2"></div></div>
+    <div class="final"><div class="lbl">Ergebnis</div><div class="val">${isFinite(result.val)?result.val.toFixed(3):'—'} ${unit}</div></div>
+  `;
+  if(window.katex){
+    katex.render(activeFormula.latex, document.getElementById('rs-1'), {throwOnError:false});
+    katex.render(result.latex+` = ${isFinite(result.val)?result.val.toFixed(3):'?'}`, document.getElementById('rs-2'), {throwOnError:false});
+  }
+  if(window.lucide) lucide.createIcons();
+}
+
+// ========== MATCH ==========
+const MATCH_DATA = {
+  art:{
+    title:'Werkzeug → Hebelklasse',
+    pairs:[
+      ['Wippe','1. Klasse'],['Schubkarre','2. Klasse'],['Pinzette','3. Klasse'],
+      ['Brechstange','1. Klasse'],['Nussknacker','2. Klasse'],['Bizeps-Arm','3. Klasse']
+    ]
+  },
+  formel:{
+    title:'Größe → Einheit',
+    pairs:[
+      ['Drehmoment M','Nm'],['Kraft F','N'],['Hebelarm l','m'],
+      ['Arbeit W','J'],['Masse m','kg'],['Beschleunigung a','m/s²']
+    ]
+  },
+  anw:{
+    title:'Körper → Hebel',
+    pairs:[
+      ['Bizeps-Ellenbogen','3. Klasse - Weggewinn'],
+      ['Zehengang','2. Klasse - Kraftgewinn'],
+      ['Kopf-Atlanto-Occipital','1. Klasse - Balance'],
+      ['Kniegelenk','3. Klasse'],
+      ['Kiefer','3. Klasse'],
+      ['Schulter (Deltoideus)','3. Klasse']
+    ]
+  }
+};
+let activeMatchMode = 'art';
+function buildMatch(){
+  document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===activeMatchMode));
+  const data = MATCH_DATA[activeMatchMode];
+  const board = document.getElementById('matchBoard');
+  document.getElementById('matchMsg').textContent = `Klick erst links, dann rechts den passenden Begriff`;
+
+  const lefts = data.pairs.map((p,i)=>({label:p[0], idx:i}));
+  const rights = data.pairs.map((p,i)=>({label:p[1], idx:i}));
+  // Shuffle
+  rights.sort(()=>Math.random()-0.5);
+  lefts.sort(()=>Math.random()-0.5);
+
+  board.innerHTML = `
+    <div class="match-col"><div class="match-col-title">A</div>${lefts.map(l=>`<button class="match-item" data-side="L" data-idx="${l.idx}">${l.label}</button>`).join('')}</div>
+    <div class="match-col"><div class="match-col-title">B</div>${rights.map(r=>`<button class="match-item" data-side="R" data-idx="${r.idx}">${r.label}</button>`).join('')}</div>
+  `;
+  let selectedL = null, selectedR = null;
+  board.querySelectorAll('.match-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      if(el.classList.contains('matched')) return;
+      if(el.dataset.side==='L'){
+        if(selectedL) selectedL.classList.remove('selected');
+        selectedL = el;
+        el.classList.add('selected');
+      } else {
+        if(selectedR) selectedR.classList.remove('selected');
+        selectedR = el;
+        el.classList.add('selected');
+      }
+      if(selectedL && selectedR){
+        if(selectedL.dataset.idx === selectedR.dataset.idx){
+          selectedL.classList.add('matched'); selectedL.classList.remove('selected');
+          selectedR.classList.add('matched'); selectedR.classList.remove('selected');
+          selectedL = null; selectedR = null;
+          if(board.querySelectorAll('.matched').length === data.pairs.length*2){
+            document.getElementById('matchMsg').innerHTML = '<b style="color:var(--success)">✓ Alle Paare gefunden!</b>';
+          }
+        } else {
+          selectedL.classList.add('error'); selectedR.classList.add('error');
+          const sL=selectedL, sR=selectedR;
+          setTimeout(()=>{
+            sL.classList.remove('error','selected');
+            sR.classList.remove('error','selected');
+          },500);
+          selectedL = null; selectedR = null;
+        }
+      }
+    });
+  });
+}
+document.querySelectorAll('.match-mode-btn').forEach(b=>b.addEventListener('click',()=>{activeMatchMode=b.dataset.mode;buildMatch();}));
+
+// ========== QUIZ ==========
+const QUIZ = [
+  {q:'Welche Hebelklasse hat Drehpunkt zwischen Last und Kraft?',a:['1. Klasse','2. Klasse','3. Klasse','Keine'],c:0,e:'Beim zweiseitigen Hebel (1. Klasse) liegt der Drehpunkt mittig zwischen Last und Kraft - z.B. Wippe, Schere.'},
+  {q:'Eine Schubkarre ist ein Hebel der …',a:['1. Klasse','2. Klasse','3. Klasse','keine Klasse'],c:1,e:'Schubkarre = Hebel der 2. Klasse: Rad (Drehpunkt) - Last (Mulde) - Kraft (Griffe). Lastarm < Kraftarm → Kraftgewinn.'},
+  {q:'Bizeps am Ellenbogen entspricht welchem Hebel?',a:['1. Klasse','2. Klasse','3. Klasse','keinem'],c:2,e:'3. Klasse: Drehpunkt (Ellenbogen) - Kraft (Bizepsansatz nahe Gelenk) - Last (Hand). Kraftarm sehr kurz → Bizeps muss viel Kraft aufbringen.'},
+  {q:'Im Gleichgewicht gilt am Hebel:',a:['F₁+l₁ = F₂+l₂','F₁·l₁ = F₂·l₂','F₁/l₁ = F₂/l₂','F₁−l₁ = F₂−l₂'],c:1,e:'Hebelgesetz: das Produkt aus Kraft und Hebelarm muss auf beiden Seiten gleich sein.'},
+  {q:'Eine 5kg Masse hängt an einem Hebelarm von 0,4 m. Welches Drehmoment erzeugt sie?',a:['2 Nm','19,6 Nm','49 Nm','9,8 Nm'],c:1,e:'M = F·l = m·g·l = 5·9,81·0,4 ≈ 19,6 Nm.'},
+  {q:'Welche Einheit hat das Drehmoment?',a:['N','J','Nm','W'],c:2,e:'Drehmoment = Kraft × Hebelarm → N·m = Nm. Nicht zu verwechseln mit J = Nm (Arbeit) - gleicher Zahlenwert, aber andere Bedeutung.'},
+  {q:'Goldene Regel der Mechanik bedeutet:',a:['Kraft·Weg konstant','Kraft·Zeit konstant','Energie wird erschaffen','Reibung verschwindet'],c:0,e:'Was du an Kraft sparst, musst du an Weg dazugeben: F·s = const. Daher haben Hebel/Flaschenzug einen Kraftgewinn nur auf Kosten des Weges.'},
+  {q:'Ein Vierfach-Flaschenzug (n=4) reduziert die nötige Kraft um Faktor:',a:['2','3','4','8'],c:2,e:'Bei n tragenden Seilen verteilt sich die Last gleichmäßig: F = F_L/n. Bei n=4 also nur ¼ der Last.'},
+  {q:'Welche Hebelart findet sich am Zehengang (Wadenmuskel hebt Körper)?',a:['1. Klasse','2. Klasse','3. Klasse','Keine'],c:1,e:'Zehengang: Drehpunkt (Zehenballen) - Last (Sprunggelenk mit Körpergewicht) - Kraft (Achillessehne) → 2. Klasse.'},
+  {q:'Verdoppelt man den Hebelarm bei gleicher Last, …',a:['braucht doppelte Kraft','braucht halbe Kraft','keine Veränderung','braucht 4x Kraft'],c:1,e:'F·l = const → wenn l verdoppelt wird, halbiert sich die nötige Kraft.'},
+  {q:'Wo wirkt der Bizeps mit etwa 5-10× mehr Kraft als die Last?',a:['Wegen Reibung','Weil 3.-Klasse-Hebel ungünstigen Hebelarm hat','Wegen Schwerkraft','Wegen Trägheit'],c:1,e:'Beim 3.-Klasse-Hebel ist der Kraftarm sehr klein - das Verhältnis Lastarm:Kraftarm ist 5:1 bis 10:1. Vorteil: schnelle, weite Bewegungen.'},
+  {q:'Welche Hebelklasse hat einen reinen Kraftgewinn ohne Wahlmöglichkeit?',a:['1. Klasse','2. Klasse','3. Klasse','alle'],c:1,e:'2. Klasse hat IMMER Lastarm < Kraftarm = Kraftgewinn. 1. Klasse kann beides, 3. Klasse hat IMMER Weggewinn.'}
+];
+let qIdx = 0, qScore = 0, qInited = false;
+function ensureQuiz(){if(!qInited){qInited=true;document.getElementById('qTotal').textContent=QUIZ.length;renderQ();}}
+function renderQ(){
+  if(qIdx>=QUIZ.length){
+    document.getElementById('qBody').innerHTML = `<div class="q-finish"><div class="score">${qScore}/${QUIZ.length}</div><div class="msg">${qScore===QUIZ.length?'Perfekt!':qScore>=QUIZ.length*0.7?'Sehr gut!':'Üb noch ein wenig!'}</div><button onclick="qIdx=0;qScore=0;document.getElementById('qScore').textContent=0;renderQ();">Neu starten</button></div>`;
+    document.getElementById('qNumLbl').textContent = `Fertig`;
+    document.getElementById('qFill').style.width = '100%';
+    return;
+  }
+  const q = QUIZ[qIdx];
+  document.getElementById('qNumLbl').textContent = `Frage ${qIdx+1} / ${QUIZ.length}`;
+  document.getElementById('qFill').style.width = ((qIdx+1)/QUIZ.length*100)+'%';
+  document.getElementById('qBody').innerHTML = `
+    <div class="q-question">${q.q}</div>
+    <div class="q-options">${q.a.map((o,i)=>`<button class="q-option" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="q-explain"></div>
+    <button class="q-next">Nächste Frage <i data-lucide="arrow-right"></i></button>
+  `;
+  document.querySelectorAll('.q-option').forEach(b=>b.addEventListener('click',(e)=>{
+    const i = parseInt(e.target.dataset.i);
+    const correct = i===q.c;
+    if(correct){e.target.classList.add('correct');qScore++;document.getElementById('qScore').textContent=qScore;}
+    else{e.target.classList.add('wrong');document.querySelectorAll('.q-option')[q.c].classList.add('correct');}
+    document.querySelectorAll('.q-option').forEach(b=>b.disabled=true);
+    const ex = document.querySelector('.q-explain');
+    ex.innerHTML = `<b>${correct?'✓ Richtig!':'✗ '}:</b> ${q.e}`;
+    ex.classList.add('show');
+    document.querySelector('.q-next').classList.add('show');
+  }));
+  document.querySelector('.q-next').addEventListener('click', ()=>{qIdx++;renderQ();});
+  if(window.lucide) lucide.createIcons();
+}
+
+// Init icons
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

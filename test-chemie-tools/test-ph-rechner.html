@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pH / Säure-Base · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--lavender),#fff);display:flex;align-items:center;justify-content:center;color:var(--purple-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(155,127,196,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--purple);color:var(--purple-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--purple-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--purple-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--lavender) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(155,127,196,.18);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--purple-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* SUBSTANCE PICKER */
+  .sub-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+  .sub-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:12px;cursor:pointer;transition:all .2s;text-align:center}
+  .sub-card:hover{transform:translateY(-2px);border-color:var(--purple);box-shadow:var(--shadow-sm)}
+  .sub-card.active{background:linear-gradient(135deg,var(--lavender),#fff);border-color:var(--purple);box-shadow:0 4px 14px rgba(155,127,196,.2)}
+  .sub-card .sub-name{font-size:.86rem;font-weight:800;color:var(--text)}
+  .sub-card .sub-formula{font-size:.78rem;color:var(--purple-deep);font-family:'JetBrains Mono',monospace;font-weight:700;margin-top:2px}
+  .sub-card .sub-pka{font-size:.7rem;color:var(--text-secondary);margin-top:3px;font-weight:600}
+  .sub-card .sub-tag{display:inline-block;font-size:.62rem;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:8px;margin-top:5px;font-weight:700}
+  .sub-card .sub-tag.strong{background:var(--coral-soft);color:var(--pink-deep)}
+  .sub-card .sub-tag.weak{background:var(--mint);color:var(--success)}
+
+  /* SLIDER */
+  .slider-row{margin:14px 0}
+  .slider-row .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .slider-row label{font-size:.85rem;font-weight:700;color:var(--text)}
+  .slider-row .val{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--purple-deep);font-size:.95rem}
+  .slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bg-warm);border-radius:4px;outline:none;cursor:pointer}
+  .slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;background:linear-gradient(135deg,var(--purple),var(--purple-deep));border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(155,127,196,.4);border:3px solid #fff}
+  .slider::-moz-range-thumb{width:24px;height:24px;background:linear-gradient(135deg,var(--purple),var(--purple-deep));border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(155,127,196,.4)}
+
+  /* RESULT BIG */
+  .ph-result{background:linear-gradient(135deg,var(--lavender),var(--mint));border-radius:var(--radius);padding:20px;text-align:center;margin:14px 0}
+  .ph-num{font-size:3.6rem;font-weight:900;color:var(--purple-deep);letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
+  .ph-label{font-size:.78rem;color:var(--text-secondary);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+  .ph-character{display:inline-block;margin-top:8px;padding:4px 14px;border-radius:var(--radius-pill);font-size:.82rem;font-weight:700}
+  .ph-character.acid{background:var(--coral);color:#fff}
+  .ph-character.neutral{background:var(--gold);color:var(--dark)}
+  .ph-character.base{background:var(--blue);color:#fff}
+
+  /* PH SCALE */
+  .ph-scale-wrap{position:relative;margin:14px 0}
+  .ph-scale-bar{display:flex;height:48px;border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .ph-tick{flex:1;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.85rem;font-variant-numeric:tabular-nums;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .ph-pointer{position:absolute;top:-8px;width:14px;height:14px;background:var(--dark);border-radius:50%;transform:translateX(-50%);transition:left .35s ease;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+  .ph-pointer::after{content:'';position:absolute;top:14px;left:50%;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:8px solid var(--dark);transform:translateX(-50%)}
+  .ph-pointer-line{position:absolute;top:0;width:2px;height:48px;background:var(--dark);transform:translateX(-50%);opacity:.6}
+
+  .ph-examples{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:14px}
+  .ph-ex{background:var(--surface);border:1px solid var(--border-light);border-radius:12px;padding:10px;text-align:center;transition:all .2s;cursor:pointer}
+  .ph-ex:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+  .ph-ex .ex-ph{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.1rem;letter-spacing:-.5px}
+  .ph-ex .ex-name{font-size:.74rem;color:var(--text-secondary);margin-top:2px;font-weight:600}
+
+  /* TITRATION */
+  .titration-canvas{background:linear-gradient(180deg,#fff,var(--bg-light));border:1px solid var(--border-light);border-radius:14px;padding:14px;margin:14px 0}
+  .titration-canvas svg{display:block;margin:0 auto;max-width:100%;height:auto}
+
+  /* PUFFER */
+  .puffer-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  @media(max-width:520px){.puffer-grid{grid-template-columns:1fr}}
+  .puffer-stat{background:var(--bg-light);border-radius:14px;padding:12px;text-align:center}
+  .puffer-stat .num{font-size:1.4rem;font-weight:800;color:var(--purple-deep);font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+  .puffer-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:3px;font-weight:600}
+
+  /* FORMULA box */
+  .formula{background:var(--bg-warm);border-radius:14px;padding:14px;margin:12px 0;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.95rem;line-height:1.7;color:var(--text)}
+  .formula .var{color:var(--purple-deep);font-weight:800}
+
+  /* FACTS */
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+  .warn-fact{background:var(--coral-soft);border-left:3px solid var(--coral);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .warn-fact [data-lucide]{color:var(--pink-deep);flex-shrink:0;margin-top:2px}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--purple);background:rgba(155,127,196,.04);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--green));transition:width .4s}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;box-shadow:0 4px 14px rgba(155,127,196,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(155,127,196,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--purple);color:var(--purple-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media (max-width:520px){
+    .header h1{font-size:1.15rem}
+    .ph-num{font-size:2.6rem}
+    .ph-tick{font-size:.7rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="droplets"></i></div>
+    <div>
+      <h1>pH &amp; Säure-Base</h1>
+      <p>Rechner · Puffer · Titration · Skala · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="puffer"><i data-lucide="scale"></i>Puffer</button>
+  <button class="tab" data-tab="titration"><i data-lucide="trending-up"></i>Titration</button>
+  <button class="tab" data-tab="skala"><i data-lucide="ruler"></i>pH-Skala</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: RECHNER ============ -->
+  <div class="section active" id="rechner">
+    <div class="hero-strip">
+      <h2><i data-lucide="calculator"></i>pH-Rechner</h2>
+      <p>Wähle eine Säure oder Base und stelle die Konzentration ein. Der pH wird live berechnet — auch für schwache Säuren mit pKa.</p>
+    </div>
+
+    <div class="card">
+      <h3>Substanz wählen</h3>
+      <div class="sub-grid" id="subGrid"></div>
+
+      <div class="slider-row">
+        <div class="label-row">
+          <label>Konzentration <span style="font-weight:500;color:var(--text-secondary);font-size:.78rem">(c in mol/L)</span></label>
+          <span class="val" id="concVal">0,100</span>
+        </div>
+        <input class="slider" id="concSlider" type="range" min="-5" max="0" step="0.05" value="-1">
+        <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace">
+          <span>10⁻⁵</span><span>10⁻⁴</span><span>10⁻³</span><span>10⁻²</span><span>10⁻¹</span><span>1</span>
+        </div>
+      </div>
+
+      <div class="ph-result">
+        <div class="ph-label">pH</div>
+        <div class="ph-num" id="phNum">1,00</div>
+        <div class="ph-character" id="phChar">sauer</div>
+      </div>
+
+      <div class="ph-scale-wrap">
+        <div class="ph-scale-bar" id="phScaleBar"></div>
+        <div class="ph-pointer-line" id="phPointerLine" style="left:7.14%"></div>
+        <div class="ph-pointer" id="phPointer" style="left:7.14%"></div>
+      </div>
+
+      <div class="formula" id="phFormula">
+        <span class="var">pH</span> = −log(<span class="var">c</span>) = −log(0,100) = <span class="var">1,00</span>
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Starke Säure:</b> dissoziiert vollständig → [H⁺] = c → pH = −log(c). <b>Schwache Säure:</b> nur teilweise dissoziiert → pH ≈ ½(pKa − log c).</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: PUFFER ============ -->
+  <div class="section" id="puffer">
+    <div class="hero-strip">
+      <h2><i data-lucide="scale"></i>Puffer-Rechner</h2>
+      <p>Berechne den pH einer Pufferlösung mit der <b>Henderson-Hasselbalch-Gleichung</b>. Verschiebe die Slider und sieh wie sich das Verhältnis Säure/Base auf den pH auswirkt.</p>
+    </div>
+
+    <div class="card">
+      <h3>Puffersystem wählen</h3>
+      <div class="sub-grid" id="bufferSubs">
+        <div class="sub-card active" data-pka="4.76" data-name="Acetat-Puffer" data-acid="CH₃COOH" data-base="CH₃COO⁻">
+          <div class="sub-name">Acetat</div>
+          <div class="sub-formula">CH₃COOH / CH₃COO⁻</div>
+          <div class="sub-pka">pKa = 4,76</div>
+        </div>
+        <div class="sub-card" data-pka="6.35" data-name="Carbonat-Puffer" data-acid="H₂CO₃" data-base="HCO₃⁻">
+          <div class="sub-name">Carbonat</div>
+          <div class="sub-formula">H₂CO₃ / HCO₃⁻</div>
+          <div class="sub-pka">pKa₁ = 6,35</div>
+        </div>
+        <div class="sub-card" data-pka="7.21" data-name="Phosphat-Puffer" data-acid="H₂PO₄⁻" data-base="HPO₄²⁻">
+          <div class="sub-name">Phosphat</div>
+          <div class="sub-formula">H₂PO₄⁻ / HPO₄²⁻</div>
+          <div class="sub-pka">pKa₂ = 7,21</div>
+        </div>
+        <div class="sub-card" data-pka="9.25" data-name="Ammonium-Puffer" data-acid="NH₄⁺" data-base="NH₃">
+          <div class="sub-name">Ammoniak</div>
+          <div class="sub-formula">NH₄⁺ / NH₃</div>
+          <div class="sub-pka">pKa = 9,25</div>
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <div class="label-row">
+          <label>[Säure] <span id="bufAcidName" style="font-weight:500;color:var(--text-secondary);font-size:.78rem">CH₃COOH</span></label>
+          <span class="val" id="bufAcidVal">0,100 mol/L</span>
+        </div>
+        <input class="slider" id="bufAcidSlider" type="range" min="-3" max="0" step="0.05" value="-1">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-row">
+          <label>[Base] <span id="bufBaseName" style="font-weight:500;color:var(--text-secondary);font-size:.78rem">CH₃COO⁻</span></label>
+          <span class="val" id="bufBaseVal">0,100 mol/L</span>
+        </div>
+        <input class="slider" id="bufBaseSlider" type="range" min="-3" max="0" step="0.05" value="-1">
+      </div>
+
+      <div class="ph-result">
+        <div class="ph-label">pH des Puffers</div>
+        <div class="ph-num" id="bufPh">4,76</div>
+        <div class="ph-character" id="bufChar">sauer</div>
+      </div>
+
+      <div class="puffer-grid">
+        <div class="puffer-stat">
+          <div class="num" id="bufRatio">1,00</div>
+          <div class="lbl">[Base] / [Säure]</div>
+        </div>
+        <div class="puffer-stat">
+          <div class="num" id="bufLogRatio">0,00</div>
+          <div class="lbl">log([Base]/[Säure])</div>
+        </div>
+      </div>
+
+      <div class="formula">
+        <span class="var">pH</span> = <span class="var">pKa</span> + log<span style="font-size:1.2em">(</span><span class="var">[Base]</span> / <span class="var">[Säure]</span><span style="font-size:1.2em">)</span>
+      </div>
+      <div class="formula" id="bufCalc" style="font-size:.85rem">
+        pH = 4,76 + log(0,100 / 0,100) = 4,76 + 0 = 4,76
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Puffer-Optimum:</b> bei pH = pKa (Verhältnis 1:1). Innerhalb von ±1 pH-Einheit um den pKa wirkt der Puffer gut.</div></div>
+      <div class="warn-fact"><i data-lucide="heart-pulse"></i><div><b>Klinik:</b> Der Bicarbonat-Puffer (HCO₃⁻/H₂CO₃) hält den Blut-pH bei 7,40 ± 0,05. Wichtigster Puffer im Körper.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: TITRATION ============ -->
+  <div class="section" id="titration">
+    <div class="hero-strip">
+      <h2><i data-lucide="trending-up"></i>Titrationskurve</h2>
+      <p>Schiebe die Lauge zu — sieh wie sich der pH ändert. Halbäquivalenzpunkt (pH = pKa) und Äquivalenzpunkt sind markiert.</p>
+    </div>
+
+    <div class="card">
+      <h3>Säure-Typ</h3>
+      <div class="sub-grid" id="titSubs">
+        <div class="sub-card active" data-type="strong" data-pka="0">
+          <div class="sub-name">Starke Säure</div>
+          <div class="sub-formula">HCl + NaOH</div>
+          <div class="sub-tag strong">stark</div>
+        </div>
+        <div class="sub-card" data-type="weak" data-pka="4.76">
+          <div class="sub-name">Schwache Säure</div>
+          <div class="sub-formula">CH₃COOH + NaOH</div>
+          <div class="sub-tag weak">pKa 4,76</div>
+        </div>
+        <div class="sub-card" data-type="weak" data-pka="9.25">
+          <div class="sub-name">Sehr schwache Säure</div>
+          <div class="sub-formula">NH₄⁺ + NaOH</div>
+          <div class="sub-tag weak">pKa 9,25</div>
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <div class="label-row">
+          <label>Zugegebene Lauge (NaOH)</label>
+          <span class="val" id="titVolVal">0,0 mL</span>
+        </div>
+        <input class="slider" id="titSlider" type="range" min="0" max="200" step="0.5" value="0">
+        <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:4px">
+          <span>Start</span><span>Halb-Äq.</span><span>Äq.-Punkt</span><span>Überschuss</span>
+        </div>
+      </div>
+
+      <div class="titration-canvas">
+        <svg id="titSvg" viewBox="0 0 540 320" preserveAspectRatio="xMidYMid meet" width="100%"></svg>
+      </div>
+
+      <div class="puffer-grid">
+        <div class="puffer-stat"><div class="num" id="titPh">1,00</div><div class="lbl">aktueller pH</div></div>
+        <div class="puffer-stat"><div class="num" id="titPhase">Anfang</div><div class="lbl">Phase</div></div>
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Halbäquivalenzpunkt:</b> bei der Hälfte der nötigen Lauge sind 50% der Säure zu Base umgewandelt → <b>pH = pKa</b>. Klassische Methode zur Bestimmung des pKa-Werts!</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Äquivalenzpunkt:</b> Stöchiometrisch ausgeglichen. Bei <b>starker S. + starker Base</b> → pH = 7. Bei <b>schwacher S. + starker B.</b> → pH > 7 (Salz wirkt basisch).</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: SKALA ============ -->
+  <div class="section" id="skala">
+    <div class="hero-strip">
+      <h2><i data-lucide="ruler"></i>pH-Skala mit Beispielen</h2>
+      <p>Klick auf eine Substanz — der Zeiger springt auf den pH-Wert. So bekommst du Gefühl für die Skala.</p>
+    </div>
+
+    <div class="card">
+      <div class="ph-scale-wrap" style="margin-top:12px">
+        <div class="ph-scale-bar" id="bigScaleBar"></div>
+        <div class="ph-pointer-line" id="bigPointerLine" style="left:7.14%"></div>
+        <div class="ph-pointer" id="bigPointer" style="left:7.14%"></div>
+      </div>
+
+      <div class="ph-result" style="margin-top:14px">
+        <div class="ph-label" id="bigLabel">Wähle eine Substanz</div>
+        <div class="ph-num" id="bigPh">—</div>
+      </div>
+
+      <h3 style="margin-top:14px">Lebensmittel &amp; Klinik</h3>
+      <div class="ph-examples" id="phExamples"></div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div>Die <b>pH-Skala</b> ist <b>logarithmisch</b>: Eine Differenz von 1 pH = 10× andere [H⁺]. pH 3 ist also <b>1000× saurer</b> als pH 6.</div></div>
+      <div class="warn-fact"><i data-lucide="heart-pulse"></i><div><b>Blut-pH:</b> 7,35–7,45. Außerhalb 6,8 / 7,8 → lebensgefährlich. Magensaft: pH 1–2 (HCl), Darm: pH 8 (HCO₃⁻).</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">12 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='titration') drawTitration();
+  });
+});
+
+/* ===== PH SCALE COLORS ===== */
+const PH_COLORS=[
+  '#c8002e','#dc1f3e','#dc4d3c','#dc7c3c','#e0a93c','#e5d244','#e5e54c',
+  '#a5d860','#5fc878','#3cad7e','#3c8c92','#3c5fa5','#3c3c92','#3c1f78','#2d0a4f'
+];
+function buildScaleBar(elId){
+  const bar=document.getElementById(elId);
+  bar.innerHTML='';
+  for(let i=0;i<=14;i++){
+    const t=document.createElement('div');
+    t.className='ph-tick';
+    t.style.background=PH_COLORS[i];
+    t.textContent=i;
+    bar.appendChild(t);
+  }
+}
+buildScaleBar('phScaleBar');
+buildScaleBar('bigScaleBar');
+
+function setPointer(prefix,ph){
+  const clamped=Math.max(0,Math.min(14,ph));
+  const pct=(clamped/14)*100;
+  document.getElementById(prefix+'Pointer').style.left=pct+'%';
+  document.getElementById(prefix+'PointerLine').style.left=pct+'%';
+}
+
+/* ===== SUBSTANCES ===== */
+const SUBS=[
+  {key:'hcl',name:'Salzsäure',formula:'HCl',type:'acid',strong:true,pka:-7,info:'Magensäure'},
+  {key:'h2so4',name:'Schwefelsäure',formula:'H₂SO₄',type:'acid',strong:true,pka:-3,info:'Stark'},
+  {key:'hno3',name:'Salpetersäure',formula:'HNO₃',type:'acid',strong:true,pka:-1.4,info:'Stark'},
+  {key:'acetic',name:'Essigsäure',formula:'CH₃COOH',type:'acid',strong:false,pka:4.76,info:'Schwach'},
+  {key:'formic',name:'Ameisensäure',formula:'HCOOH',type:'acid',strong:false,pka:3.75,info:'Schwach'},
+  {key:'hf',name:'Flusssäure',formula:'HF',type:'acid',strong:false,pka:3.17,info:'Schwach, ätzend'},
+  {key:'nh3',name:'Ammoniak',formula:'NH₃',type:'base',strong:false,pkb:4.75,info:'Schwach'},
+  {key:'naoh',name:'Natronlauge',formula:'NaOH',type:'base',strong:true,pkb:-2,info:'Stark'},
+  {key:'koh',name:'Kalilauge',formula:'KOH',type:'base',strong:true,pkb:-2,info:'Stark'}
+];
+const subGrid=document.getElementById('subGrid');
+SUBS.forEach((s,i)=>{
+  const card=document.createElement('div');
+  card.className='sub-card'+(i===0?' active':'');
+  card.dataset.key=s.key;
+  card.innerHTML=`<div class="sub-name">${s.name}</div>
+    <div class="sub-formula">${s.formula}</div>
+    <div class="sub-tag ${s.strong?'strong':'weak'}">${s.strong?'stark':'pK'+(s.type==='acid'?'a':'b')+' '+(s.pka??s.pkb).toFixed(2)}</div>`;
+  card.onclick=()=>{
+    document.querySelectorAll('#subGrid .sub-card').forEach(c=>c.classList.remove('active'));
+    card.classList.add('active');
+    currentSub=s;
+    updatePh();
+  };
+  subGrid.appendChild(card);
+});
+let currentSub=SUBS[0];
+
+/* ===== PH CALC ===== */
+function calcPh(sub,c){
+  if(sub.type==='acid'){
+    if(sub.strong) return -Math.log10(c);
+    // weak acid: pH ≈ ½(pKa - log c)
+    return 0.5*(sub.pka - Math.log10(c));
+  } else {
+    if(sub.strong) return 14 - (-Math.log10(c));
+    // weak base: pOH ≈ ½(pKb - log c) → pH = 14 - pOH
+    const pOH=0.5*(sub.pkb - Math.log10(c));
+    return 14-pOH;
+  }
+}
+function fmtPh(ph){return ph.toFixed(2).replace('.',',')}
+function fmtConc(c){
+  if(c>=0.01) return c.toFixed(3).replace('.',',');
+  if(c>=0.0001) return c.toExponential(2).replace('.',',');
+  return c.toExponential(1).replace('.',',');
+}
+
+function updatePh(){
+  const exp=+document.getElementById('concSlider').value;
+  const c=Math.pow(10,exp);
+  document.getElementById('concVal').textContent=fmtConc(c);
+  let ph=calcPh(currentSub,c);
+  ph=Math.max(0,Math.min(14,ph));
+  document.getElementById('phNum').textContent=fmtPh(ph);
+  setPointer('ph',ph);
+  // Character
+  const ch=document.getElementById('phChar');
+  if(ph<6.5){ch.textContent='sauer';ch.className='ph-character acid'}
+  else if(ph>7.5){ch.textContent='basisch';ch.className='ph-character base'}
+  else {ch.textContent='neutral';ch.className='ph-character neutral'}
+  // Formula
+  let formula;
+  if(currentSub.strong&&currentSub.type==='acid'){
+    formula=`<span class="var">pH</span> = −log(<span class="var">c</span>) = −log(${fmtConc(c)}) = <span class="var">${fmtPh(ph)}</span>`;
+  } else if(currentSub.strong&&currentSub.type==='base'){
+    formula=`<span class="var">pOH</span> = −log(<span class="var">c</span>) = ${fmtPh(-Math.log10(c))} → <span class="var">pH</span> = 14 − pOH = <span class="var">${fmtPh(ph)}</span>`;
+  } else if(currentSub.type==='acid'){
+    formula=`<span class="var">pH</span> ≈ ½(<span class="var">pKa</span> − log <span class="var">c</span>) = ½(${currentSub.pka.toFixed(2)} − ${(-Math.log10(c)).toFixed(2).replace('.',',')}·(−1)) ≈ <span class="var">${fmtPh(ph)}</span>`;
+  } else {
+    formula=`<span class="var">pOH</span> ≈ ½(<span class="var">pKb</span> − log <span class="var">c</span>) → <span class="var">pH</span> = 14 − pOH = <span class="var">${fmtPh(ph)}</span>`;
+  }
+  document.getElementById('phFormula').innerHTML=formula;
+}
+document.getElementById('concSlider').addEventListener('input',updatePh);
+updatePh();
+
+/* ===== PUFFER ===== */
+let bufPka=4.76, bufAcidName='CH₃COOH', bufBaseName='CH₃COO⁻';
+document.querySelectorAll('#bufferSubs .sub-card').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#bufferSubs .sub-card').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    bufPka=+c.dataset.pka;
+    bufAcidName=c.dataset.acid;
+    bufBaseName=c.dataset.base;
+    document.getElementById('bufAcidName').textContent=bufAcidName;
+    document.getElementById('bufBaseName').textContent=bufBaseName;
+    updateBuffer();
+  });
+});
+function updateBuffer(){
+  const cAcid=Math.pow(10,+document.getElementById('bufAcidSlider').value);
+  const cBase=Math.pow(10,+document.getElementById('bufBaseSlider').value);
+  document.getElementById('bufAcidVal').textContent=fmtConc(cAcid)+' mol/L';
+  document.getElementById('bufBaseVal').textContent=fmtConc(cBase)+' mol/L';
+  const ratio=cBase/cAcid;
+  const logR=Math.log10(ratio);
+  const ph=bufPka+logR;
+  document.getElementById('bufRatio').textContent=ratio.toFixed(2).replace('.',',');
+  document.getElementById('bufLogRatio').textContent=(logR>=0?'+':'')+logR.toFixed(2).replace('.',',');
+  document.getElementById('bufPh').textContent=fmtPh(Math.max(0,Math.min(14,ph)));
+  const ch=document.getElementById('bufChar');
+  if(ph<6.5){ch.textContent='sauer';ch.className='ph-character acid'}
+  else if(ph>7.5){ch.textContent='basisch';ch.className='ph-character base'}
+  else {ch.textContent='neutral';ch.className='ph-character neutral'}
+  document.getElementById('bufCalc').innerHTML=
+    `pH = ${bufPka.toFixed(2).replace('.',',')} + log(${fmtConc(cBase)} / ${fmtConc(cAcid)}) = ${bufPka.toFixed(2).replace('.',',')} + ${logR.toFixed(2).replace('.',',')} = <b style="color:var(--purple-deep)">${fmtPh(ph)}</b>`;
+}
+document.getElementById('bufAcidSlider').addEventListener('input',updateBuffer);
+document.getElementById('bufBaseSlider').addEventListener('input',updateBuffer);
+updateBuffer();
+
+/* ===== TITRATION ===== */
+let titType='strong', titPka=0;
+document.querySelectorAll('#titSubs .sub-card').forEach(c=>{
+  c.addEventListener('click',()=>{
+    document.querySelectorAll('#titSubs .sub-card').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    titType=c.dataset.type;
+    titPka=+c.dataset.pka;
+    drawTitration();
+  });
+});
+function calcTitPh(volNaOH){
+  // 100 mL of 0.1 M acid + variable volNaOH of 0.1 M NaOH
+  // Vacid=100, Cacid=0.1, Cnaoh=0.1
+  const Vacid=100, Cacid=0.1, Cnaoh=0.1;
+  const nAcid=Vacid*Cacid; // mmol
+  const nNaOH=volNaOH*Cnaoh;
+  const Vtot=Vacid+volNaOH;
+  if(titType==='strong'){
+    if(nNaOH<nAcid){
+      const cH=(nAcid-nNaOH)/Vtot;
+      return -Math.log10(cH);
+    } else if(nNaOH>nAcid){
+      const cOH=(nNaOH-nAcid)/Vtot;
+      return 14-(-Math.log10(cOH));
+    } else return 7;
+  } else {
+    // weak acid + strong base
+    if(nNaOH===0){
+      // pH ≈ ½(pKa - log c)
+      return 0.5*(titPka - Math.log10(Cacid));
+    } else if(nNaOH<nAcid){
+      const cAcidLeft=(nAcid-nNaOH)/Vtot;
+      const cBaseFormed=nNaOH/Vtot;
+      return titPka+Math.log10(cBaseFormed/cAcidLeft);
+    } else if(nNaOH===nAcid){
+      // equivalence: salt of weak acid → basic
+      const cBase=nAcid/Vtot;
+      const pKb=14-titPka;
+      const pOH=0.5*(pKb-Math.log10(cBase));
+      return 14-pOH;
+    } else {
+      const cOH=(nNaOH-nAcid)/Vtot;
+      return 14-(-Math.log10(cOH));
+    }
+  }
+}
+function drawTitration(){
+  const svg=document.getElementById('titSvg');
+  if(!svg) return;
+  const W=540,H=320,ml=42,mr=18,mt=18,mb=42;
+  const w=W-ml-mr, h=H-mt-mb;
+  let html='';
+  // Background
+  html+=`<rect x="${ml}" y="${mt}" width="${w}" height="${h}" fill="#fafaf6" rx="6"/>`;
+  // Grid lines
+  for(let i=0;i<=14;i++){
+    const y=mt+h-(i/14)*h;
+    html+=`<line x1="${ml}" y1="${y}" x2="${ml+w}" y2="${y}" stroke="#e8e2d8" stroke-width="${i%7===0?1:.5}"/>`;
+    if(i%2===0) html+=`<text x="${ml-5}" y="${y+3}" text-anchor="end" font-size="9" fill="#9e9eae">${i}</text>`;
+  }
+  for(let v=0;v<=200;v+=50){
+    const x=ml+(v/200)*w;
+    html+=`<line x1="${x}" y1="${mt}" x2="${x}" y2="${mt+h}" stroke="#e8e2d8" stroke-width=".5"/>`;
+    html+=`<text x="${x}" y="${mt+h+15}" text-anchor="middle" font-size="9" fill="#9e9eae">${v}</text>`;
+  }
+  html+=`<text x="${ml+w/2}" y="${mt+h+32}" text-anchor="middle" font-size="10" fill="#5c5c6e" font-weight="600">V (NaOH) in mL</text>`;
+  html+=`<text x="${ml-30}" y="${mt+h/2}" text-anchor="middle" font-size="10" fill="#5c5c6e" font-weight="600" transform="rotate(-90 ${ml-30} ${mt+h/2})">pH</text>`;
+  // Curve
+  let path='';
+  for(let v=0;v<=200;v+=1){
+    const ph=Math.max(0,Math.min(14,calcTitPh(v)));
+    const x=ml+(v/200)*w;
+    const y=mt+h-(ph/14)*h;
+    path+=(v===0?'M':'L')+x+','+y;
+  }
+  html+=`<path d="${path}" fill="none" stroke="url(#titGrad)" stroke-width="2.5"/>`;
+  html+=`<defs><linearGradient id="titGrad" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#dc1f3e"/><stop offset="0.5" stop-color="#e5d244"/><stop offset="1" stop-color="#3c5fa5"/></linearGradient></defs>`;
+  // Mark equivalence point and half-eq
+  if(titType==='weak'){
+    const xHalf=ml+(50/200)*w, yHalf=mt+h-(titPka/14)*h;
+    html+=`<circle cx="${xHalf}" cy="${yHalf}" r="5" fill="#9b7fc4"/>`;
+    html+=`<text x="${xHalf+8}" y="${yHalf-8}" font-size="10" fill="#7a60a8" font-weight="700">½ Äq. (pKa)</text>`;
+  }
+  const xEq=ml+(100/200)*w;
+  const phEq=calcTitPh(100);
+  const yEq=mt+h-(phEq/14)*h;
+  html+=`<circle cx="${xEq}" cy="${yEq}" r="5" fill="#e6a817"/>`;
+  html+=`<text x="${xEq+8}" y="${yEq-8}" font-size="10" fill="#bf8c0a" font-weight="700">Äq.-Punkt</text>`;
+  // Current point
+  const curV=+document.getElementById('titSlider').value;
+  const curPh=Math.max(0,Math.min(14,calcTitPh(curV)));
+  const xCur=ml+(curV/200)*w, yCur=mt+h-(curPh/14)*h;
+  html+=`<circle cx="${xCur}" cy="${yCur}" r="7" fill="#1a1a2e" stroke="#fff" stroke-width="2"/>`;
+  svg.innerHTML=html;
+  // Stats
+  document.getElementById('titVolVal').textContent=curV.toFixed(1).replace('.',',')+' mL';
+  document.getElementById('titPh').textContent=fmtPh(curPh);
+  let phase='Anfang';
+  if(titType==='strong'){
+    if(curV<99) phase='Vor Äq.';
+    else if(curV<101) phase='Äquivalenz';
+    else phase='Überschuss';
+  } else {
+    if(curV<10) phase='Anfang';
+    else if(Math.abs(curV-50)<3) phase='Halb-Äq.';
+    else if(curV<90) phase='Pufferzone';
+    else if(curV<105) phase='Äquivalenz';
+    else phase='Überschuss';
+  }
+  document.getElementById('titPhase').textContent=phase;
+}
+document.getElementById('titSlider').addEventListener('input',drawTitration);
+
+/* ===== PH SKALA ===== */
+const PH_EXAMPLES=[
+  {ph:0,name:'Magensäure (Mensch)',color:'#c8002e'},
+  {ph:1.5,name:'Salzsäure 1M'},
+  {ph:2,name:'Zitronensaft'},
+  {ph:2.5,name:'Essig'},
+  {ph:3,name:'Cola'},
+  {ph:3.5,name:'Orangensaft'},
+  {ph:4,name:'Tomatensaft'},
+  {ph:4.5,name:'Bier'},
+  {ph:5,name:'Kaffee'},
+  {ph:5.5,name:'Regenwasser'},
+  {ph:6.5,name:'Milch'},
+  {ph:7,name:'Reines Wasser'},
+  {ph:7.4,name:'Blut',color:'#c8002e'},
+  {ph:8,name:'Meerwasser'},
+  {ph:8.3,name:'Backpulver-Lösung'},
+  {ph:9.5,name:'Seife'},
+  {ph:11,name:'Ammoniak (Reiniger)'},
+  {ph:12.5,name:'Bleichmittel'},
+  {ph:13,name:'Ofenreiniger'},
+  {ph:14,name:'NaOH 1M'}
+];
+const phEx=document.getElementById('phExamples');
+PH_EXAMPLES.forEach(ex=>{
+  const card=document.createElement('div');
+  card.className='ph-ex';
+  const colorIdx=Math.round(ex.ph);
+  card.innerHTML=`<div class="ex-ph" style="color:${ex.color||PH_COLORS[Math.min(14,Math.max(0,colorIdx))]}">${fmtPh(ex.ph)}</div>
+    <div class="ex-name">${ex.name}</div>`;
+  card.onclick=()=>{
+    setPointer('big',ex.ph);
+    document.getElementById('bigPh').textContent=fmtPh(ex.ph);
+    document.getElementById('bigLabel').textContent=ex.name;
+  };
+  phEx.appendChild(card);
+});
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Welcher pH ist <b>neutral</b> (bei 25°C)?',o:['0','7','14','10'],c:1,e:'Bei 25°C ist [H⁺] = [OH⁻] = 10⁻⁷ mol/L → pH = 7. Bei höheren Temperaturen verschiebt sich Kw.'},
+  {q:'Wie verhält sich [H⁺] zwischen pH 3 und pH 6?',o:['10× saurer','100× saurer','1000× saurer','gleich'],c:2,e:'pH ist logarithmisch: 3 pH-Einheiten Differenz = 10³ = 1000-fach.'},
+  {q:'pH einer 0,01 M HCl-Lösung?',o:['1','2','12','7'],c:1,e:'HCl ist starke Säure → vollständig dissoziiert. pH = −log(0,01) = 2.'},
+  {q:'Henderson-Hasselbalch-Gleichung lautet:',o:['pH = pKa + log([HA]/[A⁻])','pH = pKa − log([A⁻]/[HA])','pH = pKa + log([A⁻]/[HA])','pH = pKa × log[A⁻]'],c:2,e:'pH = pKa + log([Base]/[Säure]). Bei 1:1-Verhältnis ist pH = pKa.'},
+  {q:'Bei welchem pH ist ein Acetat-Puffer (pKa 4,76) optimal?',o:['1','3','4,76','7'],c:2,e:'Maximale Pufferkapazität bei pH = pKa. Verhältnis 1:1, kein Logarithmus-Term.'},
+  {q:'Was passiert am <b>Halbäquivalenzpunkt</b> einer Titration?',o:['pH = 7','pH = pKa der Säure','pH = 0','Lauge im Überschuss'],c:1,e:'Bei halber Äquivalenz: 50% Säure umgesetzt → [Säure]=[Base] → log(1)=0 → pH = pKa.'},
+  {q:'Welcher Puffer hält den <b>Blut-pH</b> bei 7,4?',o:['Acetat','Phosphat','Bicarbonat (HCO₃⁻/H₂CO₃)','Tris'],c:2,e:'Wichtigster physiologischer Puffer. Über Atmung (CO₂) und Niere (HCO₃⁻) reguliert.'},
+  {q:'pH einer 1,0 M NaOH-Lösung?',o:['7','13','14','1'],c:2,e:'NaOH stark → [OH⁻] = 1 M → pOH = 0 → pH = 14.'},
+  {q:'Welche Säure ist <b>schwach</b>?',o:['HCl','HNO₃','H₂SO₄','CH₃COOH'],c:3,e:'Essigsäure (pKa 4,76) dissoziiert nur teilweise. Die anderen drei sind starke Säuren.'},
+  {q:'Was bedeutet <b>Azidose</b>?',o:['pH > 7,45','pH < 7,35','pH = 7,4','Sauerstoffmangel'],c:1,e:'Azidose: Blut-pH < 7,35. Ursachen: respiratorisch (CO₂-Anstieg) oder metabolisch (z. B. Diabetes, Niereninsuffizienz).'},
+  {q:'Wie ändert sich der pH, wenn man 0,1 M Essigsäure 10× verdünnt?',o:['steigt um 1','steigt um 0,5','sinkt um 1','bleibt gleich'],c:1,e:'Schwache Säure: pH ≈ ½(pKa − log c). 10× Verdünnung → log c sinkt um 1 → pH steigt um 0,5.'},
+  {q:'pOH einer Lösung mit pH 9?',o:['9','5','7','14'],c:1,e:'pH + pOH = 14 (bei 25°C) → pOH = 14 − 9 = 5.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('.q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

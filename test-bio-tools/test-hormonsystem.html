@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hormonsystem · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --rose:#d96a7a;--rose-deep:#a8395a;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#fde0e5,#fff);display:flex;align-items:center;justify-content:center;color:var(--rose-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(217,106,122,.4);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--rose);color:var(--rose-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--rose-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--rose-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,#fde0e5 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(217,106,122,.2);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--rose-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* BODY MAP */
+  .body-stage{background:radial-gradient(ellipse at center,#1a2a3e 0%,#080c14 100%);border-radius:var(--radius);padding:14px;overflow-x:auto;box-shadow:inset 0 0 60px rgba(0,0,0,0.5)}
+  .body-stage svg{display:block;margin:0 auto;max-width:100%;height:auto}
+  .gland{cursor:pointer;transition:filter .25s ease,transform .2s cubic-bezier(.4,0,.2,1);filter:drop-shadow(0 4px 8px rgba(0,0,0,.55))}
+  .gland:hover{filter:drop-shadow(0 6px 18px rgba(245,197,66,.65)) brightness(1.12)}
+  .gland text{pointer-events:none;font-family:'Inter',sans-serif;font-weight:700}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:520px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:90vh;overflow-y:auto}
+  .modal-head{padding:24px 24px 18px;background:linear-gradient(135deg,#fde0e5,var(--bg-light))}
+  .modal-head h3{font-size:1.4rem;font-weight:800;color:var(--text);margin-bottom:4px}
+  .modal-head .sub{font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;color:var(--rose-deep);font-weight:700}
+  .modal-body{padding:18px 24px 24px}
+  .modal-body p{font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-bottom:10px}
+  .hormones-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .hormone-item{background:var(--bg-light);border-left:3px solid var(--rose);border-radius:0 12px 12px 0;padding:10px 12px;font-size:.84rem;line-height:1.5}
+  .hormone-item .h-name{font-weight:800;color:var(--text);margin-bottom:2px}
+  .hormone-item .h-fn{font-size:.78rem;color:var(--text-secondary)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.06);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);z-index:2}
+  .modal-close:hover{background:rgba(0,0,0,.12)}
+
+  /* AXIS */
+  .axis-grid{display:grid;grid-template-columns:1fr;gap:12px}
+  .axis-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;padding:16px;box-shadow:var(--shadow-sm)}
+  .axis-card h4{font-size:.92rem;font-weight:800;margin-bottom:10px;color:var(--rose-deep);display:flex;align-items:center;gap:8px}
+  .axis-flow{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:12px 0;padding:14px 8px;background:var(--bg-light);border-radius:14px}
+  .axis-node{background:linear-gradient(135deg,var(--coral-soft),#fff);border:1.5px solid var(--rose);border-radius:12px;padding:8px 12px;text-align:center;min-width:90px}
+  .axis-node .gn{font-size:.82rem;font-weight:800;color:var(--text);line-height:1.2}
+  .axis-node .hg{font-family:monospace;font-size:.72rem;color:var(--rose-deep);margin-top:3px;font-weight:700}
+  .axis-arrow{color:var(--rose-deep);font-weight:800;font-size:1rem}
+  .axis-card p{font-size:.82rem;color:var(--text-secondary);line-height:1.55;margin-top:6px}
+  .axis-card p b{color:var(--text)}
+
+  /* STOFFWECHSEL MODE SELECTOR */
+  .sw-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:560px){.sw-mode-row{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:780px){.sw-mode-row{grid-template-columns:repeat(6,1fr)}}
+  .sw-mode-btn{padding:11px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .sw-mode-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .sw-mode-btn:hover:not(.active){border-color:var(--rose-deep);transform:translateY(-1px)}
+  .sw-mode-btn.active{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(217,106,122,.3)}
+  .sw-mode-btn.active small{color:rgba(255,255,255,.85)}
+
+  /* BLOOD SUGAR REGULATOR */
+  .bs-arena{background:linear-gradient(135deg,#fff,#fde0e5);border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0}
+  .bs-num{font-size:3rem;font-weight:900;color:var(--rose-deep);letter-spacing:-1px;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:6px}
+  .bs-num .unit{font-size:1rem;color:var(--text-secondary);margin-left:6px;font-weight:600}
+  .bs-zone{display:inline-block;padding:5px 14px;border-radius:var(--radius-pill);font-size:.78rem;font-weight:700;margin-top:6px}
+  .bs-zone.low{background:var(--coral-soft);color:var(--coral-deep)}
+  .bs-zone.normal{background:var(--mint);color:var(--green-deep)}
+  .bs-zone.high{background:var(--lavender);color:var(--purple-deep)}
+  .bs-zone.danger{background:rgba(220,38,38,.15);color:var(--danger)}
+
+  .bs-slider{-webkit-appearance:none;appearance:none;width:100%;height:14px;background:linear-gradient(90deg,#e07a55 0%,#e07a55 28%,#88c898 28%,#88c898 50%,#9b7fc4 50%,#9b7fc4 100%);border-radius:7px;outline:none;cursor:pointer;margin-top:14px}
+  .bs-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:30px;height:30px;background:#fff;border:3px solid var(--rose-deep);border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+  .bs-slider::-moz-range-thumb{width:30px;height:30px;background:#fff;border:3px solid var(--rose-deep);border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+
+  .bs-scale{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:6px;font-family:monospace}
+
+  .bs-response{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  @media(max-width:520px){.bs-response{grid-template-columns:1fr}}
+  .bs-resp{background:var(--surface);border:2px solid var(--border-light);border-radius:14px;padding:14px;text-align:center;transition:all .3s}
+  .bs-resp.active{border-color:var(--rose-deep);background:linear-gradient(135deg,var(--coral-soft),#fff);box-shadow:0 6px 16px rgba(217,106,122,.3);transform:translateY(-2px)}
+  .bs-resp h4{font-size:.92rem;font-weight:800;margin-bottom:4px}
+  .bs-resp.active.insulin h4{color:var(--green-deep)}
+  .bs-resp.active.glucagon h4{color:var(--coral-deep)}
+  .bs-resp p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+  .bs-resp .organ-list{font-size:.74rem;color:var(--text-secondary);margin-top:6px;line-height:1.5}
+
+  /* MATCHING */
+  .match-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:640px){.match-mode-row{grid-template-columns:repeat(4,1fr)}}
+  .match-mode-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .match-mode-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .match-mode-btn:hover:not(.active){border-color:var(--rose-deep);transform:translateY(-1px)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(217,106,122,.3)}
+  .match-mode-btn.active small{color:rgba(255,255,255,.85)}
+
+  .match-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .match-stat{background:var(--surface);padding:10px;border-radius:12px;text-align:center;border:1px solid var(--border-light)}
+  .match-stat .num{font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .match-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600}
+
+  .match-pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .match-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;text-align:center}
+  .match-list{display:flex;flex-direction:column;gap:8px}
+  .match-item{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;cursor:pointer;font-size:.84rem;transition:all .15s;font-weight:600;line-height:1.4}
+  .match-item:hover:not(.matched){border-color:var(--rose-deep);transform:translateY(-1px)}
+  .match-item.selected{border-color:var(--gold);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(245,197,66,.2)}
+  .match-item.matched{background:rgba(109,184,138,.12);border-color:var(--success);color:var(--success);cursor:default;opacity:.85}
+  .match-item.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);animation:wrongShake .35s ease}
+  @keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  .match-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;line-height:1.55}
+  .match-status.show{display:block;animation:fadeUp .3s ease}
+  .match-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--rose-deep);background:rgba(217,106,122,.05);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .4s}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--rose),var(--rose-deep));color:#fff;box-shadow:0 4px 14px rgba(217,106,122,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(217,106,122,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--rose-deep);color:var(--rose-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:520px){.header h1{font-size:1.15rem}.bs-num{font-size:2.2rem}}
+
+  /* ===== STECKBRIEF-SECTIONS (ergänzt das Drüsen-Modal) ===== */
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--rose-deep);margin-top:12px}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--rose-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--rose-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--rose-deep);font-weight:700}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--rose-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4, .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="heart-pulse"></i></div>
+    <div>
+      <h1>Hormonsystem</h1>
+      <p>Drüsen · Achsen · Blutzucker · Zuordnung · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="body"><i data-lucide="user"></i>Drüsen</button>
+  <button class="tab" data-tab="axes"><i data-lucide="git-merge"></i>Achsen</button>
+  <button class="tab" data-tab="stoffwechsel"><i data-lucide="activity"></i>Stoffwechsel</button>
+  <button class="tab" data-tab="match"><i data-lucide="link"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: DRÜSEN ============ -->
+  <div class="section active" id="body">
+    <div class="hero-strip">
+      <h2><i data-lucide="user"></i>Endokrine Drüsen</h2>
+      <p>Tippe auf jede Drüse — siehst alle dort produzierten Hormone, Funktionen und MedAT-Klinik.</p>
+    </div>
+
+    <div class="card">
+      <div class="body-stage">
+        <svg id="bodySvg" viewBox="0 0 320 540" preserveAspectRatio="xMidYMid meet" width="100%" style="max-width:380px"></svg>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:.78rem;margin-top:10px">Tippe auf eine Drüse</p>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: ACHSEN ============ -->
+  <div class="section" id="axes">
+    <div class="hero-strip">
+      <h2><i data-lucide="git-merge"></i>Endokrine Achsen</h2>
+      <p>Klassische Hormon-Kaskaden: Hypothalamus setzt Releasing-Hormon frei → Hypophyse setzt Tropin frei → Zielorgan produziert Wirkhormon. Negative Rückkopplung schließt den Kreislauf.</p>
+    </div>
+
+    <div class="card">
+      <div class="axis-grid" id="axisGrid"></div>
+
+      <div class="key-fact" style="margin-top:14px"><i data-lucide="info"></i><div><b>Negative Rückkopplung:</b> Das Wirkhormon (z. B. Cortisol, T3/T4) hemmt sowohl Hypothalamus als auch Hypophyse → Selbstregulation.</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Eselsbrücke HVL-Hormone „FLAT PiG":</b> <b>F</b>SH, <b>L</b>H, <b>A</b>CTH, <b>T</b>SH, <b>P</b>rolactin, <b>i</b>n addition <b>G</b>H. Die HHL hat nur ADH und Oxytocin.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: STOFFWECHSEL ============ -->
+  <div class="section" id="stoffwechsel">
+    <div class="hero-strip">
+      <h2><i data-lucide="activity"></i>Stoffwechsel-Regelkreise</h2>
+      <p>6 wichtige hormonelle Regelkreise. Verschiebe den Slider — die Hormonantwort reagiert live, mit Erklärung des Feedback-Mechanismus und Klinik-Bezug.</p>
+    </div>
+
+    <div class="card">
+      <h3>Regelkreis wählen</h3>
+      <div class="sw-mode-row" id="swModeRow"></div>
+
+      <div class="bs-arena">
+        <div class="bs-num"><span id="swNum">100</span><span class="unit" id="swUnit">mg/dL</span></div>
+        <div class="bs-zone normal" id="swZone">Normbereich</div>
+        <input class="bs-slider" id="swSlider" type="range" min="40" max="300" step="1" value="100">
+        <div class="bs-scale" id="swScale"></div>
+      </div>
+
+      <div class="bs-response" id="swResponses"></div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div id="swFact1">—</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div id="swFact2">—</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: ZUORDNUNG ============ -->
+  <div class="section" id="match">
+    <div class="hero-strip">
+      <h2><i data-lucide="link"></i>Hormone zuordnen</h2>
+      <p>4 Modi: Hormon → Drüse, Hormon → Wirkung, Krankheit → Hormon-Defekt, Hypothalamus-Releasing → Hypophysen-Hormon.</p>
+    </div>
+
+    <div class="card">
+      <h3>Modus wählen</h3>
+      <div class="match-mode-row" id="matchModeRow"></div>
+
+      <div class="match-stats">
+        <div class="match-stat"><div class="num" id="matchOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="match-stat"><div class="num" id="matchBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="match-stat"><div class="num" id="matchLeft">12</div><div class="lbl">Übrig</div></div>
+      </div>
+
+      <div class="match-pairs">
+        <div class="match-col"><h4 id="matchLeftLabel">Hormon</h4><div class="match-list" id="matchLeft1"></div></div>
+        <div class="match-col"><h4 id="matchRightLabel">Drüse</h4><div class="match-list" id="matchRight"></div></div>
+      </div>
+
+      <div class="match-status" id="matchStatus"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="matchReset"><i data-lucide="rotate-ccw"></i>Neu starten</button>
+        <button class="btn ghost" id="matchNext"><i data-lucide="arrow-right"></i>Nächster Modus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">15 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="glandModal" onclick="if(event.target===this)closeGland()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeGland()"><i data-lucide="x"></i></button>
+    <div class="modal-head">
+      <div class="sub" id="gSub">Drüse</div>
+      <h3 id="gName">—</h3>
+    </div>
+    <div class="modal-body" id="gBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='match') initMatch();
+  });
+});
+
+/* ===== GLAND DATA ===== */
+const GLANDS={
+  hypothalamus:{name:'Hypothalamus',sub:'Schaltzentrale ZNS',
+    pos:{cx:165,cy:55,rx:24,ry:14},color:'rose',
+    info:'Verbindet Nervensystem und Hormonsystem. Setzt Releasing-/Inhibiting-Hormone frei → steuert die Hypophyse.',
+    hormones:[
+      {name:'TRH',fn:'TSH-Releasing → stimuliert TSH-Freisetzung'},
+      {name:'CRH',fn:'Corticotropin-Releasing → stimuliert ACTH'},
+      {name:'GnRH',fn:'Gonadotropin-Releasing → FSH/LH'},
+      {name:'GHRH',fn:'GH-Releasing → Wachstumshormon'},
+      {name:'Somatostatin',fn:'Hemmt GH-Freisetzung'},
+      {name:'Dopamin',fn:'Hemmt Prolaktin'}
+    ]},
+  hypophyse:{name:'Hypophyse',sub:'Hirnanhangsdrüse',
+    pos:{cx:165,cy:90,rx:18,ry:12},color:'rose',
+    info:'Unter dem Hypothalamus, in der Sella turcica. <b>HVL</b> (Adenohypophyse): glanduläres Gewebe. <b>HHL</b> (Neurohypophyse): Speichert Hormone, die im Hypothalamus gebildet werden.',
+    hormones:[
+      {name:'TSH (HVL)',fn:'Thyreoidea-stimulierend → Schilddrüse'},
+      {name:'ACTH (HVL)',fn:'Adrenocorticotropin → Nebennierenrinde (Cortisol)'},
+      {name:'FSH (HVL)',fn:'Follikel-stimulierend → Ovar/Hoden'},
+      {name:'LH (HVL)',fn:'Luteinisierend → Ovulation, Testosteron'},
+      {name:'GH/STH (HVL)',fn:'Wachstumshormon → IGF-1, Wachstum'},
+      {name:'Prolactin (HVL)',fn:'Milchproduktion'},
+      {name:'ADH/Vasopressin (HHL)',fn:'Wasserrückresorption Niere'},
+      {name:'Oxytocin (HHL)',fn:'Geburtsweh, Milchejektion, Bindung'}
+    ]},
+  schilddruese:{name:'Schilddrüse',sub:'Thyroidea',
+    pos:{cx:165,cy:140,rx:30,ry:16},color:'rose',
+    info:'Vor der Trachea. Folliculäre Zellen produzieren <b>T3/T4</b>, parafolliculäre C-Zellen das <b>Calcitonin</b>. Iod-abhängig!',
+    hormones:[
+      {name:'Thyroxin T4',fn:'Stoffwechsel-Aktivierung (Prohormon)'},
+      {name:'Trijodthyronin T3',fn:'Aktive Form, ↑ Grundumsatz, Wärme'},
+      {name:'Calcitonin',fn:'Senkt Blut-Calcium (C-Zellen)'}
+    ]},
+  parathyroid:{name:'Nebenschilddrüsen',sub:'Glandulae parathyroideae',
+    pos:{cx:200,cy:142,rx:8,ry:7},color:'rose',
+    info:'4 kleine Drüsen hinter der Schilddrüse. Antagonist zu Calcitonin.',
+    hormones:[
+      {name:'Parathormon (PTH)',fn:'↑ Blut-Calcium: Knochen-Abbau, Niere-Rückresorption, Vit-D-Aktivierung'}
+    ]},
+  thymus:{name:'Thymus',sub:'Bries',
+    pos:{cx:165,cy:175,rx:22,ry:14},color:'rose',
+    info:'Hinter dem Sternum. Reifung der T-Lymphozyten. Bildet sich nach der Pubertät zurück.',
+    hormones:[
+      {name:'Thymosin',fn:'T-Zell-Differenzierung'},
+      {name:'Thymopoietin',fn:'Reifung der T-Lymphozyten'}
+    ]},
+  pankreas:{name:'Pankreas',sub:'Langerhans-Inseln',
+    pos:{cx:165,cy:265,rx:32,ry:16},color:'rose',
+    info:'Endokrin: <b>Inseln</b> mit α-, β-, δ-Zellen. Exokrin: Verdauungsenzyme über Ductus pancreaticus.',
+    hormones:[
+      {name:'Insulin (β-Zellen)',fn:'↓ Blutzucker: GLUT4, Glykogen, Lipogenese'},
+      {name:'Glucagon (α-Zellen)',fn:'↑ Blutzucker: Glykogenolyse, Gluconeogenese'},
+      {name:'Somatostatin (δ-Zellen)',fn:'Hemmt Insulin und Glucagon'}
+    ]},
+  nebenniere:{name:'Nebennieren',sub:'Glandulae suprarenales',
+    pos:{cx:140,cy:225,rx:11,ry:10,extra:[{cx:190,cy:225,rx:11,ry:10}]},color:'rose',
+    info:'Über den Nieren. <b>Rinde</b> (3 Zonen) + <b>Mark</b>. Lebensnotwendig.',
+    hormones:[
+      {name:'Aldosteron (Rinde, Z. glomerulosa)',fn:'↑ Na⁺-Retention, K⁺-Ausscheidung → BD ↑'},
+      {name:'Cortisol (Rinde, Z. fasciculata)',fn:'Stress, Glucose ↑, Immunsuppression, anti-inflammatorisch'},
+      {name:'DHEA / Androgene (Rinde, Z. reticularis)',fn:'Sexualhormon-Vorstufen'},
+      {name:'Adrenalin/Noradrenalin (Mark)',fn:'Sympathische Stress-Antwort: Herz ↑, Glucose ↑, Bronchodilatation'}
+    ]},
+  ovar:{name:'Ovar',sub:'Eierstock',
+    pos:{cx:140,cy:325,rx:14,ry:11,extra:[{cx:190,cy:325,rx:14,ry:11}]},color:'rose',
+    info:'Produziert weibliche Sexualhormone. Folliculäre Zellen → Östrogene. Corpus luteum → Progesteron.',
+    hormones:[
+      {name:'Östrogen (Östradiol)',fn:'Weibliche Reifung, Endometriums-Aufbau, Knochen-Erhalt'},
+      {name:'Progesteron',fn:'Erhalt der Schwangerschaft, Endometriums-Sekretion'},
+      {name:'Inhibin',fn:'Hemmt FSH-Freisetzung'}
+    ]},
+  hoden:{name:'Hoden',sub:'Testes',
+    pos:{cx:165,cy:425,rx:20,ry:14},color:'rose',
+    info:'Leydig-Zellen → Testosteron. Sertoli-Zellen → Spermatogenese-Unterstützung, Inhibin.',
+    hormones:[
+      {name:'Testosteron',fn:'Männliche Reifung, Spermatogenese, anabole Wirkung'},
+      {name:'Inhibin (Sertoli)',fn:'Hemmt FSH'}
+    ]},
+  zirbel:{name:'Zirbeldrüse',sub:'Epiphyse / Pinealorgan',
+    pos:{cx:165,cy:35,rx:12,ry:8},color:'rose',
+    info:'Im Epithalamus. Steuert den Tag-Nacht-Rhythmus.',
+    hormones:[
+      {name:'Melatonin',fn:'Schlaf-Wach-Rhythmus, in der Dunkelheit ↑'}
+    ]}
+};
+
+/* ===== BODY SVG RENDER — anatomisch & plastisch ===== */
+function renderBody(){
+  const svg=document.getElementById('bodySvg');
+  let html='';
+
+  // ORGAN-SPEZIFISCHE GRADIENTS
+  html+=`<defs>
+    <radialGradient id="bodyGrad" cx="50%" cy="20%" r="100%">
+      <stop offset="0%" stop-color="#3a5070"/>
+      <stop offset="60%" stop-color="#1f2c40"/>
+      <stop offset="100%" stop-color="#0c1320"/>
+    </radialGradient>
+    <radialGradient id="headGrad" cx="40%" cy="25%" r="85%">
+      <stop offset="0%" stop-color="#6a8aa8"/>
+      <stop offset="100%" stop-color="#2a3848"/>
+    </radialGradient>
+    <radialGradient id="bodyHL" cx="50%" cy="0%" r="60%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.12)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <!-- Pituitary / Hypothalamus / Pineal: rosa-purple -->
+    <radialGradient id="g_pituitary" cx="30%" cy="22%" r="85%">
+      <stop offset="0%" stop-color="#fcd0e0"/><stop offset="50%" stop-color="#e08aa8"/><stop offset="100%" stop-color="#5a2848"/>
+    </radialGradient>
+    <radialGradient id="g_pineal" cx="30%" cy="22%" r="85%">
+      <stop offset="0%" stop-color="#d8a8c8"/><stop offset="60%" stop-color="#8a4878"/><stop offset="100%" stop-color="#3a1838"/>
+    </radialGradient>
+    <!-- Schilddrüse: dunkelrot/braun -->
+    <radialGradient id="g_thyroid" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#f5a8a0"/><stop offset="50%" stop-color="#c85040"/><stop offset="100%" stop-color="#5a1a18"/>
+    </radialGradient>
+    <!-- Nebenschilddrüsen: gelblich -->
+    <radialGradient id="g_parathyroid" cx="30%" cy="22%" r="85%">
+      <stop offset="0%" stop-color="#fff0b0"/><stop offset="50%" stop-color="#e0c060"/><stop offset="100%" stop-color="#806020"/>
+    </radialGradient>
+    <!-- Thymus: rosa-creme -->
+    <radialGradient id="g_thymus" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#ffd0c0"/><stop offset="50%" stop-color="#e09898"/><stop offset="100%" stop-color="#7a3838"/>
+    </radialGradient>
+    <!-- Pankreas: gelb-orange -->
+    <radialGradient id="g_pancreas" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#ffe0a0"/><stop offset="50%" stop-color="#e09838"/><stop offset="100%" stop-color="#704818"/>
+    </radialGradient>
+    <!-- Nebennieren: gelblich-creme -->
+    <radialGradient id="g_adrenal" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#fff0c8"/><stop offset="50%" stop-color="#dec888"/><stop offset="100%" stop-color="#806838"/>
+    </radialGradient>
+    <radialGradient id="g_kidney" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#d8a098"/><stop offset="60%" stop-color="#8a4838"/><stop offset="100%" stop-color="#3a1818"/>
+    </radialGradient>
+    <!-- Ovar: rosa -->
+    <radialGradient id="g_ovary" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#fcd0d8"/><stop offset="50%" stop-color="#d88898"/><stop offset="100%" stop-color="#702c38"/>
+    </radialGradient>
+    <!-- Hoden: gräulich-rosa -->
+    <radialGradient id="g_testis" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#e8c0c8"/><stop offset="50%" stop-color="#a87080"/><stop offset="100%" stop-color="#502838"/>
+    </radialGradient>
+  </defs>`;
+
+  // ===== KÖRPER-SILHOUETTE (anatomisch geschwungen) =====
+  // Kopf
+  html+=`<ellipse cx="160" cy="48" rx="40" ry="50" fill="url(#headGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+    <ellipse cx="148" cy="32" rx="14" ry="6" fill="rgba(255,255,255,0.12)"/>`;
+  // Hals (Trapezform)
+  html+=`<path d="M 145 92 L 175 92 L 180 110 L 140 110 Z" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`;
+  // Schultern + Oberkörper geschwungen (mit Arm-Ansätzen)
+  html+=`<path d="M 100 110
+    Q 80 115 75 145
+    Q 70 175 80 220
+    Q 75 260 80 300
+    Q 85 335 95 370
+    L 120 410
+    Q 122 460 118 510
+    L 124 540
+    L 142 540
+    L 145 405
+    L 153 370
+    L 160 280
+    L 167 370
+    L 175 405
+    L 178 540
+    L 196 540
+    L 202 510
+    Q 198 460 200 410
+    L 225 370
+    Q 235 335 240 300
+    Q 245 260 240 220
+    Q 250 175 245 145
+    Q 240 115 220 110
+    L 180 110
+    Q 175 113 175 117
+    L 145 117
+    Q 145 113 140 110
+    Z"
+    fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>`;
+
+  // ===== LINKER ARM =====
+  // Oberarm + Unterarm + Handgelenk
+  html+=`<path d="M 100 112
+    Q 78 118 70 145
+    Q 62 175 60 200
+    Q 56 215 58 230
+    Q 54 260 50 285
+    Q 46 305 50 322
+    L 66 322
+    Q 70 318 70 300
+    Q 74 270 78 240
+    Q 82 220 80 205
+    Q 84 175 88 150
+    Q 92 128 96 115
+    Z"
+    fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>`;
+  // Linke Hand (oval mit Daumen-Andeutung)
+  html+=`<g>
+    <ellipse cx="56" cy="335" rx="13" ry="17" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+    <!-- Daumen -->
+    <ellipse cx="68" cy="325" rx="5" ry="9" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1" transform="rotate(-25 68 325)"/>
+    <!-- Finger-Andeutung -->
+    <line x1="50" y1="346" x2="51" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <line x1="55" y1="348" x2="56" y2="362" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <line x1="60" y1="346" x2="61" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <ellipse cx="50" cy="328" rx="6" ry="3" fill="rgba(255,255,255,0.12)"/>
+  </g>`;
+
+  // ===== RECHTER ARM =====
+  html+=`<path d="M 220 112
+    Q 242 118 250 145
+    Q 258 175 260 200
+    Q 264 215 262 230
+    Q 266 260 270 285
+    Q 274 305 270 322
+    L 254 322
+    Q 250 318 250 300
+    Q 246 270 242 240
+    Q 238 220 240 205
+    Q 236 175 232 150
+    Q 228 128 224 115
+    Z"
+    fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>`;
+  // Rechte Hand
+  html+=`<g>
+    <ellipse cx="264" cy="335" rx="13" ry="17" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
+    <ellipse cx="252" cy="325" rx="5" ry="9" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1" transform="rotate(25 252 325)"/>
+    <line x1="270" y1="346" x2="269" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <line x1="265" y1="348" x2="264" y2="362" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <line x1="260" y1="346" x2="259" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+    <ellipse cx="270" cy="328" rx="6" ry="3" fill="rgba(255,255,255,0.12)"/>
+  </g>`;
+
+  // Subtle Ellbogen-Knick (Highlight)
+  html+=`<ellipse cx="62" cy="218" rx="7" ry="2" fill="rgba(255,255,255,0.12)"/>
+    <ellipse cx="258" cy="218" rx="7" ry="2" fill="rgba(255,255,255,0.12)"/>`;
+  // Body shine overlay
+  html+=`<rect x="0" y="0" width="320" height="540" fill="url(#bodyHL)" pointer-events="none"/>`;
+
+  // ===== KÖRPER-SPALTE (mittig, dezent) =====
+  html+=`<line x1="160" y1="120" x2="160" y2="380" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
+
+  // Trachea-Kontur (zur besseren Anatomie-Orientierung)
+  html+=`<rect x="156" y="118" width="8" height="34" rx="3" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.18)" stroke-width="0.6"/>
+    <line x1="156" y1="125" x2="164" y2="125" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>
+    <line x1="156" y1="132" x2="164" y2="132" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>
+    <line x1="156" y1="139" x2="164" y2="139" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>
+    <line x1="156" y1="146" x2="164" y2="146" stroke="rgba(255,255,255,0.18)" stroke-width="0.5"/>`;
+
+  // Nieren-Andeutungen für die Nebennieren-Position
+  html+=`<path d="M 122 235 Q 116 245 118 260 Q 120 280 130 285 Q 138 285 140 270 Q 142 250 135 235 Q 128 230 122 235 Z" fill="url(#g_kidney)" opacity="0.8" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>
+    <path d="M 198 235 Q 192 230 185 235 Q 178 250 180 270 Q 182 285 190 285 Q 200 280 202 260 Q 204 245 198 235 Z" fill="url(#g_kidney)" opacity="0.8" stroke="rgba(255,255,255,0.15)" stroke-width="0.6"/>`;
+
+  // ===== DRÜSEN — anatomisch =====
+  // 1. Hypothalamus (oben im Kopf, mittig)
+  html+=`<g class="gland" data-key="hypothalamus">
+    <ellipse cx="160" cy="55" rx="14" ry="7" fill="url(#g_pituitary)"/>
+    <ellipse cx="156" cy="52" rx="6" ry="2" fill="rgba(255,255,255,0.45)"/>
+  </g>`;
+
+  // 2. Hypophyse (unter Hypothalamus, kleine erbsengroße Struktur)
+  html+=`<g class="gland" data-key="hypophyse">
+    <ellipse cx="160" cy="68" rx="7" ry="5" fill="url(#g_pituitary)"/>
+    <ellipse cx="158" cy="66" rx="3" ry="1.2" fill="rgba(255,255,255,0.5)"/>
+  </g>`;
+
+  // 3. Zirbeldrüse (Pineal, weiter hinten oben)
+  html+=`<g class="gland" data-key="zirbel">
+    <ellipse cx="180" cy="42" rx="7" ry="5" fill="url(#g_pineal)"/>
+    <ellipse cx="178" cy="40" rx="3" ry="1.2" fill="rgba(255,255,255,0.4)"/>
+  </g>`;
+
+  // 4. Schilddrüse — schmetterlingsförmig
+  html+=`<g class="gland" data-key="schilddruese">
+    <path d="M 130 130
+      Q 125 135 128 148
+      Q 132 158 145 158
+      Q 153 156 156 152
+      L 160 150
+      L 164 152
+      Q 167 156 175 158
+      Q 188 158 192 148
+      Q 195 135 190 130
+      Q 180 128 170 138
+      L 160 142
+      L 150 138
+      Q 140 128 130 130 Z"
+      fill="url(#g_thyroid)" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+    <ellipse cx="140" cy="138" rx="6" ry="2" fill="rgba(255,255,255,0.4)"/>
+    <ellipse cx="180" cy="138" rx="6" ry="2" fill="rgba(255,255,255,0.4)"/>
+    <line x1="158" y1="148" x2="162" y2="148" stroke="rgba(60,20,20,0.6)" stroke-width="2"/>
+  </g>`;
+
+  // 5. Nebenschilddrüsen (4 kleine, hinter Schilddrüse)
+  html+=`<g class="gland" data-key="parathyroid">
+    <circle cx="138" cy="135" r="2.5" fill="url(#g_parathyroid)" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+    <circle cx="138" cy="153" r="2.5" fill="url(#g_parathyroid)" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+    <circle cx="182" cy="135" r="2.5" fill="url(#g_parathyroid)" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+    <circle cx="182" cy="153" r="2.5" fill="url(#g_parathyroid)" stroke="rgba(255,255,255,0.4)" stroke-width="0.4"/>
+  </g>`;
+
+  // 6. Thymus (zweilappig, hinter Sternum)
+  html+=`<g class="gland" data-key="thymus">
+    <path d="M 145 168
+      Q 138 172 138 188
+      Q 140 198 152 198
+      Q 158 198 160 192
+      Q 162 198 168 198
+      Q 180 198 182 188
+      Q 182 172 175 168
+      Q 168 170 162 178
+      Q 160 180 158 178
+      Q 152 170 145 168 Z"
+      fill="url(#g_thymus)" stroke="rgba(255,255,255,0.22)" stroke-width="0.8"/>
+    <ellipse cx="150" cy="178" rx="5" ry="2" fill="rgba(255,255,255,0.35)"/>
+    <ellipse cx="170" cy="178" rx="5" ry="2" fill="rgba(255,255,255,0.35)"/>
+  </g>`;
+
+  // 7. Nebennieren — rechts dreieckig, links halbmondförmig, sitzen oben auf den Nieren
+  html+=`<g class="gland" data-key="nebenniere">
+    <path d="M 122 232 Q 118 224 128 224 Q 138 224 140 235 Q 138 240 130 240 Q 122 238 122 232 Z"
+      fill="url(#g_adrenal)" stroke="rgba(255,255,255,0.3)" stroke-width="0.6"/>
+    <ellipse cx="128" cy="228" rx="5" ry="1.5" fill="rgba(255,255,255,0.5)"/>
+    <path d="M 198 232 Q 195 224 188 226 Q 182 230 180 235 Q 184 240 192 240 Q 200 238 198 232 Z"
+      fill="url(#g_adrenal)" stroke="rgba(255,255,255,0.3)" stroke-width="0.6"/>
+    <ellipse cx="190" cy="228" rx="5" ry="1.5" fill="rgba(255,255,255,0.5)"/>
+  </g>`;
+
+  // 8. Pankreas — länglich, geschwungen (Kopf-Korpus-Schwanz)
+  html+=`<g class="gland" data-key="pankreas">
+    <path d="M 125 270
+      Q 130 262 145 264
+      Q 165 260 185 268
+      Q 200 272 205 280
+      Q 200 284 188 282
+      Q 168 280 150 282
+      Q 138 282 130 280
+      Q 122 278 125 270 Z"
+      fill="url(#g_pancreas)" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+    <ellipse cx="155" cy="270" rx="22" ry="2.5" fill="rgba(255,255,255,0.4)"/>
+    <line x1="135" y1="272" x2="200" y2="276" stroke="rgba(120,80,30,0.5)" stroke-width="0.8" stroke-dasharray="2 2"/>
+  </g>`;
+
+  // 9. Ovarien (nur weibliche Anatomie - paired) - links und rechts vom Uterus
+  html+=`<g class="gland" data-key="ovar">
+    <ellipse cx="142" cy="335" rx="11" ry="9" fill="url(#g_ovary)" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+    <ellipse cx="139" cy="332" rx="4" ry="1.5" fill="rgba(255,255,255,0.5)"/>
+    <ellipse cx="178" cy="335" rx="11" ry="9" fill="url(#g_ovary)" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+    <ellipse cx="175" cy="332" rx="4" ry="1.5" fill="rgba(255,255,255,0.5)"/>
+    <!-- Uterus-Andeutung in der Mitte -->
+    <path d="M 150 332 Q 160 326 170 332 L 168 348 Q 160 352 152 348 Z" fill="rgba(220,160,180,0.4)" stroke="rgba(255,255,255,0.2)" stroke-width="0.5"/>
+  </g>`;
+
+  // 10. Hoden (paired - alternative zur Anzeige beim männlichen Modell)
+  html+=`<g class="gland" data-key="hoden">
+    <ellipse cx="150" cy="430" rx="11" ry="14" fill="url(#g_testis)" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+    <ellipse cx="146" cy="425" rx="4" ry="2" fill="rgba(255,255,255,0.45)"/>
+    <ellipse cx="170" cy="430" rx="11" ry="14" fill="url(#g_testis)" stroke="rgba(255,255,255,0.3)" stroke-width="0.7"/>
+    <ellipse cx="166" cy="425" rx="4" ry="2" fill="rgba(255,255,255,0.45)"/>
+  </g>`;
+
+  // ===== LABELS =====
+  const labels=[
+    {key:'zirbel',x:198,y:38,t:'Zirbeldrüse'},
+    {key:'hypothalamus',x:181,y:55,t:'Hypothalamus'},
+    {key:'hypophyse',x:172,y:70,t:'Hypophyse'},
+    {key:'schilddruese',x:200,y:148,t:'Schilddrüse'},
+    {key:'parathyroid',x:200,y:135,t:'Nebenschilddr.'},
+    {key:'thymus',x:188,y:185,t:'Thymus'},
+    {key:'nebenniere',x:208,y:230,t:'Nebennieren'},
+    {key:'pankreas',x:212,y:275,t:'Pankreas'},
+    {key:'ovar',x:200,y:340,t:'Ovarien'},
+    {key:'hoden',x:185,y:435,t:'Hoden'}
+  ];
+  // Avoid overlap: only show some labels at once
+  const labelsToShow=['zirbel','hypothalamus','schilddruese','thymus','pankreas','nebenniere','ovar','hoden'];
+  labels.filter(l=>labelsToShow.includes(l.key)).forEach(l=>{
+    html+=`<text x="${l.x}" y="${l.y+3}" fill="rgba(255,255,255,0.85)" font-size="9.5" font-weight="700" pointer-events="none">${l.t}</text>`;
+  });
+
+  svg.innerHTML=html;
+  svg.querySelectorAll('.gland').forEach(el=>{
+    el.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      showGland(el.dataset.key);
+    });
+  });
+}
+renderBody();
+
+/* Steckbrief-Ergänzung: Klinik & MedAT pro Drüse */
+const GLAND_SB = {
+  hypothalamus:{
+    klinik:'<b>Diabetes insipidus centralis</b>: Hypothalamus-/HHL-Schaden → kein ADH → riesige Urinmengen. <b>Kallmann-Syndrom</b>: GnRH-Mangel → ausbleibende Pubertät.',
+    medat:'Liegt am Boden des 3. Ventrikels. Das <b>magnozelluläre System</b> bildet ADH/Oxytocin – speichert sie in der Neurohypophyse.'
+  },
+  hypophyse:{
+    klinik:'<b>Hypophysenadenom</b> (häufig Prolaktinom). <b>Sheehan-Syndrom</b>: postpartale Nekrose. <b>Akromegalie</b>: GH-Überschuss beim Erwachsenen.',
+    medat:'HVL = epithelial (eigene Hormonproduktion), HHL = neural (nur Speicher). Sella turcica im Os sphenoidale!'
+  },
+  schilddruese:{
+    klinik:'<b>Hashimoto-Thyreoiditis</b> → Hypothyreose. <b>Morbus Basedow</b> → Hyperthyreose mit Exophthalmus. <b>Struma</b> bei Iodmangel.',
+    medat:'T3/T4 enthalten <b>Iod</b>! Calcitonin senkt Ca²⁺ (Antagonist zu Parathormon).'
+  },
+  parathyroid:{
+    klinik:'<b>Hyperparathyreoidismus</b>: Hypercalcämie, Osteoporose, Nierensteine („Stein-, Bein-, Magenpein"). <b>Hypoparathyreoidismus</b>: Tetanie.',
+    medat:'<b>PTH erhöht</b> Ca²⁺ im Blut (Knochenabbau, Niere, Vitamin-D-Aktivierung). Antagonist: Calcitonin.'
+  },
+  thymus:{
+    klinik:'<b>Myasthenia gravis</b>: oft mit Thymom assoziiert. <b>DiGeorge-Syndrom</b>: Thymusaplasie → T-Zell-Mangel.',
+    medat:'Bildet <b>Thymosin</b>, reift T-Lymphozyten. Bildet sich nach der Pubertät zurück (Involution)!'
+  },
+  pankreas:{
+    klinik:'<b>Diabetes mellitus Typ 1</b> (Autoimmun, β-Zell-Zerstörung) und <b>Typ 2</b> (Insulinresistenz). <b>Insulinom</b> → Hypoglykämien.',
+    medat:'<b>α-Zellen</b>: Glucagon (erhöht BZ). <b>β-Zellen</b>: Insulin (senkt BZ). <b>δ-Zellen</b>: Somatostatin. Insulin = einziges blutzucker-senkendes Hormon!'
+  },
+  nebenniere:{
+    klinik:'<b>Morbus Addison</b>: Cortisol-Mangel. <b>Cushing-Syndrom</b>: Cortisol-Überschuss (Stammfettsucht, Mondgesicht). <b>Phäochromozytom</b>: Adrenalin-Tumor.',
+    medat:'<b>Rinde</b> (3 Schichten: Mineralo/Gluko/Andro) und <b>Mark</b> (Adrenalin/Noradrenalin). Eselsbrücke „GFR": Glomerulosa, Fasciculata, Reticularis.'
+  },
+  ovar:{
+    klinik:'<b>PCO-Syndrom</b>: Hyperandrogenämie + Zyklusstörungen. <b>Klimakterium</b>: Östrogenabfall → Hitzewallungen, Osteoporose-Risiko.',
+    medat:'<b>FSH</b> reift Follikel, <b>LH-Peak</b> löst Ovulation aus. Östrogen aus Granulosazellen, Progesteron aus Corpus luteum.'
+  },
+  hoden:{
+    klinik:'<b>Hypogonadismus</b>: zu wenig Testosteron. <b>Klinefelter (XXY)</b>: kleine Hoden, Hypogonadismus.',
+    medat:'<b>Leydig-Zellen</b>: Testosteron (durch LH stimuliert). <b>Sertoli-Zellen</b>: nähren Spermien (durch FSH stimuliert).'
+  },
+  zirbel:{
+    klinik:'<b>Schlafstörungen</b> bei Schichtarbeit/Jetlag. Tumoren der Zirbeldrüse stören die Pubertätsregulation.',
+    medat:'Bildet <b>Melatonin</b> aus Serotonin – steuert den circadianen Rhythmus. Aktiv in der Dunkelheit!'
+  }
+};
+
+function showGland(key){
+  const g=GLANDS[key]; if(!g) return;
+  const sb = GLAND_SB[key] || {};
+  document.getElementById('gSub').textContent=g.sub;
+  document.getElementById('gName').textContent=g.name;
+  let body=`
+    <div class="sb-section">
+      <h4><i data-lucide="layout-grid"></i>Aufbau & Lage</h4>
+      <p>${g.info}</p>
+    </div>
+    <div class="sb-section">
+      <h4><i data-lucide="settings"></i>Produzierte Hormone</h4>
+      <div class="hormones-list" style="margin-top:6px">`;
+  g.hormones.forEach(h=>{
+    body+=`<div class="hormone-item"><div class="h-name">${h.name}</div><div class="h-fn">${h.fn}</div></div>`;
+  });
+  body+='</div></div>';
+  if(sb.klinik) body+=`<div class="sb-section klinik"><h4><i data-lucide="stethoscope"></i>Klinik</h4><p>${sb.klinik}</p></div>`;
+  if(sb.medat) body+=`<div class="sb-section medat"><h4><i data-lucide="graduation-cap"></i>MedAT-Wissen</h4><p>${sb.medat}</p></div>`;
+  document.getElementById('gBody').innerHTML=body;
+  document.getElementById('glandModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeGland(){document.getElementById('glandModal').classList.remove('show')}
+window.closeGland=closeGland;
+
+/* ===== ACHSEN ===== */
+const AXES=[
+  {name:'Schilddrüsen-Achse (HHT)',
+    flow:[
+      {gland:'Hypothalamus',hormone:'TRH'},
+      {gland:'Hypophyse',hormone:'TSH'},
+      {gland:'Schilddrüse',hormone:'T3 / T4'}
+    ],
+    note:'TRH → TSH → T3/T4. T3/T4 hemmt im Feedback Hypothalamus und Hypophyse.'},
+  {name:'Stress-Achse (HHN-Achse)',
+    flow:[
+      {gland:'Hypothalamus',hormone:'CRH'},
+      {gland:'Hypophyse',hormone:'ACTH'},
+      {gland:'Nebennierenrinde',hormone:'Cortisol'}
+    ],
+    note:'CRH → ACTH → Cortisol. Wichtig in akuter und chronischer Stress-Reaktion.'},
+  {name:'Gonaden-Achse (HHG, Frau)',
+    flow:[
+      {gland:'Hypothalamus',hormone:'GnRH'},
+      {gland:'Hypophyse',hormone:'FSH / LH'},
+      {gland:'Ovar',hormone:'Östrogen / Progesteron'}
+    ],
+    note:'GnRH (pulsatil!) → FSH (Follikel-Reifung) und LH (Ovulation, Corpus luteum). Östrogen + Progesteron geben Feedback.'},
+  {name:'Gonaden-Achse (HHG, Mann)',
+    flow:[
+      {gland:'Hypothalamus',hormone:'GnRH'},
+      {gland:'Hypophyse',hormone:'FSH / LH'},
+      {gland:'Hoden',hormone:'Testosteron'}
+    ],
+    note:'LH wirkt auf Leydig-Zellen → Testosteron. FSH wirkt auf Sertoli-Zellen → Spermatogenese.'},
+  {name:'Wachstumshormon-Achse',
+    flow:[
+      {gland:'Hypothalamus',hormone:'GHRH (+) / Somatostatin (−)'},
+      {gland:'Hypophyse',hormone:'GH'},
+      {gland:'Leber',hormone:'IGF-1'}
+    ],
+    note:'GH wirkt direkt + indirekt über Leber-IGF-1 (= Somatomedin C). Akromegalie bei Erwachsenen, Riesenwuchs bei Kindern.'},
+  {name:'Renin-Angiotensin-Aldosteron (RAAS)',
+    flow:[
+      {gland:'Niere',hormone:'Renin'},
+      {gland:'Lunge (ACE)',hormone:'Angiotensin II'},
+      {gland:'Nebennierenrinde',hormone:'Aldosteron'}
+    ],
+    note:'Bei niedrigem BD/Na⁺: Niere setzt Renin frei → Angiotensinogen → Angiotensin I → durch ACE → Angiotensin II → Aldosteron → Na⁺/Wasser-Retention.'}
+];
+
+function renderAxes(){
+  const grid=document.getElementById('axisGrid');
+  grid.innerHTML='';
+  AXES.forEach(a=>{
+    const card=document.createElement('div');
+    card.className='axis-card';
+    let flowHtml='<div class="axis-flow">';
+    a.flow.forEach((f,i)=>{
+      flowHtml+=`<div class="axis-node"><div class="gn">${f.gland}</div><div class="hg">${f.hormone}</div></div>`;
+      if(i<a.flow.length-1) flowHtml+='<div class="axis-arrow">→</div>';
+    });
+    flowHtml+='</div>';
+    card.innerHTML=`<h4><i data-lucide="git-merge"></i>${a.name}</h4>${flowHtml}<p>${a.note}</p>`;
+    grid.appendChild(card);
+  });
+  if(window.lucide) lucide.createIcons();
+}
+renderAxes();
+
+/* ===== STOFFWECHSEL — 6 Regelkreise ===== */
+const STOFFWECHSEL={
+  blutzucker:{
+    label:'Blutzucker',sub:'Insulin / Glucagon',
+    name:'Blutzucker',unit:'mg/dL',min:40,max:300,def:100,step:1,
+    scale:[40,70,100,140,200,300],
+    zone:v=>{
+      if(v<55) return ['danger','Schwere Hypoglykämie'];
+      if(v<70) return ['low','Hypoglykämie'];
+      if(v<=140) return ['normal','Normbereich'];
+      if(v<200) return ['high','Erhöht'];
+      return ['danger','Hyperglykämie'];
+    },
+    responses:[
+      {title:'Insulin (β-Zellen Pankreas)',cls:'insulin',
+        active:v=>v>110,
+        note:v=>v>180?'Sehr hohe Sekretion — Glucose wird massiv in Muskel/Fett geschoben.':v>110?'Erhöhte Sekretion — Glucose-Aufnahme via GLUT4.':v<80?'Sekretion fast aus.':'Basale Sekretion.',
+        wirkung:'GLUT4-Translokation (Muskel/Fett) · Glykogen-Synthese (Leber/Muskel) · Lipogenese · Proteinsynthese · hemmt Glykogenolyse + Gluconeogenese'},
+      {title:'Glucagon (α-Zellen Pankreas)',cls:'glucagon',
+        active:v=>v<80,
+        note:v=>v<55?'Maximale Sekretion — Notfall-Modus.':v<80?'Erhöhte Sekretion — Leber soll Glucose freisetzen.':v>140?'Gehemmt durch hohen BZ.':'Niedrige Sekretion.',
+        wirkung:'Glykogenolyse + Gluconeogenese (Leber) · Lipolyse · Ketogenese · BZ steigt'}
+    ],
+    fact1:'<b>Normwerte:</b> nüchtern 70–100 mg/dL · postprandial bis 140 · Hypoglykämie < 70 · Diabetes nüchtern ≥ 126 oder gelegentlich ≥ 200.',
+    fact2:'<b>Klinik:</b> Diabetes Typ 1 = β-Zell-Zerstörung (Insulin-Mangel). Typ 2 = Insulin-Resistenz. Hypoglykämie führt zu ZNS-Symptomen (Glucose ist Hauptenergiequelle des Gehirns).'
+  },
+
+  schilddruese:{
+    label:'Schilddrüse',sub:'TSH ↔ T3 / T4',
+    name:'TSH',unit:'mU/L',min:0,max:50,def:2.5,step:0.1,
+    scale:[0,0.4,2,4,10,50],
+    zone:v=>{
+      if(v<0.4) return ['danger','TSH unterdrückt → Hyperthyreose'];
+      if(v<=4) return ['normal','Normbereich (0,4–4,0)'];
+      if(v<=10) return ['high','Subklinische Hypothyreose'];
+      return ['danger','Manifeste Hypothyreose'];
+    },
+    responses:[
+      {title:'T3 / T4 (Schilddrüsenfollikel)',cls:'insulin',
+        active:v=>v<0.4||v>4,
+        note:v=>v<0.4?'T3/T4 erhöht → Stoffwechsel beschleunigt (Tachykardie, Wärme, Gewichtsverlust).':v>10?'T3/T4 stark erniedrigt → Antrieblosigkeit, Bradykardie, Gewichtszunahme, Kälteintoleranz.':v>4?'T3/T4 leicht erniedrigt — TSH steigt kompensatorisch.':'T3/T4 im Normbereich.',
+        wirkung:'Steigern Grundumsatz · O₂-Verbrauch ↑ · Wärmeproduktion · Herzfrequenz ↑ · GI-Motilität · ZNS-Reifung (Kinder!) · Wachstum'},
+      {title:'Negative Rückkopplung',cls:'glucagon',
+        active:v=>true,
+        note:v=>v<0.4?'T3/T4 hoch → hemmt Hypothalamus (TRH ↓) und Hypophyse (TSH ↓).':v>4?'T3/T4 niedrig → Feedback-Hemmung weg → TSH steigt kompensatorisch.':'Gleichgewicht: Hypothalamus-Hypophyse-Schilddrüsen-Achse stabil.',
+        wirkung:'Hypothalamus → TRH → Hypophyse → TSH → Schilddrüse → T3/T4 → hemmt Hypothalamus + Hypophyse (negatives Feedback)'}
+    ],
+    fact1:'<b>Normwerte:</b> TSH 0,4–4,0 mU/L · fT4 12–22 pmol/L · fT3 3,1–6,8 pmol/L. Iod-Bedarf: 150–200 µg/Tag.',
+    fact2:'<b>Klinik:</b> Hashimoto-Thyreoiditis (Autoimmun, häufigste Hypothyreose). Morbus Basedow (TRAK-Antikörper, häufigste Hyperthyreose). Iodmangel-Struma.'
+  },
+
+  calcium:{
+    label:'Calcium',sub:'PTH / Calcitonin / Vit-D',
+    name:'Serum-Calcium',unit:'mmol/L',min:1.5,max:4,def:2.4,step:0.05,
+    scale:[1.5,2.0,2.2,2.6,3.0,4.0],
+    zone:v=>{
+      if(v<2.0) return ['danger','Schwere Hypocalcämie'];
+      if(v<2.2) return ['low','Hypocalcämie'];
+      if(v<=2.6) return ['normal','Normbereich (2,2–2,6)'];
+      if(v<=3.0) return ['high','Hypercalcämie'];
+      return ['danger','Schwere Hypercalcämie'];
+    },
+    responses:[
+      {title:'Parathormon (PTH, Nebenschilddr.)',cls:'glucagon',
+        active:v=>v<2.2,
+        note:v=>v<2.0?'Maximale Sekretion — Notfall-Modus.':v<2.2?'Erhöhte Sekretion: holt Ca aus Knochen, Niere und über Vit-D aus Darm.':v>2.6?'Gehemmt durch hohes Ca.':'Basale Sekretion.',
+        wirkung:'Knochen: Osteoklasten ↑ → Ca + P freisetzen · Niere: Ca-Rückresorption ↑, Phosphat-Ausscheidung ↑ · aktiviert Vit-D (Calcitriol) → Darm: Ca-Resorption ↑'},
+      {title:'Calcitonin (C-Zellen Schilddr.)',cls:'insulin',
+        active:v=>v>2.6,
+        note:v=>v>3.0?'Hohe Sekretion — Calcium wird aus dem Blut entfernt.':v>2.6?'Erhöhte Sekretion — hemmt Osteoklasten.':'Niedrige Sekretion.',
+        wirkung:'Hemmt Osteoklasten → Ca aus Blut in Knochen · Antagonist zu PTH (klinisch beim Menschen weniger wichtig als bei Fischen)'}
+    ],
+    fact1:'<b>Normwerte:</b> Gesamt-Calcium 2,2–2,6 mmol/L · ionisiertes Ca 1,1–1,3 mmol/L. 99% des Ca im Knochen. Tagesbedarf 1000 mg.',
+    fact2:'<b>Klinik:</b> Hyperparathyreoidismus (Adenom) → Hypercalcämie + Knochenabbau. Vit-D-Mangel → Rachitis (Kind) / Osteomalazie (Erwachsener). Trousseau-Zeichen + Pfötchenstellung bei Hypocalcämie.'
+  },
+
+  wasser:{
+    label:'Wasser-Salz',sub:'ADH / Aldosteron',
+    name:'Plasma-Osmolalität',unit:'mOsm/kg',min:260,max:330,def:290,step:1,
+    scale:[260,275,285,295,310,330],
+    zone:v=>{
+      if(v<275) return ['danger','Hyponatriämie'];
+      if(v<285) return ['low','Niedrig'];
+      if(v<=295) return ['normal','Normbereich (285–295)'];
+      if(v<=310) return ['high','Erhöht'];
+      return ['danger','Schwere Dehydration'];
+    },
+    responses:[
+      {title:'ADH (Vasopressin, HHL)',cls:'insulin',
+        active:v=>v>295,
+        note:v=>v>310?'Maximale Sekretion — Durstgefühl ist stark.':v>295?'Erhöhte Sekretion — Niere reabsorbiert mehr Wasser.':v<285?'Sekretion fast aus — verdünnter Urin.':'Basale Sekretion.',
+        wirkung:'Niere (Sammelrohr): Aquaporin-2 → Wasser-Rückresorption ↑ · konzentrierter Urin · Vasokonstriktion (V1-Rezeptor) bei hohen Konzentrationen'},
+      {title:'Aldosteron (NN-Rinde, RAAS)',cls:'glucagon',
+        active:v=>v<285||v>310,
+        note:v=>v>310?'Erhöht (bei Volumenmangel) — hält Natrium und Wasser zurück.':v<285?'Gehemmt — Natrium und Wasser werden ausgeschieden.':'Basal.',
+        wirkung:'Niere (distaler Tubulus): Na⁺-Rückresorption ↑, K⁺ + H⁺-Ausscheidung · Wasser folgt passiv · Blutdruck ↑'}
+    ],
+    fact1:'<b>Normwerte:</b> Osmolalität 285–295 mOsm/kg · Na⁺ 135–145 mmol/L · K⁺ 3,5–5,0 mmol/L. Hauptosmolyt: Natrium.',
+    fact2:'<b>Klinik:</b> Diabetes insipidus (ADH-Mangel) → Polyurie 5–20 L/Tag. SIADH (zu viel ADH) → Hyponatriämie. Conn-Syndrom (Aldosteron ↑) → Hypertonie + Hypokaliämie.'
+  },
+
+  cortisol:{
+    label:'Stress / Cortisol',sub:'CRH → ACTH → Cortisol',
+    name:'Cortisol (morgendlich)',unit:'µg/dL',min:0,max:50,def:15,step:0.5,
+    scale:[0,5,10,20,30,50],
+    zone:v=>{
+      if(v<5) return ['danger','Insuffizienz (Addison-Verdacht)'];
+      if(v<10) return ['low','Niedrig'];
+      if(v<=20) return ['normal','Normbereich morgens (5–25)'];
+      if(v<=30) return ['high','Erhöht (Stress)'];
+      return ['danger','Sehr hoch (Cushing-Verdacht)'];
+    },
+    responses:[
+      {title:'CRH (Hypothalamus) + ACTH (Hypophyse)',cls:'glucagon',
+        active:v=>v<10||v>30,
+        note:v=>v<5?'Stark erhöht (kompensatorisch) — z. B. bei Morbus Addison; aber Cortisol bleibt niedrig.':v<10?'Erhöht — Feedback-Hemmung schwach.':v>30?'Unterdrückt durch Cortisol-Überschuss (z. B. exogene Glucocorticoide).':'Basal — pulsatile Sekretion.',
+        wirkung:'CRH (Hypothalamus) → ACTH (HVL) → stimuliert Z. fasciculata der NN-Rinde → Cortisol. Negatives Feedback durch Cortisol auf beide Stufen'},
+      {title:'Cortisol-Wirkung (Zielorgane)',cls:'insulin',
+        active:v=>v>20,
+        note:v=>v>30?'Vielfach erhöht — katabole Effekte dominieren.':v>20?'Erhöht — Stress-Antwort, Glucose-Bereitstellung.':v<5?'Mangel — Schwäche, Hypotonie, Hyponatriämie.':'Basal.',
+        wirkung:'Gluconeogenese ↑ · Proteinabbau ↑ · Lipolyse · anti-inflammatorisch · Immunsuppression · steigert Blutdruck (permissiv für Catecholamine)'}
+    ],
+    fact1:'<b>Tagesrhythmus:</b> Cortisol-Maximum 6–8 Uhr morgens (~15 µg/dL), Minimum um Mitternacht. Pulsatile Sekretion ~15–20 Pulse/Tag.',
+    fact2:'<b>Klinik:</b> Cushing-Syndrom (Cortisol ↑): Vollmondgesicht, Stiernacken, Stammfettsucht, Hypertonie, Diabetes. Morbus Addison (Cortisol + Aldosteron ↓): Hypotonie, Bronzefärbung (ACTH ↑ → MSH).'
+  },
+
+  zyklus:{
+    label:'Sexualzyklus',sub:'FSH / LH / Östrogen / Progesteron',
+    name:'Zyklustag',unit:'Tag',min:1,max:28,def:14,step:1,
+    scale:[1,7,14,21,28],
+    zone:v=>{
+      if(v<=5) return ['low','Menstruation'];
+      if(v<=13) return ['normal','Follikelphase'];
+      if(v<=15) return ['high','Ovulation'];
+      if(v<=27) return ['normal','Lutealphase'];
+      return ['low','Prämenstruell'];
+    },
+    responses:[
+      {title:'FSH / LH (Hypophyse)',cls:'insulin',
+        active:v=>v>=13&&v<=15,
+        note:v=>v>=13&&v<=15?'<b>LH-Peak (Tag 14)</b> löst Ovulation aus. FSH-Peak einen Tag früher.':v<=13?'Follikelphase: FSH steigt langsam → Follikelreifung.':v<=27?'Lutealphase: FSH/LH durch Östrogen + Progesteron supprimiert.':'Beide niedrig.',
+        wirkung:'FSH: Follikel-Reifung (Granulosa-Zellen → Östrogen). LH: Ovulation, Bildung des Corpus luteum, Theca-Zellen → Androgene'},
+      {title:'Östrogen / Progesteron (Ovar)',cls:'glucagon',
+        active:v=>v>=11,
+        note:v=>v<=13?'Östrogen steigt durch Follikel.':v<=15?'Östrogen-Peak vor Ovulation, dann Abfall.':v<=27?'Progesteron dominiert (Corpus luteum) → Endometrium-Sekretion.':v<=5?'Beide niedrig → Endometrium-Abstoßung (Menstruation).':'Übergang.',
+        wirkung:'Östrogen: Endometrium-Aufbau (Proliferation), positive Rückkopplung präovulatorisch (LH-Peak!), sekundäre Geschlechtsmerkmale. Progesteron: Endometrium-Sekretion, Schwangerschafts-Erhalt'}
+    ],
+    fact1:'<b>Phasen:</b> Tag 1–5 Menstruation · Tag 6–13 Follikelphase · Tag 14 Ovulation · Tag 15–28 Lutealphase. Zykluslänge typisch 28 Tage (variabel 21–35).',
+    fact2:'<b>Klinik:</b> Pille = synthetische Östrogen+Gestagen → unterdrückt FSH/LH → keine Ovulation. PCOS (Polyzystisches Ovar-Syndrom): LH/FSH-Ratio erhöht, Hyperandrogenismus.'
+  }
+};
+
+let swCurrent='blutzucker';
+
+function buildSwModes(){
+  const row=document.getElementById('swModeRow');
+  row.innerHTML='';
+  Object.entries(STOFFWECHSEL).forEach(([key,m])=>{
+    const btn=document.createElement('button');
+    btn.className='sw-mode-btn'+(key===swCurrent?' active':'');
+    btn.dataset.mode=key;
+    btn.innerHTML=`${m.label}<small>${m.sub}</small>`;
+    btn.onclick=()=>{
+      swCurrent=key;
+      document.querySelectorAll('.sw-mode-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      switchSw();
+    };
+    row.appendChild(btn);
+  });
+}
+buildSwModes();
+
+function switchSw(){
+  const m=STOFFWECHSEL[swCurrent];
+  const slider=document.getElementById('swSlider');
+  slider.min=m.min; slider.max=m.max; slider.step=m.step; slider.value=m.def;
+  document.getElementById('swUnit').textContent=m.unit;
+  // Build scale labels
+  const scale=document.getElementById('swScale');
+  scale.innerHTML='';
+  m.scale.forEach(s=>{
+    const span=document.createElement('span');
+    span.textContent=s;
+    scale.appendChild(span);
+  });
+  // Build response containers
+  const resp=document.getElementById('swResponses');
+  resp.innerHTML='';
+  m.responses.forEach((r,i)=>{
+    const div=document.createElement('div');
+    div.className='bs-resp '+r.cls;
+    div.dataset.idx=i;
+    div.innerHTML=`<h4>${r.title}</h4>
+      <p class="resp-note">—</p>
+      <div class="organ-list"><b>Wirkung:</b> ${r.wirkung}</div>`;
+    resp.appendChild(div);
+  });
+  updateSw();
+}
+
+function updateSw(){
+  const m=STOFFWECHSEL[swCurrent];
+  const v=+document.getElementById('swSlider').value;
+  document.getElementById('swNum').textContent=m.step<1?v.toFixed(m.step<0.1?2:1):v;
+  const [zoneCls,zoneText]=m.zone(v);
+  const zone=document.getElementById('swZone');
+  zone.className='bs-zone '+zoneCls;
+  zone.textContent=zoneText;
+  // Response notes
+  const respDivs=document.querySelectorAll('#swResponses .bs-resp');
+  m.responses.forEach((r,i)=>{
+    const div=respDivs[i]; if(!div) return;
+    div.classList.toggle('active',r.active(v));
+    div.querySelector('.resp-note').innerHTML=r.note(v);
+  });
+  document.getElementById('swFact1').innerHTML=m.fact1;
+  document.getElementById('swFact2').innerHTML=m.fact2;
+}
+document.getElementById('swSlider').addEventListener('input',updateSw);
+switchSw();
+
+/* ===== ZUORDNUNG (4 MODI) ===== */
+const MATCH_MODES={
+  hormone_gland:{
+    label:'Hormon → Drüse',sub:'Wo wird es gebildet?',leftLabel:'Hormon',rightLabel:'Drüse',
+    pairs:[
+      {a:'Insulin',b:'Pankreas (β-Zellen)'},
+      {a:'Glucagon',b:'Pankreas (α-Zellen)'},
+      {a:'Cortisol',b:'NN-Rinde (Z. fasciculata)'},
+      {a:'Aldosteron',b:'NN-Rinde (Z. glomerulosa)'},
+      {a:'Adrenalin',b:'Nebennierenmark'},
+      {a:'T3 / T4',b:'Schilddrüse (Follikel)'},
+      {a:'Calcitonin',b:'Schilddrüse (C-Zellen)'},
+      {a:'PTH',b:'Nebenschilddrüsen'},
+      {a:'Östrogen',b:'Ovar'},
+      {a:'Testosteron',b:'Hoden (Leydig-Zellen)'},
+      {a:'Melatonin',b:'Zirbeldrüse'},
+      {a:'GH (STH)',b:'Hypophyse (HVL)'},
+      {a:'ADH / Vasopressin',b:'Hypophyse (HHL)'},
+      {a:'TRH',b:'Hypothalamus'}
+    ]
+  },
+  hormone_effect:{
+    label:'Hormon → Wirkung',sub:'Was macht es?',leftLabel:'Hormon',rightLabel:'Hauptwirkung',
+    pairs:[
+      {a:'Insulin',b:'BZ-Senkung, Glykogen-Aufbau'},
+      {a:'Glucagon',b:'BZ-Anstieg, Glykogenolyse'},
+      {a:'Cortisol',b:'Stress, Glucose-Bereitstellung, Immunsuppression'},
+      {a:'Aldosteron',b:'Na⁺/Wasser-Retention, BD ↑'},
+      {a:'Adrenalin',b:'Sympathikus-Aktivierung: HF ↑, BD ↑'},
+      {a:'T3 / T4',b:'Grundumsatz ↑, Wärmeproduktion'},
+      {a:'PTH',b:'Blut-Calcium ↑'},
+      {a:'Calcitonin',b:'Blut-Calcium ↓'},
+      {a:'Östrogen',b:'Endometriums-Aufbau, Knochenerhalt'},
+      {a:'Testosteron',b:'Männliche Sex-Merkmale, Anabolismus'},
+      {a:'ADH',b:'Wasserrückresorption Niere'},
+      {a:'Oxytocin',b:'Wehen, Milchejektion'},
+      {a:'Prolactin',b:'Milchproduktion'},
+      {a:'Melatonin',b:'Schlaf-Wach-Rhythmus'}
+    ]
+  },
+  klinik:{
+    label:'Klinik',sub:'Defekt → Krankheit',leftLabel:'Hormon-Veränderung',rightLabel:'Krankheit',
+    pairs:[
+      {a:'Insulin-Mangel (β-Zellen)',b:'Diabetes mellitus Typ 1'},
+      {a:'Insulin-Resistenz',b:'Diabetes mellitus Typ 2'},
+      {a:'GH-Überschuss (Erwachsene)',b:'Akromegalie'},
+      {a:'GH-Mangel (Kinder)',b:'Hypophysärer Minderwuchs'},
+      {a:'GH-Überschuss (Kinder)',b:'Riesenwuchs'},
+      {a:'Cortisol-Überschuss',b:'Cushing-Syndrom'},
+      {a:'Cortisol-Mangel',b:'Morbus Addison'},
+      {a:'T3/T4-Mangel',b:'Hypothyreose / Myxödem'},
+      {a:'T3/T4-Überschuss',b:'Hyperthyreose / Morbus Basedow'},
+      {a:'PTH-Überschuss',b:'Hyperparathyreoidismus → Knochenabbau'},
+      {a:'ADH-Mangel',b:'Diabetes insipidus'},
+      {a:'Aldosteron-Überschuss',b:'Conn-Syndrom (Hypertonie + ↓ K⁺)'}
+    ]
+  },
+  achse:{
+    label:'Hypothalamus → HVL',sub:'Releasing → Tropin',leftLabel:'Hypothalamus-Hormon',rightLabel:'Hypophysen-Hormon',
+    pairs:[
+      {a:'TRH',b:'TSH'},
+      {a:'CRH',b:'ACTH'},
+      {a:'GnRH',b:'FSH / LH'},
+      {a:'GHRH',b:'GH'},
+      {a:'Somatostatin',b:'Hemmt GH'},
+      {a:'Dopamin (PIH)',b:'Hemmt Prolactin'}
+    ]
+  }
+};
+
+let matchCurrentMode='hormone_gland';
+let matchOk=0,matchBad=0,matchSelectedLeft=null,matchTotal=0;
+
+function buildMatchModes(){
+  const row=document.getElementById('matchModeRow');
+  row.innerHTML='';
+  Object.entries(MATCH_MODES).forEach(([key,mode])=>{
+    const btn=document.createElement('button');
+    btn.className='match-mode-btn'+(key===matchCurrentMode?' active':'');
+    btn.dataset.mode=key;
+    btn.innerHTML=`${mode.label}<small>${mode.sub}</small>`;
+    btn.onclick=()=>{
+      matchCurrentMode=key;
+      document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      initMatch();
+    };
+    row.appendChild(btn);
+  });
+}
+buildMatchModes();
+
+function initMatch(){
+  const mode=MATCH_MODES[matchCurrentMode];
+  matchOk=0; matchBad=0; matchSelectedLeft=null;
+  matchTotal=mode.pairs.length;
+  document.getElementById('matchOk').textContent=0;
+  document.getElementById('matchBad').textContent=0;
+  document.getElementById('matchLeft').textContent=matchTotal;
+  document.getElementById('matchStatus').classList.remove('show');
+  document.getElementById('matchLeftLabel').textContent=mode.leftLabel;
+  document.getElementById('matchRightLabel').textContent=mode.rightLabel;
+  const left=document.getElementById('matchLeft1');
+  const right=document.getElementById('matchRight');
+  left.innerHTML=''; right.innerHTML='';
+  const indexed=mode.pairs.map((p,i)=>({...p,key:'p'+i}));
+  const sl=[...indexed].sort(()=>Math.random()-.5);
+  const sr=[...indexed].sort(()=>Math.random()-.5);
+  sl.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='match-item';
+    div.dataset.key=p.key;
+    div.textContent=p.a;
+    div.onclick=()=>matchTapLeft(div);
+    left.appendChild(div);
+  });
+  sr.forEach(p=>{
+    const div=document.createElement('div');
+    div.className='match-item';
+    div.dataset.key=p.key;
+    div.textContent=p.b;
+    div.onclick=()=>matchTapRight(div);
+    right.appendChild(div);
+  });
+}
+function matchTapLeft(el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#matchLeft1 .match-item.selected').forEach(x=>x.classList.remove('selected'));
+  if(matchSelectedLeft===el){matchSelectedLeft=null;return}
+  el.classList.add('selected');
+  matchSelectedLeft=el;
+}
+function matchTapRight(el){
+  if(el.classList.contains('matched')) return;
+  if(!matchSelectedLeft){
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'),350);
+    return;
+  }
+  if(el.dataset.key===matchSelectedLeft.dataset.key){
+    el.classList.add('matched');
+    matchSelectedLeft.classList.add('matched');
+    matchSelectedLeft.classList.remove('selected');
+    matchSelectedLeft=null;
+    matchOk++;
+    document.getElementById('matchOk').textContent=matchOk;
+    document.getElementById('matchLeft').textContent=matchTotal-matchOk;
+    if(matchOk===matchTotal){
+      const status=document.getElementById('matchStatus');
+      status.className='match-status show success';
+      status.innerHTML=`<b>Geschafft!</b> ${matchOk} richtig, ${matchBad} Fehlversuche.`;
+    }
+  } else {
+    el.classList.add('wrong');
+    matchSelectedLeft.classList.add('wrong');
+    setTimeout(()=>{
+      el.classList.remove('wrong');
+      if(matchSelectedLeft) matchSelectedLeft.classList.remove('wrong');
+    },400);
+    matchBad++;
+    document.getElementById('matchBad').textContent=matchBad;
+  }
+}
+document.getElementById('matchReset').onclick=initMatch;
+document.getElementById('matchNext').onclick=()=>{
+  const keys=Object.keys(MATCH_MODES);
+  const i=keys.indexOf(matchCurrentMode);
+  matchCurrentMode=keys[(i+1)%keys.length];
+  document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===matchCurrentMode));
+  initMatch();
+};
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Welche Drüse produziert <b>Insulin</b>?',o:['Schilddrüse','Pankreas (β-Zellen)','NN-Rinde','Hypophyse'],c:1,e:'β-Zellen der Langerhans-Inseln. α-Zellen → Glucagon, δ-Zellen → Somatostatin.'},
+  {q:'Welche Achse beschreibt: CRH → ? → Cortisol?',o:['TSH','ACTH','GH','LH'],c:1,e:'Stress-Achse: Hypothalamus (CRH) → Hypophyse (ACTH) → NN-Rinde (Cortisol).'},
+  {q:'Welches Hormon erhöht den Blut-Calcium-Spiegel?',o:['Calcitonin','PTH','Insulin','Cortisol'],c:1,e:'PTH (Parathormon): Knochenabbau, Niere-Rückresorption, Vit-D-Aktivierung. Calcitonin senkt es.'},
+  {q:'<b>Diabetes insipidus</b> ist eine Folge von:',o:['Insulin-Mangel','ADH-Mangel','Cortisol-Mangel','GH-Mangel'],c:1,e:'ADH-Mangel → kein Wasser zurückresorbiert → polyurie + polydipsie (5–20 L/Tag). Nichts mit Diabetes mellitus zu tun.'},
+  {q:'Welche Hormone werden in der <b>Hypophysen-Hinterlappen (HHL)</b> gespeichert?',o:['TSH und ACTH','ADH und Oxytocin','GH und Prolactin','FSH und LH'],c:1,e:'HHL = Neurohypophyse: speichert ADH und Oxytocin (gebildet im Hypothalamus). Alle anderen sind HVL.'},
+  {q:'<b>Aldosteron</b> wirkt vor allem auf:',o:['Knochen','Niere (Na⁺/K⁺)','Leber','Muskel'],c:1,e:'Aldosteron im distalen Tubulus/Sammelrohr: ↑ Na⁺-Rückresorption, ↑ K⁺-Ausscheidung. RAAS.'},
+  {q:'Welche Drüse wandelt sich nach der Pubertät zurück?',o:['Schilddrüse','Thymus','Pankreas','Hypophyse'],c:1,e:'Thymus involutiert nach der Pubertät. Reifung der T-Lymphozyten findet vorher statt.'},
+  {q:'<b>Akromegalie</b> entsteht durch Überschuss von:',o:['Insulin','GH (Wachstumshormon)','TSH','ACTH'],c:1,e:'GH-Überschuss bei Erwachsenen → Akren wachsen (Hände, Füße, Gesicht). Bei Kindern → Riesenwuchs.'},
+  {q:'Welche Aussage zu <b>Cushing-Syndrom</b> stimmt?',o:['Cortisol-Mangel','Cortisol-Überschuss','Aldosteron-Mangel','GH-Mangel'],c:1,e:'Cushing: Cortisol-Überschuss (endogen z. B. Adenom, exogen Therapie). Vollmondgesicht, Stiernacken, Stammfettsucht.'},
+  {q:'Welches Hormon wird in der <b>Zirbeldrüse</b> gebildet?',o:['Cortisol','Melatonin','Insulin','PTH'],c:1,e:'Melatonin: in der Dunkelheit ↑, reguliert Schlaf-Wach-Rhythmus. Substrat: Tryptophan → Serotonin → Melatonin.'},
+  {q:'Welcher Cyclus benötigt <b>pulsatiles GnRH</b>?',o:['Schilddrüsen-Achse','HHN-Achse','HHG-Achse','Wachstums-Achse'],c:2,e:'GnRH muss pulsatil ausgeschüttet werden, sonst Down-Regulation der Hypophysen-Rezeptoren (klinisch genutzt: GnRH-Analoga zur Suppression).'},
+  {q:'<b>Insulin</b> aktiviert in Muskel/Fett den Glucose-Transporter:',o:['GLUT1','GLUT2','GLUT3','GLUT4'],c:3,e:'GLUT4 ist insulin-abhängig. GLUT2 in Pankreas/Leber, GLUT3 im ZNS, GLUT1 ubiquitär.'},
+  {q:'Adrenalin und Noradrenalin werden im <b>Nebennierenmark</b> gebildet — was sind sie?',o:['Steroide','Catecholamine','Peptidhormone','Schilddrüsenhormone'],c:1,e:'Catecholamine (aus Tyrosin → DOPA → Dopamin → NA → A). Schnelle Wirkung über α/β-Adrenozeptoren.'},
+  {q:'<b>Morbus Addison</b> ist:',o:['NN-Rinden-Insuffizienz','Hypothyreose','Insulin-Mangel','Hypophysenadenom'],c:0,e:'Primäre NN-Insuffizienz: Cortisol + Aldosteron ↓. Bronzefärbung (ACTH-Anstieg → MSH-Wirkung), Gewichtsverlust, Hypotonie.'},
+  {q:'Welche Hormone sind <b>Steroide</b>?',o:['Insulin, Glucagon','Cortisol, Östrogen, Testosteron, Aldosteron','TSH, ACTH','ADH, Oxytocin'],c:1,e:'Steroide: aus Cholesterin synthetisiert, lipophil, intrazelluläre Rezeptoren. Catecholamine, Peptide haben Membran-Rezeptoren.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

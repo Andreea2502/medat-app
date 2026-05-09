@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wellen & Schwingungen · MedAT Physik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--blue-soft:#dbecf5;
+    --purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --teal:#3bb5b0;--teal-deep:#1a7a78;--teal-soft:#d5f0ee;
+    --lead:#6db8e0;--lead-deep:#2d6a8e;--lead-soft:#dbecf5;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);--shadow:0 4px 20px rgba(26,26,46,.06);--shadow-md:0 8px 32px rgba(26,26,46,.08);--shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--lead-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--lead-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(45,106,142,.4);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--lead-deep);color:var(--lead-deep);transform:translateY(-1px)}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--lead-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--lead-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--lead-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(109,184,224,.3);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--lead-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* WELLEN-STUDIO */
+  .wellen-stage{background:linear-gradient(180deg,#062a40 0%,#0a3d5c 50%,#0a4d72 100%);border-radius:var(--radius);padding:14px;overflow:hidden;box-shadow:inset 0 0 60px rgba(0,0,0,0.25);margin-bottom:14px;position:relative}
+  .wellen-stage canvas{display:block;width:100%;height:auto;border-radius:14px}
+  .stage-toggle{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;justify-content:center}
+  .stage-toggle button{padding:8px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+  .stage-toggle button [data-lucide]{width:14px;height:14px}
+  .stage-toggle button:hover:not(.active){border-color:var(--lead-deep)}
+  .stage-toggle button.active{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(45,106,142,.4)}
+  .slider-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px}
+  @media(min-width:560px){.slider-grid{grid-template-columns:1fr 1fr}}
+  @media(min-width:780px){.slider-grid{grid-template-columns:1fr 1fr 1fr 1fr}}
+  .slider-row{background:var(--bg-light);border-radius:14px;padding:14px}
+  .slider-row .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .slider-row label{font-size:.82rem;font-weight:700;color:var(--text)}
+  .slider-row .val{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:.95rem}
+  .h-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bg-warm);border-radius:4px;outline:none;cursor:pointer}
+  .h-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(45,106,142,.4);border:3px solid #fff}
+  .h-slider::-moz-range-thumb{width:24px;height:24px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(45,106,142,.4)}
+  .wellen-readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+  .wellen-readout{background:var(--surface);border:1.5px solid var(--border-light);border-radius:14px;padding:12px;text-align:center}
+  .wellen-readout .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .wellen-readout .val{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--lead-deep);margin-top:3px}
+
+  /* ARTEN / PHÄNOMENE GRID */
+  .arten-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:560px){.arten-grid{grid-template-columns:1fr 1fr}}
+  @media(min-width:780px){.arten-grid{grid-template-columns:1fr 1fr 1fr}}
+  .art-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s}
+  .art-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--lead-deep)}
+  .art-img{height:160px;background:linear-gradient(180deg,#0a3d5c,#062a40);display:flex;align-items:center;justify-content:center;padding:12px;overflow:hidden}
+  .art-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4))}
+  .art-info{padding:14px}
+  .art-info h4{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .art-info .badge-num{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--lead-deep);font-weight:800;margin-bottom:6px;background:var(--lead-soft);padding:4px 10px;border-radius:8px;display:inline-block}
+  .art-info p{font-size:.82rem;color:var(--text-secondary);line-height:1.5}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:600px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .modal-img{height:200px;background:linear-gradient(180deg,#0a3d5c,#062a40);display:flex;align-items:center;justify-content:center;padding:14px}
+  .modal-img svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));max-width:100%;max-height:100%}
+  .modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,var(--lead-soft),var(--bg-light))}
+  .modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .modal-head .symbol{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--lead-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .modal-body{padding:18px 24px 24px}
+  .steckbrief{display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--lead-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--lead-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--lead-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--lead-deep);font-weight:700}
+  .sb-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+  .sb-list li{font-size:.84rem;color:var(--text);line-height:1.55;padding-left:18px;position:relative}
+  .sb-list li::before{content:'•';position:absolute;left:5px;color:var(--lead-deep);font-weight:800}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4{color:var(--pink-deep)}
+  .sb-section.klinik h4 [data-lucide]{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4{color:var(--green-deep)}
+  .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.25);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+
+  /* RECHNER */
+  .calc-formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+  .calc-formula-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .2s;text-align:center}
+  .calc-formula-card:hover{transform:translateY(-2px);border-color:var(--lead-deep);box-shadow:var(--shadow-sm)}
+  .calc-formula-card.active{background:linear-gradient(135deg,var(--lead-soft),#fff);border-color:var(--lead-deep);box-shadow:0 4px 14px rgba(45,106,142,.2)}
+  .calc-formula-card .nm{font-size:.78rem;color:var(--text-secondary);font-weight:600;margin-bottom:3px}
+  .calc-formula-card .ltx{min-height:24px;display:flex;align-items:center;justify-content:center}
+  .calc-formula-card .ltx .katex{font-size:.95rem!important;color:var(--lead-deep)}
+  .calc-var-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+  .calc-var-row{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:12px}
+  .calc-var-row .var-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .calc-var-row .var-head label{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:.92rem}
+  .calc-var-row .var-head .unit{font-size:.74rem;color:var(--text-secondary);font-weight:600}
+  .calc-var-row .var-head .solve-btn{background:none;border:1px solid var(--border);font-family:inherit;font-size:.7rem;cursor:pointer;color:var(--text-secondary);padding:3px 8px;border-radius:8px;font-weight:600;transition:all .2s}
+  .calc-var-row .var-head .solve-btn:hover{border-color:var(--lead-deep);color:var(--lead-deep)}
+  .calc-var-row .var-head .solve-btn.solving{background:var(--lead);border-color:var(--lead);color:#fff}
+  .calc-var-row input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;color:var(--text);background:#fff;outline:none;transition:all .2s}
+  .calc-var-row input:focus{border-color:var(--lead-deep);box-shadow:0 0 0 3px rgba(45,106,142,.15)}
+  .calc-var-row input:disabled{background:var(--lead-soft);color:var(--lead-deep);font-weight:800;cursor:not-allowed}
+  .calc-result{background:linear-gradient(135deg,var(--lead-soft),#fff);border:2px solid var(--lead-deep);border-radius:18px;padding:18px}
+  .calc-result h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;color:var(--lead-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .calc-result .step{margin-bottom:8px;display:flex;flex-direction:column;gap:4px}
+  .calc-result .step .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);font-weight:700}
+  .calc-result .step .ltx{padding:8px 12px;background:#fff;border-radius:10px;border:1px solid var(--border-light)}
+  .calc-result .final{margin-top:12px;padding:14px;background:#fff;border-radius:12px;border:2px dashed var(--lead-deep);text-align:center}
+  .calc-result .final .lbl{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+  .calc-result .final .val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:var(--lead-deep)}
+
+  /* MATCH */
+  .match-mode-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+  .match-mode-btn{padding:10px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+  .match-mode-btn:hover:not(.active){border-color:var(--lead-deep)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(45,106,142,.4)}
+  .match-board{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:560px){.match-board{grid-template-columns:1fr}}
+  .match-col{display:flex;flex-direction:column;gap:8px}
+  .match-col-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;color:var(--lead-deep);font-weight:800;margin-bottom:4px}
+  .match-item{padding:12px 14px;background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--text);transition:all .2s;text-align:left;font-family:inherit}
+  .match-item:hover:not(:disabled){border-color:var(--lead-deep);background:var(--lead-soft)}
+  .match-item.selected{background:var(--lead-soft);border-color:var(--lead-deep);transform:scale(1.02)}
+  .match-item.matched{background:var(--mint);border-color:var(--green-deep);color:var(--green-deep);cursor:default;opacity:.85}
+  .match-item.error{background:var(--coral-soft);border-color:var(--pink-deep);animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  /* QUIZ */
+  .q-progress{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:.78rem;color:var(--text-secondary);font-weight:600}
+  .q-progress .pct{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:1rem}
+  .q-bar{width:100%;height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-bottom:14px}
+  .q-bar .fill{height:100%;background:linear-gradient(90deg,var(--lead),var(--lead-deep));transition:width .4s cubic-bezier(.4,0,.2,1)}
+  .q-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .q-question{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.5}
+  .q-options{display:flex;flex-direction:column;gap:8px}
+  .q-option{padding:13px 16px;border-radius:14px;border:1.5px solid var(--border-light);background:var(--bg-light);cursor:pointer;font-size:.88rem;font-weight:600;color:var(--text);text-align:left;font-family:inherit;transition:all .2s}
+  .q-option:hover:not(:disabled){border-color:var(--lead-deep);background:var(--lead-soft)}
+  .q-option.correct{background:var(--mint);border-color:var(--green-deep);color:var(--green-deep)}
+  .q-option.wrong{background:var(--coral-soft);border-color:var(--pink-deep);color:var(--pink-deep)}
+  .q-option:disabled{cursor:not-allowed;opacity:.7}
+  .q-explain{margin-top:14px;padding:14px;background:var(--lead-soft);border-radius:14px;border-left:3px solid var(--lead-deep);font-size:.84rem;color:var(--text);line-height:1.5;display:none}
+  .q-explain.show{display:block;animation:fadeUp .3s ease}
+  .q-next{margin-top:14px;padding:11px 22px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border:none;border-radius:var(--radius-pill);font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(45,106,142,.4)}
+  .q-next.show{display:inline-flex}
+  .q-finish{text-align:center;padding:30px}
+  .q-finish .score{font-size:3rem;font-weight:900;color:var(--lead-deep);font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+  .q-finish .msg{font-size:1rem;color:var(--text-secondary);margin-bottom:16px}
+  .q-finish button{padding:11px 22px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border:none;border-radius:var(--radius-pill);font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer}
+
+  .info-strip{display:flex;align-items:flex-start;gap:10px;background:var(--lead-soft);border-radius:14px;padding:12px 14px;margin-top:10px}
+  .info-strip [data-lucide]{color:var(--lead-deep);margin-top:2px}
+  .info-strip p{font-size:.82rem;color:var(--text);line-height:1.5;margin:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="audio-waveform"></i></div>
+    <div>
+      <h1>Wellen-Werkstatt</h1>
+      <p>Wellenarten · Phänomene · Doppler · Stehende Wellen</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="studio"><i data-lucide="audio-waveform"></i>Wellen-Studio</button>
+  <button class="tab" data-tab="arten"><i data-lucide="grid-3x3"></i>Wellenarten</button>
+  <button class="tab" data-tab="phaenomene"><i data-lucide="layers"></i>Phänomene</button>
+  <button class="tab" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="match"><i data-lucide="shuffle"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="brain"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+<!-- STUDIO -->
+<section class="section active" id="studio">
+  <div class="hero-strip">
+    <h2><i data-lucide="audio-waveform"></i>Interaktives Wellen-Studio</h2>
+    <p>Verstelle Amplitude, Frequenz, Wellenlänge und Dämpfung – sieh in Echtzeit, wie sich die Welle verändert. Wechsle zwischen <b>Transversal-</b> und <b>Longitudinalwelle</b>.</p>
+  </div>
+
+  <div class="card">
+    <div class="stage-toggle">
+      <button class="active" data-type="transversal"><i data-lucide="trending-up"></i>Transversal</button>
+      <button data-type="longitudinal"><i data-lucide="bar-chart-horizontal"></i>Longitudinal</button>
+    </div>
+
+    <div class="wellen-stage">
+      <canvas id="waveCanvas" width="900" height="240"></canvas>
+    </div>
+
+    <div class="slider-grid">
+      <div class="slider-row">
+        <div class="label-row"><label>Amplitude A</label><span class="val"><span id="ampVal">4.0</span> cm</span></div>
+        <input type="range" min="1" max="8" step="0.5" value="4" id="ampSlider" class="h-slider">
+      </div>
+      <div class="slider-row">
+        <div class="label-row"><label>Frequenz f</label><span class="val"><span id="freqVal">1.0</span> Hz</span></div>
+        <input type="range" min="0.3" max="3" step="0.1" value="1" id="freqSlider" class="h-slider">
+      </div>
+      <div class="slider-row">
+        <div class="label-row"><label>Wellenlänge λ</label><span class="val"><span id="lamVal">200</span> cm</span></div>
+        <input type="range" min="80" max="320" step="10" value="200" id="lamSlider" class="h-slider">
+      </div>
+      <div class="slider-row">
+        <div class="label-row"><label>Dämpfung δ</label><span class="val"><span id="dampVal">0.00</span></span></div>
+        <input type="range" min="0" max="0.5" step="0.05" value="0" id="dampSlider" class="h-slider">
+      </div>
+    </div>
+
+    <div class="wellen-readouts">
+      <div class="wellen-readout"><div class="lbl">Periode T</div><div class="val"><span id="tOut">1.00</span> s</div></div>
+      <div class="wellen-readout"><div class="lbl">Wellengeschw. c</div><div class="val"><span id="cOut">2.00</span> m/s</div></div>
+      <div class="wellen-readout"><div class="lbl">Kreisfrequenz ω</div><div class="val"><span id="omegaOut">6.28</span></div></div>
+      <div class="wellen-readout"><div class="lbl">Energie E ∝ A²</div><div class="val"><span id="eOut">16</span></div></div>
+    </div>
+
+    <div class="info-strip">
+      <i data-lucide="info"></i>
+      <p><b>Tipp:</b> Höhere Frequenz → kürzere Periode (T = 1/f). Doppelte Amplitude → 4× mehr Energie (E ∝ A²). Bei gleicher Frequenz: längere Wellenlänge → höhere Wellengeschwindigkeit (c = λ·f).</p>
+    </div>
+  </div>
+</section>
+
+<!-- WELLENARTEN -->
+<section class="section" id="arten">
+  <div class="hero-strip">
+    <h2><i data-lucide="grid-3x3"></i>Wellenarten im Überblick</h2>
+    <p>Sechs Wellentypen aus dem MedAT-Stoff. Klick auf eine Karte, um den Steckbrief mit Aufbau, Funktion, Klinikbezug und MedAT-Wissen zu sehen.</p>
+  </div>
+  <div class="card">
+    <div class="arten-grid" id="artenGrid"></div>
+    <div class="info-strip" style="margin-top:14px">
+      <i data-lucide="info"></i>
+      <p><b>Faustregel:</b> Mechanische Wellen brauchen ein Medium (Schall, Wasser, Erdbeben), elektromagnetische Wellen <b>nicht</b> (Licht, Radio, Röntgen, γ).</p>
+    </div>
+  </div>
+</section>
+
+<!-- PHÄNOMENE -->
+<section class="section" id="phaenomene">
+  <div class="hero-strip">
+    <h2><i data-lucide="layers"></i>Wellenphänomene</h2>
+    <p>Reflexion, Brechung, Beugung, Interferenz, stehende Welle und Doppler – jedes Phänomen mit Steckbrief und MedAT-Bezug.</p>
+  </div>
+  <div class="card">
+    <div class="arten-grid" id="phaenGrid"></div>
+  </div>
+</section>
+
+<!-- RECHNER -->
+<section class="section" id="rechner">
+  <div class="hero-strip">
+    <h2><i data-lucide="calculator"></i>Wellen-Formel-Rechner</h2>
+    <p>Wähle eine Formel, gib Werte ein und löse nach jeder Variable um. Ergebnis mit Schritt-für-Schritt-Lösungsweg.</p>
+  </div>
+
+  <div class="card">
+    <h3>Formelauswahl</h3>
+    <div class="calc-formula-grid" id="calcFormulaGrid"></div>
+  </div>
+
+  <div class="card">
+    <h3>Variablen <span style="font-weight:500;color:var(--text-secondary);text-transform:none;letter-spacing:0">— klicke „lösen nach" um Variable umzustellen</span></h3>
+    <div class="calc-var-grid" id="calcVarGrid"></div>
+    <div class="calc-result" id="calcResult"></div>
+  </div>
+</section>
+
+<!-- MATCH -->
+<section class="section" id="match">
+  <div class="hero-strip">
+    <h2><i data-lucide="shuffle"></i>Wellen-Zuordnung</h2>
+    <p>Verbinde die richtigen Begriffe miteinander. Drei Modi mit steigendem Schwierigkeitsgrad.</p>
+  </div>
+  <div class="card">
+    <div class="match-mode-row">
+      <button class="match-mode-btn active" data-mode="formel"><i data-lucide="sigma"></i>Formel → Bedeutung</button>
+      <button class="match-mode-btn" data-mode="medium"><i data-lucide="layers"></i>Wellentyp → Medium</button>
+      <button class="match-mode-btn" data-mode="phaen"><i data-lucide="zap"></i>Phänomen → Gesetz</button>
+    </div>
+    <div id="matchMsg" style="text-align:center;color:var(--text-secondary);font-size:.84rem;margin-bottom:10px"></div>
+    <div class="match-board" id="matchBoard"></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="section" id="quiz">
+  <div class="hero-strip">
+    <h2><i data-lucide="brain"></i>Wellen-Quiz</h2>
+    <p>12 MedAT-Niveau-Fragen zu Wellenarten, Phänomenen und Rechnen.</p>
+  </div>
+  <div class="card">
+    <div class="q-progress"><span id="qNumLbl">Frage 1 / 12</span><span class="pct"><span id="qScore">0</span>/<span id="qTotal">12</span></span></div>
+    <div class="q-bar"><div class="fill" id="qFill" style="width:8.3%"></div></div>
+    <div id="qBody"></div>
+  </div>
+</section>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="sbModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+    <div class="modal-img" id="modalImg"></div>
+    <div class="modal-head">
+      <h3 id="modalTitle"></h3>
+      <span class="symbol" id="modalSymbol"></span>
+    </div>
+    <div class="modal-body">
+      <div class="steckbrief" id="modalSb"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== TABS ==========
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='rechner') ensureCalc();
+    if(t.dataset.tab==='match') buildMatch();
+    if(t.dataset.tab==='quiz') ensureQuiz();
+    if(t.dataset.tab==='arten') buildArten();
+    if(t.dataset.tab==='phaenomene') buildPhaen();
+  });
+});
+
+// ========== WELLEN-STUDIO (Canvas) ==========
+let waveType='transversal', wavePhase=0;
+function setWaveType(type){
+  waveType = type;
+  document.querySelectorAll('.stage-toggle button').forEach(b=>b.classList.toggle('active', b.dataset.type===type));
+}
+document.querySelectorAll('.stage-toggle button').forEach(b=>{
+  b.addEventListener('click',()=>setWaveType(b.dataset.type));
+});
+
+function updateSliderVals(){
+  document.getElementById('ampVal').textContent = parseFloat(document.getElementById('ampSlider').value).toFixed(1);
+  document.getElementById('freqVal').textContent = parseFloat(document.getElementById('freqSlider').value).toFixed(1);
+  document.getElementById('lamVal').textContent = parseFloat(document.getElementById('lamSlider').value).toFixed(0);
+  document.getElementById('dampVal').textContent = parseFloat(document.getElementById('dampSlider').value).toFixed(2);
+}
+['ampSlider','freqSlider','lamSlider','dampSlider'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', updateSliderVals);
+});
+
+function drawWave(){
+  const canvas = document.getElementById('waveCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const A = parseFloat(document.getElementById('ampSlider').value) * 14;
+  const f = parseFloat(document.getElementById('freqSlider').value);
+  const lam = parseFloat(document.getElementById('lamSlider').value) * 2.5;
+  const damp = parseFloat(document.getElementById('dampSlider').value);
+
+  // Background
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#062a40'); bg.addColorStop(1,'#0a4d72');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(109,184,224,0.12)'; ctx.lineWidth = 1;
+  for(let x=0;x<=W;x+=90){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<=H;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  // Equilibrium
+  ctx.setLineDash([6,4]); ctx.strokeStyle='rgba(109,184,224,0.45)';
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  if(waveType==='transversal'){
+    // Wave fill
+    ctx.beginPath(); ctx.moveTo(0,H/2);
+    for(let x=0;x<=W;x+=2){
+      const decay = Math.exp(-damp*4*x/W);
+      const y = H/2 + A*decay*Math.sin(2*Math.PI*x/lam - wavePhase);
+      ctx.lineTo(x,y);
+    }
+    ctx.lineTo(W,H/2); ctx.closePath();
+    const fg = ctx.createLinearGradient(0,H/2-A,0,H/2+A);
+    fg.addColorStop(0,'rgba(125,200,235,0.30)');
+    fg.addColorStop(0.5,'rgba(45,106,142,0.05)');
+    fg.addColorStop(1,'rgba(125,200,235,0.30)');
+    ctx.fillStyle = fg; ctx.fill();
+
+    // Wave line with glow
+    ctx.beginPath();
+    for(let x=0;x<=W;x+=2){
+      const decay = Math.exp(-damp*4*x/W);
+      const y = H/2 + A*decay*Math.sin(2*Math.PI*x/lam - wavePhase);
+      if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.shadowColor='#7dd1f5'; ctx.shadowBlur=14;
+    const sg = ctx.createLinearGradient(0,0,W,0);
+    sg.addColorStop(0,'#a8e0f5'); sg.addColorStop(0.6,'#6db8e0'); sg.addColorStop(1,'rgba(109,184,224,0.5)');
+    ctx.strokeStyle = sg; ctx.lineWidth = 3.5; ctx.lineJoin='round'; ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Particles
+    const N = 11;
+    for(let i=0;i<N;i++){
+      const x = 50 + i*(W-100)/(N-1);
+      const decay = Math.exp(-damp*4*x/W);
+      const y = H/2 + A*decay*Math.sin(2*Math.PI*x/lam - wavePhase);
+      ctx.setLineDash([2,3]); ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(x,H/2); ctx.lineTo(x,y); ctx.stroke();
+      ctx.setLineDash([]);
+      // Particle
+      ctx.shadowColor='rgba(255,255,255,0.7)'; ctx.shadowBlur=10;
+      ctx.beginPath(); ctx.arc(x,y,5.5,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.beginPath(); ctx.arc(x-1.5,y-1.5,1.6,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.fill();
+    }
+
+    // Amplitude marker
+    ctx.beginPath(); ctx.moveTo(20,H/2); ctx.lineTo(20,H/2-A);
+    ctx.strokeStyle='#f5c542'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.fillStyle='#f5c542'; ctx.font='bold 13px JetBrains Mono'; ctx.fillText('A',6,H/2 - A/2);
+    // Wavelength bar
+    ctx.beginPath(); ctx.moveTo(50,H-22); ctx.lineTo(50+lam,H-22);
+    ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='12px JetBrains Mono'; ctx.textAlign='center';
+    ctx.fillText('λ',50+lam/2,H-7); ctx.textAlign='left';
+
+  } else {
+    // LONGITUDINAL
+    const nBars = 80;
+    for(let i=0;i<nBars;i++){
+      const x0 = 20 + i*(W-40)/nBars;
+      const decay = Math.exp(-damp*4*x0/W);
+      const disp = A*0.6*decay*Math.sin(2*Math.PI*x0/lam - wavePhase);
+      const x = x0 + disp;
+      const comp = (1 + decay*Math.cos(2*Math.PI*x0/lam - wavePhase))/2;
+      const r = Math.round(80 + 175*comp);
+      const g = Math.round(180 + 60*comp);
+      const b = Math.round(220 + 30*comp);
+      const bw = 2 + comp*5;
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.4+comp*0.55})`;
+      ctx.shadowColor = `rgba(${r},${g},${b},0.7)`;
+      ctx.shadowBlur = 4 + comp*8;
+      ctx.fillRect(x - bw/2, 30, bw, H-60);
+      ctx.shadowBlur = 0;
+    }
+    // Particle highlights
+    const Np = 9;
+    for(let i=0;i<Np;i++){
+      const x0 = 50 + i*(W-100)/(Np-1);
+      const decay = Math.exp(-damp*4*x0/W);
+      const disp = A*0.6*decay*Math.sin(2*Math.PI*x0/lam - wavePhase);
+      const x = x0 + disp;
+      ctx.shadowColor='rgba(255,255,255,0.7)'; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.arc(x,H/2,4.5,0,Math.PI*2); ctx.fillStyle='#fff'; ctx.fill();
+      ctx.shadowBlur=0;
+    }
+    // Labels for compression/rarefaction
+    ctx.font='bold 11px Inter'; ctx.textAlign='center';
+    for(let i=0;i<5;i++){
+      const xx = 50 + (i+0.5)*(W-100)/5;
+      const c = Math.cos(2*Math.PI*xx/lam - wavePhase);
+      if(c > 0.5){
+        ctx.fillStyle='#ffe080';
+        ctx.fillText('Verdichtung', xx, H-12);
+      } else if(c < -0.5){
+        ctx.fillStyle='#ff9966';
+        ctx.fillText('Verdünnung', xx, H-12);
+      }
+    }
+    ctx.textAlign='left';
+  }
+
+  // Update readouts
+  const A_cm = parseFloat(document.getElementById('ampSlider').value);
+  const f_v = parseFloat(document.getElementById('freqSlider').value);
+  const lam_cm = parseFloat(document.getElementById('lamSlider').value);
+  document.getElementById('tOut').textContent = (1/f_v).toFixed(2);
+  document.getElementById('cOut').textContent = (lam_cm/100 * f_v).toFixed(2);
+  document.getElementById('omegaOut').textContent = (2*Math.PI*f_v).toFixed(2);
+  document.getElementById('eOut').textContent = (A_cm*A_cm).toFixed(0);
+
+  wavePhase += f_v * 0.06;
+  requestAnimationFrame(drawWave);
+}
+
+// ========== WELLENARTEN (3D plastic SVGs) ==========
+const ARTEN = [
+  {
+    id:'transversal', name:'Transversalwelle', symbol:'mech. Welle',
+    aufbau:'Schwingungsrichtung steht <b>senkrecht</b> zur Ausbreitungsrichtung.',
+    funktion:'Teilchen oszillieren auf und ab, während die Welle horizontal weiterläuft. Es entstehen Wellenberge und -täler.',
+    klinik:'Lichtwellen (transversal!) passieren das Auge bis zur Netzhaut – Polarisationsfilter (Sonnenbrille) nutzen das.',
+    medat:'Klassiker: <b>Seil-/Saitenwellen, Lichtwellen, S-Wellen</b> bei Erdbeben. Faustregel: Wellenlänge λ entspricht dem Abstand zweier Wellenberge.',
+    examples:['Seilwelle','Licht','S-Wellen'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="trBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#062a40"/><stop offset="100%" stop-color="#0a4d72"/></linearGradient>
+        <linearGradient id="trWave" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#a8e0f5"/><stop offset="100%" stop-color="#6db8e0"/></linearGradient>
+        <filter id="trGlow"><feGaussianBlur stdDeviation="1.6"/></filter>
+      </defs>
+      <rect width="240" height="140" fill="url(#trBg)" rx="8"/>
+      <line x1="10" y1="70" x2="230" y2="70" stroke="#6db8e0" stroke-width="0.5" opacity="0.4" stroke-dasharray="3,2"/>
+      <path d="M 10,70 C 35,15 60,15 85,70 C 110,125 135,125 160,70 C 185,15 210,15 230,70" fill="none" stroke="url(#trWave)" stroke-width="3" filter="url(#trGlow)"/>
+      <path d="M 10,70 C 35,15 60,15 85,70 C 110,125 135,125 160,70 C 185,15 210,15 230,70" fill="none" stroke="#cdeafa" stroke-width="2"/>
+      <circle cx="35" cy="35" r="4" fill="#fff"><animate attributeName="cy" values="35;70;105;70;35" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="85" cy="70" r="4" fill="#fff"><animate attributeName="cy" values="70;105;70;35;70" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="135" cy="105" r="4" fill="#fff"><animate attributeName="cy" values="105;70;35;70;105" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="185" cy="70" r="4" fill="#fff"><animate attributeName="cy" values="70;35;70;105;70" dur="2s" repeatCount="indefinite"/></circle>
+    </svg>`
+  },
+  {
+    id:'longitudinal', name:'Longitudinalwelle', symbol:'mech. Welle',
+    aufbau:'Schwingungsrichtung verläuft <b>parallel</b> zur Ausbreitungsrichtung.',
+    funktion:'Teilchen oszillieren in Ausbreitungsrichtung. Es entstehen Zonen hoher (Verdichtung) und niedriger Dichte (Verdünnung).',
+    klinik:'<b>Schallwellen</b> in Luft & Gewebe sind longitudinal – Grundlage von Sonografie, Stethoskop, Hörorgan.',
+    medat:'Beispiele: Schall, Druckwellen in Federn, P-Wellen bei Erdbeben. Eine Wellenlänge entspricht dem Abstand zweier Verdichtungen.',
+    examples:['Schall','P-Wellen','Federpuls'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="loBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#062a40"/><stop offset="100%" stop-color="#0a4d72"/></linearGradient>
+      </defs>
+      <rect width="240" height="140" fill="url(#loBg)" rx="8"/>
+      <g>
+        <rect x="14" y="35" width="3" height="70" fill="#a8e0f5" opacity="0.5"><animate attributeName="x" values="14;19;14;9;14" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="22" y="35" width="3" height="70" fill="#cdeafa" opacity="0.7"><animate attributeName="x" values="22;25;22;19;22" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="30" y="35" width="3" height="70" fill="#fff" opacity="0.95"><animate attributeName="x" values="30;31;30;29;30" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="40" y="35" width="3" height="70" fill="#fff" opacity="0.95"><animate attributeName="x" values="40;39;40;41;40" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="50" y="35" width="3" height="70" fill="#cdeafa" opacity="0.7"><animate attributeName="x" values="50;47;50;53;50" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="62" y="35" width="3" height="70" fill="#a8e0f5" opacity="0.45"><animate attributeName="x" values="62;57;62;67;62" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="78" y="35" width="3" height="70" fill="#6db8e0" opacity="0.4"><animate attributeName="x" values="78;73;78;83;78" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="98" y="35" width="3" height="70" fill="#6db8e0" opacity="0.4"><animate attributeName="x" values="98;93;98;103;98" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="118" y="35" width="3" height="70" fill="#a8e0f5" opacity="0.5"><animate attributeName="x" values="118;115;118;121;118" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="130" y="35" width="3" height="70" fill="#cdeafa" opacity="0.7"><animate attributeName="x" values="130;129;130;131;130" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="140" y="35" width="3" height="70" fill="#fff" opacity="0.95"><animate attributeName="x" values="140;141;140;139;140" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="150" y="35" width="3" height="70" fill="#fff" opacity="0.95"><animate attributeName="x" values="150;149;150;151;150" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="160" y="35" width="3" height="70" fill="#cdeafa" opacity="0.7"><animate attributeName="x" values="160;157;160;163;160" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="172" y="35" width="3" height="70" fill="#a8e0f5" opacity="0.5"><animate attributeName="x" values="172;167;172;177;172" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="188" y="35" width="3" height="70" fill="#6db8e0" opacity="0.4"><animate attributeName="x" values="188;183;188;193;188" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="208" y="35" width="3" height="70" fill="#6db8e0" opacity="0.4"><animate attributeName="x" values="208;203;208;213;208" dur="2s" repeatCount="indefinite"/></rect>
+        <rect x="224" y="35" width="3" height="70" fill="#a8e0f5" opacity="0.5"><animate attributeName="x" values="224;221;224;227;224" dur="2s" repeatCount="indefinite"/></rect>
+      </g>
+    </svg>`
+  },
+  {
+    id:'schall', name:'Schallwelle', symbol:'longitudinal',
+    aufbau:'Druck- und Dichteschwankungen, die sich von einer Schallquelle ausbreiten.',
+    funktion:'In Luft etwa 343 m/s, in Wasser ca. 1484 m/s, in Stahl ~5000 m/s. Hörbarer Bereich: 16 Hz – 20 kHz.',
+    klinik:'<b>Sonografie</b>: Ultraschall (>20 kHz) wird an Gewebegrenzen reflektiert – Bildgebung ohne Strahlung. <b>Stethoskop</b> verstärkt Körperschall.',
+    medat:'Infraschall < 16 Hz, Hörbereich 16 Hz – 20 kHz, Ultraschall > 20 kHz. Pegel in <b>Dezibel (dB)</b> – logarithmisches Maß.',
+    examples:['Sprache','Musik','US-Diagnostik'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="schBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#062a40"/><stop offset="100%" stop-color="#0a4d72"/></linearGradient>
+        <radialGradient id="schSpk" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#fff" stop-opacity="0.9"/><stop offset="40%" stop-color="#6db8e0"/><stop offset="100%" stop-color="#1a3a4a"/></radialGradient>
+        <filter id="schSh"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.5"/></filter>
+      </defs>
+      <rect width="240" height="140" fill="url(#schBg)" rx="8"/>
+      <rect x="20" y="50" width="35" height="40" rx="4" fill="#0e2a3e" stroke="#3a5a7a" stroke-width="1" filter="url(#schSh)"/>
+      <circle cx="38" cy="70" r="14" fill="url(#schSpk)" filter="url(#schSh)"/>
+      <ellipse cx="34" cy="64" rx="4" ry="2" fill="#fff" opacity="0.65"/>
+      <circle cx="38" cy="70" r="6" fill="#062a40" opacity="0.55"/>
+      <g>
+        <circle cx="55" cy="70" r="0" fill="none" stroke="#a8e0f5" stroke-width="2" opacity="0"><animate attributeName="r" values="5;160" dur="2.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.85;0" dur="2.4s" repeatCount="indefinite"/></circle>
+        <circle cx="55" cy="70" r="0" fill="none" stroke="#a8e0f5" stroke-width="2" opacity="0"><animate attributeName="r" values="5;160" dur="2.4s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.85;0" dur="2.4s" begin="0.6s" repeatCount="indefinite"/></circle>
+        <circle cx="55" cy="70" r="0" fill="none" stroke="#a8e0f5" stroke-width="2" opacity="0"><animate attributeName="r" values="5;160" dur="2.4s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.85;0" dur="2.4s" begin="1.2s" repeatCount="indefinite"/></circle>
+        <circle cx="55" cy="70" r="0" fill="none" stroke="#a8e0f5" stroke-width="2" opacity="0"><animate attributeName="r" values="5;160" dur="2.4s" begin="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.85;0" dur="2.4s" begin="1.8s" repeatCount="indefinite"/></circle>
+      </g>
+      <path d="M 200 60 Q 215 60 215 75 Q 215 90 200 90 L 197 84 Q 207 80 207 75 Q 207 70 200 67 Z" fill="#ffd9b5" stroke="#a87850" stroke-width="1"/>
+    </svg>`
+  },
+  {
+    id:'wasser', name:'Wasserwelle', symbol:'Oberflächenwelle',
+    aufbau:'Mischform: Teilchen bewegen sich auf <b>elliptischen Bahnen</b> – an der Oberfläche groß, in der Tiefe kleiner.',
+    funktion:'Schwerewellen werden durch Gravitation rückgestellt. Die Wellengeschwindigkeit hängt von der Wassertiefe ab.',
+    klinik:'Periphere Wellenphänomene erklären auch Pulswellen in Arterien (Druckwelle vom Herzen).',
+    medat:'Tsunami im offenen Ozean: bis zu 700 km/h. Kurze Wellenlänge → reine Schwerewelle, lange λ → Tiefwasserwelle.',
+    examples:['Meer','Teich','Pulswelle'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="waBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a0d8ef"/><stop offset="40%" stop-color="#5ba3cc"/><stop offset="100%" stop-color="#1a4f7a"/></linearGradient>
+        <linearGradient id="waSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bfe8f5"/><stop offset="100%" stop-color="#a0d8ef"/></linearGradient>
+      </defs>
+      <rect width="240" height="140" fill="url(#waBg)" rx="8"/>
+      <rect width="240" height="40" fill="url(#waSky)" rx="8"/>
+      <path d="M 0,55 Q 30,30 60,55 T 120,55 T 180,55 T 240,55 L 240,140 L 0,140 Z" fill="url(#waBg)" opacity="0.85">
+        <animate attributeName="d" values="M 0,55 Q 30,30 60,55 T 120,55 T 180,55 T 240,55 L 240,140 L 0,140 Z;M 0,55 Q 30,80 60,55 T 120,55 T 180,55 T 240,55 L 240,140 L 0,140 Z;M 0,55 Q 30,30 60,55 T 120,55 T 180,55 T 240,55 L 240,140 L 0,140 Z" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <ellipse cx="50" cy="70" rx="9" ry="6" fill="none" stroke="white" stroke-width="0.7" opacity="0.5"/>
+      <circle cx="59" cy="70" r="3" fill="#fff" opacity="0.9"><animateMotion dur="2s" repeatCount="indefinite" path="M 9,0 a 9,6 0 1,0 -18,0 a 9,6 0 1,0 18,0"/></circle>
+      <ellipse cx="120" cy="85" rx="6" ry="4" fill="none" stroke="white" stroke-width="0.6" opacity="0.4"/>
+      <circle cx="126" cy="85" r="2.5" fill="#fff" opacity="0.7"><animateMotion dur="2s" repeatCount="indefinite" path="M 6,0 a 6,4 0 1,0 -12,0 a 6,4 0 1,0 12,0"/></circle>
+      <ellipse cx="190" cy="100" rx="4" ry="2.5" fill="none" stroke="white" stroke-width="0.5" opacity="0.3"/>
+      <circle cx="194" cy="100" r="2" fill="#fff" opacity="0.5"><animateMotion dur="2s" repeatCount="indefinite" path="M 4,0 a 4,2.5 0 1,0 -8,0 a 4,2.5 0 1,0 8,0"/></circle>
+    </svg>`
+  },
+  {
+    id:'em', name:'Elektromagnetische Welle', symbol:'transversal · EM',
+    aufbau:'<b>E-Feld</b> und <b>B-Feld</b> stehen senkrecht zueinander UND zur Ausbreitungsrichtung.',
+    funktion:'Breitet sich auch im Vakuum mit c = 3·10⁸ m/s aus. Spektrum: Radio – Mikrowelle – IR – sichtbar – UV – Röntgen – γ.',
+    klinik:'<b>Röntgen</b> (10⁻¹⁰ m), <b>γ-Therapie</b>, <b>MRT</b> (Radiowellen), <b>UV-Phototherapie</b>, sichtbares Licht für Ophthalmoskopie.',
+    medat:'Sichtbares Licht: 380–780 nm. Energie pro Photon: <b>E = h·f</b>. Höhere Frequenz → mehr Energie → mehr Schaden (UV, Röntgen, γ).',
+    examples:['Licht','Röntgen','MRT'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="emBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0a0a2a"/><stop offset="100%" stop-color="#1a0a3a"/></linearGradient>
+        <filter id="emGlow"><feGaussianBlur stdDeviation="1.6"/></filter>
+      </defs>
+      <rect width="240" height="140" fill="url(#emBg)" rx="8"/>
+      <circle cx="40" cy="20" r="0.7" fill="#fff" opacity="0.7"/>
+      <circle cx="200" cy="15" r="0.5" fill="#fff" opacity="0.6"/>
+      <line x1="20" y1="70" x2="230" y2="70" stroke="#888" stroke-width="0.5" stroke-dasharray="2,2" opacity="0.5"/>
+      <path d="M 20,70 C 36,30 52,30 68,70 C 84,110 100,110 116,70 C 132,30 148,30 164,70 C 180,110 196,110 212,70 C 222,50 230,55 230,70" fill="none" stroke="#ff6680" stroke-width="2.5" filter="url(#emGlow)"/>
+      <path d="M 20,70 C 36,86 52,86 68,70 C 84,54 100,54 116,70 C 132,86 148,86 164,70 C 180,54 196,54 212,70 C 222,80 230,76 230,70" fill="none" stroke="#6688ff" stroke-width="2" opacity="0.85"/>
+      <text x="6" y="14" fill="#ff8aa3" font-size="11" font-weight="bold">E</text>
+      <text x="6" y="135" fill="#88aaff" font-size="11" font-weight="bold">B</text>
+      <circle cx="20" cy="70" r="3.5" fill="#ffeb3b" filter="url(#emGlow)"><animateMotion dur="2.5s" repeatCount="indefinite" path="M 0,0 C 16,-40 32,-40 48,0 C 64,40 80,40 96,0 C 112,-40 128,-40 144,0 C 160,40 176,40 192,0 C 202,-20 210,-15 210,0"/></circle>
+    </svg>`
+  },
+  {
+    id:'seismik', name:'Seismische Wellen', symbol:'P + S',
+    aufbau:'<b>P-Wellen (Primär)</b>: longitudinal, schnell, durch alle Medien. <b>S-Wellen (Sekundär)</b>: transversal, langsamer.',
+    funktion:'P-Wellen kommen zuerst (~6 km/s), dann S-Wellen (~3.5 km/s). Aus der Laufzeitdifferenz ergibt sich die Entfernung zum Epizentrum.',
+    klinik:'Diagnostisches Prinzip wie beim Ultraschall: Aus Reflexionen rekonstruiert man die Schichten – hier den Erdaufbau.',
+    medat:'Da S-Wellen den flüssigen Erdkern <b>nicht</b> durchdringen, weiß man, dass dieser flüssig ist. S-Wellen brauchen Festkörper!',
+    examples:['Erdbeben','Geophysik'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="seBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7a5230"/><stop offset="60%" stop-color="#5a3818"/><stop offset="100%" stop-color="#3a1f0a"/></linearGradient>
+      </defs>
+      <rect width="240" height="140" fill="url(#seBg)" rx="8"/>
+      <rect width="240" height="20" fill="#8a6240" opacity="0.6"/>
+      <rect width="240" height="2" y="20" fill="#3a1f0a"/>
+      <circle cx="40" cy="35" r="6" fill="#ff5530"><animate attributeName="r" values="6;9;6" dur="0.6s" repeatCount="indefinite"/></circle>
+      <circle cx="40" cy="35" r="3" fill="#ffeb3b"/>
+      <text x="6" y="65" fill="#ff8855" font-size="10" font-weight="bold">P</text>
+      <g>
+        <circle cx="60" cy="65" r="2" fill="#ff8855"><animate attributeName="cx" values="60;230" dur="3s" repeatCount="indefinite"/></circle>
+        <circle cx="68" cy="65" r="2" fill="#ff8855"><animate attributeName="cx" values="68;238" dur="3s" repeatCount="indefinite"/></circle>
+        <circle cx="74" cy="65" r="2" fill="#ff8855"><animate attributeName="cx" values="74;244" dur="3s" repeatCount="indefinite"/></circle>
+        <circle cx="92" cy="65" r="2" fill="#ff8855" opacity="0.55"><animate attributeName="cx" values="92;262" dur="3s" repeatCount="indefinite"/></circle>
+        <circle cx="105" cy="65" r="2" fill="#ff8855" opacity="0.4"><animate attributeName="cx" values="105;275" dur="3s" repeatCount="indefinite"/></circle>
+      </g>
+      <text x="6" y="105" fill="#88ccff" font-size="10" font-weight="bold">S</text>
+      <path d="M 30,105 C 50,85 70,125 90,105 C 110,85 130,125 150,105 C 170,85 190,125 210,105 C 220,95 226,115 230,105" fill="none" stroke="#88ccff" stroke-width="2.5">
+        <animate attributeName="d" values="M 30,105 C 50,85 70,125 90,105 C 110,85 130,125 150,105 C 170,85 190,125 210,105 C 220,95 226,115 230,105;M 30,105 C 50,125 70,85 90,105 C 110,125 130,85 150,105 C 170,125 190,85 210,105 C 220,115 226,95 230,105;M 30,105 C 50,85 70,125 90,105 C 110,85 130,125 150,105 C 170,85 190,125 210,105 C 220,95 226,115 230,105" dur="2s" repeatCount="indefinite"/>
+      </path>
+    </svg>`
+  }
+];
+
+function buildArten(){
+  const grid = document.getElementById('artenGrid');
+  if(grid.children.length) return;
+  grid.innerHTML = ARTEN.map(a => `
+    <div class="art-card" data-id="${a.id}" data-set="arten">
+      <div class="art-img">${a.svg}</div>
+      <div class="art-info">
+        <span class="badge-num">${a.symbol}</span>
+        <h4>${a.name}</h4>
+        <p>${a.aufbau}</p>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.art-card').forEach(el=>{
+    el.addEventListener('click',()=>openSb(el.dataset.id, 'arten'));
+  });
+  if(window.lucide) lucide.createIcons();
+}
+
+// ========== PHÄNOMENE ==========
+const PHAEN = [
+  {
+    id:'reflex', name:'Reflexion', symbol:'α = α′',
+    aufbau:'Eine Welle wird an einer Grenzfläche zurückgeworfen. <b>Einfallswinkel = Ausfallswinkel</b> (zur Lotrechten).',
+    funktion:'An festem Ende: Phasensprung um π (Wellenberg ↔ Tal). An freiem Ende kein Phasensprung.',
+    klinik:'<b>Ultraschall-Diagnostik</b>: Reflexion an Gewebegrenzen liefert das Bild. Spiegel, Echo, Radar nutzen dasselbe Prinzip.',
+    medat:'Klassische Aufgabe: Lotrechte einzeichnen, Winkel bestimmen. Bei senkrechtem Einfall (α=0) läuft die Welle direkt zurück.',
+    examples:['Spiegel','Echo','US-Bild'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="rfBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#062a40"/><stop offset="100%" stop-color="#0a4d72"/></linearGradient></defs>
+      <rect width="240" height="140" fill="url(#rfBg)" rx="8"/>
+      <rect x="210" y="0" width="30" height="140" fill="#5a6a7a"/>
+      <g stroke="#3a4a5a" stroke-width="0.6" opacity="0.5"><line x1="215" y1="20" x2="232" y2="0"/><line x1="215" y1="50" x2="232" y2="30"/><line x1="215" y1="80" x2="232" y2="60"/><line x1="215" y1="110" x2="232" y2="90"/></g>
+      <line x1="210" y1="70" x2="170" y2="70" stroke="#ddd" stroke-width="0.7" stroke-dasharray="3,2"/>
+      <line x1="20" y1="20" x2="210" y2="70" stroke="#6db8e0" stroke-width="2.5"/>
+      <line x1="210" y1="70" x2="20" y2="120" stroke="#f5c542" stroke-width="2.5"/>
+      <circle cx="20" cy="20" r="4" fill="#a8e0f5"><animateMotion dur="2.5s" repeatCount="indefinite" path="M 0,0 L 190,50 L 0,100"/></circle>
+      <text x="6" y="14" fill="#a8e0f5" font-size="10" font-weight="bold">α = α′</text>
+    </svg>`
+  },
+  {
+    id:'brech', name:'Brechung', symbol:'Snell',
+    aufbau:'Beim Übergang in ein anderes Medium ändern sich Geschwindigkeit und Wellenlänge – die Frequenz bleibt!',
+    funktion:'In dichteres Medium → zum Lot hin gebrochen. In dünneres Medium → vom Lot weg. Es gilt: sin α / sin β = n₂/n₁ = c₁/c₂ = λ₁/λ₂.',
+    klinik:'<b>Augenoptik</b>: Hornhaut & Linse brechen Licht so, dass ein scharfes Bild auf der Netzhaut entsteht. <b>Endoskopie</b>: Glasfaser-Totalreflexion.',
+    medat:'Totalreflexion bei Übergang dicht→dünn ab α<sub>krit</sub> mit sin α<sub>krit</sub> = n₂/n₁. Anwendung: Lichtleiter.',
+    examples:['Linse','Glasfaser','Auge'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="brAir" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#bfe8f5"/><stop offset="100%" stop-color="#a0d0e8"/></linearGradient>
+        <linearGradient id="brW" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3080b8"/><stop offset="100%" stop-color="#1a4f7a"/></linearGradient>
+      </defs>
+      <rect x="0" y="0" width="240" height="70" fill="url(#brAir)" rx="8"/>
+      <rect x="0" y="70" width="240" height="70" fill="url(#brW)"/>
+      <line x1="0" y1="70" x2="240" y2="70" stroke="#0a3050" stroke-width="1"/>
+      <line x1="120" y1="30" x2="120" y2="110" stroke="#666" stroke-width="0.7" stroke-dasharray="3,2"/>
+      <line x1="40" y1="15" x2="120" y2="70" stroke="#2d6a8e" stroke-width="2.5"/>
+      <line x1="120" y1="70" x2="170" y2="135" stroke="#f5c542" stroke-width="2.5"/>
+      <circle cx="40" cy="15" r="4" fill="#a8e0f5"><animateMotion dur="2.5s" repeatCount="indefinite" path="M 0,0 L 80,55 L 50,65"/></circle>
+      <text x="6" y="20" fill="#1a4f7a" font-size="10" font-weight="bold">n₁=1.0</text>
+      <text x="6" y="100" fill="#fff" font-size="10" font-weight="bold">n₂=1.33</text>
+      <text x="106" y="62" fill="#2d6a8e" font-size="11" font-weight="bold">α</text>
+      <text x="138" y="105" fill="#f5c542" font-size="11" font-weight="bold">β</text>
+    </svg>`
+  },
+  {
+    id:'beug', name:'Beugung', symbol:'d·sinθ = nλ',
+    aufbau:'Wellen breiten sich nach Spalten oder hinter Hindernissen kreisförmig aus (<b>Huygens-Prinzip</b>).',
+    funktion:'Effekt umso stärker, je näher die Spaltbreite d der Wellenlänge λ ist. d ≪ λ → fast Punktquelle.',
+    klinik:'Auflösungsgrenze des <b>Lichtmikroskops</b>: ca. λ/2 ≈ 200 nm. Elektronenmikroskop hat viel kleinere λ → höhere Auflösung.',
+    medat:'Schall (λ groß) biegt um die Tür herum, Licht (λ winzig) kaum → scharfe Schatten. Doppelspalt zeigt Beugung + Interferenz.',
+    examples:['Mikroskop','Hörbarkeit','Doppelspalt'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="bgBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#062a40"/><stop offset="100%" stop-color="#0a4d72"/></linearGradient></defs>
+      <rect width="240" height="140" fill="url(#bgBg)" rx="8"/>
+      <g stroke="#a8e0f5" stroke-width="1.5" fill="none" opacity="0.8">
+        <line x1="20" y1="20" x2="20" y2="120"><animate attributeName="x1" values="20;110" dur="2s" repeatCount="indefinite"/><animate attributeName="x2" values="20;110" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0" dur="2s" repeatCount="indefinite"/></line>
+        <line x1="40" y1="20" x2="40" y2="120"><animate attributeName="x1" values="40;110" dur="2s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="x2" values="40;110" dur="2s" begin="0.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0" dur="2s" begin="0.4s" repeatCount="indefinite"/></line>
+        <line x1="60" y1="20" x2="60" y2="120"><animate attributeName="x1" values="60;110" dur="2s" begin="0.8s" repeatCount="indefinite"/><animate attributeName="x2" values="60;110" dur="2s" begin="0.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0" dur="2s" begin="0.8s" repeatCount="indefinite"/></line>
+      </g>
+      <rect x="115" y="0" width="6" height="55" fill="#666"/>
+      <rect x="115" y="85" width="6" height="55" fill="#666"/>
+      <circle cx="118" cy="70" r="0" fill="none" stroke="#cdeafa" stroke-width="1.5"><animate attributeName="r" values="3;115" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="118" cy="70" r="0" fill="none" stroke="#cdeafa" stroke-width="1.5"><animate attributeName="r" values="3;115" dur="2s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="2s" begin="0.6s" repeatCount="indefinite"/></circle>
+      <circle cx="118" cy="70" r="0" fill="none" stroke="#cdeafa" stroke-width="1.5"><animate attributeName="r" values="3;115" dur="2s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="2s" begin="1.2s" repeatCount="indefinite"/></circle>
+    </svg>`
+  },
+  {
+    id:'inter', name:'Interferenz', symbol:'Δs = nλ',
+    aufbau:'Zwei Wellen überlagern sich. Bei <b>konstruktiver</b> Interferenz addieren sich die Amplituden, bei <b>destruktiver</b> löschen sie sich aus.',
+    funktion:'Konstruktiv: Δs = n·λ (Wellenberge treffen). Destruktiv: Δs = (n+½)·λ (Berg trifft Tal).',
+    klinik:'<b>Antireflexbeschichtungen</b> auf Brillen, <b>Noise-Cancelling-Kopfhörer</b>, <b>OCT</b> (Augenuntersuchung) – alle nutzen Interferenz.',
+    medat:'Doppelspaltexperiment ist Klassiker. Δs = Gangunterschied zwischen den Wegen der zwei Wellen. n = 0,1,2,…',
+    examples:['Doppelspalt','Brillen','Kopfhörer'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="ifBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0a1a3a"/><stop offset="100%" stop-color="#1a2a5a"/></linearGradient></defs>
+      <rect width="240" height="140" fill="url(#ifBg)" rx="8"/>
+      <circle cx="60" cy="50" r="3" fill="#ffeb3b"/>
+      <circle cx="60" cy="100" r="3" fill="#ffeb3b"/>
+      <g fill="none" stroke="#a8e0f5" stroke-width="0.8" opacity="0.5">
+        <circle cx="60" cy="50" r="20"/><circle cx="60" cy="50" r="40"/><circle cx="60" cy="50" r="60"/><circle cx="60" cy="50" r="80"/><circle cx="60" cy="50" r="100"/>
+      </g>
+      <g fill="none" stroke="#ff8855" stroke-width="0.8" opacity="0.5">
+        <circle cx="60" cy="100" r="20"/><circle cx="60" cy="100" r="40"/><circle cx="60" cy="100" r="60"/><circle cx="60" cy="100" r="80"/><circle cx="60" cy="100" r="100"/>
+      </g>
+      <g fill="#fff" opacity="0.9">
+        <circle cx="180" cy="75" r="2.5"><animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/></circle>
+        <circle cx="140" cy="75" r="2.5"><animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/></circle>
+        <circle cx="190" cy="40" r="2"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="1.5s" begin="0.3s" repeatCount="indefinite"/></circle>
+        <circle cx="190" cy="110" r="2"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="1.5s" begin="0.3s" repeatCount="indefinite"/></circle>
+      </g>
+      <text x="6" y="14" fill="#ffeb3b" font-size="10" font-weight="bold">S₁</text>
+      <text x="6" y="135" fill="#ffeb3b" font-size="10" font-weight="bold">S₂</text>
+    </svg>`
+  },
+  {
+    id:'stehende', name:'Stehende Welle', symbol:'L = n·λ/2',
+    aufbau:'Überlagerung einer Welle mit ihrer Reflexion. Es bilden sich ortsfeste <b>Knoten</b> (y=0) und <b>Bäuche</b> (max. Schwingung).',
+    funktion:'Saite (beidseitig fest): L = n·λ/2. Eigenfrequenz f<sub>n</sub> = n·c/(2L). n = 1 → Grundton, n = 2 → 1. Oberton.',
+    klinik:'<b>Resonanz</b> kann gefährlich sein (Brücken, Glas). In der MRT entstehen stehende Hochfrequenzwellen.',
+    medat:'Klassisch: „Wie viele Knoten hat die n-te Schwingung?" Antwort: n+1 Knoten, n Bäuche.',
+    examples:['Saite','Pfeife','Mikrowelle'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="stBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2a4a"/><stop offset="100%" stop-color="#2a3a6a"/></linearGradient>
+        <filter id="stGlow"><feGaussianBlur stdDeviation="1.5"/></filter>
+      </defs>
+      <rect width="240" height="140" fill="url(#stBg)" rx="8"/>
+      <rect x="14" y="40" width="6" height="60" fill="#888"/>
+      <rect x="220" y="40" width="6" height="60" fill="#888"/>
+      <line x1="20" y1="70" x2="220" y2="70" stroke="#666" stroke-width="0.5" stroke-dasharray="3,2"/>
+      <path d="M 20,70 Q 70,30 120,70 Q 170,110 220,70" fill="none" stroke="#a8e0f5" stroke-width="3" filter="url(#stGlow)">
+        <animate attributeName="d" values="M 20,70 Q 70,30 120,70 Q 170,110 220,70;M 20,70 Q 70,70 120,70 Q 170,70 220,70;M 20,70 Q 70,110 120,70 Q 170,30 220,70;M 20,70 Q 70,70 120,70 Q 170,70 220,70;M 20,70 Q 70,30 120,70 Q 170,110 220,70" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <circle cx="20" cy="70" r="4" fill="#ff5566"/>
+      <circle cx="120" cy="70" r="4" fill="#ff5566"/>
+      <circle cx="220" cy="70" r="4" fill="#ff5566"/>
+      <circle cx="70" cy="30" r="3" fill="#ffeb3b"><animate attributeName="cy" values="30;110;30" dur="2s" repeatCount="indefinite"/></circle>
+      <circle cx="170" cy="110" r="3" fill="#ffeb3b"><animate attributeName="cy" values="110;30;110" dur="2s" repeatCount="indefinite"/></circle>
+      <text x="6" y="14" fill="#a8e0f5" font-size="10" font-weight="bold">n=2</text>
+    </svg>`
+  },
+  {
+    id:'doppler', name:'Doppler-Effekt', symbol:"f' = f₀·c/(c−v_Q)",
+    aufbau:'Bewegt sich Quelle oder Beobachter, ändert sich die wahrgenommene Frequenz: <b>Annäherung → höher</b>, <b>Entfernen → tiefer</b>.',
+    funktion:"Allgemein: f' = f₀ · (c ± v<sub>B</sub>) / (c ∓ v<sub>Q</sub>). + Zähler / − Nenner: Annäherung. Umgekehrt: Entfernung.",
+    klinik:'<b>Doppler-Sonografie</b>: Misst Blutflussgeschwindigkeit aus Frequenzverschiebung der reflektierten US-Welle. <b>Echokardiografie</b>.',
+    medat:'Lieblingsbeispiel: Krankenwagen-Sirene. Auch <b>Rotverschiebung</b> ferner Galaxien (Universum dehnt sich aus).',
+    examples:['Sirene','US-Doppler','Astronomie'],
+    svg:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="dpBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a2a4a"/><stop offset="100%" stop-color="#0a1a3a"/></linearGradient>
+        <radialGradient id="dpCar" cx="40%" cy="35%" r="70%"><stop offset="0%" stop-color="#fff"/><stop offset="40%" stop-color="#ff5566"/><stop offset="100%" stop-color="#7a1525"/></radialGradient>
+      </defs>
+      <rect width="240" height="140" fill="url(#dpBg)" rx="8"/>
+      <g fill="none" stroke="#88ccff" stroke-width="1.2" opacity="0.7"><circle cx="160" cy="70" r="22"/><circle cx="152" cy="70" r="34"/><circle cx="142" cy="70" r="48"/><circle cx="128" cy="70" r="64"/></g>
+      <g fill="none" stroke="#ff8855" stroke-width="1.2" opacity="0.7"><circle cx="100" cy="70" r="36"/><circle cx="85" cy="70" r="56"/><circle cx="65" cy="70" r="78"/></g>
+      <ellipse cx="130" cy="82" rx="22" ry="6" fill="black" opacity="0.4"/>
+      <rect x="110" y="63" width="40" height="14" rx="3" fill="url(#dpCar)" stroke="#5a0a18" stroke-width="0.5"><animate attributeName="x" values="100;160;100" dur="3s" repeatCount="indefinite"/></rect>
+      <rect x="118" y="59" width="22" height="8" rx="2" fill="url(#dpCar)" stroke="#5a0a18" stroke-width="0.5"><animate attributeName="x" values="108;168;108" dur="3s" repeatCount="indefinite"/></rect>
+      <circle cx="118" cy="79" r="3" fill="#222" stroke="#888" stroke-width="0.5"><animate attributeName="cx" values="108;168;108" dur="3s" repeatCount="indefinite"/></circle>
+      <circle cx="142" cy="79" r="3" fill="#222" stroke="#888" stroke-width="0.5"><animate attributeName="cx" values="132;192;132" dur="3s" repeatCount="indefinite"/></circle>
+    </svg>`
+  }
+];
+
+function buildPhaen(){
+  const grid = document.getElementById('phaenGrid');
+  if(grid.children.length) return;
+  grid.innerHTML = PHAEN.map(a => `
+    <div class="art-card" data-id="${a.id}" data-set="phaen">
+      <div class="art-img">${a.svg}</div>
+      <div class="art-info">
+        <span class="badge-num">${a.symbol}</span>
+        <h4>${a.name}</h4>
+        <p>${a.aufbau}</p>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.art-card').forEach(el=>{
+    el.addEventListener('click',()=>openSb(el.dataset.id, 'phaen'));
+  });
+  if(window.lucide) lucide.createIcons();
+}
+
+function openSb(id, set){
+  const data = (set==='arten' ? ARTEN : PHAEN).find(x=>x.id===id);
+  if(!data) return;
+  document.getElementById('modalImg').innerHTML = data.svg;
+  document.getElementById('modalTitle').textContent = data.name;
+  document.getElementById('modalSymbol').textContent = data.symbol;
+  document.getElementById('modalSb').innerHTML = `
+    <div class="sb-section">
+      <h4><i data-lucide="layout-grid"></i>Aufbau</h4>
+      <p>${data.aufbau}</p>
+    </div>
+    <div class="sb-section">
+      <h4><i data-lucide="settings"></i>Funktion</h4>
+      <p>${data.funktion}</p>
+    </div>
+    <div class="sb-section klinik">
+      <h4><i data-lucide="stethoscope"></i>Klinik & Medizin</h4>
+      <p>${data.klinik}</p>
+    </div>
+    <div class="sb-section medat">
+      <h4><i data-lucide="graduation-cap"></i>MedAT-Wissen</h4>
+      <p>${data.medat}</p>
+    </div>
+    ${data.examples ? `
+    <div class="sb-section">
+      <h4><i data-lucide="list"></i>Beispiele</h4>
+      <ul class="sb-list">${data.examples.map(e=>`<li>${e}</li>`).join('')}</ul>
+    </div>` : ''}
+  `;
+  document.getElementById('sbModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+document.getElementById('modalClose').addEventListener('click',()=>{
+  document.getElementById('sbModal').classList.remove('show');
+});
+document.getElementById('sbModal').addEventListener('click',(e)=>{
+  if(e.target.id==='sbModal') document.getElementById('sbModal').classList.remove('show');
+});
+
+// ========== RECHNER ==========
+const FORMULAS = [
+  { id:'grund', name:'Grundgleichung', latex:'c = \\lambda \\cdot f', vars:[
+    {k:'c', name:'Wellengeschw.', unit:'m/s', def:343, min:0.001},
+    {k:'l', name:'Wellenlänge λ', unit:'m', def:0.5, min:0.001},
+    {k:'f', name:'Frequenz', unit:'Hz', def:686, min:0.001},
+  ], compute:(v,solve)=>{
+    if(solve==='c') return {res:v.l*v.f, expr:'c = \\lambda \\cdot f', step:`c = ${v.l} \\cdot ${v.f} = ${(v.l*v.f).toFixed(4)}`, unit:'m/s'};
+    if(solve==='l') return {res:v.c/v.f, expr:'\\lambda = c / f', step:`\\lambda = ${v.c} / ${v.f} = ${(v.c/v.f).toFixed(4)}`, unit:'m'};
+    if(solve==='f') return {res:v.c/v.l, expr:'f = c / \\lambda', step:`f = ${v.c} / ${v.l} = ${(v.c/v.l).toFixed(4)}`, unit:'Hz'};
+  }},
+  { id:'period', name:'Periode', latex:'T = 1/f', vars:[
+    {k:'T', name:'Periode', unit:'s', def:0.02, min:0.0001},
+    {k:'f', name:'Frequenz', unit:'Hz', def:50, min:0.0001},
+  ], compute:(v,solve)=>{
+    if(solve==='T') return {res:1/v.f, expr:'T = 1/f', step:`T = 1/${v.f} = ${(1/v.f).toFixed(5)}`, unit:'s'};
+    if(solve==='f') return {res:1/v.T, expr:'f = 1/T', step:`f = 1/${v.T} = ${(1/v.T).toFixed(4)}`, unit:'Hz'};
+  }},
+  { id:'omega', name:'Kreisfrequenz', latex:'\\omega = 2\\pi f', vars:[
+    {k:'omega', name:'ω (Kreisfreq.)', unit:'rad/s', def:628, min:0.0001},
+    {k:'f', name:'Frequenz', unit:'Hz', def:100, min:0.0001},
+  ], compute:(v,solve)=>{
+    if(solve==='omega') return {res:2*Math.PI*v.f, expr:'\\omega = 2\\pi f', step:`\\omega = 2\\pi \\cdot ${v.f} = ${(2*Math.PI*v.f).toFixed(3)}`, unit:'rad/s'};
+    if(solve==='f') return {res:v.omega/(2*Math.PI), expr:'f = \\omega / (2\\pi)', step:`f = ${v.omega} / (2\\pi) = ${(v.omega/(2*Math.PI)).toFixed(4)}`, unit:'Hz'};
+  }},
+  { id:'wave', name:'Wellenzahl', latex:'k = 2\\pi/\\lambda', vars:[
+    {k:'k', name:'Wellenzahl k', unit:'rad/m', def:1.83, min:0.0001},
+    {k:'l', name:'Wellenlänge λ', unit:'m', def:3.43, min:0.0001},
+  ], compute:(v,solve)=>{
+    if(solve==='k') return {res:2*Math.PI/v.l, expr:'k = 2\\pi/\\lambda', step:`k = 2\\pi/${v.l} = ${(2*Math.PI/v.l).toFixed(4)}`, unit:'rad/m'};
+    if(solve==='l') return {res:2*Math.PI/v.k, expr:'\\lambda = 2\\pi/k', step:`\\lambda = 2\\pi/${v.k} = ${(2*Math.PI/v.k).toFixed(4)}`, unit:'m'};
+  }},
+  { id:'doppler', name:'Doppler', latex:"f' = f_0 \\cdot \\frac{c}{c - v_Q}", vars:[
+    {k:'fp', name:"f' (gehört)", unit:'Hz', def:480, min:0.0001},
+    {k:'f0', name:'f₀ (Quelle)', unit:'Hz', def:440, min:0.0001},
+    {k:'c', name:'Schallgeschw.', unit:'m/s', def:343, min:0.0001},
+    {k:'vQ', name:'Quelle v_Q', unit:'m/s', def:30, min:0},
+  ], compute:(v,solve)=>{
+    if(solve==='fp') return {res:v.f0*v.c/(v.c-v.vQ), expr:"f' = f_0 \\cdot c/(c - v_Q)", step:`f' = ${v.f0} \\cdot ${v.c}/(${v.c}-${v.vQ}) = ${(v.f0*v.c/(v.c-v.vQ)).toFixed(2)}`, unit:'Hz'};
+    if(solve==='f0') return {res:v.fp*(v.c-v.vQ)/v.c, expr:"f_0 = f' \\cdot (c - v_Q)/c", step:`f_0 = ${v.fp} \\cdot (${v.c}-${v.vQ})/${v.c} = ${(v.fp*(v.c-v.vQ)/v.c).toFixed(2)}`, unit:'Hz'};
+    if(solve==='vQ') return {res:v.c*(1-v.f0/v.fp), expr:"v_Q = c \\cdot (1 - f_0/f')", step:`v_Q = ${v.c} \\cdot (1 - ${v.f0}/${v.fp}) = ${(v.c*(1-v.f0/v.fp)).toFixed(2)}`, unit:'m/s'};
+  }},
+  { id:'schweb', name:'Schwebung', latex:'f_S = |f_1 - f_2|', vars:[
+    {k:'fs', name:'Schwebung f_S', unit:'Hz', def:4, min:0},
+    {k:'f1', name:'Frequenz 1', unit:'Hz', def:440, min:0},
+    {k:'f2', name:'Frequenz 2', unit:'Hz', def:444, min:0},
+  ], compute:(v,solve)=>{
+    if(solve==='fs') return {res:Math.abs(v.f1-v.f2), expr:'f_S = |f_1 - f_2|', step:`f_S = |${v.f1} - ${v.f2}| = ${Math.abs(v.f1-v.f2).toFixed(3)}`, unit:'Hz'};
+    if(solve==='f2') return {res:v.f1-v.fs, expr:'f_2 = f_1 - f_S', step:`f_2 = ${v.f1} - ${v.fs} = ${(v.f1-v.fs).toFixed(3)}`, unit:'Hz'};
+    if(solve==='f1') return {res:v.f2+v.fs, expr:'f_1 = f_2 + f_S', step:`f_1 = ${v.f2} + ${v.fs} = ${(v.f2+v.fs).toFixed(3)}`, unit:'Hz'};
+  }},
+  { id:'inten', name:'Intensität', latex:'I = P/(4\\pi r^2)', vars:[
+    {k:'I', name:'Intensität', unit:'W/m²', def:2, min:0.0001},
+    {k:'P', name:'Leistung P', unit:'W', def:100, min:0.0001},
+    {k:'r', name:'Abstand r', unit:'m', def:2, min:0.0001},
+  ], compute:(v,solve)=>{
+    if(solve==='I') return {res:v.P/(4*Math.PI*v.r*v.r), expr:'I = P / (4\\pi r^2)', step:`I = ${v.P} / (4\\pi \\cdot ${v.r}^2) = ${(v.P/(4*Math.PI*v.r*v.r)).toFixed(5)}`, unit:'W/m²'};
+    if(solve==='P') return {res:v.I*4*Math.PI*v.r*v.r, expr:'P = I \\cdot 4\\pi r^2', step:`P = ${v.I} \\cdot 4\\pi \\cdot ${v.r}^2 = ${(v.I*4*Math.PI*v.r*v.r).toFixed(3)}`, unit:'W'};
+    if(solve==='r') return {res:Math.sqrt(v.P/(4*Math.PI*v.I)), expr:'r = \\sqrt{P/(4\\pi I)}', step:`r = \\sqrt{${v.P}/(4\\pi \\cdot ${v.I})} = ${Math.sqrt(v.P/(4*Math.PI*v.I)).toFixed(4)}`, unit:'m'};
+  }},
+];
+let curFormula = FORMULAS[0];
+let solveTarget = 'c';
+const calcVals = {};
+let calcInitialized = false;
+
+function ensureCalc(){
+  if(calcInitialized) return;
+  buildCalcFormulaGrid();
+  selectFormula(FORMULAS[0].id);
+  calcInitialized = true;
+}
+
+function buildCalcFormulaGrid(){
+  const grid = document.getElementById('calcFormulaGrid');
+  grid.innerHTML = FORMULAS.map(f=>`
+    <div class="calc-formula-card${f.id===curFormula.id?' active':''}" data-id="${f.id}">
+      <div class="nm">${f.name}</div>
+      <div class="ltx" data-katex="${f.latex}"></div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.calc-formula-card').forEach(el=>{
+    el.addEventListener('click',()=>selectFormula(el.dataset.id));
+  });
+  grid.querySelectorAll('[data-katex]').forEach(el=>{
+    if(window.katex) katex.render(el.dataset.katex, el, {throwOnError:false});
+  });
+}
+
+function selectFormula(id){
+  curFormula = FORMULAS.find(f=>f.id===id);
+  document.querySelectorAll('.calc-formula-card').forEach(el=>{
+    el.classList.toggle('active', el.dataset.id===id);
+  });
+  // Reset values
+  curFormula.vars.forEach(v=>{ calcVals[v.k] = v.def; });
+  solveTarget = curFormula.vars[0].k;
+  buildCalcVarGrid();
+  computeCalc();
+}
+
+function buildCalcVarGrid(){
+  const grid = document.getElementById('calcVarGrid');
+  grid.innerHTML = curFormula.vars.map(v=>`
+    <div class="calc-var-row">
+      <div class="var-head">
+        <label>${v.k}</label>
+        <span class="unit">${v.unit}</span>
+        <button class="solve-btn${v.k===solveTarget?' solving':''}" data-k="${v.k}">${v.k===solveTarget?'lösen':'lösen nach'}</button>
+      </div>
+      <input type="number" data-k="${v.k}" value="${calcVals[v.k]}" step="any" ${v.k===solveTarget?'disabled':''}>
+      <div style="font-size:.7rem;color:var(--text-secondary);margin-top:4px">${v.name}</div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.solve-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      solveTarget = b.dataset.k;
+      buildCalcVarGrid();
+      computeCalc();
+    });
+  });
+  grid.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      calcVals[inp.dataset.k] = parseFloat(inp.value)||0;
+      computeCalc();
+    });
+  });
+}
+
+function computeCalc(){
+  const result = curFormula.compute(calcVals, solveTarget);
+  const out = document.getElementById('calcResult');
+  if(!result){ out.innerHTML = ''; return; }
+  out.innerHTML = `
+    <h4><i data-lucide="check-circle"></i>Lösungsweg</h4>
+    <div class="step">
+      <div class="label">Formel umgestellt</div>
+      <div class="ltx" id="rxFormula"></div>
+    </div>
+    <div class="step">
+      <div class="label">Werte einsetzen</div>
+      <div class="ltx" id="rxStep"></div>
+    </div>
+    <div class="final">
+      <div class="lbl">Ergebnis</div>
+      <div class="val">${result.res.toFixed(4).replace(/\.?0+$/,'')} ${result.unit}</div>
+    </div>
+  `;
+  if(window.katex){
+    katex.render(result.expr, document.getElementById('rxFormula'), {throwOnError:false});
+    katex.render(result.step, document.getElementById('rxStep'), {throwOnError:false});
+  }
+  if(window.lucide) lucide.createIcons();
+  // Update disabled input with computed value
+  const targetInput = document.querySelector(`input[data-k="${solveTarget}"]`);
+  if(targetInput) targetInput.value = result.res.toFixed(4).replace(/\.?0+$/,'');
+}
+
+// ========== MATCH ==========
+const MATCH = {
+  formel:[
+    {a:'c = λ · f', b:'Grundgleichung der Wellen'},
+    {a:'T = 1/f', b:'Periodendauer'},
+    {a:'ω = 2π·f', b:'Kreisfrequenz'},
+    {a:'f_S = |f₁ − f₂|', b:'Schwebungsfrequenz'},
+    {a:'Δs = n·λ', b:'Konstruktive Interferenz'},
+    {a:'L = n·λ/2', b:'Stehende Welle (Saite)'}
+  ],
+  medium:[
+    {a:'Schallwelle', b:'Festkörper, Flüssigkeit, Gas'},
+    {a:'Lichtwelle (EM)', b:'Vakuum & Materie'},
+    {a:'Wasserwelle', b:'Flüssigkeitsoberfläche'},
+    {a:'P-Welle', b:'Festkörper & Flüssigkeit'},
+    {a:'S-Welle', b:'nur Festkörper'},
+    {a:'Ultraschall', b:'Weichgewebe (Sonografie)'}
+  ],
+  phaen:[
+    {a:'Reflexion', b:'Einfallswinkel = Ausfallswinkel'},
+    {a:'Brechung', b:'sin α / sin β = n₂/n₁'},
+    {a:'Beugung am Spalt', b:'d·sinθ = n·λ'},
+    {a:'Doppler-Effekt', b:"f' = f₀·c/(c−v_Q)"},
+    {a:'Konstruktive Interferenz', b:'Δs = n·λ'},
+    {a:'Stehende Welle', b:'L = n·λ/2'}
+  ]
+};
+let matchMode = 'formel';
+let matchSel = null;
+let matchDone = 0;
+
+function buildMatch(){
+  const data = MATCH[matchMode];
+  const lefts = data.map((d,i)=>({key:i, txt:d.a}));
+  const rights = data.map((d,i)=>({key:i, txt:d.b}));
+  for(let i=rights.length-1; i>0; i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [rights[i],rights[j]]=[rights[j],rights[i]];
+  }
+  const board = document.getElementById('matchBoard');
+  board.innerHTML = `
+    <div class="match-col">
+      <div class="match-col-title">Begriff</div>
+      ${lefts.map(it=>`<button class="match-item" data-side="L" data-key="${it.key}">${it.txt}</button>`).join('')}
+    </div>
+    <div class="match-col">
+      <div class="match-col-title">Zuordnung</div>
+      ${rights.map(it=>`<button class="match-item" data-side="R" data-key="${it.key}">${it.txt}</button>`).join('')}
+    </div>
+  `;
+  board.querySelectorAll('.match-item').forEach(el=>{
+    el.addEventListener('click',()=>pickMatch(el));
+  });
+  matchSel = null;
+  matchDone = 0;
+  document.getElementById('matchMsg').textContent = `0 / ${data.length} richtig`;
+}
+
+function pickMatch(el){
+  if(el.classList.contains('matched')) return;
+  if(!matchSel){ matchSel = el; el.classList.add('selected'); return; }
+  if(matchSel===el){ el.classList.remove('selected'); matchSel=null; return; }
+  if(matchSel.dataset.side===el.dataset.side){
+    matchSel.classList.remove('selected'); matchSel=el; el.classList.add('selected'); return;
+  }
+  if(matchSel.dataset.key===el.dataset.key){
+    matchSel.classList.remove('selected');
+    matchSel.classList.add('matched'); el.classList.add('matched');
+    matchDone++;
+    const tot = MATCH[matchMode].length;
+    document.getElementById('matchMsg').textContent = matchDone===tot ? `🎉 Alle ${tot} richtig!` : `${matchDone} / ${tot} richtig`;
+  } else {
+    const a=matchSel,b=el;
+    a.classList.remove('selected');
+    a.classList.add('error'); b.classList.add('error');
+    setTimeout(()=>{a.classList.remove('error');b.classList.remove('error');},400);
+  }
+  matchSel=null;
+}
+
+document.querySelectorAll('.match-mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.match-mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    matchMode = b.dataset.mode;
+    buildMatch();
+  });
+});
+
+// ========== QUIZ ==========
+const QUIZ = [
+  {q:'Welche Formel beschreibt die Grundgleichung der Wellen?', opts:['c = λ + f','c = λ · f','c = λ / f','c = f / λ'], correct:1, exp:'Die Phasengeschwindigkeit ist das Produkt aus Wellenlänge und Frequenz: c = λ · f.'},
+  {q:'Was ist eine Transversalwelle?', opts:['Schwingung parallel zur Ausbreitung','Schwingung senkrecht zur Ausbreitung','Welle in alle Richtungen','Welle ohne Richtung'], correct:1, exp:'Bei der Transversalwelle steht die Schwingungsrichtung senkrecht (transversal) zur Ausbreitungsrichtung. Beispiele: Licht, Seilwelle, S-Wellen.'},
+  {q:'Schallwellen sind …', opts:['Transversalwellen','Longitudinalwellen','elektromagnetische Wellen','sowohl T als auch L'], correct:1, exp:'Schall erzeugt Druckschwankungen (Verdichtung & Verdünnung) parallel zur Ausbreitung – also longitudinal.'},
+  {q:'Schallgeschwindigkeit in Luft (20 °C)?', opts:['100 m/s','220 m/s','343 m/s','1484 m/s'], correct:2, exp:'In Luft ca. 343 m/s. Wasser deutlich schneller (~1484 m/s), Stahl ~5000 m/s.'},
+  {q:'Was beschreibt der Doppler-Effekt?', opts:['Brechung an Grenzflächen','Überlagerung gleichfrequenter Wellen','Frequenzänderung durch Relativbewegung','Abklingen von Wellen'], correct:2, exp:'Bei Relativbewegung zwischen Quelle und Beobachter ändert sich die wahrgenommene Frequenz: Annäherung → höher, Entfernen → tiefer.'},
+  {q:'Was entsteht bei Überlagerung zweier Wellen mit leicht unterschiedlichen Frequenzen?', opts:['Beugung','Brechung','Schwebung','Reflexion'], correct:2, exp:'Bei f₁ ≈ f₂ entsteht eine periodische Lautstärkemodulation – die Schwebung mit f_S = |f₁ − f₂|.'},
+  {q:'Knoten einer stehenden Welle sind Punkte mit …', opts:['maximaler Amplitude','Amplitude = 0','Wellenende','Treffpunkt zweier Wellen'], correct:1, exp:'Knoten haben dauerhaft Auslenkung null. Bäuche schwingen mit maximaler Amplitude.'},
+  {q:'Durch welches Medium kann sich Schall NICHT ausbreiten?', opts:['Gas','Flüssigkeit','Festkörper','Vakuum'], correct:3, exp:'Schall ist eine mechanische Welle und braucht ein Medium. Im Weltraum-Vakuum kein Schall.'},
+  {q:'Was passiert mit der Wellenlänge beim Übergang in ein optisch dichteres Medium?', opts:['nimmt zu','bleibt gleich','nimmt ab','wird null'], correct:2, exp:'Da die Frequenz konstant bleibt und die Geschwindigkeit sinkt (c = λ·f), wird λ kürzer.'},
+  {q:'Wie ändert sich die Intensität einer Kugelwelle mit dem Abstand r?', opts:['I ∝ r','I ∝ r²','I ∝ 1/r','I ∝ 1/r²'], correct:3, exp:'Energie verteilt sich auf Kugelfläche 4πr² → Abstandsquadratgesetz: I ∝ 1/r². Doppelter Abstand = ¼ Intensität.'},
+  {q:'Welche Wellen breiten sich auch im Vakuum aus?', opts:['Schallwellen','Wasserwellen','elektromagnetische Wellen','alle Wellen'], correct:2, exp:'Nur EM-Wellen (Licht, Radio, Röntgen, …) brauchen kein Medium.'},
+  {q:'Bei konstruktiver Interferenz gilt:', opts:['Δs = (2n+1)·λ/2','Δs = n · λ','Δs = 0 (immer)','Wellen löschen sich aus'], correct:1, exp:'Konstruktiv: Wellenberge treffen aufeinander → Δs = n · λ. Destruktiv wäre Δs = (n+½)·λ.'}
+];
+let qIdx=0, qScore=0, qInit=false;
+
+function ensureQuiz(){
+  if(qInit) return;
+  qIdx=0; qScore=0;
+  document.getElementById('qTotal').textContent = QUIZ.length;
+  renderQuiz();
+  qInit=true;
+}
+
+function renderQuiz(){
+  const body = document.getElementById('qBody');
+  if(qIdx >= QUIZ.length){
+    body.innerHTML = `<div class="q-finish">
+      <div class="score">${qScore} / ${QUIZ.length}</div>
+      <div class="msg">${qScore===QUIZ.length?'🌟 Perfekt!':qScore>=9?'💪 Sehr gut!':qScore>=6?'👍 Gut – noch ein bisschen üben.':'📚 Schau dir Wellenarten und Phänomene nochmal an.'}</div>
+      <button onclick="qIdx=0;qScore=0;document.getElementById('qScore').textContent=0;renderQuiz()"><i data-lucide="rotate-ccw"></i> Neu starten</button>
+    </div>`;
+    document.getElementById('qFill').style.width = '100%';
+    document.getElementById('qNumLbl').textContent = 'Fertig!';
+    if(window.lucide) lucide.createIcons();
+    return;
+  }
+  const it = QUIZ[qIdx];
+  body.innerHTML = `
+    <div class="q-card">
+      <div class="q-question">${qIdx+1}. ${it.q}</div>
+      <div class="q-options">
+        ${it.opts.map((o,i)=>`<button class="q-option" data-i="${i}">${String.fromCharCode(65+i)}) ${o}</button>`).join('')}
+      </div>
+      <div class="q-explain" id="qExplain">${it.exp}</div>
+      <button class="q-next" id="qNext"><i data-lucide="arrow-right"></i> Weiter</button>
+    </div>`;
+  body.querySelectorAll('.q-option').forEach(b=>{
+    b.addEventListener('click',()=>answerQuiz(parseInt(b.dataset.i)));
+  });
+  document.getElementById('qNumLbl').textContent = `Frage ${qIdx+1} / ${QUIZ.length}`;
+  document.getElementById('qFill').style.width = ((qIdx)/QUIZ.length*100) + '%';
+  if(window.lucide) lucide.createIcons();
+}
+
+function answerQuiz(idx){
+  const it = QUIZ[qIdx];
+  const opts = document.querySelectorAll('.q-option');
+  opts.forEach((o,i)=>{
+    o.disabled = true;
+    if(i===it.correct) o.classList.add('correct');
+    else if(i===idx) o.classList.add('wrong');
+  });
+  if(idx===it.correct){ qScore++; document.getElementById('qScore').textContent = qScore; }
+  document.getElementById('qExplain').classList.add('show');
+  const next = document.getElementById('qNext');
+  next.classList.add('show');
+  next.addEventListener('click',()=>{ qIdx++; renderQuiz(); }, {once:true});
+}
+
+// ========== INIT ==========
+function init(){
+  updateSliderVals();
+  drawWave();
+  buildArten();
+  if(window.lucide) lucide.createIcons();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+
+</body>
+</html>

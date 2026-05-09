@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funktionelle Gruppen · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--coral-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--pink-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(224,123,139,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--pink);color:var(--pink-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--pink-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--pink-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--coral-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(224,123,139,.18);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--pink-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* GROUP CARDS */
+  .grp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}
+  .grp-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:16px;padding:14px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);text-align:center}
+  .grp-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--pink)}
+  .grp-card.active{background:linear-gradient(135deg,var(--coral-soft),#fff);border-color:var(--pink)}
+  .grp-card .grp-icon{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--pink-deep);margin:8px 0;letter-spacing:.5px;line-height:1.3;min-height:32px;display:flex;align-items:center;justify-content:center}
+  .grp-card .grp-name{font-size:.92rem;font-weight:800;color:var(--text)}
+  .grp-card .grp-class{font-size:.72rem;color:var(--text-secondary);margin-top:3px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .grp-card .grp-suffix{display:inline-block;background:var(--mint);color:var(--green-deep);padding:2px 8px;border-radius:8px;margin-top:6px;font-size:.7rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+
+  /* GROUP DETAIL */
+  .grp-detail{background:linear-gradient(135deg,var(--coral-soft),var(--yellow-soft));border-radius:var(--radius);padding:20px;margin:14px 0}
+  .grp-detail h3{color:var(--pink-deep);font-size:1rem;font-weight:800;margin-bottom:8px;text-transform:none;letter-spacing:0}
+  .grp-detail .formula-large{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:var(--text);text-align:center;margin:14px 0;letter-spacing:.5px}
+  .grp-detail p{font-size:.86rem;color:var(--text);line-height:1.6;margin-bottom:8px}
+  .grp-detail b{color:var(--pink-deep)}
+
+  /* MOLECULE EXAMPLES */
+  .mol-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+  .mol-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:14px;cursor:pointer;transition:all .2s;text-align:center}
+  .mol-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);border-color:var(--pink)}
+  .mol-card.active{background:linear-gradient(135deg,var(--coral-soft),#fff);border-color:var(--pink)}
+  .mol-card .mol-name{font-size:.85rem;font-weight:800;color:var(--text);margin-bottom:4px}
+  .mol-card .mol-formula{font-family:'JetBrains Mono',monospace;font-size:.92rem;color:var(--pink-deep);font-weight:700}
+  .mol-card .mol-tags{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+  .mol-card .mol-tag{display:inline-block;font-size:.62rem;padding:2px 6px;border-radius:6px;background:var(--bg-warm);color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+
+  .mol-display{background:linear-gradient(135deg,#fff,var(--bg-light));border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0}
+  .mol-display .formula{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:800;color:var(--text);letter-spacing:.5px;line-height:1.4;word-break:break-word}
+  .mol-display .formula .grp-hl{padding:3px 8px;border-radius:7px;display:inline-block;margin:1px}
+  .mol-display .formula .grp-hl.OH{background:rgba(224,123,139,.25);color:var(--pink-deep)}
+  .mol-display .formula .grp-hl.COOH{background:rgba(245,166,142,.3);color:#a8552d}
+  .mol-display .formula .grp-hl.NH2{background:rgba(155,127,196,.25);color:var(--purple-deep)}
+  .mol-display .formula .grp-hl.CO{background:rgba(245,197,66,.3);color:var(--gold-deep)}
+  .mol-display .formula .grp-hl.O{background:rgba(109,184,224,.3);color:var(--blue-deep)}
+  .mol-display .formula .grp-hl.SH{background:rgba(245,197,66,.4);color:var(--gold-deep)}
+  .mol-display .formula .grp-hl.X{background:rgba(109,184,138,.3);color:var(--green-deep)}
+  .mol-display .formula .grp-hl.NO2{background:rgba(155,127,196,.3);color:var(--purple-deep)}
+  .mol-display .formula .grp-hl.PO{background:rgba(74,154,106,.25);color:var(--green-deep)}
+
+  .mol-info{margin-top:12px;font-size:.85rem;color:var(--text-secondary);line-height:1.55}
+  .mol-info b{color:var(--pink-deep)}
+
+  .mol-found-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+  .mol-found{padding:7px 13px;border-radius:var(--radius-pill);background:var(--mint);color:var(--green-deep);font-weight:700;font-size:.78rem;border:1.5px solid var(--green);font-family:'JetBrains Mono',monospace}
+
+  /* PRIORITY */
+  .priority-list{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
+  .priority-item{background:var(--bg-light);border-left:3px solid var(--pink);padding:11px 14px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.5;display:flex;gap:12px;align-items:center}
+  .priority-num{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--pink-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem}
+  .priority-item b{color:var(--pink-deep);font-family:'JetBrains Mono',monospace}
+  .priority-item .suffix{font-family:'JetBrains Mono',monospace;color:var(--text);font-weight:700;background:var(--surface);padding:2px 8px;border-radius:6px;font-size:.78rem}
+
+  /* TRAINER */
+  .trainer-display{background:linear-gradient(135deg,var(--coral-soft),var(--yellow-soft));border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0}
+  .trainer-display .formula{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:800;color:var(--text);letter-spacing:.5px}
+  .trainer-display .question{font-size:.85rem;color:var(--text-secondary);margin-top:8px;font-weight:600}
+
+  .trainer-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:520px;margin:0 auto}
+  @media(max-width:520px){.trainer-options{grid-template-columns:1fr}}
+  .trainer-opt{padding:13px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;color:var(--text)}
+  .trainer-opt:hover:not(:disabled){border-color:var(--pink);transform:translateY(-2px)}
+  .trainer-opt.correct{border-color:var(--success);background:rgba(109,184,138,.12);color:var(--success)}
+  .trainer-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);color:var(--pink-deep)}
+
+  /* FACTS */
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--pink);background:rgba(224,123,139,.04);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--gold));transition:width .4s}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;box-shadow:0 4px 14px rgba(224,123,139,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(224,123,139,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--pink);color:var(--pink-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media (max-width:520px){
+    .header h1{font-size:1.15rem}
+    .mol-display .formula{font-size:1.3rem}
+    .trainer-display .formula{font-size:1.4rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="hexagon"></i></div>
+    <div>
+      <h1>Funktionelle Gruppen</h1>
+      <p>Erkennen · Moleküle · Nomenklatur · Trainer · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="groups"><i data-lucide="layout-grid"></i>Gruppen</button>
+  <button class="tab" data-tab="molecules"><i data-lucide="atom"></i>Moleküle</button>
+  <button class="tab" data-tab="nomen"><i data-lucide="list-ordered"></i>Nomenklatur</button>
+  <button class="tab" data-tab="trainer"><i data-lucide="target"></i>Trainer</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: GRUPPEN ============ -->
+  <div class="section active" id="groups">
+    <div class="hero-strip">
+      <h2><i data-lucide="layout-grid"></i>Funktionelle Gruppen</h2>
+      <p>Die wichtigsten funktionellen Gruppen für den MedAT. Klick auf eine Karte für Details — Beispielmoleküle, Eigenschaften, klinische Bedeutung.</p>
+    </div>
+
+    <div class="card">
+      <div class="grp-grid" id="grpGrid"></div>
+      <div class="grp-detail" id="grpDetail">
+        <h3 id="grpDetailName">Hydroxyl-Gruppe (Alkohol)</h3>
+        <div class="formula-large" id="grpDetailFormula">R−OH</div>
+        <p id="grpDetailBody"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: MOLEKÜLE ============ -->
+  <div class="section" id="molecules">
+    <div class="hero-strip">
+      <h2><i data-lucide="atom"></i>Moleküle erkennen</h2>
+      <p>Klassische Moleküle aus Bio- und Pharmakologie. Die funktionellen Gruppen sind farbig hervorgehoben.</p>
+    </div>
+
+    <div class="card">
+      <h3>Molekül wählen</h3>
+      <div class="mol-grid" id="molGrid"></div>
+
+      <div class="mol-display" id="molDisplay"></div>
+
+      <h3>Gefundene funktionelle Gruppen</h3>
+      <div class="mol-found-grid" id="molFound"></div>
+
+      <div class="mol-info" id="molInfo"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: NOMENKLATUR ============ -->
+  <div class="section" id="nomen">
+    <div class="hero-strip">
+      <h2><i data-lucide="list-ordered"></i>Nomenklatur-Prioritäten</h2>
+      <p>Wenn ein Molekül mehrere funktionelle Gruppen hat, bestimmt die <b>höchste Priorität</b> das Suffix (Endung) und die Nummerierung der Kohlenstoff-Kette.</p>
+    </div>
+
+    <div class="card">
+      <h3>Priorität von hoch nach niedrig</h3>
+      <div class="priority-list" id="priorityList"></div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Faustregel:</b> Carbonsäure schlägt Ester schlägt Aldehyd schlägt Keton schlägt Alkohol schlägt Amin schlägt Doppel-/Dreifachbindung schlägt Halogen.</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>C-Kette nummerieren:</b> immer so, dass die <b>höchstpriore Gruppe die niedrigste Zahl</b> bekommt.</div></div>
+    </div>
+
+    <div class="card">
+      <h2><i data-lucide="book-open"></i>Suffix-Cheatsheet</h2>
+      <table style="width:100%;border-collapse:separate;border-spacing:0;font-size:.85rem;background:var(--surface);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)">
+        <thead>
+          <tr><th style="background:var(--dark);color:#fff;padding:10px 12px;text-align:left;font-size:.78rem">Gruppe</th><th style="background:var(--dark);color:#fff;padding:10px 12px;text-align:left;font-size:.78rem">Suffix</th><th style="background:var(--dark);color:#fff;padding:10px 12px;text-align:left;font-size:.78rem">Präfix</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">−COOH</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-säure / -oic acid</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">carboxy-</td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">−COOR</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-säureester</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">alkoxycarbonyl-</td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">−CHO</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-al</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">oxo-</td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">C=O (Keton)</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-on</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">oxo-</td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">−OH</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-ol</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">hydroxy-</td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">−NH₂</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-amin</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">amino-</td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">C=C</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-en</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">—</td></tr>
+          <tr><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-weight:700">C≡C</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);font-family:'JetBrains Mono',monospace;color:var(--pink-deep);font-weight:700">-in</td><td style="padding:10px 12px;border-bottom:1px solid var(--border-light);color:var(--text-secondary)">—</td></tr>
+          <tr><td style="padding:10px 12px;font-weight:700">−X (Halogen)</td><td style="padding:10px 12px;font-family:'JetBrains Mono',monospace;color:var(--text-secondary)">— (nur Präfix)</td><td style="padding:10px 12px;color:var(--text-secondary)">fluor-/chlor-/brom-/iod-</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: TRAINER ============ -->
+  <div class="section" id="trainer">
+    <div class="hero-strip">
+      <h2><i data-lucide="target"></i>Funktionelle-Gruppen-Trainer</h2>
+      <p>Erkenne in welche Stoffklasse das gezeigte Molekül gehört. Tippe die richtige Antwort.</p>
+    </div>
+
+    <div class="card">
+      <div class="trainer-display">
+        <div class="formula" id="trainerFormula"></div>
+        <div class="question">Welche Stoffklasse?</div>
+      </div>
+      <div class="trainer-options" id="trainerOptions"></div>
+      <div class="q-feedback" id="trainerFb"></div>
+      <div class="btn-row">
+        <button class="btn" id="trainerNext">Nächste Aufgabe<i data-lucide="arrow-right"></i></button>
+      </div>
+      <p style="text-align:center;margin-top:10px;color:var(--muted);font-size:.78rem">Score: <b id="trainerScore">0 / 0</b></p>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">12 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='trainer') newTrainer();
+  });
+});
+
+/* ===== FUNCTIONAL GROUPS ===== */
+const GROUPS=[
+  {key:'oh',name:'Hydroxyl',cls:'Alkohol',sym:'R−OH',suffix:'-ol',
+    info:'Polare Gruppe — H-Brücken möglich → höhere Siedepunkte. <b>Klassen:</b> primär (R-CH₂-OH), sekundär (R-CH(OH)-R), tertiär. <b>Beispiele:</b> Methanol, Ethanol (Trinkalkohol), Glycerin (3 OH).'},
+  {key:'cho',name:'Aldehyd',cls:'Aldehyd',sym:'R−CHO',suffix:'-al',
+    info:'Carbonyl (C=O) am Ende der Kette. <b>Reduktion:</b> → Alkohol. <b>Oxidation:</b> → Carbonsäure. <b>Beispiele:</b> Formaldehyd (HCHO), Acetaldehyd, Glucose (Aldose).'},
+  {key:'co',name:'Keton',cls:'Keton',sym:'R−CO−R\'',suffix:'-on',
+    info:'Carbonyl (C=O) zwischen zwei C-Resten. Schwer oxidierbar. <b>Beispiele:</b> Aceton (Propanon), Fructose (Ketose).'},
+  {key:'cooh',name:'Carboxyl',cls:'Carbonsäure',sym:'R−COOH',suffix:'-säure',
+    info:'Sauer (pKa ~4–5). Höchste Priorität in Nomenklatur. <b>Klinik:</b> Aminosäuren, Fettsäuren, Milchsäure, Aspirin.'},
+  {key:'coor',name:'Ester',cls:'Ester',sym:'R−COO−R\'',suffix:'-säureester',
+    info:'Aus Säure + Alkohol (Veresterung, Wasserabspaltung). <b>Klinik:</b> Triglyceride (Fette), Acetylsalicylsäure. Hydrolyse → Säure + Alkohol.'},
+  {key:'nh2',name:'Amin',cls:'Amin',sym:'R−NH₂',suffix:'-amin',
+    info:'Basisch (Lone-Pair am N). <b>Klassen:</b> primär, sekundär, tertiär, quartär. <b>Klinik:</b> Aminosäuren, Neurotransmitter (Adrenalin, Dopamin).'},
+  {key:'or',name:'Ether',cls:'Ether',sym:'R−O−R\'',suffix:'—',
+    info:'Sehr unreaktiv. <b>Beispiel:</b> Diethylether (Narkose-Klassiker).'},
+  {key:'cc-d',name:'Doppelbind.',cls:'Alken',sym:'C=C',suffix:'-en',
+    info:'Doppelbindung. <b>Reaktionen:</b> Addition (H₂, Br₂, HX). cis/trans-Isomerie möglich. <b>Klinik:</b> ungesättigte Fettsäuren.'},
+  {key:'cc-t',name:'Dreifachbind.',cls:'Alkin',sym:'C≡C',suffix:'-in',
+    info:'Dreifachbindung. Stark linear. <b>Beispiel:</b> Ethin (Acetylen).'},
+  {key:'x',name:'Halogen',cls:'Alkylhalogenid',sym:'R−X',suffix:'(Präfix)',
+    info:'X = F, Cl, Br, I. <b>Reaktionen:</b> SN1, SN2, E1, E2. <b>Klinik:</b> Halothan (Narkose), CFC.'},
+  {key:'sh',name:'Thiol',cls:'Mercaptan',sym:'R−SH',suffix:'-thiol',
+    info:'Schwefel-Analogon des Alkohols. <b>Eigenschaft:</b> stinkt (Knoblauch, Skunk). <b>Klinik:</b> Cystein, Disulfidbrücken in Proteinen.'},
+  {key:'no2',name:'Nitro',cls:'Nitroverbindung',sym:'R−NO₂',suffix:'(Präfix)',
+    info:'Stark elektronenziehend. <b>Beispiel:</b> Nitroglycerin (Sprengstoff &amp; Vasodilatator), TNT.'},
+  {key:'aromatic',name:'Aromat',cls:'Aromat',sym:'C₆H₆',suffix:'(Stamm)',
+    info:'Benzol-Ring. 6 π-Elektronen, Hückel-Regel. Sehr stabil. <b>Klinik:</b> Phenylalanin, Tyrosin, Tryptophan, viele Medikamente.'},
+  {key:'po',name:'Phosphat',cls:'Phosphorsäureester',sym:'R−O−PO₃²⁻',suffix:'(Präfix)',
+    info:'<b>Klinik:</b> ATP, DNA, Phospholipide, Knochen-Hydroxylapatit.'}
+];
+
+/* ===== TAB 1: GROUPS ===== */
+const grpGrid=document.getElementById('grpGrid');
+GROUPS.forEach((g,i)=>{
+  const card=document.createElement('div');
+  card.className='grp-card'+(i===0?' active':'');
+  card.dataset.key=g.key;
+  card.innerHTML=`<div class="grp-name">${g.name}</div>
+    <div class="grp-icon">${g.sym}</div>
+    <div class="grp-class">${g.cls}</div>
+    <span class="grp-suffix">${g.suffix}</span>`;
+  card.onclick=()=>{
+    document.querySelectorAll('.grp-card').forEach(c=>c.classList.remove('active'));
+    card.classList.add('active');
+    showGroupDetail(g);
+  };
+  grpGrid.appendChild(card);
+});
+function showGroupDetail(g){
+  document.getElementById('grpDetailName').textContent=g.name+'-Gruppe ('+g.cls+')';
+  document.getElementById('grpDetailFormula').innerHTML=g.sym;
+  document.getElementById('grpDetailBody').innerHTML=g.info;
+}
+showGroupDetail(GROUPS[0]);
+
+/* ===== TAB 2: MOLEKÜLE ===== */
+// Markup: parts is array of {text, hl} where hl is the highlight class
+const MOLECULES=[
+  {key:'ethanol',name:'Ethanol',cls:'Alkohol',
+    parts:[{t:'CH₃−CH₂−'},{t:'OH',hl:'OH'}],
+    found:['Hydroxyl (−OH)'],
+    info:'<b>Trinkalkohol.</b> Klinisch: Konservierungsmittel, Desinfektion. Metabolismus über Alkoholdehydrogenase → Acetaldehyd → Essigsäure.'},
+  {key:'aceticacid',name:'Essigsäure',cls:'Carbonsäure',
+    parts:[{t:'CH₃−'},{t:'COOH',hl:'COOH'}],
+    found:['Carboxyl (−COOH)'],
+    info:'<b>Schwache Säure</b> (pKa 4,76). In Acetat-Puffer. Ester mit Salicylsäure → Aspirin.'},
+  {key:'glycine',name:'Glycin',cls:'Aminosäure',
+    parts:[{t:'H₂N−',hl:'NH2'},{t:'CH₂−'},{t:'COOH',hl:'COOH'}],
+    found:['Amin (−NH₂)','Carboxyl (−COOH)'],
+    info:'<b>Einfachste Aminosäure.</b> Im Körper Zwitter-Ion: ⁺H₃N−CH₂−COO⁻. Inhibitorischer Neurotransmitter im Rückenmark.'},
+  {key:'glucose',name:'Glucose',cls:'Aldose / Polyalkohol',
+    parts:[{t:'CHO',hl:'CO'},{t:'−('},{t:'CHOH',hl:'OH'},{t:')₄−CH₂'},{t:'OH',hl:'OH'}],
+    found:['Aldehyd (−CHO)','5× Hydroxyl (−OH)'],
+    info:'<b>Wichtigster Brennstoff.</b> Aldohexose. Liegt im Blut zu >99% als Ringform vor. Glucose-Test über Fehling/Tollens (Aldehyd-Nachweis).'},
+  {key:'aspirin',name:'Aspirin',cls:'Ester + Carbonsäure',
+    parts:[{t:'C₆H₄('},{t:'COOH',hl:'COOH'},{t:')(O−'},{t:'CO',hl:'CO'},{t:'CH₃)'}],
+    found:['Carboxyl (−COOH)','Ester (−COOR)','Aromat'],
+    info:'<b>Acetylsalicylsäure (ASS).</b> Hemmt COX → keine Prostaglandine → Schmerz, Fieber, Entzündung ↓. Hydrolyse → Salicylsäure + Essigsäure.'},
+  {key:'adrenalin',name:'Adrenalin',cls:'Catecholamin',
+    parts:[{t:'(HO−)₂C₆H₃−CH('},{t:'OH',hl:'OH'},{t:')−CH₂−'},{t:'NH',hl:'NH2'},{t:'−CH₃'}],
+    found:['Hydroxyl (−OH)','Amin (−NH−)','Aromat'],
+    info:'<b>Stresshormon.</b> Bindet α/β-Adrenozeptoren. Catecholamin (3 OH am Aromaten + Amin).'},
+  {key:'glycerol',name:'Glycerin',cls:'Polyol',
+    parts:[{t:'CH₂('},{t:'OH',hl:'OH'},{t:')−CH('},{t:'OH',hl:'OH'},{t:')−CH₂('},{t:'OH',hl:'OH'},{t:')'}],
+    found:['3× Hydroxyl (−OH)'],
+    info:'<b>Bestandteil von Triglyceriden.</b> Mit 3 Fettsäuren verestert → Fett. Süß schmeckend, viskos.'},
+  {key:'aceton',name:'Aceton',cls:'Keton',
+    parts:[{t:'CH₃−'},{t:'CO',hl:'CO'},{t:'−CH₃'}],
+    found:['Keton (C=O)'],
+    info:'<b>Lösungsmittel</b> (Nagellackentferner). Im Körper: Ketonkörper bei Hunger / Diabetes (Azidose).'},
+  {key:'cysteine',name:'Cystein',cls:'Aminosäure mit −SH',
+    parts:[{t:'H₂N−',hl:'NH2'},{t:'CH('},{t:'SH',hl:'SH'},{t:')−CH₂−'},{t:'COOH',hl:'COOH'}],
+    found:['Amin (−NH₂)','Thiol (−SH)','Carboxyl (−COOH)'],
+    info:'<b>Schwefelhaltige Aminosäure.</b> SH-Gruppen bilden Disulfidbrücken (S−S) → 3D-Struktur von Proteinen, Insulin.'},
+  {key:'caffein',name:'Coffein',cls:'Alkaloid',
+    parts:[{t:'C₈H₁₀N₄O₂ (Purinring + Methylgruppen)'}],
+    found:['Aromat (Purin)','Amid (×2)','Amin'],
+    info:'<b>Adenosin-Antagonist.</b> Stimulans. Blockiert A1/A2A-Rezeptoren im ZNS.'},
+  {key:'atp',name:'ATP (Phosphate)',cls:'Energieträger',
+    parts:[{t:'Adenosin−'},{t:'O−PO₂−O−PO₂−O−PO₃²⁻',hl:'PO'}],
+    found:['Phosphat (×3)','Aromat (Adenin)','Hydroxyl'],
+    info:'<b>Universelle Energiewährung.</b> ATP → ADP + Pi setzt 30,5 kJ/mol frei. 3 Phosphat-Gruppen, energiereiche Bindungen zwischen ihnen.'}
+];
+
+const molGrid=document.getElementById('molGrid');
+MOLECULES.forEach((m,i)=>{
+  const card=document.createElement('div');
+  card.className='mol-card'+(i===0?' active':'');
+  card.innerHTML=`<div class="mol-name">${m.name}</div>
+    <div class="mol-formula">${m.cls}</div>`;
+  card.onclick=()=>{
+    document.querySelectorAll('.mol-card').forEach(c=>c.classList.remove('active'));
+    card.classList.add('active');
+    showMolecule(m);
+  };
+  molGrid.appendChild(card);
+});
+function showMolecule(m){
+  const display=document.getElementById('molDisplay');
+  let html='<div class="formula">';
+  m.parts.forEach(p=>{
+    if(p.hl) html+=`<span class="grp-hl ${p.hl}">${p.t}</span>`;
+    else html+=p.t;
+  });
+  html+='</div>';
+  display.innerHTML=html;
+  const found=document.getElementById('molFound'); found.innerHTML='';
+  m.found.forEach(f=>{
+    const pill=document.createElement('span');
+    pill.className='mol-found';
+    pill.textContent=f;
+    found.appendChild(pill);
+  });
+  document.getElementById('molInfo').innerHTML=m.info;
+}
+showMolecule(MOLECULES[0]);
+
+/* ===== TAB 3: NOMENKLATUR ===== */
+const PRIORITY=[
+  {sym:'−COOH',name:'Carbonsäure',suffix:'-säure'},
+  {sym:'−COOR',name:'Ester',suffix:'-säureester'},
+  {sym:'−CONH₂',name:'Amid',suffix:'-amid'},
+  {sym:'−CN',name:'Nitril',suffix:'-nitril'},
+  {sym:'−CHO',name:'Aldehyd',suffix:'-al'},
+  {sym:'C=O',name:'Keton',suffix:'-on'},
+  {sym:'−OH',name:'Alkohol',suffix:'-ol'},
+  {sym:'−NH₂',name:'Amin',suffix:'-amin'},
+  {sym:'C=C / C≡C',name:'Alken / Alkin',suffix:'-en / -in'},
+  {sym:'−X',name:'Halogen',suffix:'(nur Präfix)'}
+];
+const priList=document.getElementById('priorityList');
+PRIORITY.forEach((p,i)=>{
+  const item=document.createElement('div');
+  item.className='priority-item';
+  item.innerHTML=`<span class="priority-num">${i+1}</span>
+    <div style="flex:1"><b>${p.sym}</b> · ${p.name}</div>
+    <span class="suffix">${p.suffix}</span>`;
+  priList.appendChild(item);
+});
+
+/* ===== TAB 4: TRAINER ===== */
+const TRAINER_DATA=[
+  {f:'CH₃−CH₂−OH',answer:'Alkohol',options:['Alkohol','Aldehyd','Keton','Carbonsäure']},
+  {f:'CH₃−COOH',answer:'Carbonsäure',options:['Alkohol','Aldehyd','Carbonsäure','Ester']},
+  {f:'CH₃−CHO',answer:'Aldehyd',options:['Aldehyd','Keton','Alkohol','Carbonsäure']},
+  {f:'CH₃−CO−CH₃',answer:'Keton',options:['Aldehyd','Keton','Ester','Alkohol']},
+  {f:'CH₃−COO−CH₃',answer:'Ester',options:['Ester','Ether','Carbonsäure','Keton']},
+  {f:'CH₃−O−CH₃',answer:'Ether',options:['Ester','Ether','Alkohol','Aldehyd']},
+  {f:'CH₃−CH₂−NH₂',answer:'Amin',options:['Amid','Amin','Nitril','Imin']},
+  {f:'CH₃−CH₂−SH',answer:'Thiol',options:['Sulfid','Thiol','Sulfon','Sulfat']},
+  {f:'H₂C=CH₂',answer:'Alken',options:['Alkan','Alken','Alkin','Aromat']},
+  {f:'HC≡CH',answer:'Alkin',options:['Alken','Alkin','Aromat','Alkan']},
+  {f:'CH₃−Cl',answer:'Alkylhalogenid',options:['Alkylhalogenid','Alkohol','Halogen-Säure','Säure-Halogenid']},
+  {f:'C₆H₆',answer:'Aromat',options:['Alken','Aromat','Cycloalkan','Alkin']},
+  {f:'CH₃−CONH₂',answer:'Amid',options:['Amin','Amid','Carbonsäure','Nitril']},
+  {f:'CH₃−CN',answer:'Nitril',options:['Nitril','Amin','Amid','Imin']},
+  {f:'HCHO',answer:'Aldehyd',options:['Aldehyd','Keton','Alkohol','Säure']}
+];
+let trainerScore=0,trainerTotal=0,trainerCurrent=null;
+function newTrainer(){
+  trainerCurrent=TRAINER_DATA[Math.floor(Math.random()*TRAINER_DATA.length)];
+  document.getElementById('trainerFormula').textContent=trainerCurrent.f;
+  const opts=document.getElementById('trainerOptions'); opts.innerHTML='';
+  const shuffled=[...trainerCurrent.options].sort(()=>Math.random()-.5);
+  shuffled.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='trainer-opt';
+    b.textContent=o;
+    b.onclick=()=>checkTrainer(o,b);
+    opts.appendChild(b);
+  });
+  document.getElementById('trainerFb').classList.remove('show');
+}
+function checkTrainer(answer,btn){
+  trainerTotal++;
+  const correct=answer===trainerCurrent.answer;
+  document.querySelectorAll('.trainer-opt').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===trainerCurrent.answer) b.classList.add('correct');
+    else if(b===btn&&!correct) b.classList.add('wrong');
+  });
+  if(correct) trainerScore++;
+  document.getElementById('trainerScore').textContent=`${trainerScore} / ${trainerTotal}`;
+  const fb=document.getElementById('trainerFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=correct?'<b>Richtig.</b>':`<b>Nicht ganz — richtig: ${trainerCurrent.answer}.</b>`;
+}
+document.getElementById('trainerNext').onclick=newTrainer;
+newTrainer();
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Welche funktionelle Gruppe trägt CH₃−COOH?',o:['Aldehyd','Keton','Carbonsäure','Ester'],c:2,e:'−COOH = Carboxyl-Gruppe → Carbonsäure (hier Essigsäure).'},
+  {q:'Wodurch entsteht ein Ester?',o:['Säure + Aldehyd','Säure + Alkohol','Alkohol + Amin','Säure + Säure'],c:1,e:'Veresterung: R−COOH + R\'−OH → R−COO−R\' + H₂O. Wasserabspaltung.'},
+  {q:'Wie heißt das Suffix für eine Aldehyd-Gruppe?',o:['-on','-al','-ol','-säure'],c:1,e:'Aldehyde enden auf -al (z. B. Methanal = HCHO, Ethanal = CH₃CHO).'},
+  {q:'Welche Gruppe hat die <b>höchste Nomenklatur-Priorität</b>?',o:['Alkohol','Keton','Carbonsäure','Amin'],c:2,e:'Carbonsäure schlägt alle anderen genannten — bestimmt das Suffix.'},
+  {q:'Was unterscheidet Aldehyd und Keton?',o:['Doppelbindung an C','Position der C=O-Gruppe','Anzahl O','Säurestärke'],c:1,e:'Aldehyd: C=O am Ende der Kette. Keton: C=O zwischen 2 C-Resten.'},
+  {q:'Welche Aussage zu Aminen stimmt?',o:['Sauer','Basisch','Neutral','Reagieren mit OH⁻'],c:1,e:'Lone-Pair am N → kann H⁺ aufnehmen → basisch.'},
+  {q:'Glucose hat welche funktionelle Gruppen (offene Form)?',o:['1× COOH, 5× OH','1× CHO, 5× OH','2× CHO, 4× OH','1× CO, 5× OH'],c:1,e:'Glucose ist eine Aldohexose: 1 Aldehyd + 5 Hydroxyl-Gruppen.'},
+  {q:'Welche Gruppe ist die Basis für <b>Disulfidbrücken</b> in Proteinen?',o:['−OH','−SH','−COOH','−NH₂'],c:1,e:'Cystein hat eine −SH-Gruppe. Zwei davon oxidieren zu R−S−S−R (Disulfidbrücke).'},
+  {q:'C=C-Doppelbindung kennzeichnet ein/e ...',o:['Alkin','Alken','Alkan','Aromat'],c:1,e:'-en für Alken (Doppelbindung), -in für Alkin (Dreifach), -an für Alkan.'},
+  {q:'Was sind <b>Catecholamine</b>?',o:['Aldehyde','Aminosäuren','Aromaten mit 2 OH und Amin','Steroide'],c:2,e:'Catecholamine: 2 OH am Aromaten + Amin-Seitenkette. Adrenalin, Noradrenalin, Dopamin.'},
+  {q:'Hydrolyse eines Esters liefert ...',o:['2 Alkohole','Säure + Alkohol','2 Säuren','Aldehyd + Säure'],c:1,e:'Ester + H₂O → Säure + Alkohol. Umkehr der Veresterung.'},
+  {q:'Welche Gruppe macht Aspirin sauer?',o:['Ester','Carboxyl (−COOH)','Aromat','Methyl'],c:1,e:'Aspirin = Acetylsalicylsäure. Die freie −COOH am Aromat ist die Säuregruppe (pKa ~3,5).'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

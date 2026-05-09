@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linsen &amp; Optik · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --teal:#3bb5b0;--teal-deep:#1a7a78;--teal-soft:#d5f0ee;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--teal-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--teal-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(59,181,176,.4);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--teal);color:var(--teal-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--teal-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--teal-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--teal-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(59,181,176,.2);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--teal-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* LINSEN-STUDIO */
+  .lens-mode-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+  .lens-mode-btn{padding:10px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+  .lens-mode-btn [data-lucide]{width:14px;height:14px}
+  .lens-mode-btn:hover:not(.active){border-color:var(--teal-deep)}
+  .lens-mode-btn.active{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(59,181,176,.3)}
+
+  .lens-stage{background:radial-gradient(ellipse at center,#0e1c30 0%,#040810 100%);border-radius:var(--radius);padding:14px;overflow-x:auto;box-shadow:inset 0 0 80px rgba(0,0,0,0.5);margin-bottom:14px}
+  .lens-stage svg{display:block;margin:0 auto;max-width:100%}
+
+  .slider-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px}
+  @media(min-width:560px){.slider-grid{grid-template-columns:1fr 1fr}}
+  .slider-row{background:var(--bg-light);border-radius:14px;padding:14px}
+  .slider-row .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .slider-row label{font-size:.82rem;font-weight:700;color:var(--text)}
+  .slider-row .val{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--teal-deep);font-size:.95rem}
+  .lens-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bg-warm);border-radius:4px;outline:none;cursor:pointer}
+  .lens-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:linear-gradient(135deg,var(--teal),var(--teal-deep));border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(59,181,176,.4);border:3px solid #fff}
+  .lens-slider::-moz-range-thumb{width:24px;height:24px;background:linear-gradient(135deg,var(--teal),var(--teal-deep));border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(59,181,176,.4)}
+
+  .lens-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+  .lens-result{background:var(--surface);border:1px solid var(--border-light);border-radius:12px;padding:11px 13px;text-align:center}
+  .lens-result .lbl{font-size:.62rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .lens-result .val{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:var(--teal-deep);margin-top:3px}
+
+  /* LINSEN-TYPES */
+  .lens-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .lens-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s}
+  .lens-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--teal-deep)}
+  .lens-img{height:140px;background:radial-gradient(ellipse at center,#0e1c30 0%,#040810 100%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .lens-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+  .lens-info{padding:14px}
+  .lens-info h4{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .lens-info .formula{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--teal-deep);font-weight:800;margin-bottom:6px;background:var(--teal-soft);padding:4px 10px;border-radius:8px;display:inline-block}
+  .lens-info p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:600px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .modal-img{height:220px;background:radial-gradient(ellipse at center,#0e1c30 0%,#040810 100%);display:flex;align-items:center;justify-content:center;padding:14px}
+  .modal-img svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));max-width:100%;max-height:100%}
+  .modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,var(--teal-soft),var(--bg-light))}
+  .modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .modal-head .formula{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--teal-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .modal-body{padding:18px 24px 24px}
+
+  .steckbrief{display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--teal-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--teal-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--teal-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--teal-deep);font-weight:700}
+  .sb-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+  .sb-list li{font-size:.84rem;color:var(--text);line-height:1.55;padding-left:18px;position:relative}
+  .sb-list li::before{content:'•';position:absolute;left:5px;color:var(--teal-deep);font-weight:800}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4{color:var(--pink-deep)}
+  .sb-section.klinik h4 [data-lucide]{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4{color:var(--green-deep)}
+  .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.15);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+
+  /* AUGE */
+  .eye-modes{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:640px){.eye-modes{grid-template-columns:repeat(4,1fr)}}
+  .eye-btn{padding:11px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .eye-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .eye-btn:hover:not(.active){border-color:var(--teal-deep)}
+  .eye-btn.active{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(59,181,176,.3)}
+  .eye-btn.active small{color:rgba(255,255,255,.85)}
+
+  /* RECHNER */
+  .calc-formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+  .calc-formula-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .2s;text-align:center}
+  .calc-formula-card:hover{transform:translateY(-2px);border-color:var(--teal-deep);box-shadow:var(--shadow-sm)}
+  .calc-formula-card.active{background:linear-gradient(135deg,var(--teal-soft),#fff);border-color:var(--teal-deep);box-shadow:0 4px 14px rgba(59,181,176,.2)}
+  .calc-formula-card .nm{font-size:.78rem;color:var(--text-secondary);font-weight:600;margin-bottom:3px}
+  .calc-formula-card .ltx{min-height:24px;display:flex;align-items:center;justify-content:center}
+  .calc-formula-card .ltx .katex{font-size:.95rem!important;color:var(--teal-deep)}
+  .calc-arena{background:linear-gradient(135deg,#fff,var(--teal-soft));border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0;box-shadow:var(--shadow-sm)}
+  .calc-base-display{min-height:40px;margin-bottom:6px}
+  .calc-base-display .katex{font-size:1.6rem!important}
+  .calc-base-name{font-size:.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+  .calc-var-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}
+  .calc-var-btn{padding:11px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .calc-var-btn .var-name{min-height:18px;display:flex;align-items:center;justify-content:center}
+  .calc-var-btn .var-name .katex{font-size:1.05rem!important}
+  .calc-var-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .calc-var-btn:hover:not(.active){border-color:var(--teal-deep);transform:translateY(-1px)}
+  .calc-var-btn.active{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(59,181,176,.3)}
+  .calc-var-btn.active .var-name .katex,.calc-var-btn.active small{color:#fff}
+  .calc-rearranged-display{background:var(--bg-light);border-radius:14px;padding:18px;text-align:center;margin:14px 0;border-left:3px solid var(--teal-deep);min-height:44px;display:flex;align-items:center;justify-content:center}
+  .calc-rearranged-display .katex{font-size:1.5rem!important;color:var(--teal-deep)}
+  .calc-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+  .calc-input-card{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:12px}
+  .calc-input-card .lbl{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .calc-input-card .lbl .katex{font-size:1rem!important;color:var(--teal-deep)}
+  .calc-input-card .input-row{display:flex;gap:6px;align-items:center}
+  .calc-input-card input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;background:var(--surface);color:var(--text);transition:all .2s}
+  .calc-input-card input:focus{outline:none;border-color:var(--teal-deep);box-shadow:0 0 0 3px rgba(59,181,176,.15)}
+  .calc-input-card .unit{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--text-secondary);font-weight:700}
+  .calc-result{background:linear-gradient(135deg,var(--mint),#fff);border-left:4px solid var(--success);border-radius:0 14px 14px 0;padding:18px;margin:14px 0;text-align:center}
+  .calc-result .lbl{font-size:.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .calc-result .val{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:900;color:var(--success);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .calc-result .val .unit{font-size:1rem;color:var(--text-secondary);margin-left:6px;font-weight:700}
+  .calc-result.error{background:linear-gradient(135deg,var(--coral-soft),#fff);border-left-color:var(--pink-deep)}
+  .calc-result.error .val{color:var(--pink-deep)}
+  .calc-steps{background:var(--bg-light);border-radius:14px;padding:14px 16px;margin-top:10px;display:none}
+  .calc-steps.show{display:block;animation:fadeUp .3s ease}
+  .calc-steps .step{padding:10px 0;border-bottom:1px dashed var(--border-light);display:flex;gap:14px;align-items:center}
+  .calc-steps .step:last-child{border-bottom:none;font-weight:700}
+  .calc-steps .step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--teal-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem}
+  .calc-steps .step-content{flex:1;display:flex;align-items:center}
+  .calc-steps .step-content .katex{font-size:1.05rem!important}
+
+  /* MATCH */
+  .match-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:640px){.match-mode-row{grid-template-columns:repeat(3,1fr)}}
+  .match-mode-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .match-mode-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .match-mode-btn:hover:not(.active){border-color:var(--teal-deep)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(59,181,176,.3)}
+  .match-mode-btn.active small{color:rgba(255,255,255,.85)}
+  .match-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .match-stat{background:var(--surface);padding:10px;border-radius:12px;text-align:center;border:1px solid var(--border-light)}
+  .match-stat .num{font-size:1.4rem;font-weight:800}
+  .match-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600}
+  .match-pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .match-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;text-align:center}
+  .match-list{display:flex;flex-direction:column;gap:8px}
+  .match-item{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;cursor:pointer;font-size:.84rem;transition:all .15s;font-weight:600;line-height:1.4}
+  .match-item:hover:not(.matched){border-color:var(--teal-deep);transform:translateY(-1px)}
+  .match-item.selected{border-color:var(--gold);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(245,197,66,.2)}
+  .match-item.matched{background:rgba(109,184,138,.12);border-color:var(--success);color:var(--success);cursor:default;opacity:.85}
+  .match-item.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);animation:wrongShake .35s ease}
+  @keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .match-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;line-height:1.55}
+  .match-status.show{display:block;animation:fadeUp .3s ease}
+  .match-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--teal-deep);background:rgba(59,181,176,.05);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .4s}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;box-shadow:0 4px 14px rgba(59,181,176,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(59,181,176,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--teal-deep);color:var(--teal-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:520px){.header h1{font-size:1.15rem}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="eye"></i></div>
+    <div>
+      <h1>Linsen &amp; Optik</h1>
+      <p>Studio · Linsentypen · Auge · Zuordnung · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="studio"><i data-lucide="focus"></i>Studio</button>
+  <button class="tab" data-tab="types"><i data-lucide="grid-3x3"></i>Linsentypen</button>
+  <button class="tab" data-tab="eye"><i data-lucide="eye"></i>Auge</button>
+  <button class="tab" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="match"><i data-lucide="link"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: STUDIO ============ -->
+  <div class="section active" id="studio">
+    <div class="hero-strip">
+      <h2><i data-lucide="focus"></i>Strahlengang-Studio</h2>
+      <p>Verschiebe den Gegenstand und ändere die Brennweite — das Bild wird live mit den drei Hauptstrahlen (Parallel-, Brennpunkt-, Mittelpunktstrahl) konstruiert. Linsengleichung 1/f = 1/g + 1/b.</p>
+    </div>
+
+    <div class="card">
+      <div class="lens-mode-row">
+        <button class="lens-mode-btn active" data-lens="convex"><i data-lucide="circle-dot"></i>Sammellinse</button>
+        <button class="lens-mode-btn" data-lens="concave"><i data-lucide="circle"></i>Zerstreuungslinse</button>
+      </div>
+
+      <div class="lens-stage">
+        <svg id="studioSvg" viewBox="0 0 760 320" preserveAspectRatio="xMidYMid meet" width="100%"></svg>
+      </div>
+
+      <div class="slider-grid">
+        <div class="slider-row">
+          <div class="label-row"><label>Gegenstandsweite g</label><span class="val" id="gVal">15 cm</span></div>
+          <input class="lens-slider" id="gSlider" type="range" min="3" max="40" step="0.5" value="15">
+        </div>
+        <div class="slider-row">
+          <div class="label-row"><label>Brennweite f</label><span class="val" id="fVal">10 cm</span></div>
+          <input class="lens-slider" id="fSlider" type="range" min="3" max="20" step="0.5" value="10">
+        </div>
+      </div>
+
+      <div class="lens-results">
+        <div class="lens-result"><div class="lbl">Bildweite b</div><div class="val" id="bVal">—</div></div>
+        <div class="lens-result"><div class="lbl">Vergrößerung |β|</div><div class="val" id="bVergr">—</div></div>
+        <div class="lens-result"><div class="lbl">Bildart</div><div class="val" id="bArt" style="font-size:.86rem">—</div></div>
+        <div class="lens-result"><div class="lbl">Brechkraft D</div><div class="val" id="dVal">—</div></div>
+      </div>
+
+      <div class="key-fact"><i data-lucide="info"></i><div><b>Linsengleichung:</b> 1/f = 1/g + 1/b · <b>Vergrößerung:</b> β = b/g (Vorzeichen: positiv wenn aufrecht). <b>Brechkraft:</b> D = 1/f in Dioptrien (1 dpt = 1/m).</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: LINSENTYPEN ============ -->
+  <div class="section" id="types">
+    <div class="hero-strip">
+      <h2><i data-lucide="grid-3x3"></i>Linsentypen</h2>
+      <p>Sammellinsen (Konvex) bündeln, Zerstreuungslinsen (Konkav) streuen. Klick auf eine Karte für den Lehrbuch-Steckbrief.</p>
+    </div>
+
+    <div class="card">
+      <div class="lens-cards" id="lensCards"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: AUGE ============ -->
+  <div class="section" id="eye">
+    <div class="hero-strip">
+      <h2><i data-lucide="eye"></i>Das Auge &amp; Sehfehler</h2>
+      <p>Das menschliche Auge ist ein optisches System mit veränderlicher Brennweite. Wechsle den Modus — sieh wie sich Sehfehler auf das Bild auf der Netzhaut auswirken und wie sie korrigiert werden.</p>
+    </div>
+
+    <div class="card">
+      <div class="eye-modes">
+        <button class="eye-btn active" data-eye="normal">Normal<small>Emmetropie</small></button>
+        <button class="eye-btn" data-eye="myopie">Myopie<small>Kurzsichtig</small></button>
+        <button class="eye-btn" data-eye="hyperopie">Hyperopie<small>Weitsichtig</small></button>
+        <button class="eye-btn" data-eye="presbyopie">Presbyopie<small>Alterssicht</small></button>
+      </div>
+
+      <div class="lens-stage">
+        <svg id="eyeSvg" viewBox="0 0 760 340" preserveAspectRatio="xMidYMid meet" width="100%"></svg>
+      </div>
+
+      <div class="slider-grid">
+        <div class="slider-row">
+          <div class="label-row"><label>Gegenstandsabstand</label><span class="val" id="objDistVal">35 cm</span></div>
+          <input class="lens-slider" id="objDistSlider" type="range" min="10" max="80" step="1" value="35">
+        </div>
+        <div class="slider-row">
+          <div class="label-row"><label>Gegenstandshöhe</label><span class="val" id="objHeightVal">8 cm</span></div>
+          <input class="lens-slider" id="objHeightSlider" type="range" min="3" max="14" step="0.5" value="8">
+        </div>
+        <div class="slider-row">
+          <div class="label-row"><label>Korrekturlinse</label><span class="val" id="corrVal">aus</span></div>
+          <input class="lens-slider" id="corrSlider" type="range" min="0" max="1" step="1" value="0">
+        </div>
+      </div>
+      <p style="text-align:center;color:var(--muted);font-size:.78rem;margin-bottom:10px"><i data-lucide="hand-pointer" style="width:13px;height:13px;display:inline-block;vertical-align:middle"></i> Tipp: Du kannst den Gegenstand auch direkt im Bild anklicken und ziehen.</p>
+
+      <div class="key-fact" id="eyeFact1"><i data-lucide="info"></i><div>—</div></div>
+      <div class="info-fact" id="eyeFact2"><i data-lucide="lightbulb"></i><div>—</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: RECHNER ============ -->
+  <div class="section" id="rechner">
+    <div class="hero-strip">
+      <h2><i data-lucide="calculator"></i>Formel-Rechner mit Umformung</h2>
+      <p>Linsengleichung, Vergrößerung und Brechkraft — wähle eine Formel, wähle die gesuchte Variable, gib die anderen Werte ein. Echte mathematische Schreibweise mit Schritt-für-Schritt-Lösungsweg.</p>
+    </div>
+
+    <div class="card">
+      <h3>Formel wählen</h3>
+      <div class="calc-formula-grid" id="calcFormulaGrid"></div>
+
+      <div class="calc-arena">
+        <div class="calc-base-display" id="calcBaseDisplay"></div>
+        <div class="calc-base-name" id="calcBaseName">—</div>
+      </div>
+
+      <h3>Wonach willst du auflösen?</h3>
+      <div class="calc-var-row" id="calcVarRow"></div>
+
+      <div class="calc-rearranged-display" id="calcRearrangedDisplay"></div>
+
+      <h3>Werte einsetzen</h3>
+      <div class="calc-inputs" id="calcInputs"></div>
+
+      <div class="calc-result" id="calcResult"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="calcStepsBtn"><i data-lucide="list-ordered"></i>Lösungsweg zeigen</button>
+        <button class="btn ghost" id="calcResetBtn"><i data-lucide="rotate-ccw"></i>Werte zurücksetzen</button>
+      </div>
+
+      <div class="calc-steps" id="calcSteps"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: ZUORDNUNG ============ -->
+  <div class="section" id="match">
+    <div class="hero-strip">
+      <h2><i data-lucide="link"></i>Zuordnung</h2>
+      <p>3 Modi: Begriff → Definition, Sehfehler → Korrektur, Linse → Eigenschaft.</p>
+    </div>
+
+    <div class="card">
+      <h3>Modus wählen</h3>
+      <div class="match-mode-row" id="matchModeRow"></div>
+
+      <div class="match-stats">
+        <div class="match-stat"><div class="num" id="matchOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="match-stat"><div class="num" id="matchBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="match-stat"><div class="num" id="matchLeft">10</div><div class="lbl">Übrig</div></div>
+      </div>
+
+      <div class="match-pairs">
+        <div class="match-col"><h4 id="matchLeftLabel">Begriff</h4><div class="match-list" id="matchLeft1"></div></div>
+        <div class="match-col"><h4 id="matchRightLabel">Definition</h4><div class="match-list" id="matchRight"></div></div>
+      </div>
+
+      <div class="match-status" id="matchStatus"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="matchReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+        <button class="btn ghost" id="matchNext"><i data-lucide="arrow-right"></i>Nächster Modus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">12 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="lensModal" onclick="if(event.target===this)closeL()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeL()"><i data-lucide="x"></i></button>
+    <div class="modal-img" id="mImg"></div>
+    <div class="modal-head">
+      <h3 id="mName">—</h3>
+      <span class="formula" id="mFormula">—</span>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='match') initMatch();
+    if(t.dataset.tab==='eye') renderEye();
+    if(t.dataset.tab==='rechner') ensureCalc();
+  });
+});
+
+/* ===== SVG SHARED ===== */
+const SVG_DEFS=`<defs>
+  <linearGradient id="lensGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="rgba(150,220,240,0.4)"/>
+    <stop offset="50%" stop-color="rgba(150,220,240,0.7)"/>
+    <stop offset="100%" stop-color="rgba(150,220,240,0.4)"/>
+  </linearGradient>
+  <radialGradient id="lensGlow" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="rgba(180,240,250,0.6)"/>
+    <stop offset="100%" stop-color="rgba(60,180,200,0.1)"/>
+  </radialGradient>
+  <radialGradient id="objGrad" cx="30%" cy="22%" r="88%">
+    <stop offset="0%" stop-color="#ffd0a8"/>
+    <stop offset="50%" stop-color="#e08858"/>
+    <stop offset="100%" stop-color="#5a2818"/>
+  </radialGradient>
+  <radialGradient id="eyeGrad" cx="35%" cy="30%" r="80%">
+    <stop offset="0%" stop-color="#fff8f0"/>
+    <stop offset="80%" stop-color="#e0d8c8"/>
+    <stop offset="100%" stop-color="#9a8870"/>
+  </radialGradient>
+  <radialGradient id="irisGrad" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#5a3818"/>
+    <stop offset="50%" stop-color="#8a5828"/>
+    <stop offset="100%" stop-color="#3a1808"/>
+  </radialGradient>
+  <radialGradient id="retinaGrad" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#e89090"/>
+    <stop offset="100%" stop-color="#882020"/>
+  </radialGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>`;
+
+/* ===== TAB 1: LENS STUDIO ===== */
+let lensType='convex';
+document.querySelectorAll('.lens-mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.lens-mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    lensType=b.dataset.lens;
+    renderStudio();
+  });
+});
+
+function renderStudio(){
+  const g=parseFloat(document.getElementById('gSlider').value);
+  let f=parseFloat(document.getElementById('fSlider').value);
+  if(lensType==='concave') f=-f;
+  // Lens equation: 1/f = 1/g + 1/b → 1/b = 1/f - 1/g
+  const denom=1/f - 1/g;
+  let b = denom===0?Infinity:1/denom;
+  const beta = -b/g; // Vergrößerung (Vorzeichen: negativ = umgekehrt)
+  const D = 1/(f/100); // Brechkraft in Dioptrien (f in cm → m)
+  document.getElementById('gVal').textContent=g.toFixed(1)+' cm';
+  document.getElementById('fVal').textContent=Math.abs(f).toFixed(1)+' cm';
+  document.getElementById('bVal').textContent=isFinite(b)?b.toFixed(1)+' cm':'∞';
+  document.getElementById('bVergr').textContent=isFinite(beta)?Math.abs(beta).toFixed(2)+'×':'∞';
+  document.getElementById('dVal').textContent=D.toFixed(2)+' dpt';
+  // Bildart
+  let bArt;
+  if(lensType==='concave'){
+    bArt='virtuell, aufrecht, verkleinert';
+  } else {
+    if(g>Math.abs(f)*2) bArt='reell, umgekehrt, verkleinert';
+    else if(g===Math.abs(f)*2) bArt='reell, umgekehrt, gleich groß';
+    else if(g>Math.abs(f)) bArt='reell, umgekehrt, vergrößert';
+    else if(g===Math.abs(f)) bArt='Bild im Unendlichen';
+    else bArt='virtuell, aufrecht, vergrößert';
+  }
+  document.getElementById('bArt').textContent=bArt;
+  drawStudio(g,f,b,beta);
+}
+
+function drawStudio(g,f,b,beta){
+  const W=760,H=320, cx=380, ax=H/2;
+  const scale=6; // pixels per cm
+  // Optical axis y
+  const oy=H/2;
+  let html=SVG_DEFS;
+  // Optical axis
+  html+=`<line x1="20" y1="${oy}" x2="${W-20}" y2="${oy}" stroke="rgba(255,255,255,.3)" stroke-width="1" stroke-dasharray="4 3"/>`;
+  // Lens
+  if(lensType==='convex'){
+    html+=`<ellipse cx="${cx}" cy="${oy}" rx="14" ry="100" fill="url(#lensGrad)" stroke="rgba(180,240,250,0.8)" stroke-width="1.5"/>`;
+  } else {
+    html+=`<path d="M ${cx-12} ${oy-100} Q ${cx} ${oy-90}, ${cx+12} ${oy-100} L ${cx+12} ${oy+100} Q ${cx} ${oy+90}, ${cx-12} ${oy+100} Z" fill="url(#lensGrad)" stroke="rgba(180,240,250,0.8)" stroke-width="1.5"/>`;
+  }
+  // Focal points
+  const fpx=Math.abs(f)*scale;
+  html+=`<circle cx="${cx-fpx}" cy="${oy}" r="3" fill="#f5c542" filter="url(#glow)"/>
+    <text x="${cx-fpx}" y="${oy+18}" fill="#f5c542" font-size="13" font-weight="700" text-anchor="middle" font-family="JetBrains Mono">F</text>
+    <circle cx="${cx+fpx}" cy="${oy}" r="3" fill="#f5c542" filter="url(#glow)"/>
+    <text x="${cx+fpx}" y="${oy+18}" fill="#f5c542" font-size="13" font-weight="700" text-anchor="middle" font-family="JetBrains Mono">F'</text>`;
+  // Object (arrow)
+  const objX=cx-g*scale;
+  const objH=40;
+  html+=`<line x1="${objX}" y1="${oy}" x2="${objX}" y2="${oy-objH}" stroke="#5fc878" stroke-width="3.5" filter="url(#glow)"/>
+    <polygon points="${objX-5},${oy-objH+8} ${objX+5},${oy-objH+8} ${objX},${oy-objH-3}" fill="#5fc878"/>
+    <text x="${objX}" y="${oy-objH-10}" fill="#5fc878" font-size="13" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">G</text>`;
+  // Image (arrow)
+  if(isFinite(b)){
+    const imgX=cx+b*scale;
+    const imgH=Math.abs(beta)*objH;
+    const imgY=beta<0?oy+imgH:oy-imgH;
+    if(imgX>20 && imgX<W-20 && Math.abs(imgH)<150){
+      const isVirtual = lensType==='concave' || (lensType==='convex' && g<Math.abs(f));
+      const color=isVirtual?'#9b7fc4':'#ff6020';
+      const dash=isVirtual?'4 3':'';
+      html+=`<line x1="${imgX}" y1="${oy}" x2="${imgX}" y2="${imgY}" stroke="${color}" stroke-width="3.5" stroke-dasharray="${dash}" filter="url(#glow)"/>
+        <polygon points="${imgX-5},${imgY+(beta<0?-8:8)} ${imgX+5},${imgY+(beta<0?-8:8)} ${imgX},${imgY+(beta<0?3:-3)}" fill="${color}"/>
+        <text x="${imgX}" y="${imgY+(beta<0?20:-12)}" fill="${color}" font-size="13" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">B</text>`;
+    }
+  }
+  // Three principal rays
+  const objTop_x=objX, objTop_y=oy-objH;
+  // 1. Parallelstrahl: vom Objekt parallel zur Achse → durch F' gebrochen (Sammel) oder vom F divergiert (Zerstreuung)
+  if(lensType==='convex'){
+    html+=`<line x1="${objTop_x}" y1="${objTop_y}" x2="${cx}" y2="${objTop_y}" stroke="#ffaa30" stroke-width="2" filter="url(#glow)"/>`;
+    if(isFinite(b)){
+      const ratio = isFinite(b)?(cx+Math.abs(b)*scale-cx)/(Math.abs(f)*scale):1;
+      // ray after lens passes through F' direction
+      html+=`<line x1="${cx}" y1="${objTop_y}" x2="${W-20}" y2="${objTop_y + (oy-objTop_y)*((W-20-cx)/fpx)}" stroke="#ffaa30" stroke-width="2" filter="url(#glow)"/>`;
+    }
+  } else {
+    // Concave: parallel ray bends as if coming from F
+    html+=`<line x1="${objTop_x}" y1="${objTop_y}" x2="${cx}" y2="${objTop_y}" stroke="#ffaa30" stroke-width="2" filter="url(#glow)"/>`;
+    // After lens diverges as if from F (left side, negative)
+    const F_left_x = cx-fpx, F_left_y = oy;
+    const dx = cx-F_left_x, dy = objTop_y-F_left_y;
+    const t=(W-20-cx)/dx;
+    html+=`<line x1="${cx}" y1="${objTop_y}" x2="${W-20}" y2="${objTop_y+dy*t}" stroke="#ffaa30" stroke-width="2" filter="url(#glow)"/>`;
+    // Dashed extension backward to F
+    html+=`<line x1="${cx}" y1="${objTop_y}" x2="${F_left_x}" y2="${F_left_y}" stroke="#ffaa30" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.5"/>`;
+  }
+  // 2. Mittelpunktstrahl: durch Linsenmitte, ungebrochen
+  const slope_m = (oy-objTop_y)/(cx-objTop_x);
+  html+=`<line x1="${objTop_x}" y1="${objTop_y}" x2="${W-20}" y2="${objTop_y+slope_m*(W-20-objTop_x)}" stroke="#5fc878" stroke-width="2" filter="url(#glow)"/>`;
+  // 3. Brennpunktstrahl (sammel only): vom Objekt durch F → parallel zur Achse nach Linse
+  if(lensType==='convex' && Math.abs(g)>Math.abs(f)){
+    const F_left_x = cx-fpx;
+    const dx2 = F_left_x - objTop_x, dy2 = oy - objTop_y;
+    const xAtLens=cx, yAtLens = objTop_y+(dy2/dx2)*(cx-objTop_x);
+    html+=`<line x1="${objTop_x}" y1="${objTop_y}" x2="${cx}" y2="${yAtLens}" stroke="#e07b8b" stroke-width="2" filter="url(#glow)"/>`;
+    html+=`<line x1="${cx}" y1="${yAtLens}" x2="${W-20}" y2="${yAtLens}" stroke="#e07b8b" stroke-width="2" filter="url(#glow)"/>`;
+  }
+  // Labels for axis
+  html+=`<text x="${W-30}" y="${oy-6}" fill="rgba(255,255,255,.5)" font-size="11" text-anchor="end">optische Achse</text>`;
+  document.getElementById('studioSvg').innerHTML=html;
+}
+['gSlider','fSlider'].forEach(id=>document.getElementById(id).addEventListener('input',renderStudio));
+renderStudio();
+
+/* ===== LENS DATA ===== */
+function svgConvex(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <ellipse cx="110" cy="70" rx="14" ry="50" fill="url(#lensGrad)" stroke="rgba(180,240,250,0.8)" stroke-width="1.5"/>
+  <line x1="20" y1="70" x2="200" y2="70" stroke="rgba(255,255,255,.3)" stroke-dasharray="3 3"/>
+  <line x1="20" y1="50" x2="110" y2="50" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="50" x2="180" y2="70" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="20" y1="70" x2="180" y2="70" stroke="#ffaa30" stroke-width="2" opacity="0.5"/>
+  <line x1="20" y1="90" x2="110" y2="90" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="90" x2="180" y2="70" stroke="#ffaa30" stroke-width="2"/>
+  <circle cx="180" cy="70" r="4" fill="#f5c542" filter="url(#glow)"/>
+</svg>`}
+function svgConcave(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <path d="M 100 25 Q 110 32, 120 25 L 120 115 Q 110 108, 100 115 Z" fill="url(#lensGrad)" stroke="rgba(180,240,250,0.8)" stroke-width="1.5"/>
+  <line x1="20" y1="70" x2="200" y2="70" stroke="rgba(255,255,255,.3)" stroke-dasharray="3 3"/>
+  <line x1="20" y1="50" x2="110" y2="50" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="50" x2="200" y2="30" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="20" y1="90" x2="110" y2="90" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="90" x2="200" y2="110" stroke="#ffaa30" stroke-width="2"/>
+  <circle cx="40" cy="70" r="4" fill="#f5c542" filter="url(#glow)"/>
+</svg>`}
+function svgPlanConvex(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <path d="M 100 25 L 100 115 L 100 115 Q 130 95, 130 70 Q 130 45, 100 25 Z" fill="url(#lensGrad)" stroke="rgba(180,240,250,0.8)" stroke-width="1.5"/>
+  <line x1="20" y1="70" x2="200" y2="70" stroke="rgba(255,255,255,.3)" stroke-dasharray="3 3"/>
+</svg>`}
+function svgConvergent(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <ellipse cx="110" cy="70" rx="14" ry="50" fill="url(#lensGrad)" stroke="rgba(180,240,250,0.8)" stroke-width="1.5"/>
+  <line x1="20" y1="70" x2="200" y2="70" stroke="rgba(255,255,255,.3)" stroke-dasharray="3 3"/>
+  <line x1="20" y1="35" x2="110" y2="35" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="20" y1="55" x2="110" y2="55" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="20" y1="85" x2="110" y2="85" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="20" y1="105" x2="110" y2="105" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="35" x2="180" y2="70" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="55" x2="180" y2="70" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="85" x2="180" y2="70" stroke="#ffaa30" stroke-width="2"/>
+  <line x1="110" y1="105" x2="180" y2="70" stroke="#ffaa30" stroke-width="2"/>
+  <circle cx="180" cy="70" r="5" fill="#f5c542" filter="url(#glow)"/>
+</svg>`}
+
+const LENSES=[
+  {key:'convex',name:'Sammellinse (Konvex)',formula:'D > 0 · f > 0',svg:svgConvergent,
+    short:'Bündelt parallele Lichtstrahlen im Brennpunkt.',
+    aufbau:'Mindestens eine konvexe Oberfläche (bikonvex, plan-konvex, konkav-konvex). In der Mitte dicker als am Rand.',
+    funktion:[
+      'Parallel einfallende Strahlen werden im Brennpunkt F\' gesammelt',
+      'Erzeugt <b>reelle</b> oder <b>virtuelle</b> Bilder je nach Gegenstandsweite',
+      'Brechkraft <b>D > 0</b> (positive Dioptrien)'
+    ],
+    formel:'<b>1/f = 1/g + 1/b</b> · <b>β = b/g</b> · <b>D = 1/f</b> [m⁻¹ = dpt]',
+    bildart:'<b>g > 2f</b>: reell, umgekehrt, verkleinert · <b>g = 2f</b>: gleich groß · <b>f < g < 2f</b>: vergrößert · <b>g = f</b>: Bild im ∞ · <b>g < f</b>: virtuell, aufrecht, vergrößert (Lupe!)',
+    klinik:'<b>Lupe</b> (g < f, Vergrößerungsglas) · <b>Mikroskop, Fernrohr</b> (Objektiv) · <b>Brille bei Hyperopie/Presbyopie</b> (Pluslinse).',
+    medat:'Sammelt = Konvex = Pluslinse = Brechkraft positiv. Bei <b>g < f</b>: Lupe-Effekt (virtuelles, vergrößertes Bild auf der Gegenstandsseite).'},
+  {key:'concave',name:'Zerstreuungslinse (Konkav)',formula:'D < 0 · f < 0',svg:svgConcave,
+    short:'Streut parallele Strahlen; virtueller Brennpunkt vor der Linse.',
+    aufbau:'Mindestens eine konkave Oberfläche (bikonkav, plan-konkav, konvex-konkav). In der Mitte dünner als am Rand.',
+    funktion:[
+      'Parallel einfallende Strahlen werden gestreut, scheinen vom virtuellen Brennpunkt F (vor der Linse) zu kommen',
+      'Erzeugt <b>immer</b> virtuelle, aufrechte, verkleinerte Bilder',
+      'Brechkraft <b>D < 0</b> (negative Dioptrien)'
+    ],
+    formel:'<b>1/f = 1/g + 1/b</b> mit f < 0 · <b>D = 1/f < 0</b>',
+    bildart:'<b>Immer</b> virtuell, aufrecht, verkleinert (auf der Gegenstandsseite, näher an der Linse).',
+    klinik:'<b>Brille bei Myopie</b> (Minuslinse) · <b>Türspion</b> (Weitwinkel) · Galilei-Fernrohr (Okular).',
+    medat:'Zerstreut = Konkav = Minuslinse = Brechkraft negativ. <b>Immer</b> virtuell + verkleinert + aufrecht.'},
+  {key:'plankonvex',name:'Plan-konvex',formula:'eine Seite plan',svg:svgPlanConvex,
+    short:'Sammellinse mit einer planen und einer konvexen Oberfläche.',
+    aufbau:'Eine Seite plan (eben), eine Seite konvex gewölbt. Spezialfall der Sammellinse.',
+    funktion:['Bündelt Licht — wie bikonvex','Geringere sphärische Aberration als bikonvex bei großen Linsen'],
+    formel:'<b>D = (n−1) · 1/R</b> (R = Krümmungsradius der konvexen Seite, eine Seite plan → R<sub>2</sub> = ∞)',
+    bildart:'wie Sammellinse',
+    klinik:'In Lupen, Lichtkollektoren, Beleuchtungsoptik.',
+    medat:'Spezialform der konvexen Linse — ist immer eine Sammellinse.'},
+  {key:'konvergent',name:'Konvergente Strahlen',formula:'Brennpunkt F\'',svg:svgConvergent,
+    short:'Strahlen treffen sich im Brennpunkt F\'.',
+    aufbau:'Konzept: parallel einfallende Strahlen werden in einem Punkt (Brennpunkt) gesammelt — fundamentale Eigenschaft der Sammellinse.',
+    funktion:[
+      'Parallel zur optischen Achse → durch <b>F\'</b> (bildseitiger Brennpunkt)',
+      'Durch <b>F</b> (gegenstandseitiger Brennpunkt) → parallel nach Linse',
+      'Durch Linsenmitte → ungebrochen'
+    ],
+    formel:'Brennweite f = R/2 (bei bikonvex, n=1,5)',
+    bildart:'Reelles Bild kann auf einem Schirm aufgefangen werden.',
+    klinik:'Brennen mit Brennglas (UV-Sammler), Kameralinsen, Auge mit Linse fokussiert auf die Netzhaut.',
+    medat:'Drei Hauptstrahlen zur Bildkonstruktion: <b>Parallelstrahl</b> (parallel → F\'), <b>Brennpunktstrahl</b> (durch F → parallel), <b>Mittelpunktstrahl</b> (gerade durch).'}
+];
+
+const lensCardsEl=document.getElementById('lensCards');
+LENSES.forEach(l=>{
+  const c=document.createElement('div');
+  c.className='lens-card';
+  c.innerHTML=`<div class="lens-img">${l.svg()}</div>
+    <div class="lens-info">
+      <h4>${l.name}</h4>
+      <span class="formula">${l.formula}</span>
+      <p>${l.short}</p>
+    </div>`;
+  c.onclick=()=>showLens(l.key);
+  lensCardsEl.appendChild(c);
+});
+
+function showLens(key){
+  const l=LENSES.find(x=>x.key===key); if(!l) return;
+  document.getElementById('mImg').innerHTML=l.svg();
+  document.getElementById('mName').textContent=l.name;
+  document.getElementById('mFormula').textContent=l.formula;
+  let html='<div class="steckbrief">';
+  if(l.aufbau) html+=`<div class="sb-section"><h4><i data-lucide="layers"></i>Aufbau</h4><p>${l.aufbau}</p></div>`;
+  if(l.funktion && l.funktion.length) html+=`<div class="sb-section"><h4><i data-lucide="zap"></i>Funktion</h4><ul class="sb-list">${l.funktion.map(f=>`<li>${f}</li>`).join('')}</ul></div>`;
+  if(l.formel) html+=`<div class="sb-section"><h4><i data-lucide="function-square"></i>Formel</h4><p>${l.formel}</p></div>`;
+  if(l.bildart) html+=`<div class="sb-section"><h4><i data-lucide="image"></i>Bildart</h4><p>${l.bildart}</p></div>`;
+  if(l.klinik) html+=`<div class="sb-section klinik"><h4><i data-lucide="heart-pulse"></i>Klinik / Anwendung</h4><p>${l.klinik}</p></div>`;
+  if(l.medat) html+=`<div class="sb-section medat"><h4><i data-lucide="brain"></i>MedAT-Merksatz</h4><p>${l.medat}</p></div>`;
+  html+='</div>';
+  document.getElementById('mBody').innerHTML=html;
+  document.getElementById('lensModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeL(){document.getElementById('lensModal').classList.remove('show')}
+window.closeL=closeL;
+
+/* ===== TAB 3: AUGE ===== */
+const EYE_MODES={
+  normal:{name:'Normalsichtig (Emmetropie)',
+    fact1:'<b>Emmetropie:</b> entspanntes Auge fokussiert parallele Strahlen aus dem Unendlichen genau auf die Netzhaut. Brechkraft ~59 dpt (ruhend) bis 75 dpt (Akkommodation am Nahpunkt).',
+    fact2:'<b>Akkommodation:</b> Ziliarmuskel kontrahiert → Zonulafasern entspannen → Linse wird durch ihre eigene Elastizität dicker → höhere Brechkraft → Naheinstellung.'},
+  myopie:{name:'Kurzsichtigkeit (Myopie)',
+    fact1:'<b>Myopie:</b> Augapfel zu lang ODER Brechkraft zu hoch → Bild entsteht <b>vor</b> der Netzhaut. Ferne unscharf, Nähe ok.',
+    fact2:'<b>Korrektur:</b> <b>Zerstreuungslinse</b> (negative Dioptrien, "Minusbrille"). Verschiebt den Brennpunkt nach hinten genau auf die Netzhaut.'},
+  hyperopie:{name:'Weitsichtigkeit (Hyperopie)',
+    fact1:'<b>Hyperopie:</b> Augapfel zu kurz ODER Brechkraft zu niedrig → Bild würde <b>hinter</b> der Netzhaut entstehen. Junge können durch Akkommodation kompensieren, im Alter nicht mehr.',
+    fact2:'<b>Korrektur:</b> <b>Sammellinse</b> (positive Dioptrien, "Plusbrille"). Verschiebt den Brennpunkt nach vorne auf die Netzhaut.'},
+  presbyopie:{name:'Alterssichtigkeit (Presbyopie)',
+    fact1:'<b>Presbyopie:</b> Linse verliert ab ~40 Jahren ihre Elastizität → Akkommodation ↓ → Nahpunkt rückt weg. Mit 60 oft kaum noch Akkommodation möglich.',
+    fact2:'<b>Korrektur:</b> Lesebrille (Sammellinse) für die Nähe. Oder Gleitsichtgläser (variable Brechkraft im Glas).'}
+};
+let eyeCurrent='normal';
+document.querySelectorAll('.eye-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.eye-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    eyeCurrent=b.dataset.eye;
+    document.getElementById('corrSlider').value=0;
+    renderEye();
+  });
+});
+document.getElementById('corrSlider').addEventListener('input',renderEye);
+document.getElementById('objDistSlider').addEventListener('input',renderEye);
+document.getElementById('objHeightSlider').addEventListener('input',renderEye);
+
+/* ===== DRAG-TO-MOVE für Gegenstand ===== */
+(function setupEyeDrag(){
+  const svg=document.getElementById('eyeSvg');
+  if(!svg) return;
+  let dragging=false;
+  function svgPoint(evt){
+    const pt=svg.createSVGPoint();
+    const e=evt.touches?evt.touches[0]:evt;
+    pt.x=e.clientX; pt.y=e.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+  function startDrag(evt){
+    const target=evt.target.closest('.draggable-obj');
+    if(target){
+      dragging=true;
+      svg.style.cursor='grabbing';
+      evt.preventDefault();
+    }
+  }
+  function moveDrag(evt){
+    if(!dragging) return;
+    const p=svgPoint(evt);
+    // Berechne aktuelles eyeRx
+    let eyeWidthMod=0;
+    if(eyeCurrent==='myopie') eyeWidthMod=22;
+    if(eyeCurrent==='hyperopie') eyeWidthMod=-22;
+    const eyeRx=110+eyeWidthMod;
+    const corneaX=540-eyeRx*0.85;
+    // Mappe x-Position zurück auf objDist-Slider-Wert
+    const newDist=Math.round((corneaX-50-p.x)/5);
+    const distSlider=document.getElementById('objDistSlider');
+    distSlider.value=Math.max(parseInt(distSlider.min),Math.min(parseInt(distSlider.max),newDist));
+    // y-Position für Höhe (cy = 170, Spitze des Pfeils oben)
+    const cy=170;
+    const newHeight=Math.max(3,Math.min(14,(cy-p.y+8)/8));
+    if(p.y<cy){
+      const heightSlider=document.getElementById('objHeightSlider');
+      heightSlider.value=Math.max(parseFloat(heightSlider.min),Math.min(parseFloat(heightSlider.max),newHeight));
+    }
+    renderEye();
+    evt.preventDefault();
+  }
+  function endDrag(){dragging=false;svg.style.cursor=''}
+  svg.addEventListener('mousedown',startDrag);
+  svg.addEventListener('touchstart',startDrag,{passive:false});
+  document.addEventListener('mousemove',moveDrag);
+  document.addEventListener('touchmove',moveDrag,{passive:false});
+  document.addEventListener('mouseup',endDrag);
+  document.addEventListener('touchend',endDrag);
+})();
+
+function renderEye(){
+  const m=EYE_MODES[eyeCurrent];
+  const corr=parseInt(document.getElementById('corrSlider').value);
+  document.getElementById('corrVal').textContent=corr?'an':'aus';
+  const W=760,H=340, cy=H/2;
+  let eyeWidthMod=0;
+  if(eyeCurrent==='myopie') eyeWidthMod=22;
+  if(eyeCurrent==='hyperopie') eyeWidthMod=-22;
+  const eyeCx=540, eyeR=110, eyeRx=eyeR+eyeWidthMod;
+
+  // ===== ANATOMICAL DEFS =====
+  let html=`<defs>
+    <radialGradient id="scleraGrad" cx="35%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#f0eee5"/>
+      <stop offset="100%" stop-color="#9a8870"/>
+    </radialGradient>
+    <radialGradient id="choroidGrad" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="rgba(60,20,10,0)"/>
+      <stop offset="80%" stop-color="rgba(60,20,10,0.4)"/>
+      <stop offset="100%" stop-color="rgba(40,10,5,0.85)"/>
+    </radialGradient>
+    <radialGradient id="vitreousGrad" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="rgba(180,220,235,0.18)"/>
+      <stop offset="100%" stop-color="rgba(80,140,180,0.32)"/>
+    </radialGradient>
+    <radialGradient id="irisRingGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0a0a10"/>
+      <stop offset="22%" stop-color="#0a0a10"/>
+      <stop offset="28%" stop-color="#5a3818"/>
+      <stop offset="55%" stop-color="#a07038"/>
+      <stop offset="80%" stop-color="#6a4018"/>
+      <stop offset="100%" stop-color="#3a1808"/>
+    </radialGradient>
+    <radialGradient id="corneaGrad" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="rgba(220,245,255,0.65)"/>
+      <stop offset="65%" stop-color="rgba(170,220,240,0.32)"/>
+      <stop offset="100%" stop-color="rgba(100,150,180,0.18)"/>
+    </radialGradient>
+    <radialGradient id="lensInsideGrad" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="rgba(220,245,255,0.7)"/>
+      <stop offset="60%" stop-color="rgba(170,220,240,0.45)"/>
+      <stop offset="100%" stop-color="rgba(120,180,210,0.55)"/>
+    </radialGradient>
+    <radialGradient id="retinaPlasticGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffb89c"/>
+      <stop offset="60%" stop-color="#dc6060"/>
+      <stop offset="100%" stop-color="#7a1818"/>
+    </radialGradient>
+    <radialGradient id="opticNerveGrad" cx="30%" cy="30%" r="80%">
+      <stop offset="0%" stop-color="#ffd0c0"/>
+      <stop offset="60%" stop-color="#dc8080"/>
+      <stop offset="100%" stop-color="#5a2828"/>
+    </radialGradient>
+    <linearGradient id="zonulaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.1)"/>
+    </linearGradient>
+    <filter id="eyeShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="2" dy="3"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>`;
+
+  // Subtle eye-saccade rotation animation around its center
+  html+=`<g id="eyeball" transform="rotate(0 ${eyeCx} ${cy})">
+    <animateTransform attributeName="transform" type="rotate" values="-2 ${eyeCx} ${cy};1.5 ${eyeCx} ${cy};-1 ${eyeCx} ${cy};0 ${eyeCx} ${cy};-2 ${eyeCx} ${cy}" keyTimes="0;0.3;0.6;0.85;1" dur="6s" repeatCount="indefinite"/>`;
+
+  // ===== SCLERA (Lederhaut, weiß) =====
+  html+=`<ellipse cx="${eyeCx}" cy="${cy}" rx="${eyeRx}" ry="${eyeR}" fill="url(#scleraGrad)" stroke="rgba(150,130,100,0.5)" stroke-width="1.2" filter="url(#eyeShadow)"/>`;
+  // Subtle blood vessels on sclera
+  html+=`<path d="M ${eyeCx-eyeRx*.6} ${cy-eyeR*.6} Q ${eyeCx-eyeRx*.4} ${cy-eyeR*.5}, ${eyeCx-eyeRx*.2} ${cy-eyeR*.65}" stroke="rgba(180,80,80,0.35)" stroke-width="0.8" fill="none"/>
+    <path d="M ${eyeCx+eyeRx*.3} ${cy-eyeR*.7} Q ${eyeCx+eyeRx*.5} ${cy-eyeR*.6}, ${eyeCx+eyeRx*.65} ${cy-eyeR*.45}" stroke="rgba(180,80,80,0.3)" stroke-width="0.8" fill="none"/>
+    <path d="M ${eyeCx-eyeRx*.5} ${cy+eyeR*.6} Q ${eyeCx-eyeRx*.3} ${cy+eyeR*.5}, ${eyeCx-eyeRx*.1} ${cy+eyeR*.7}" stroke="rgba(180,80,80,0.3)" stroke-width="0.7" fill="none"/>`;
+
+  // ===== CHOROID (dunkle Aderhaut, innenseitig) =====
+  html+=`<ellipse cx="${eyeCx}" cy="${cy}" rx="${eyeRx-6}" ry="${eyeR-6}" fill="url(#choroidGrad)"/>`;
+
+  // ===== RETINA (am hinteren Pol) =====
+  const retinaX=eyeCx+eyeRx-3;
+  html+=`<path d="M ${retinaX} ${cy-eyeR+10} A ${eyeRx-8} ${eyeR-8} 0 0 1 ${retinaX} ${cy+eyeR-10}" fill="none" stroke="url(#retinaPlasticGrad)" stroke-width="8" stroke-linecap="round"/>`;
+  // Fovea centralis — kleine Vertiefung in der Retina
+  html+=`<circle cx="${retinaX-2}" cy="${cy}" r="3.5" fill="#5a1818" opacity="0.85"/>
+    <circle cx="${retinaX-2}" cy="${cy}" r="1.5" fill="#3a0808"/>`;
+
+  // ===== SEHNERV (Optic nerve, leicht nasal) =====
+  const onX=retinaX+5, onY=cy+22;
+  html+=`<g filter="url(#eyeShadow)">
+    <ellipse cx="${onX}" cy="${onY}" rx="9" ry="6" fill="url(#opticNerveGrad)"/>
+    <ellipse cx="${onX-2}" cy="${onY-1}" rx="3.5" ry="1.6" fill="rgba(255,255,255,0.45)"/>
+    <rect x="${onX-3}" y="${onY-3}" width="40" height="12" rx="4" fill="url(#opticNerveGrad)" opacity="0.85"/>
+  </g>`;
+
+  // ===== VITREOUS BODY (Glaskörper) =====
+  html+=`<ellipse cx="${eyeCx+eyeRx*.05}" cy="${cy}" rx="${eyeRx-12}" ry="${eyeR-14}" fill="url(#vitreousGrad)"/>`;
+
+  // ===== CILIARY BODY + ZONULAFASERN =====
+  const corneaX=eyeCx-eyeRx*.85;
+  const lensX=corneaX+28;
+  // Lens thickness depends on accommodation state
+  let lensRx=11;
+  if(eyeCurrent==='presbyopie') lensRx=8;  // weniger akkomodiert
+  if(eyeCurrent==='myopie' && !corr) lensRx=13; // stärkere Brechkraft
+  if(eyeCurrent==='hyperopie' && !corr) lensRx=9; // schwächere
+  // Zonulafasern (Ringband)
+  for(let i=-32;i<=32;i+=8){
+    html+=`<line x1="${lensX}" y1="${cy+i}" x2="${lensX-12-Math.abs(i)/4}" y2="${cy+i*1.4}" stroke="rgba(220,220,200,0.35)" stroke-width="0.5"/>
+    <line x1="${lensX}" y1="${cy+i}" x2="${lensX+12+Math.abs(i)/4}" y2="${cy+i*1.4}" stroke="rgba(220,220,200,0.35)" stroke-width="0.5"/>`;
+  }
+  // Ciliary body (rosa Ring um Linse)
+  html+=`<ellipse cx="${lensX-3}" cy="${cy-44}" rx="6" ry="5" fill="#a85858" filter="url(#eyeShadow)"/>
+    <ellipse cx="${lensX-3}" cy="${cy+44}" rx="6" ry="5" fill="#a85858" filter="url(#eyeShadow)"/>`;
+
+  // ===== LINSE (mit Akkommodations-Animation) =====
+  html+=`<g filter="url(#eyeShadow)">
+    <ellipse cx="${lensX}" cy="${cy}" rx="${lensRx}" ry="42" fill="url(#lensInsideGrad)" stroke="rgba(170,220,240,0.7)" stroke-width="1.2">
+      <animate attributeName="rx" values="${lensRx};${lensRx*1.05};${lensRx}" dur="3s" repeatCount="indefinite"/>
+    </ellipse>
+    <ellipse cx="${lensX-lensRx*.3}" cy="${cy-15}" rx="3.5" ry="12" fill="rgba(255,255,255,0.6)"/>
+  </g>`;
+
+  // ===== ANTERIOR CHAMBER (Vorderkammer mit Kammerwasser) =====
+  html+=`<path d="M ${corneaX-2} ${cy-44} Q ${corneaX+10} ${cy-30}, ${lensX-lensRx} ${cy-28} L ${lensX-lensRx} ${cy+28} Q ${corneaX+10} ${cy+30}, ${corneaX-2} ${cy+44} Z" fill="rgba(180,220,240,0.18)"/>`;
+
+  // ===== IRIS (mit radialer Struktur und Animation) =====
+  const irisR=34;
+  // Iris radial striations
+  html+=`<g>
+    <circle cx="${corneaX}" cy="${cy}" r="${irisR}" fill="url(#irisRingGrad)" filter="url(#eyeShadow)"/>`;
+  for(let a=0;a<360;a+=12){
+    const x1=corneaX+Math.cos(a*Math.PI/180)*15;
+    const y1=cy+Math.sin(a*Math.PI/180)*15;
+    const x2=corneaX+Math.cos(a*Math.PI/180)*irisR;
+    const y2=cy+Math.sin(a*Math.PI/180)*irisR;
+    html+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(80,40,10,0.45)" stroke-width="1"/>`;
+  }
+  html+=`</g>`;
+
+  // ===== PUPILLE (mit Pulsations-Animation) =====
+  const pupilR=12;
+  html+=`<circle cx="${corneaX}" cy="${cy}" r="${pupilR}" fill="#000">
+    <animate attributeName="r" values="${pupilR};${pupilR*1.15};${pupilR*0.9};${pupilR}" dur="2.5s" repeatCount="indefinite"/>
+  </circle>`;
+
+  // ===== KORNEA (transparente Wölbung) =====
+  html+=`<g filter="url(#eyeShadow)">
+    <path d="M ${corneaX-22} ${cy-50} Q ${corneaX-44} ${cy}, ${corneaX-22} ${cy+50} L ${corneaX-2} ${cy+50} Q ${corneaX-15} ${cy}, ${corneaX-2} ${cy-50} Z" fill="url(#corneaGrad)" stroke="rgba(180,220,240,0.7)" stroke-width="1.2"/>
+    <ellipse cx="${corneaX-30}" cy="${cy-15}" rx="6" ry="14" fill="rgba(255,255,255,0.55)"/>
+    <ellipse cx="${corneaX-32}" cy="${cy-22}" rx="2.5" ry="6" fill="rgba(255,255,255,0.85)"/>
+  </g>`;
+
+  html+=`</g>`; // Close eyeball group
+
+  // ===== LABELS (anatomical) =====
+  const labelStyle='fill="rgba(255,255,255,0.7)" font-size="10" font-weight="700"';
+  html+=`<line x1="${corneaX-32}" y1="${cy+85}" x2="${corneaX-15}" y2="${cy+55}" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <text x="${corneaX-72}" y="${cy+95}" ${labelStyle}>Cornea</text>
+  <line x1="${corneaX+45}" y1="${cy+85}" x2="${corneaX}" y2="${cy+irisR+2}" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <text x="${corneaX+25}" y="${cy+95}" ${labelStyle}>Iris</text>
+  <line x1="${lensX-10}" y1="${cy-90}" x2="${lensX}" y2="${cy-44}" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <text x="${lensX-22}" y="${cy-95}" ${labelStyle}>Linse</text>
+  <line x1="${retinaX-25}" y1="${cy+95}" x2="${retinaX-3}" y2="${cy+25}" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <text x="${retinaX-50}" y="${cy+105}" ${labelStyle}>Retina</text>
+  <line x1="${onX+30}" y1="${onY+22}" x2="${onX+15}" y2="${onY+5}" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <text x="${onX+25}" y="${onY+34}" ${labelStyle}>N. opticus</text>
+  <line x1="${retinaX-3}" y1="${cy-25}" x2="${retinaX-3}" y2="${cy-5}" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+    <text x="${retinaX-3}" y="${cy-30}" ${labelStyle} text-anchor="middle">Fovea</text>`;
+
+  // ===== OBJEKT (verschiebbar via Slider oder Drag) =====
+  const objDist=parseInt(document.getElementById('objDistSlider').value);
+  const objHeight=parseFloat(document.getElementById('objHeightSlider').value);
+  document.getElementById('objDistVal').textContent=objDist+' cm';
+  document.getElementById('objHeightVal').textContent=objHeight+' cm';
+  // Map: cornea ~ 50 cm Augendistanz → 0 px hinter Cornea, slider Wert in px scaling
+  const objX=Math.max(15,corneaX-50-objDist*5);
+  const objH=objHeight*8;
+  // Sichtbarer Hand-Cursor um den Gegenstand
+  html+=`<g class="draggable-obj" style="cursor:grab">
+    <rect x="${objX-22}" y="${cy-objH-12}" width="44" height="${objH+24}" fill="transparent"/>
+    <line x1="${objX}" y1="${cy}" x2="${objX}" y2="${cy-objH}" stroke="#5fc878" stroke-width="4" filter="url(#glow)"/>
+    <polygon points="${objX-6},${cy-objH+10} ${objX+6},${cy-objH+10} ${objX},${cy-objH-4}" fill="#5fc878" filter="url(#glow)"/>
+    <circle cx="${objX}" cy="${cy}" r="5" fill="#5fc878" stroke="#fff" stroke-width="1.5"/>
+    <text x="${objX}" y="${cy+22}" fill="rgba(255,255,255,0.85)" font-size="11" font-weight="800" text-anchor="middle">${objDist} cm</text>
+  </g>`;
+
+  // ===== KORREKTUR-LINSE (mit Glow & Animation) =====
+  if(corr && eyeCurrent!=='normal'){
+    const corrX=corneaX-90;
+    if(eyeCurrent==='myopie'){
+      html+=`<path d="M ${corrX-12} ${cy-50} Q ${corrX} ${cy-43}, ${corrX+12} ${cy-50} L ${corrX+12} ${cy+50} Q ${corrX} ${cy+43}, ${corrX-12} ${cy+50} Z" fill="url(#lensInsideGrad)" stroke="rgba(180,240,250,0.85)" stroke-width="1.8" filter="url(#glow)">
+        <animate attributeName="opacity" values="0;1" dur="0.4s" fill="freeze"/>
+      </path>`;
+      html+=`<text x="${corrX}" y="${cy-58}" fill="#9b7fc4" font-size="11" font-weight="800" text-anchor="middle">−Linse</text>`;
+    } else {
+      html+=`<ellipse cx="${corrX}" cy="${cy}" rx="14" ry="50" fill="url(#lensInsideGrad)" stroke="rgba(180,240,250,0.85)" stroke-width="1.8" filter="url(#glow)">
+        <animate attributeName="opacity" values="0;1" dur="0.4s" fill="freeze"/>
+      </ellipse>`;
+      html+=`<text x="${corrX}" y="${cy-58}" fill="#5fc878" font-size="11" font-weight="800" text-anchor="middle">${eyeCurrent==='presbyopie'?'Lesebrille':'+Linse'}</text>`;
+    }
+  }
+
+  // ===== ANIMIERTE LICHTSTRAHLEN =====
+  const rays=[cy-objH,cy-objH*0.5,cy,cy+objH*0.3];
+  let focusOffset=0;
+  if(eyeCurrent==='myopie' && !corr) focusOffset=-32;
+  if(eyeCurrent==='hyperopie' && !corr) focusOffset=+32;
+  if(eyeCurrent==='presbyopie' && !corr) focusOffset=+18;
+  rays.forEach((y0,i)=>{
+    html+=`<line x1="${objX}" y1="${y0}" x2="${corneaX-15}" y2="${y0}" stroke="#ffaa30" stroke-width="1.8" filter="url(#glow)" opacity="0.85"/>`;
+    const focusX=retinaX+focusOffset;
+    const focusY=cy;
+    html+=`<line x1="${corneaX-15}" y1="${y0}" x2="${focusX}" y2="${focusY}" stroke="#ffaa30" stroke-width="1.8" filter="url(#glow)" opacity="0.85"/>`;
+    // Animated photons traveling along the ray
+    html+=`<circle r="2.5" fill="#fff8a0" filter="url(#glow)">
+      <animateMotion dur="${1.6+i*0.15}s" repeatCount="indefinite">
+        <mpath href="#rayPath${i}"/>
+      </animateMotion>
+    </circle>
+    <path id="rayPath${i}" d="M ${objX} ${y0} L ${corneaX-15} ${y0} L ${focusX} ${focusY}" fill="none" stroke="none"/>`;
+    if(focusOffset<0){
+      const slope=(focusY-y0)/(focusX-(corneaX-15));
+      const xR=retinaX-3;
+      html+=`<line x1="${focusX}" y1="${focusY}" x2="${xR}" y2="${focusY+slope*(xR-focusX)}" stroke="#ff6020" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.6"/>`;
+    }
+  });
+
+  // ===== STATUS-BANNER =====
+  let status='';
+  if(eyeCurrent==='normal') status='✓ Bild scharf auf der Fovea';
+  else if(corr) status='✓ Korrigiert — Bild auf der Netzhaut';
+  else if(eyeCurrent==='myopie') status='✗ Bild VOR der Netzhaut';
+  else if(eyeCurrent==='hyperopie') status='✗ Bild HINTER der Netzhaut';
+  else if(eyeCurrent==='presbyopie') status='✗ Linse zu unflexibel — Nahpunkt zu weit';
+  html+=`<rect x="${W/2-150}" y="12" width="300" height="28" rx="14" fill="rgba(0,0,0,0.4)" stroke="${corr||eyeCurrent==='normal'?'#5fc878':'#ff6020'}" stroke-width="1.5"/>
+    <text x="${W/2}" y="30" fill="${corr||eyeCurrent==='normal'?'#5fc878':'#ff6020'}" font-size="14" font-weight="800" text-anchor="middle">${status}</text>`;
+
+  document.getElementById('eyeSvg').innerHTML=html;
+  document.getElementById('eyeFact1').querySelector('div').innerHTML=m.fact1;
+  document.getElementById('eyeFact2').querySelector('div').innerHTML=m.fact2;
+}
+renderEye();
+
+/* ===== TAB 4: ZUORDNUNG ===== */
+const MATCH_MODES={
+  begriff:{label:'Begriffe',sub:'Begriff → Definition',leftLabel:'Begriff',rightLabel:'Definition',
+    pairs:[
+      {a:'Brennweite f',b:'Abstand Linsenmitte ↔ Brennpunkt'},
+      {a:'Brechkraft D',b:'Kehrwert der Brennweite [dpt = 1/m]'},
+      {a:'Gegenstandsweite g',b:'Abstand Gegenstand ↔ Linse'},
+      {a:'Bildweite b',b:'Abstand Linse ↔ Bild'},
+      {a:'Vergrößerung β',b:'b / g · negativ = umgekehrt'},
+      {a:'Reelles Bild',b:'auf Schirm auffangbar (b > 0)'},
+      {a:'Virtuelles Bild',b:'nicht auf Schirm auffangbar (auf Gegenstandsseite)'},
+      {a:'Akkommodation',b:'Linsenkrümmung ändern für Naheinstellung'},
+      {a:'Nahpunkt',b:'kürzester Abstand mit scharfem Sehen'},
+      {a:'Fernpunkt',b:'größter Abstand mit scharfem Sehen (∞ bei Normalsichtigen)'}
+    ]},
+  sehfehler:{label:'Sehfehler',sub:'Defekt → Korrektur',leftLabel:'Sehfehler',rightLabel:'Korrektur',
+    pairs:[
+      {a:'Myopie (kurzsichtig)',b:'Zerstreuungslinse (−)'},
+      {a:'Hyperopie (weitsichtig)',b:'Sammellinse (+)'},
+      {a:'Presbyopie (Alterssicht)',b:'Lesebrille (+)'},
+      {a:'Astigmatismus',b:'Zylindergläser'},
+      {a:'Katarakt (grauer Star)',b:'Kunstlinse (Op)'},
+      {a:'Glaukom (grüner Star)',b:'Augendrucksenker (Tropfen)'},
+      {a:'Strabismus (Schielen)',b:'Prismengläser oder OP'}
+    ]},
+  linse:{label:'Linsentypen',sub:'Linse → Eigenschaft',leftLabel:'Linse',rightLabel:'Eigenschaft',
+    pairs:[
+      {a:'Sammellinse',b:'In der Mitte dicker, D > 0'},
+      {a:'Zerstreuungslinse',b:'In der Mitte dünner, D < 0'},
+      {a:'Plan-konvex',b:'Eine Seite plan, eine konvex'},
+      {a:'Bikonkav',b:'Beide Seiten konkav (Minus)'},
+      {a:'Bikonvex',b:'Beide Seiten konvex (Plus)'},
+      {a:'Plan-konkav',b:'Eine Seite plan, eine konkav'}
+    ]}
+};
+let matchCurrent='begriff';
+let matchOk=0,matchBad=0,matchSelected=null,matchTotal=0;
+function buildMatchModes(){
+  const row=document.getElementById('matchModeRow');
+  row.innerHTML='';
+  Object.entries(MATCH_MODES).forEach(([k,m])=>{
+    const btn=document.createElement('button');
+    btn.className='match-mode-btn'+(k===matchCurrent?' active':'');
+    btn.dataset.mode=k;
+    btn.innerHTML=`${m.label}<small>${m.sub}</small>`;
+    btn.onclick=()=>{
+      matchCurrent=k;
+      document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      initMatch();
+    };
+    row.appendChild(btn);
+  });
+}
+buildMatchModes();
+function initMatch(){
+  const m=MATCH_MODES[matchCurrent];
+  matchOk=0; matchBad=0; matchSelected=null; matchTotal=m.pairs.length;
+  document.getElementById('matchOk').textContent=0;
+  document.getElementById('matchBad').textContent=0;
+  document.getElementById('matchLeft').textContent=matchTotal;
+  document.getElementById('matchStatus').classList.remove('show');
+  document.getElementById('matchLeftLabel').textContent=m.leftLabel;
+  document.getElementById('matchRightLabel').textContent=m.rightLabel;
+  const left=document.getElementById('matchLeft1'); const right=document.getElementById('matchRight');
+  left.innerHTML=''; right.innerHTML='';
+  const indexed=m.pairs.map((p,i)=>({...p,key:'p'+i}));
+  [...indexed].sort(()=>Math.random()-.5).forEach(p=>{
+    const div=document.createElement('div'); div.className='match-item'; div.dataset.key=p.key;
+    div.textContent=p.a; div.onclick=()=>matchTapLeft(div); left.appendChild(div);
+  });
+  [...indexed].sort(()=>Math.random()-.5).forEach(p=>{
+    const div=document.createElement('div'); div.className='match-item'; div.dataset.key=p.key;
+    div.textContent=p.b; div.onclick=()=>matchTapRight(div); right.appendChild(div);
+  });
+}
+function matchTapLeft(el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#matchLeft1 .match-item.selected').forEach(x=>x.classList.remove('selected'));
+  if(matchSelected===el){matchSelected=null;return}
+  el.classList.add('selected'); matchSelected=el;
+}
+function matchTapRight(el){
+  if(el.classList.contains('matched')) return;
+  if(!matchSelected){el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),350);return}
+  if(el.dataset.key===matchSelected.dataset.key){
+    el.classList.add('matched'); matchSelected.classList.add('matched');
+    matchSelected.classList.remove('selected'); matchSelected=null;
+    matchOk++;
+    document.getElementById('matchOk').textContent=matchOk;
+    document.getElementById('matchLeft').textContent=matchTotal-matchOk;
+    if(matchOk===matchTotal){
+      const s=document.getElementById('matchStatus');
+      s.className='match-status show success';
+      s.innerHTML=`<b>Geschafft!</b> ${matchOk} richtig, ${matchBad} Fehler.`;
+    }
+  } else {
+    el.classList.add('wrong'); matchSelected.classList.add('wrong');
+    setTimeout(()=>{el.classList.remove('wrong');if(matchSelected)matchSelected.classList.remove('wrong')},400);
+    matchBad++; document.getElementById('matchBad').textContent=matchBad;
+  }
+}
+document.getElementById('matchReset').onclick=initMatch;
+document.getElementById('matchNext').onclick=()=>{
+  const keys=Object.keys(MATCH_MODES);
+  matchCurrent=keys[(keys.indexOf(matchCurrent)+1)%keys.length];
+  document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===matchCurrent));
+  initMatch();
+};
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Was ist die <b>Brechkraft</b>?',o:['Krümmung der Linse','1/Brennweite [dpt]','Vergrößerung','Lichtstärke'],c:1,e:'D = 1/f. Einheit: Dioptrien (dpt) = 1/m. Sammellinse positiv, Zerstreuungslinse negativ.'},
+  {q:'Eine Linse hat f = +25 cm. Wie viel dpt?',o:['+25 dpt','+4 dpt','+0,4 dpt','+2,5 dpt'],c:1,e:'D = 1/f = 1/(0,25 m) = 4 dpt. Vorsicht: f in Meter umrechnen!'},
+  {q:'Bei <b>g = 2f</b> bei Sammellinse: Wie ist das Bild?',o:['vergrößert','gleich groß, umgekehrt, reell','virtuell','verkleinert'],c:1,e:'Bei doppelter Brennweite: b = 2f, β = 1, Bild gleich groß, umgekehrt, reell.'},
+  {q:'Wie korrigiert man <b>Myopie</b>?',o:['Zerstreuungslinse (−)','Sammellinse (+)','Zylinderglas','Kontaktlinse aus Wasser'],c:0,e:'Myopie: Bild vor Netzhaut → Minuslinse zerstreut Strahlen leicht → Brennpunkt rückt nach hinten auf die Netzhaut.'},
+  {q:'Was ist <b>Akkommodation</b>?',o:['Augenbewegung','Anpassung der Linsenkrümmung','Pupillenreaktion','Zucken des Augenlids'],c:1,e:'Ziliarmuskel kontrahiert → Zonulafasern entspannen → Linse wird elastisch dicker → höhere Brechkraft → Naheinstellung.'},
+  {q:'<b>Presbyopie</b> ist:',o:['Schielen','Alterssichtigkeit','grüner Star','Sehnervschaden'],c:1,e:'Ab ~40 J. verliert die Linse ihre Elastizität → Akkommodation lässt nach → Lesebrille (+) nötig.'},
+  {q:'Wie viele <b>Hauptstrahlen</b> nutzt man zur Bildkonstruktion?',o:['1','2','3','4'],c:2,e:'Parallelstrahl, Brennpunktstrahl, Mittelpunktstrahl. Je 2 reichen für die Konstruktion.'},
+  {q:'Eine Lupe entsteht, wenn:',o:['g > f','g = f','g < f','g = 2f'],c:2,e:'Bei g < f bei Sammellinse → virtuelles, aufrechtes, vergrößertes Bild auf der Gegenstandsseite (Lupen-Effekt!).'},
+  {q:'<b>Bei einer Zerstreuungslinse</b> ist das Bild:',o:['immer reell','immer virtuell','je nach g','umgekehrt'],c:1,e:'Zerstreuungslinse: immer virtuell, aufrecht, verkleinert.'},
+  {q:'Welcher <b>Gegenstandsweite</b> entspricht der Bildweite ∞?',o:['g = ∞','g = 2f','g = f','g = 0'],c:2,e:'g = f → 1/b = 1/f − 1/f = 0 → b → ∞. Strahlen verlassen die Linse parallel.'},
+  {q:'Was passiert bei <b>Hyperopie</b>?',o:['Augapfel zu lang','Augapfel zu kurz oder schwache Brechkraft','Linse zu stark','Pupille zu eng'],c:1,e:'Hyperopie: Augapfel zu kurz oder Brechkraft zu schwach → Bild würde hinter der Netzhaut entstehen → Sammellinse korrigiert.'},
+  {q:'Welche Größe ist die <b>Vergrößerung</b>?',o:['β = b/g','β = f/g','β = g/b','β = D·g'],c:0,e:'β = b/g (Verhältnis Bildweite zu Gegenstandsweite, mit Vorzeichen für Lage).'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+/* ===== RECHNER mit Umformung + KaTeX ===== */
+function kx(latex,el,display){
+  if(!window.katex) return;
+  try{katex.render(latex,el,{throwOnError:false,displayMode:!!display})}catch(e){el.textContent=latex}
+}
+function fmtNum(n){
+  if(!isFinite(n)) return '∞';
+  if(Math.abs(n)<0.001||Math.abs(n)>10000) return n.toExponential(3);
+  return parseFloat(n.toFixed(4)).toString();
+}
+
+const CALC_FORMULAS=[
+  {key:'linsen',name:'Linsengleichung',base:'\\dfrac{1}{f} = \\dfrac{1}{g} + \\dfrac{1}{b}',desc:'Abbildungsgleichung dünner Linsen',
+    vars:[
+      {k:'f',l:'f',u:'cm',ltx:'f = \\dfrac{g \\cdot b}{g + b}',solve:({g,b})=>(g*b)/(g+b),
+        steps:({g,b},r)=>['\\dfrac{1}{f} = \\dfrac{1}{g} + \\dfrac{1}{b}','\\dfrac{1}{f} = \\dfrac{b + g}{g \\cdot b}',`f = \\dfrac{g \\cdot b}{g + b}`,`f = \\dfrac{${g} \\cdot ${b}}{${g} + ${b}}`,`f = ${fmtNum(r)} \\,\\text{cm}`]},
+      {k:'g',l:'g',u:'cm',ltx:'g = \\dfrac{f \\cdot b}{b - f}',solve:({f,b})=>(f*b)/(b-f),
+        steps:({f,b},r)=>['\\dfrac{1}{f} = \\dfrac{1}{g} + \\dfrac{1}{b}','\\dfrac{1}{g} = \\dfrac{1}{f} - \\dfrac{1}{b}','\\dfrac{1}{g} = \\dfrac{b - f}{f \\cdot b}',`g = \\dfrac{f \\cdot b}{b - f}`,`g = ${fmtNum(r)} \\,\\text{cm}`]},
+      {k:'b',l:'b',u:'cm',ltx:'b = \\dfrac{f \\cdot g}{g - f}',solve:({f,g})=>(f*g)/(g-f),
+        steps:({f,g},r)=>['\\dfrac{1}{f} = \\dfrac{1}{g} + \\dfrac{1}{b}','\\dfrac{1}{b} = \\dfrac{1}{f} - \\dfrac{1}{g}','\\dfrac{1}{b} = \\dfrac{g - f}{f \\cdot g}',`b = \\dfrac{f \\cdot g}{g - f}`,`b = ${fmtNum(r)} \\,\\text{cm}`]}
+    ],
+    defaults:{f:10,g:15,b:30}},
+
+  {key:'vergroesserung',name:'Vergrößerung',base:'\\beta = \\dfrac{B}{G} = \\dfrac{b}{g}',desc:'Abbildungsmaßstab',
+    vars:[
+      {k:'beta',l:'\\beta',u:'',ltx:'\\beta = \\dfrac{b}{g}',solve:({b,g})=>b/g,
+        steps:({b,g},r)=>['\\beta = \\dfrac{b}{g}',`\\beta = \\dfrac{${b}}{${g}}`,`\\beta = ${fmtNum(r)}`]},
+      {k:'b',l:'b',u:'cm',ltx:'b = \\beta \\cdot g',solve:({beta,g})=>beta*g,
+        steps:({beta,g},r)=>['\\beta = \\dfrac{b}{g}',`b = \\beta \\cdot g`,`b = ${beta} \\cdot ${g}`,`b = ${fmtNum(r)} \\,\\text{cm}`]},
+      {k:'g',l:'g',u:'cm',ltx:'g = \\dfrac{b}{\\beta}',solve:({b,beta})=>b/beta,
+        steps:({b,beta},r)=>['\\beta = \\dfrac{b}{g}',`g = \\dfrac{b}{\\beta}`,`g = \\dfrac{${b}}{${beta}}`,`g = ${fmtNum(r)} \\,\\text{cm}`]}
+    ],
+    defaults:{beta:2,b:30,g:15}},
+
+  {key:'brechkraft',name:'Brechkraft',base:'D = \\dfrac{1}{f}',desc:'Brechkraft = 1/Brennweite',
+    vars:[
+      {k:'D',l:'D',u:'dpt',ltx:'D = \\dfrac{1}{f}',solve:({f})=>1/(f/100),
+        steps:({f},r)=>['D = \\dfrac{1}{f}',`D = \\dfrac{1}{${f/100} \\,\\text{m}}`,`D = ${fmtNum(r)} \\,\\text{dpt}`]},
+      {k:'f',l:'f',u:'cm',ltx:'f = \\dfrac{1}{D}',solve:({D})=>(1/D)*100,
+        steps:({D},r)=>['D = \\dfrac{1}{f}',`f = \\dfrac{1}{D}`,`f = \\dfrac{1}{${D} \\,\\text{dpt}} = ${fmtNum(r/100)} \\,\\text{m}`,`f = ${fmtNum(r)} \\,\\text{cm}`]}
+    ],
+    defaults:{D:10,f:10}},
+
+  {key:'gesamt',name:'Gesamt-Brechkraft',base:'D_{ges} = D_1 + D_2',desc:'Linsen in Kontakt',
+    vars:[
+      {k:'D_ges',l:'D_{ges}',u:'dpt',ltx:'D_{ges} = D_1 + D_2',solve:({D1,D2})=>D1+D2,
+        steps:({D1,D2},r)=>['D_{ges} = D_1 + D_2',`D_{ges} = ${D1} + ${D2}`,`D_{ges} = ${fmtNum(r)} \\,\\text{dpt}`]},
+      {k:'D1',l:'D_1',u:'dpt',ltx:'D_1 = D_{ges} - D_2',solve:({D_ges,D2})=>D_ges-D2,
+        steps:({D_ges,D2},r)=>['D_{ges} = D_1 + D_2',`D_1 = D_{ges} - D_2`,`D_1 = ${D_ges} - ${D2}`,`D_1 = ${fmtNum(r)} \\,\\text{dpt}`]},
+      {k:'D2',l:'D_2',u:'dpt',ltx:'D_2 = D_{ges} - D_1',solve:({D_ges,D1})=>D_ges-D1,
+        steps:({D_ges,D1},r)=>['D_{ges} = D_1 + D_2',`D_2 = D_{ges} - D_1`,`D_2 = ${D_ges} - ${D1}`,`D_2 = ${fmtNum(r)} \\,\\text{dpt}`]}
+    ],
+    defaults:{D1:5,D2:3,D_ges:8}},
+
+  {key:'snellius',name:'Snelliussches Brechungsgesetz',base:'n_1 \\cdot \\sin(\\alpha_1) = n_2 \\cdot \\sin(\\alpha_2)',desc:'Lichtbrechung an Grenzfläche',
+    vars:[
+      {k:'alpha2',l:'\\alpha_2',u:'°',ltx:'\\alpha_2 = \\arcsin\\!\\left(\\dfrac{n_1 \\cdot \\sin(\\alpha_1)}{n_2}\\right)',solve:({n1,n2,alpha1})=>Math.asin((n1*Math.sin(alpha1*Math.PI/180))/n2)*180/Math.PI,
+        steps:({n1,n2,alpha1},r)=>['n_1 \\cdot \\sin(\\alpha_1) = n_2 \\cdot \\sin(\\alpha_2)',`\\sin(\\alpha_2) = \\dfrac{n_1 \\cdot \\sin(\\alpha_1)}{n_2}`,`\\alpha_2 = \\arcsin\\!\\left(\\dfrac{${n1} \\cdot \\sin(${alpha1}°)}{${n2}}\\right)`,`\\alpha_2 = ${fmtNum(r)}°`]},
+      {k:'alpha1',l:'\\alpha_1',u:'°',ltx:'\\alpha_1 = \\arcsin\\!\\left(\\dfrac{n_2 \\cdot \\sin(\\alpha_2)}{n_1}\\right)',solve:({n1,n2,alpha2})=>Math.asin((n2*Math.sin(alpha2*Math.PI/180))/n1)*180/Math.PI,
+        steps:({n1,n2,alpha2},r)=>['n_1 \\cdot \\sin(\\alpha_1) = n_2 \\cdot \\sin(\\alpha_2)',`\\sin(\\alpha_1) = \\dfrac{n_2 \\cdot \\sin(\\alpha_2)}{n_1}`,`\\alpha_1 = ${fmtNum(r)}°`]},
+      {k:'n2',l:'n_2',u:'',ltx:'n_2 = \\dfrac{n_1 \\cdot \\sin(\\alpha_1)}{\\sin(\\alpha_2)}',solve:({n1,alpha1,alpha2})=>(n1*Math.sin(alpha1*Math.PI/180))/Math.sin(alpha2*Math.PI/180),
+        steps:({n1,alpha1,alpha2},r)=>['n_1 \\cdot \\sin(\\alpha_1) = n_2 \\cdot \\sin(\\alpha_2)',`n_2 = \\dfrac{n_1 \\cdot \\sin(\\alpha_1)}{\\sin(\\alpha_2)}`,`n_2 = ${fmtNum(r)}`]}
+    ],
+    defaults:{n1:1.0,n2:1.5,alpha1:30,alpha2:19.47}}
+];
+
+let calcCurrentFormula=CALC_FORMULAS[0];
+let calcCurrentSolveFor=CALC_FORMULAS[0].vars[0];
+let calcValues={};
+let calcReady=false;
+
+function ensureCalc(){
+  if(calcReady) return;
+  if(!window.katex){setTimeout(ensureCalc,100); return}
+  calcReady=true;
+  buildFormulaGrid();
+  selectFormula(CALC_FORMULAS[0]);
+}
+function buildFormulaGrid(){
+  const grid=document.getElementById('calcFormulaGrid');
+  grid.innerHTML='';
+  CALC_FORMULAS.forEach(f=>{
+    const card=document.createElement('div');
+    card.className='calc-formula-card'+(f===calcCurrentFormula?' active':'');
+    card.dataset.key=f.key;
+    card.innerHTML=`<div class="nm">${f.name}</div><div class="ltx"></div>`;
+    card.onclick=()=>selectFormula(f);
+    grid.appendChild(card);
+    kx(f.base,card.querySelector('.ltx'));
+  });
+}
+function selectFormula(f){
+  calcCurrentFormula=f;
+  calcCurrentSolveFor=f.vars[0];
+  calcValues={...f.defaults};
+  document.querySelectorAll('.calc-formula-card').forEach(c=>c.classList.toggle('active',c.dataset.key===f.key));
+  document.getElementById('calcBaseName').textContent=f.desc;
+  kx(f.base,document.getElementById('calcBaseDisplay'),true);
+  buildVarRow();
+  updateCalc();
+}
+function buildVarRow(){
+  const row=document.getElementById('calcVarRow');
+  row.innerHTML='';
+  calcCurrentFormula.vars.forEach(v=>{
+    const btn=document.createElement('button');
+    btn.className='calc-var-btn'+(v===calcCurrentSolveFor?' active':'');
+    btn.dataset.k=v.k;
+    btn.innerHTML=`<div class="var-name"></div><small>${v.u||'—'}</small>`;
+    btn.onclick=()=>{calcCurrentSolveFor=v;buildVarRow();updateCalc()};
+    row.appendChild(btn);
+    kx(v.l,btn.querySelector('.var-name'));
+  });
+}
+function buildInputs(){
+  const ctr=document.getElementById('calcInputs');
+  ctr.innerHTML='';
+  calcCurrentFormula.vars.forEach(v=>{
+    if(v===calcCurrentSolveFor) return;
+    const card=document.createElement('div');
+    card.className='calc-input-card';
+    card.innerHTML=`<div class="lbl"><span></span><span style="color:var(--text-secondary);font-size:.7rem">${v.u||''}</span></div>
+      <div class="input-row"><input type="number" step="any" data-k="${v.k}" value="${calcValues[v.k]??''}"><span class="unit">${v.u}</span></div>`;
+    ctr.appendChild(card);
+    kx(v.l,card.querySelector('.lbl span:first-child'));
+    card.querySelector('input').addEventListener('input',e=>{
+      calcValues[v.k]=parseFloat(e.target.value);
+      updateCalc();
+    });
+  });
+}
+function updateCalc(){
+  kx(calcCurrentSolveFor.ltx,document.getElementById('calcRearrangedDisplay'),true);
+  buildInputs();
+  const inputs={};
+  let allOk=true;
+  calcCurrentFormula.vars.forEach(v=>{
+    if(v===calcCurrentSolveFor) return;
+    const val=calcValues[v.k];
+    if(val===undefined||isNaN(val)) allOk=false;
+    inputs[v.k]=val;
+  });
+  const resBox=document.getElementById('calcResult');
+  if(!allOk){
+    resBox.className='calc-result error';
+    resBox.innerHTML=`<div class="lbl">Werte unvollständig</div><div class="val">—</div>`;
+    document.getElementById('calcSteps').classList.remove('show');
+    return;
+  }
+  let result;
+  try{result=calcCurrentSolveFor.solve(inputs)}catch(e){result=NaN}
+  resBox.className='calc-result';
+  resBox.innerHTML=`<div class="lbl">Ergebnis</div><div class="val"><span></span> = ${fmtNum(result)}<span class="unit">${calcCurrentSolveFor.u}</span></div>`;
+  kx(calcCurrentSolveFor.l,resBox.querySelector('.val span:first-child'));
+  if(calcCurrentSolveFor.steps){
+    const steps=calcCurrentSolveFor.steps(inputs,result);
+    const stepsBox=document.getElementById('calcSteps');
+    stepsBox.innerHTML='';
+    steps.forEach((s,i)=>{
+      const stepDiv=document.createElement('div');
+      stepDiv.className='step';
+      stepDiv.innerHTML=`<div class="step-num">${i+1}</div><div class="step-content"><span></span></div>`;
+      stepsBox.appendChild(stepDiv);
+      kx(s,stepDiv.querySelector('.step-content span'),true);
+    });
+  }
+}
+document.getElementById('calcStepsBtn').onclick=()=>{
+  const box=document.getElementById('calcSteps');
+  box.classList.toggle('show');
+  const btn=document.getElementById('calcStepsBtn');
+  btn.innerHTML=box.classList.contains('show')?'<i data-lucide="x"></i>Lösungsweg verbergen':'<i data-lucide="list-ordered"></i>Lösungsweg zeigen';
+  if(window.lucide) lucide.createIcons();
+};
+document.getElementById('calcResetBtn').onclick=()=>{
+  calcValues={...calcCurrentFormula.defaults};
+  buildInputs();
+  updateCalc();
+};
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

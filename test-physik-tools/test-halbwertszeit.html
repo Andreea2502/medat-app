@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halbwertszeit · MedAT Physik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;
+    --purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;--purple-soft:#ede4f5;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --lead:#9b7fc4;--lead-deep:#7a60a8;--lead-soft:#ede4f5;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);--shadow:0 4px 20px rgba(26,26,46,.06);--shadow-md:0 8px 32px rgba(26,26,46,.08);--shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--lead-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--lead-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(155,127,196,.5);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--lead-deep);color:var(--lead-deep);transform:translateY(-1px)}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--lead-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--lead-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--lead-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(155,127,196,.25);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--lead-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* ZERFALLS-STUDIO */
+  .decay-stage{background:radial-gradient(ellipse at center,#1f1830 0%,#0a0815 100%);border-radius:var(--radius);padding:14px;overflow:hidden;box-shadow:inset 0 0 80px rgba(0,0,0,0.5);margin-bottom:14px;position:relative}
+  .decay-stage svg{display:block;margin:0 auto;max-width:100%}
+  .decay-controls{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px}
+  @media(min-width:560px){.decay-controls{grid-template-columns:1fr 1fr}}
+  .slider-row{background:var(--bg-light);border-radius:14px;padding:14px}
+  .slider-row .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .slider-row label{font-size:.82rem;font-weight:700;color:var(--text)}
+  .slider-row .val{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:.95rem}
+  .h-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bg-warm);border-radius:4px;outline:none;cursor:pointer}
+  .h-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(155,127,196,.4);border:3px solid #fff}
+  .h-slider::-moz-range-thumb{width:24px;height:24px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(155,127,196,.4)}
+  .decay-readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:14px}
+  .decay-readout{background:var(--surface);border:1.5px solid var(--border-light);border-radius:14px;padding:12px;text-align:center}
+  .decay-readout .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .decay-readout .val{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--lead-deep);margin-top:3px}
+  .play-row{display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+  .play-btn{padding:10px 20px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s}
+  .play-btn.primary{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;box-shadow:0 4px 12px rgba(155,127,196,.4)}
+  .play-btn.primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(155,127,196,.5)}
+  .play-btn.secondary{background:var(--surface);color:var(--text);border:1.5px solid var(--border)}
+
+  /* ISOTOPE */
+  .iso-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .iso-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s}
+  .iso-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--lead-deep)}
+  .iso-img{height:140px;background:radial-gradient(ellipse at center,#1f1830 0%,#0a0815 100%);display:flex;align-items:center;justify-content:center;padding:12px;position:relative;overflow:hidden}
+  .iso-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+  .iso-info{padding:14px}
+  .iso-info h4{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .iso-info .symbol{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--lead-deep);font-weight:800;margin-bottom:6px;background:var(--lead-soft);padding:4px 10px;border-radius:8px;display:inline-block}
+  .iso-info p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+  .iso-info .t-half{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--lead-deep);margin-top:6px;font-weight:700}
+
+  /* STRAHLUNG */
+  .strahl-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:780px){.strahl-grid{grid-template-columns:1fr 1fr}}
+  .strahl-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;padding:16px;transition:all .25s}
+  .strahl-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--lead-deep)}
+  .strahl-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .strahl-icon{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:#fff}
+  .strahl-head h4{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .strahl-head .sub{font-size:.74rem;color:var(--text-secondary);font-weight:600}
+  .strahl-body{font-size:.84rem;color:var(--text);line-height:1.55}
+  .strahl-body table{width:100%;font-size:.78rem;margin-top:10px;border-collapse:collapse}
+  .strahl-body td{padding:5px 0;border-bottom:1px solid var(--border-light)}
+  .strahl-body td:first-child{color:var(--text-secondary);font-weight:600;width:120px}
+  .strahl-body td:last-child{font-weight:700;text-align:right}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:600px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .modal-img{height:200px;background:radial-gradient(ellipse at center,#1f1830 0%,#0a0815 100%);display:flex;align-items:center;justify-content:center;padding:14px}
+  .modal-img svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));max-width:100%;max-height:100%}
+  .modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,var(--lead-soft),var(--bg-light))}
+  .modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .modal-head .symbol{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--lead-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .modal-body{padding:18px 24px 24px}
+  .steckbrief{display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--lead-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--lead-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--lead-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--lead-deep);font-weight:700}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4{color:var(--green-deep)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.15);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+
+  /* RECHNER */
+  .calc-formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+  .calc-formula-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .2s;text-align:center}
+  .calc-formula-card:hover{transform:translateY(-2px);border-color:var(--lead-deep);box-shadow:var(--shadow-sm)}
+  .calc-formula-card.active{background:linear-gradient(135deg,var(--lead-soft),#fff);border-color:var(--lead-deep);box-shadow:0 4px 14px rgba(155,127,196,.2)}
+  .calc-formula-card .nm{font-size:.78rem;color:var(--text-secondary);font-weight:600;margin-bottom:3px}
+  .calc-formula-card .ltx{min-height:24px;display:flex;align-items:center;justify-content:center}
+  .calc-formula-card .ltx .katex{font-size:.95rem!important;color:var(--lead-deep)}
+  .calc-var-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+  .calc-var-row{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:12px}
+  .calc-var-row .var-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:6px}
+  .calc-var-row .var-head label{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:.92rem}
+  .calc-var-row .var-head .unit{font-size:.74rem;color:var(--text-secondary);font-weight:600}
+  .calc-var-row .var-head .solve-btn{background:none;border:1px solid var(--border);font-family:inherit;font-size:.7rem;cursor:pointer;color:var(--text-secondary);padding:3px 8px;border-radius:8px;font-weight:600;transition:all .2s}
+  .calc-var-row .var-head .solve-btn:hover{border-color:var(--lead-deep);color:var(--lead-deep)}
+  .calc-var-row .var-head .solve-btn.solving{background:var(--lead);border-color:var(--lead);color:#fff}
+  .calc-var-row input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:700;color:var(--text);background:#fff;outline:none;transition:all .2s}
+  .calc-var-row input:focus{border-color:var(--lead-deep);box-shadow:0 0 0 3px rgba(155,127,196,.15)}
+  .calc-var-row input:disabled{background:var(--lead-soft);color:var(--lead-deep);font-weight:800;cursor:not-allowed}
+  .calc-result{background:linear-gradient(135deg,var(--lead-soft),#fff);border:2px solid var(--lead-deep);border-radius:18px;padding:18px}
+  .calc-result h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;color:var(--lead-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .calc-result .step{margin-bottom:8px;display:flex;flex-direction:column;gap:4px}
+  .calc-result .step .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);font-weight:700}
+  .calc-result .step .ltx{padding:8px 12px;background:#fff;border-radius:10px;border:1px solid var(--border-light)}
+  .calc-result .final{margin-top:12px;padding:14px;background:#fff;border-radius:12px;border:2px dashed var(--lead-deep);text-align:center}
+  .calc-result .final .lbl{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+  .calc-result .final .val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:800;color:var(--lead-deep)}
+
+  /* MATCH */
+  .match-mode-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+  .match-mode-btn{padding:10px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+  .match-mode-btn:hover:not(.active){border-color:var(--lead-deep)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(155,127,196,.4)}
+  .match-board{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:560px){.match-board{grid-template-columns:1fr}}
+  .match-col{display:flex;flex-direction:column;gap:8px}
+  .match-col-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;color:var(--lead-deep);font-weight:800;margin-bottom:4px}
+  .match-item{padding:12px 14px;background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--text);transition:all .2s;text-align:left;font-family:inherit}
+  .match-item:hover:not(:disabled){border-color:var(--lead-deep);background:var(--lead-soft)}
+  .match-item.selected{background:var(--lead-soft);border-color:var(--lead-deep);transform:scale(1.02)}
+  .match-item.matched{background:var(--mint);border-color:var(--green-deep);color:var(--green-deep);cursor:default;opacity:.85}
+  .match-item.error{background:var(--coral-soft);border-color:var(--pink-deep);animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+  /* QUIZ */
+  .q-progress{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:.78rem;color:var(--text-secondary);font-weight:600}
+  .q-progress .pct{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--lead-deep);font-size:1rem}
+  .q-bar{width:100%;height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-bottom:14px}
+  .q-bar .fill{height:100%;background:linear-gradient(90deg,var(--lead),var(--lead-deep));transition:width .4s cubic-bezier(.4,0,.2,1)}
+  .q-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .q-question{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:14px;line-height:1.5}
+  .q-options{display:flex;flex-direction:column;gap:8px}
+  .q-option{padding:13px 16px;border-radius:14px;border:1.5px solid var(--border-light);background:var(--bg-light);cursor:pointer;font-size:.88rem;font-weight:600;color:var(--text);text-align:left;font-family:inherit;transition:all .2s}
+  .q-option:hover:not(:disabled){border-color:var(--lead-deep);background:var(--lead-soft)}
+  .q-option.correct{background:var(--mint);border-color:var(--green-deep);color:var(--green-deep)}
+  .q-option.wrong{background:var(--coral-soft);border-color:var(--pink-deep);color:var(--pink-deep)}
+  .q-option:disabled{cursor:not-allowed;opacity:.7}
+  .q-explain{margin-top:14px;padding:14px;background:var(--lead-soft);border-radius:14px;border-left:3px solid var(--lead-deep);font-size:.84rem;color:var(--text);line-height:1.5;display:none}
+  .q-explain.show{display:block;animation:fadeUp .3s ease}
+  .q-next{margin-top:14px;padding:11px 22px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border:none;border-radius:var(--radius-pill);font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;display:none;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(155,127,196,.4)}
+  .q-next.show{display:inline-flex}
+  .q-finish{text-align:center;padding:30px}
+  .q-finish .score{font-size:3rem;font-weight:900;color:var(--lead-deep);font-family:'JetBrains Mono',monospace;margin-bottom:6px}
+  .q-finish .msg{font-size:1rem;color:var(--text-secondary);margin-bottom:16px}
+  .q-finish button{padding:11px 22px;background:linear-gradient(135deg,var(--lead),var(--lead-deep));color:#fff;border:none;border-radius:var(--radius-pill);font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer}
+
+  .info-strip{display:flex;align-items:flex-start;gap:10px;background:var(--lead-soft);border-radius:14px;padding:12px 14px;margin-top:10px}
+  .info-strip [data-lucide]{color:var(--lead-deep);margin-top:2px}
+  .info-strip p{font-size:.82rem;color:var(--text);line-height:1.5;margin:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="atom"></i></div>
+    <div>
+      <h1>Halbwertszeit-Lab</h1>
+      <p>Radioaktiver Zerfall, Aktivität & Strahlungsarten</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="studio"><i data-lucide="atom"></i>Zerfalls-Studio</button>
+  <button class="tab" data-tab="iso"><i data-lucide="layers"></i>Isotope</button>
+  <button class="tab" data-tab="strahl"><i data-lucide="zap"></i>Strahlung</button>
+  <button class="tab" data-tab="stabil"><i data-lucide="trending-up"></i>Stabilität</button>
+  <button class="tab" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="match"><i data-lucide="shuffle"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="brain"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+<!-- STUDIO -->
+<section class="section active" id="studio">
+  <div class="hero-strip">
+    <h2><i data-lucide="atom"></i>Radioaktiver Zerfall live</h2>
+    <p>Stelle Halbwertszeit T und Anfangsmenge N₀ ein. Drück "Zeit läuft" und beobachte wie sich N(t) = N₀·(½)^(t/T) entwickelt.</p>
+  </div>
+
+  <div class="card">
+    <div class="decay-stage">
+      <svg id="decaySvg" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="atomGrad" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#d8c5f0"/>
+            <stop offset="60%" stop-color="#9b7fc4"/>
+            <stop offset="100%" stop-color="#5a3e88"/>
+          </radialGradient>
+          <radialGradient id="decayedGrad" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#a8c5e0"/>
+            <stop offset="60%" stop-color="#5e88b5"/>
+            <stop offset="100%" stop-color="#2a4a78"/>
+          </radialGradient>
+          <filter id="glow"><feGaussianBlur stdDeviation="2.5"/></filter>
+        </defs>
+
+        <!-- Curve background -->
+        <g transform="translate(40,40)">
+          <line x1="0" y1="280" x2="720" y2="280" stroke="#444" stroke-width="1"/>
+          <line x1="0" y1="0" x2="0" y2="280" stroke="#444" stroke-width="1"/>
+          <text x="-25" y="10" fill="#aaa" font-size="11" font-family="JetBrains Mono">N₀</text>
+          <text x="-30" y="148" fill="#aaa" font-size="11" font-family="JetBrains Mono">N₀/2</text>
+          <text x="-30" y="290" fill="#aaa" font-size="11" font-family="JetBrains Mono">0</text>
+          <!-- T markers -->
+          <line x1="180" y1="280" x2="180" y2="285" stroke="#777" stroke-width="2"/>
+          <text x="180" y="300" fill="#aaa" font-size="11" text-anchor="middle" font-family="JetBrains Mono">T</text>
+          <line x1="360" y1="280" x2="360" y2="285" stroke="#777" stroke-width="2"/>
+          <text x="360" y="300" fill="#aaa" font-size="11" text-anchor="middle" font-family="JetBrains Mono">2T</text>
+          <line x1="540" y1="280" x2="540" y2="285" stroke="#777" stroke-width="2"/>
+          <text x="540" y="300" fill="#aaa" font-size="11" text-anchor="middle" font-family="JetBrains Mono">3T</text>
+          <line x1="720" y1="280" x2="720" y2="285" stroke="#777" stroke-width="2"/>
+          <text x="720" y="300" fill="#aaa" font-size="11" text-anchor="middle" font-family="JetBrains Mono">4T</text>
+
+          <!-- Theoretical curve -->
+          <path id="decayCurve" d="" stroke="#9b7fc4" stroke-width="2" fill="none" opacity="0.6"/>
+
+          <!-- Half-line -->
+          <line x1="0" y1="148" x2="180" y2="148" stroke="#7a60a8" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+          <line x1="180" y1="148" x2="180" y2="280" stroke="#7a60a8" stroke-width="1" stroke-dasharray="4,3" opacity="0.5"/>
+
+          <!-- Active point -->
+          <circle id="activePoint" cx="0" cy="0" r="6" fill="#fff" filter="url(#glow)"/>
+          <circle id="activePointInner" cx="0" cy="0" r="4" fill="#9b7fc4"/>
+        </g>
+
+        <!-- Atoms cluster -->
+        <g id="atomsGroup" transform="translate(580,30)"></g>
+
+        <!-- Status -->
+        <text id="decayStatus" x="400" y="365" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="800" fill="#d8c5f0">t = 0,0 a · N = 1000</text>
+      </svg>
+    </div>
+
+    <div class="play-row">
+      <button class="play-btn primary" id="playBtn"><i data-lucide="play"></i>Zeit läuft</button>
+      <button class="play-btn secondary" id="resetBtn"><i data-lucide="refresh-cw"></i>Reset</button>
+      <button class="play-btn secondary" id="stepBtn"><i data-lucide="step-forward"></i>+1·T</button>
+    </div>
+
+    <div class="decay-controls">
+      <div class="slider-row">
+        <div class="label-row"><label>Halbwertszeit T</label><span class="val"><span id="thalfVal">5.0</span> a</span></div>
+        <input type="range" min="1" max="20" step="0.5" value="5" id="thalfSlider" class="h-slider">
+      </div>
+      <div class="slider-row">
+        <div class="label-row"><label>Anfangsmenge N₀</label><span class="val"><span id="n0Val">1000</span></span></div>
+        <input type="range" min="100" max="5000" step="100" value="1000" id="n0Slider" class="h-slider">
+      </div>
+    </div>
+
+    <div class="decay-readouts">
+      <div class="decay-readout"><div class="lbl">Zeit t</div><div class="val"><span id="tOut">0.0</span> a</div></div>
+      <div class="decay-readout"><div class="lbl">N(t)</div><div class="val" id="ntOut">1000</div></div>
+      <div class="decay-readout"><div class="lbl">Zerfallen</div><div class="val" id="decOut">0</div></div>
+      <div class="decay-readout"><div class="lbl">Aktivität A</div><div class="val"><span id="aOut">139</span> /a</div></div>
+      <div class="decay-readout"><div class="lbl">Anteil</div><div class="val"><span id="frcOut">100</span>%</div></div>
+    </div>
+
+    <div class="info-strip">
+      <i data-lucide="info"></i>
+      <p><b>Wichtig:</b> Nach einer Halbwertszeit T ist <b>die Hälfte</b> übrig, nach 2T ein Viertel, nach 3T ein Achtel. Nach 10·T sind nur noch ~0,1% übrig. Die Zerfallskurve wird nie ganz null!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ISOTOPE -->
+<section class="section" id="iso">
+  <div class="hero-strip">
+    <h2><i data-lucide="layers"></i>Wichtige Isotope</h2>
+    <p>Klick auf ein Isotop für Halbwertszeit, Strahlung und medizinischen Einsatz.</p>
+  </div>
+  <div class="card">
+    <div class="iso-grid" id="isoGrid"></div>
+  </div>
+</section>
+
+<!-- STRAHLUNG -->
+<section class="section" id="strahl">
+  <div class="hero-strip">
+    <h2><i data-lucide="zap"></i>Strahlungsarten</h2>
+    <p>Vier Arten ionisierender Strahlung, jede mit eigenem Verhalten in Materie und unterschiedlicher biologischer Wirkung.</p>
+  </div>
+
+  <div class="card">
+    <div class="strahl-grid">
+
+      <div class="strahl-card">
+        <div class="strahl-head">
+          <div class="strahl-icon" style="background:linear-gradient(135deg,#e07b8b,#c8505f)">α</div>
+          <div>
+            <h4>Alpha-Strahlung</h4>
+            <div class="sub">Helium-4-Kerne · ⁴₂He²⁺</div>
+          </div>
+        </div>
+        <div class="strahl-body">
+          Zwei Protonen + zwei Neutronen werden ausgesandt. Schwer und langsam → kommt nur wenige cm in Luft, wird durch Papier gestoppt. Gefährlich nur bei Inkorporation (Inhalation, Ingestion).
+          <table>
+            <tr><td>Reichweite Luft</td><td>~5 cm</td></tr>
+            <tr><td>Abschirmung</td><td>Papier, Haut</td></tr>
+            <tr><td>Ionisationsdichte</td><td>sehr hoch</td></tr>
+            <tr><td>Z-Änderung</td><td>−2</td></tr>
+            <tr><td>A-Änderung</td><td>−4</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="strahl-card">
+        <div class="strahl-head">
+          <div class="strahl-icon" style="background:linear-gradient(135deg,#6db8e0,#2d6a8e)">β⁻</div>
+          <div>
+            <h4>Beta-minus-Strahlung</h4>
+            <div class="sub">Elektron · n → p + e⁻ + ν̄</div>
+          </div>
+        </div>
+        <div class="strahl-body">
+          Im Kern wandelt sich ein Neutron in ein Proton um, dabei wird ein Elektron emittiert. Reichweite einige Meter in Luft, durch Aluminium gestoppt.
+          <table>
+            <tr><td>Reichweite Luft</td><td>~m</td></tr>
+            <tr><td>Abschirmung</td><td>Aluminium</td></tr>
+            <tr><td>Ionisationsdichte</td><td>mittel</td></tr>
+            <tr><td>Z-Änderung</td><td>+1</td></tr>
+            <tr><td>A-Änderung</td><td>0</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="strahl-card">
+        <div class="strahl-head">
+          <div class="strahl-icon" style="background:linear-gradient(135deg,#9b7fc4,#7a60a8)">β⁺</div>
+          <div>
+            <h4>Beta-plus-Strahlung</h4>
+            <div class="sub">Positron · p → n + e⁺ + ν</div>
+          </div>
+        </div>
+        <div class="strahl-body">
+          Proton wandelt sich in Neutron um, ein Positron (Antielektron) wird emittiert. Trifft schnell auf Elektron → Annihilation in zwei 511-keV-γ-Photonen → Grundlage der PET.
+          <table>
+            <tr><td>Reichweite Luft</td><td>~m</td></tr>
+            <tr><td>Abschirmung</td><td>Aluminium</td></tr>
+            <tr><td>Anwendung</td><td>PET-Diagnostik</td></tr>
+            <tr><td>Z-Änderung</td><td>−1</td></tr>
+            <tr><td>A-Änderung</td><td>0</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="strahl-card">
+        <div class="strahl-head">
+          <div class="strahl-icon" style="background:linear-gradient(135deg,#f5c542,#e6a817)">γ</div>
+          <div>
+            <h4>Gamma-Strahlung</h4>
+            <div class="sub">Hochenergetische Photonen</div>
+          </div>
+        </div>
+        <div class="strahl-body">
+          Elektromagnetische Welle, keine Teilchen, keine Ladung. Begleitet meist α/β-Zerfall (angeregter Tochterkern). Sehr durchdringend - braucht Blei oder dicken Beton zur Abschirmung.
+          <table>
+            <tr><td>Reichweite Luft</td><td>~100 m</td></tr>
+            <tr><td>Abschirmung</td><td>Blei, Beton</td></tr>
+            <tr><td>Ionisationsdichte</td><td>gering</td></tr>
+            <tr><td>Z-Änderung</td><td>0</td></tr>
+            <tr><td>A-Änderung</td><td>0</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="info-strip" style="margin-top:14px">
+      <i data-lucide="info"></i>
+      <p><b>Merke (MedAT-Klassiker):</b> α stoppt am Papier · β stoppt an Alu · γ braucht Blei. Biologische Wirksamkeit umgekehrt: <b>α >> β > γ</b> bei Inkorporation, weil α viel mehr lokal ionisiert.</p>
+    </div>
+  </div>
+</section>
+
+<!-- STABILITÄT -->
+<section class="section" id="stabil">
+  <div class="hero-strip">
+    <h2><i data-lucide="trending-up"></i>Wann ist ein Kern stabil?</h2>
+    <p>Stabile Kerne haben ein bestimmtes Verhältnis von Neutronen (N) zu Protonen (Z). Liegt ein Kern außerhalb des „Stabilitätstals", zerfällt er - und zwar so, dass er sich dem Tal annähert.</p>
+  </div>
+
+  <div class="card">
+    <h2><i data-lucide="map"></i>Nuklidkarte: Stabilitätstal</h2>
+    <p class="lead">Klicke ein Isotop um seinen Zerfallspfad zu sehen. Schwarze Punkte = stabile Kerne. Farbige Punkte = die 6 Beispielisotope. Pfeile zeigen wie sich N und Z beim Zerfall ändern.</p>
+
+    <div style="background:radial-gradient(ellipse at center,#1f1830 0%,#0a0815 100%);border-radius:18px;padding:14px;overflow:hidden">
+      <svg id="nzChart" viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:100%">
+        <defs>
+          <linearGradient id="stabilBand" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stop-color="#4a9a6a" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#4a9a6a" stop-opacity="0.2"/>
+          </linearGradient>
+          <radialGradient id="isoDot" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#fff"/>
+            <stop offset="100%" stop-color="#9b7fc4"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Axes -->
+        <line x1="60" y1="40" x2="60" y2="430" stroke="#666" stroke-width="1.5"/>
+        <line x1="60" y1="430" x2="770" y2="430" stroke="#666" stroke-width="1.5"/>
+        <text x="40" y="40" fill="#aaa" font-size="11" font-family="JetBrains Mono">N</text>
+        <text x="770" y="450" fill="#aaa" font-size="11" font-family="JetBrains Mono">Z</text>
+        <text x="400" y="465" fill="#888" font-size="10" font-family="JetBrains Mono" text-anchor="middle">Protonenzahl Z →</text>
+        <text x="20" y="220" fill="#888" font-size="10" font-family="JetBrains Mono" text-anchor="middle" transform="rotate(-90 20 220)">Neutronenzahl N →</text>
+
+        <!-- Diagonal N=Z -->
+        <line x1="60" y1="430" x2="430" y2="60" stroke="#444" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="270" y="225" fill="#666" font-size="10" font-family="JetBrains Mono" text-anchor="middle" transform="rotate(-45 270 225)">N = Z</text>
+
+        <!-- Stability band (curved, more N than Z for high A) -->
+        <path d="M 60 430 Q 200 280 350 180 Q 500 110 700 60 L 720 80 Q 520 130 370 200 Q 220 300 80 450 Z" fill="url(#stabilBand)" opacity="0.4"/>
+        <path d="M 60 430 Q 200 290 350 190 Q 500 120 700 70" stroke="#4a9a6a" stroke-width="1.5" fill="none" opacity="0.6"/>
+        <text x="380" y="170" fill="#6db88a" font-size="11" font-family="JetBrains Mono" font-weight="800" text-anchor="middle">Stabilitätstal</text>
+
+        <!-- Stable nuclei sample dots -->
+        <g fill="#888">
+          <circle cx="80" cy="425" r="2.5"/><circle cx="100" cy="420" r="2.5"/><circle cx="120" cy="412" r="2.5"/>
+          <circle cx="140" cy="403" r="2.5"/><circle cx="160" cy="392" r="2.5"/><circle cx="180" cy="380" r="2.5"/>
+          <circle cx="200" cy="365" r="2.5"/><circle cx="220" cy="350" r="2.5"/><circle cx="240" cy="335" r="2.5"/>
+          <circle cx="260" cy="320" r="2.5"/><circle cx="280" cy="305" r="2.5"/><circle cx="300" cy="290" r="2.5"/>
+          <circle cx="320" cy="275" r="2.5"/><circle cx="340" cy="260" r="2.5"/><circle cx="360" cy="245" r="2.5"/>
+          <circle cx="380" cy="230" r="2.5"/><circle cx="400" cy="215" r="2.5"/><circle cx="420" cy="200" r="2.5"/>
+          <circle cx="440" cy="185" r="2.5"/><circle cx="460" cy="172" r="2.5"/><circle cx="480" cy="160" r="2.5"/>
+          <circle cx="500" cy="148" r="2.5"/><circle cx="520" cy="138" r="2.5"/><circle cx="550" cy="125" r="2.5"/>
+          <circle cx="580" cy="115" r="2.5"/><circle cx="610" cy="105" r="2.5"/><circle cx="640" cy="95" r="2.5"/>
+          <circle cx="670" cy="85" r="2.5"/>
+        </g>
+
+        <!-- Direction arrows -->
+        <g stroke="#9b7fc4" stroke-width="1.5" fill="none" opacity="0.5">
+          <line x1="200" y1="320" x2="220" y2="335" marker-end="url(#nzArr)"/>
+          <text x="180" y="315" fill="#c8a8e8" font-size="9" font-family="JetBrains Mono">β⁻ (N→Z)</text>
+          <line x1="350" y1="180" x2="330" y2="165" marker-end="url(#nzArr)"/>
+          <text x="370" y="180" fill="#a8c8e8" font-size="9" font-family="JetBrains Mono">β⁺/EC (Z→N)</text>
+          <line x1="500" y1="120" x2="480" y2="145" marker-end="url(#nzArr)"/>
+          <text x="500" y="115" fill="#e8a098" font-size="9" font-family="JetBrains Mono">α (-2N, -2Z)</text>
+        </g>
+        <defs>
+          <marker id="nzArr" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto">
+            <polygon points="0 0, 6 3, 0 6" fill="#9b7fc4"/>
+          </marker>
+        </defs>
+
+        <!-- Isotope markers (clickable) -->
+        <g id="isoDots"></g>
+
+        <!-- Decay path (drawn dynamically) -->
+        <g id="decayPath"></g>
+      </svg>
+    </div>
+
+    <div id="nzInfo" style="margin-top:14px;padding:14px;background:var(--lead-soft);border-radius:14px;border-left:3px solid var(--lead-deep);font-size:.85rem;color:var(--text);line-height:1.6">
+      <b style="color:var(--lead-deep)">Klicke ein Isotop oben ↑</b> um die Begründung für seine Instabilität und die Zerfallskette zu sehen.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i data-lucide="key"></i>Stabilitäts-Regeln</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:12px">
+      <div style="background:var(--bg-light);border-radius:12px;padding:14px;border-left:3px solid var(--lead-deep)">
+        <h3 style="margin-bottom:6px;font-size:.85rem">1 · N/Z-Verhältnis</h3>
+        <p style="font-size:.85rem;color:var(--text);margin:0;line-height:1.55">
+          Leichte Kerne (Z &lt; 20): <b>N ≈ Z</b> ist stabil (z.B. ¹²C, ¹⁶O).<br>
+          Schwere Kerne brauchen <b>mehr N als Z</b> (Verhältnis bis ~1,5), weil zusätzliche Neutronen die Coulomb-Abstoßung der Protonen abpuffern.
+        </p>
+      </div>
+      <div style="background:var(--bg-light);border-radius:12px;padding:14px;border-left:3px solid var(--lead-deep)">
+        <h3 style="margin-bottom:6px;font-size:.85rem">2 · Magische Zahlen</h3>
+        <p style="font-size:.85rem;color:var(--text);margin:0;line-height:1.55">
+          Kerne mit <b>2, 8, 20, 28, 50, 82, 126</b> Protonen oder Neutronen sind besonders stabil (geschlossene Schalen). Doppelmagisch: ⁴He, ¹⁶O, ⁴⁰Ca, ²⁰⁸Pb.
+        </p>
+      </div>
+      <div style="background:var(--bg-light);border-radius:12px;padding:14px;border-left:3px solid var(--lead-deep)">
+        <h3 style="margin-bottom:6px;font-size:.85rem">3 · Gerade/Ungerade-Regel</h3>
+        <p style="font-size:.85rem;color:var(--text);margin:0;line-height:1.55">
+          <b>g-g (gerade Z, gerade N) → sehr stabil</b> (≈165 stabile). g-u oder u-g → mittelstabil. <b>u-u → fast immer instabil</b> (nur 4 Ausnahmen: ²H, ⁶Li, ¹⁰B, ¹⁴N).
+        </p>
+      </div>
+      <div style="background:var(--bg-light);border-radius:12px;padding:14px;border-left:3px solid var(--lead-deep)">
+        <h3 style="margin-bottom:6px;font-size:.85rem">4 · Obergrenze</h3>
+        <p style="font-size:.85rem;color:var(--text);margin:0;line-height:1.55">
+          Ab <b>Z &gt; 83 (Bismut)</b> gibt es keine stabilen Kerne mehr. Diese sind alle Alpha-Strahler (oder spalten spontan), weil die Coulomb-Abstoßung die starke Wechselwirkung übersteigt.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><i data-lucide="git-branch"></i>Zerfallskette in Aktion</h2>
+    <p class="lead">So zerfällt ein instabiles Isotop schrittweise zu einem stabilen Endprodukt. Beispiel: <b>²³⁸U-Reihe</b>.</p>
+    <div style="background:radial-gradient(ellipse at center,#1f1830 0%,#0a0815 100%);border-radius:18px;padding:14px">
+      <svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%">
+        <defs>
+          <radialGradient id="cn1" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#fff"/><stop offset="40%" stop-color="#e07b8b"/><stop offset="100%" stop-color="#7a2535"/></radialGradient>
+          <radialGradient id="cn2" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#fff"/><stop offset="40%" stop-color="#9b7fc4"/><stop offset="100%" stop-color="#4a3068"/></radialGradient>
+          <radialGradient id="cn3" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#fff"/><stop offset="40%" stop-color="#6db8e0"/><stop offset="100%" stop-color="#1f3a5e"/></radialGradient>
+          <radialGradient id="cn4" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#fff"/><stop offset="40%" stop-color="#6db88a"/><stop offset="100%" stop-color="#1f5a35"/></radialGradient>
+        </defs>
+
+        <!-- Chain: U-238 → Th-234 → Pa-234 → ... → Pb-206 (stable) -->
+        <g font-family="JetBrains Mono">
+          <!-- Step 1: U-238 -->
+          <circle cx="80" cy="100" r="35" fill="url(#cn1)" stroke="#fff" stroke-width="1"><animate attributeName="r" values="32;36;32" dur="2s" repeatCount="indefinite"/></circle>
+          <text x="80" y="98" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">²³⁸U</text>
+          <text x="80" y="112" text-anchor="middle" font-size="8" fill="#fff" opacity="0.85">Z=92</text>
+          <text x="80" y="160" text-anchor="middle" font-size="9" fill="#aaa">4,5·10⁹ a</text>
+
+          <!-- α arrow -->
+          <line x1="115" y1="100" x2="195" y2="100" stroke="#e07b8b" stroke-width="2" marker-end="url(#chainArr)"/>
+          <text x="155" y="90" text-anchor="middle" font-size="10" font-weight="800" fill="#e07b8b">α</text>
+          <circle cx="0" cy="0" r="3" fill="#e07b8b"><animateMotion dur="2s" repeatCount="indefinite" path="M 115 100 L 195 100"/></circle>
+
+          <!-- Step 2: Th-234 -->
+          <circle cx="230" cy="100" r="33" fill="url(#cn2)" stroke="#fff" stroke-width="1"/>
+          <text x="230" y="98" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">²³⁴Th</text>
+          <text x="230" y="112" text-anchor="middle" font-size="8" fill="#fff" opacity="0.85">Z=90</text>
+          <text x="230" y="160" text-anchor="middle" font-size="9" fill="#aaa">24 d</text>
+
+          <!-- β arrow -->
+          <line x1="263" y1="100" x2="343" y2="100" stroke="#6db8e0" stroke-width="2" marker-end="url(#chainArr2)"/>
+          <text x="303" y="90" text-anchor="middle" font-size="10" font-weight="800" fill="#6db8e0">β⁻</text>
+          <circle cx="0" cy="0" r="3" fill="#6db8e0"><animateMotion dur="2s" begin="0.3s" repeatCount="indefinite" path="M 263 100 L 343 100"/></circle>
+
+          <!-- Step 3: Pa-234 -->
+          <circle cx="378" cy="100" r="33" fill="url(#cn3)" stroke="#fff" stroke-width="1"/>
+          <text x="378" y="98" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">²³⁴Pa</text>
+          <text x="378" y="112" text-anchor="middle" font-size="8" fill="#fff" opacity="0.85">Z=91</text>
+          <text x="378" y="160" text-anchor="middle" font-size="9" fill="#aaa">1,2 min</text>
+
+          <!-- ... arrow -->
+          <line x1="411" y1="100" x2="491" y2="100" stroke="#aaa" stroke-width="2" stroke-dasharray="6,4"/>
+          <text x="451" y="90" text-anchor="middle" font-size="10" font-weight="800" fill="#aaa">…14 Schritte</text>
+
+          <!-- Step end: Pb-206 stable -->
+          <circle cx="528" cy="100" r="35" fill="url(#cn4)" stroke="#6db88a" stroke-width="2"/>
+          <text x="528" y="98" text-anchor="middle" font-size="13" font-weight="900" fill="#fff">²⁰⁶Pb</text>
+          <text x="528" y="112" text-anchor="middle" font-size="8" fill="#fff" opacity="0.85">Z=82 ★</text>
+          <text x="528" y="160" text-anchor="middle" font-size="9" fill="#6db88a" font-weight="800">STABIL</text>
+
+          <!-- Stability badge -->
+          <g transform="translate(620 80)">
+            <rect x="0" y="0" width="140" height="60" rx="10" fill="rgba(109,184,138,0.15)" stroke="#6db88a" stroke-width="1.5"/>
+            <text x="70" y="20" text-anchor="middle" font-size="11" font-weight="800" fill="#6db88a">Magische Zahl</text>
+            <text x="70" y="38" text-anchor="middle" font-size="9" fill="#fff">Z = 82 (Pb)</text>
+            <text x="70" y="50" text-anchor="middle" font-size="9" fill="#fff">N = 124, gg-Kern</text>
+          </g>
+        </g>
+        <defs>
+          <marker id="chainArr" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#e07b8b"/></marker>
+          <marker id="chainArr2" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"><polygon points="0 0, 6 3, 0 6" fill="#6db8e0"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <div class="info-strip" style="margin-top:14px">
+      <i data-lucide="info"></i>
+      <p>Eine <b>Zerfallsreihe</b> ist eine Sequenz, die immer am gleichen stabilen Endisotop endet. Die ²³⁸U-Reihe endet bei ²⁰⁶Pb (8α + 6β⁻ Schritte). Die ²³⁵U-Reihe endet bei ²⁰⁷Pb. Die ²³²Th-Reihe endet bei ²⁰⁸Pb.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RECHNER -->
+<section class="section" id="rechner">
+  <div class="hero-strip">
+    <h2><i data-lucide="calculator"></i>Halbwertszeit-Rechner</h2>
+    <p>Wähle eine Formel, gib Werte ein und löse nach jeder Variable um.</p>
+  </div>
+
+  <div class="card">
+    <h3>Formelauswahl</h3>
+    <div class="calc-formula-grid" id="calcFormulaGrid"></div>
+  </div>
+
+  <div class="card">
+    <h3>Variablen <span style="font-weight:500;color:var(--text-secondary);text-transform:none;letter-spacing:0">— klicke „lösen nach" um Variable umzustellen</span></h3>
+    <div class="calc-var-grid" id="calcVarGrid"></div>
+    <div class="calc-result" id="calcResult"></div>
+  </div>
+</section>
+
+<!-- MATCH -->
+<section class="section" id="match">
+  <div class="hero-strip">
+    <h2><i data-lucide="shuffle"></i>Zerfalls-Zuordnung</h2>
+    <p>Verbinde die richtigen Begriffe miteinander.</p>
+  </div>
+  <div class="card">
+    <div class="match-mode-row">
+      <button class="match-mode-btn active" data-mode="iso"><i data-lucide="atom"></i>Isotop → Halbwertszeit</button>
+      <button class="match-mode-btn" data-mode="strahl"><i data-lucide="zap"></i>Strahlung → Eigenschaft</button>
+      <button class="match-mode-btn" data-mode="anw"><i data-lucide="stethoscope"></i>Isotop → Anwendung</button>
+    </div>
+    <div id="matchMsg" style="text-align:center;color:var(--text-secondary);font-size:.84rem;margin-bottom:10px"></div>
+    <div class="match-board" id="matchBoard"></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="section" id="quiz">
+  <div class="hero-strip">
+    <h2><i data-lucide="brain"></i>Halbwertszeit-Quiz</h2>
+    <p>12 Fragen zu Zerfall, Strahlung und Anwendungen.</p>
+  </div>
+  <div class="card">
+    <div class="q-progress"><span id="qNumLbl">Frage 1 / 12</span><span class="pct"><span id="qScore">0</span>/<span id="qTotal">12</span></span></div>
+    <div class="q-bar"><div class="fill" id="qFill" style="width:8.3%"></div></div>
+    <div id="qBody"></div>
+  </div>
+</section>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="isoModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalClose"><i data-lucide="x"></i></button>
+    <div class="modal-img" id="modalImg"></div>
+    <div class="modal-head">
+      <h3 id="modalTitle"></h3>
+      <span class="symbol" id="modalSymbol"></span>
+    </div>
+    <div class="modal-body">
+      <div class="steckbrief" id="modalSb"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== TABS ==========
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='rechner') ensureCalc();
+    if(t.dataset.tab==='match') buildMatch();
+    if(t.dataset.tab==='quiz') ensureQuiz();
+    if(t.dataset.tab==='stabil') ensureStabil();
+  });
+});
+
+// ========== ZERFALL-STUDIO ==========
+let currentT = 0;
+let playTimer = null;
+const ATOM_COUNT = 64; // grid 8x8
+let atomsState = []; // boolean array
+
+function buildAtomsGrid(){
+  const g = document.getElementById('atomsGroup');
+  g.innerHTML = '';
+  atomsState = [];
+  const cols = 8, rows = 8;
+  const sp = 22;
+  for(let i=0;i<rows;i++){
+    for(let j=0;j<cols;j++){
+      const idx = i*cols+j;
+      atomsState.push(true);
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', j*sp);
+      c.setAttribute('cy', i*sp);
+      c.setAttribute('r', 8);
+      c.setAttribute('fill', 'url(#atomGrad)');
+      c.setAttribute('id', 'atom-'+idx);
+      g.appendChild(c);
+    }
+  }
+}
+function drawDecayCurve(){
+  const T = parseFloat(document.getElementById('thalfSlider').value);
+  // Curve from t=0 to 4T, x in 0..720, y in 0..280 (inverted)
+  let d = '';
+  const W = 720, H = 280;
+  const tMax = 4*T;
+  for(let i=0;i<=200;i++){
+    const t = (i/200)*tMax;
+    const N = Math.pow(0.5, t/T);
+    const x = (t/tMax)*W;
+    const y = (1-N)*H;
+    d += (i===0?'M':' L')+x+','+y;
+  }
+  document.getElementById('decayCurve').setAttribute('d', d);
+}
+function updateDecayState(){
+  const T = parseFloat(document.getElementById('thalfSlider').value);
+  const N0 = parseInt(document.getElementById('n0Slider').value);
+  document.getElementById('thalfVal').textContent = T.toFixed(1);
+  document.getElementById('n0Val').textContent = N0;
+
+  const frac = Math.pow(0.5, currentT/T);
+  const N = Math.round(N0 * frac);
+  const decayed = N0 - N;
+  const lambda = Math.LN2 / T;
+  const A = lambda * N;
+
+  document.getElementById('tOut').textContent = currentT.toFixed(1);
+  document.getElementById('ntOut').textContent = N;
+  document.getElementById('decOut').textContent = decayed;
+  document.getElementById('aOut').textContent = A.toFixed(0);
+  document.getElementById('frcOut').textContent = (frac*100).toFixed(1);
+  document.getElementById('decayStatus').textContent = `t = ${currentT.toFixed(1)} a · N = ${N}`;
+
+  // Active point on curve
+  const tMax = 4*T;
+  const tClipped = Math.min(currentT, tMax);
+  const x = 40 + (tClipped/tMax)*720;
+  const y = 40 + (1-Math.pow(0.5, tClipped/T))*280;
+  document.getElementById('activePoint').setAttribute('cx', x);
+  document.getElementById('activePoint').setAttribute('cy', y);
+  document.getElementById('activePointInner').setAttribute('cx', x);
+  document.getElementById('activePointInner').setAttribute('cy', y);
+
+  // Update atoms grid (visual)
+  const targetActive = Math.round(ATOM_COUNT * frac);
+  let activeCount = atomsState.filter(s=>s).length;
+  // Adjust to target
+  if(activeCount > targetActive){
+    // Decay some
+    const indices = atomsState.map((s,i)=>s?i:-1).filter(i=>i>=0);
+    while(activeCount > targetActive && indices.length){
+      const k = indices.splice(Math.floor(Math.random()*indices.length),1)[0];
+      atomsState[k] = false;
+      const el = document.getElementById('atom-'+k);
+      if(el){
+        el.setAttribute('fill', 'url(#decayedGrad)');
+        el.setAttribute('opacity', 0.4);
+      }
+      activeCount--;
+    }
+  } else if(activeCount < targetActive){
+    // Reactivate (used on reset)
+    const indices = atomsState.map((s,i)=>!s?i:-1).filter(i=>i>=0);
+    while(activeCount < targetActive && indices.length){
+      const k = indices.splice(Math.floor(Math.random()*indices.length),1)[0];
+      atomsState[k] = true;
+      const el = document.getElementById('atom-'+k);
+      if(el){
+        el.setAttribute('fill', 'url(#atomGrad)');
+        el.setAttribute('opacity', 1);
+      }
+      activeCount++;
+    }
+  }
+}
+function resetDecay(){
+  currentT = 0;
+  buildAtomsGrid();
+  updateDecayState();
+}
+document.getElementById('thalfSlider').addEventListener('input', ()=>{drawDecayCurve();updateDecayState();});
+document.getElementById('n0Slider').addEventListener('input', updateDecayState);
+document.getElementById('playBtn').addEventListener('click', (e)=>{
+  if(playTimer){
+    clearInterval(playTimer); playTimer = null;
+    e.currentTarget.innerHTML = '<i data-lucide="play"></i>Zeit läuft';
+    if(window.lucide) lucide.createIcons();
+  } else {
+    e.currentTarget.innerHTML = '<i data-lucide="pause"></i>Pause';
+    if(window.lucide) lucide.createIcons();
+    playTimer = setInterval(()=>{
+      const T = parseFloat(document.getElementById('thalfSlider').value);
+      currentT += T*0.05;
+      if(currentT > T*8){currentT = T*8; clearInterval(playTimer); playTimer=null; document.getElementById('playBtn').innerHTML='<i data-lucide="play"></i>Zeit läuft'; if(window.lucide) lucide.createIcons();}
+      updateDecayState();
+    }, 100);
+  }
+});
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(playTimer){clearInterval(playTimer); playTimer=null; document.getElementById('playBtn').innerHTML='<i data-lucide="play"></i>Zeit läuft'; if(window.lucide) lucide.createIcons();}
+  resetDecay();
+});
+document.getElementById('stepBtn').addEventListener('click', ()=>{
+  const T = parseFloat(document.getElementById('thalfSlider').value);
+  currentT += T;
+  updateDecayState();
+});
+buildAtomsGrid();
+drawDecayCurve();
+updateDecayState();
+
+// ========== ISOTOPE ==========
+// Reusable plastic atom SVG with animated electrons & emission
+function atomSVG(opts){
+  const {label='', subLabel='', nucleusColor='#7a60a8', glowColor='#9b7fc4', emission='', extra=''} = opts;
+  return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="nuc-${opts.id}" cx="40%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#fff" stop-opacity="0.95"/>
+        <stop offset="20%" stop-color="${glowColor}"/>
+        <stop offset="60%" stop-color="${nucleusColor}"/>
+        <stop offset="100%" stop-color="#2a1a44"/>
+      </radialGradient>
+      <radialGradient id="halo-${opts.id}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${glowColor}" stop-opacity="0.5"/>
+        <stop offset="60%" stop-color="${glowColor}" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="${glowColor}" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="blur-${opts.id}"><feGaussianBlur stdDeviation="2"/></filter>
+      <filter id="shadow-${opts.id}" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.5"/>
+      </filter>
+    </defs>
+    <!-- Halo -->
+    <circle cx="100" cy="100" r="90" fill="url(#halo-${opts.id})">
+      <animate attributeName="r" values="85;92;85" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Electron orbits -->
+    <ellipse cx="100" cy="100" rx="80" ry="28" fill="none" stroke="${glowColor}" stroke-width="1" opacity="0.45" transform="rotate(20 100 100)"/>
+    <ellipse cx="100" cy="100" rx="80" ry="28" fill="none" stroke="${glowColor}" stroke-width="1" opacity="0.45" transform="rotate(-30 100 100)"/>
+    <ellipse cx="100" cy="100" rx="80" ry="28" fill="none" stroke="${glowColor}" stroke-width="1" opacity="0.45" transform="rotate(80 100 100)"/>
+    <!-- Animated electrons traveling on orbits -->
+    <g>
+      <circle r="3.5" fill="#fff" filter="url(#blur-${opts.id})">
+        <animateMotion dur="3s" repeatCount="indefinite" path="M 100 100 m -80 0 a 80 28 20 1 1 160 0 a 80 28 20 1 1 -160 0"/>
+      </circle>
+      <circle r="3" fill="${glowColor}">
+        <animateMotion dur="3s" repeatCount="indefinite" path="M 100 100 m -80 0 a 80 28 20 1 1 160 0 a 80 28 20 1 1 -160 0"/>
+      </circle>
+    </g>
+    <g>
+      <circle r="3" fill="${glowColor}">
+        <animateMotion dur="4s" repeatCount="indefinite" path="M 100 100 m -80 0 a 80 28 -30 1 0 160 0 a 80 28 -30 1 0 -160 0"/>
+      </circle>
+    </g>
+    <g>
+      <circle r="3" fill="${glowColor}">
+        <animateMotion dur="2.5s" repeatCount="indefinite" path="M 100 100 m -80 0 a 80 28 80 1 1 160 0 a 80 28 80 1 1 -160 0"/>
+      </circle>
+    </g>
+    <!-- Nucleus -->
+    <circle cx="100" cy="100" r="32" fill="url(#nuc-${opts.id})" filter="url(#shadow-${opts.id})">
+      <animate attributeName="r" values="30;33;30" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Nucleus highlight -->
+    <ellipse cx="92" cy="90" rx="10" ry="5" fill="#fff" opacity="0.5"/>
+    <text x="100" y="100" text-anchor="middle" font-family="JetBrains Mono" font-size="14" font-weight="900" fill="#fff">${label}</text>
+    <text x="100" y="116" text-anchor="middle" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="#fff" opacity="0.85">${subLabel}</text>
+    ${emission}
+    ${extra}
+  </svg>`;
+}
+
+const ISOTOPE = [
+  {
+    id:'c14', name:'Kohlenstoff-14', symbol:'¹⁴C',
+    thalf:'5730 a', strahl:'β⁻',
+    aufbau:'6 Protonen, 8 Neutronen. Entsteht in der Atmosphäre durch kosmische Strahlung auf ¹⁴N.',
+    funktion:'Wird ständig nachgebildet, in Pflanzen über CO₂ eingebaut, in Tiere über Nahrung. Stoppt nach Tod → C-14 nimmt ab.',
+    klinik:'<b>Radiokarbonmethode</b> für Altersbestimmung von Knochen, Holz, organischem Material bis ~50.000 Jahre.',
+    medat:'Klassische β⁻-Quelle, lange Halbwertszeit, kosmogenes Isotop. T = 5730 a merken!',
+    svg:atomSVG({id:'c14',label:'¹⁴C',subLabel:'β⁻',nucleusColor:'#5e88b5',glowColor:'#7da4d4',emission:`
+      <g>
+        <circle cx="100" cy="100" r="4" fill="#6db8e0">
+          <animateMotion dur="2.5s" repeatCount="indefinite" path="M 0 0 L 80 -50"/>
+          <animate attributeName="opacity" values="0;1;1;0" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        <text x="180" y="50" font-family="JetBrains Mono" font-size="11" font-weight="800" fill="#6db8e0">e⁻</text>
+      </g>`})
+  },
+  {
+    id:'i131', name:'Iod-131', symbol:'¹³¹I',
+    thalf:'8 d', strahl:'β⁻ + γ',
+    aufbau:'53 Protonen, 78 Neutronen. Spaltprodukt aus Uran-235.',
+    funktion:'Wird in Schilddrüse aufgenommen wie normales Iod (sammelt sich in Thyreozyten).',
+    klinik:'<b>Radioiodtherapie</b> bei Schilddrüsenkarzinom & Hyperthyreose. Auch in Tschernobyl-Wolke - Kaliumiodid-Tabletten zur Blockade!',
+    medat:'<b>Klassische Anwendung:</b> Schilddrüse. Kombiniert β (Therapie) + γ (Diagnostik).',
+    svg:atomSVG({id:'i131',label:'¹³¹I',subLabel:'β⁻γ',nucleusColor:'#7a60a8',glowColor:'#9b7fc4',emission:`
+      <g>
+        <circle cx="100" cy="100" r="3.5" fill="#6db8e0">
+          <animateMotion dur="2s" repeatCount="indefinite" path="M 0 0 L -75 50"/>
+          <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <path d="M 100 100 Q 130 80 160 100 T 195 90" stroke="#f5c542" stroke-width="2.5" fill="none" opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        </path>
+      </g>`})
+  },
+  {
+    id:'tc99m', name:'Technetium-99m', symbol:'⁹⁹ᵐTc',
+    thalf:'6 h', strahl:'γ',
+    aufbau:'43 Protonen, 56 Neutronen, im metastabilen angeregten Zustand (m).',
+    funktion:'Reiner γ-Emitter mit 140 keV - ideale Energie für Gamma-Kameras. Kurze HWZ → schnell weg.',
+    klinik:'<b>Wichtigster Diagnostik-Tracer</b> der Nuklearmedizin: Skelettszintigraphie, Schilddrüse, Herz (MIBI), Niere etc.',
+    medat:'⁹⁹ᵐTc = Goldstandard SPECT/Szintigraphie. T = 6h merken (kurz!).',
+    svg:atomSVG({id:'tc99m',label:'⁹⁹ᵐTc',subLabel:'γ 140 keV',nucleusColor:'#e6a817',glowColor:'#f5c542',emission:`
+      <g stroke="#f5c542" stroke-width="2.5" fill="none">
+        <path d="M 132 100 Q 145 95 158 100 T 184 100" opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 68 100 Q 55 105 42 100 T 16 100" opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0.3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 100 68 Q 95 55 100 42 T 100 16" opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0.6s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 100 132 Q 105 145 100 158 T 100 184" opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" begin="0.9s" repeatCount="indefinite"/>
+        </path>
+      </g>`})
+  },
+  {
+    id:'u235', name:'Uran-235', symbol:'²³⁵U',
+    thalf:'703 Mio a', strahl:'α',
+    aufbau:'92 Protonen, 143 Neutronen. Natürlich vorkommendes Isotop, ~0,7% des natürlichen Urans.',
+    funktion:'Spaltbar mit thermischen Neutronen → Kettenreaktion. Auch α-Zerfall zu Th-231.',
+    klinik:'Kein medizinischer Einsatz. Reaktorbrennstoff, Atomwaffen.',
+    medat:'Längste typische HWZ-Beispielgröße. α-Strahler, schwerer Kern. <b>T = 7·10⁸ a</b>.',
+    svg:atomSVG({id:'u235',label:'²³⁵U',subLabel:'α',nucleusColor:'#c25a35',glowColor:'#e07a55',emission:`
+      <g>
+        <g>
+          <circle cx="0" cy="0" r="6" fill="#e07b8b" stroke="#fff" stroke-width="1">
+            <animateMotion dur="3s" repeatCount="indefinite" path="M 100 100 L 175 30"/>
+            <animate attributeName="opacity" values="0;1;1;0" dur="3s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="-3" cy="-3" r="2" fill="#fff" opacity="0.6">
+            <animateMotion dur="3s" repeatCount="indefinite" path="M 100 100 L 175 30"/>
+          </circle>
+        </g>
+        <text x="180" y="25" font-family="JetBrains Mono" font-size="12" font-weight="800" fill="#e07b8b">α</text>
+      </g>`})
+  },
+  {
+    id:'co60', name:'Cobalt-60', symbol:'⁶⁰Co',
+    thalf:'5,3 a', strahl:'β⁻ + γ',
+    aufbau:'27 Protonen, 33 Neutronen. Künstlich durch Neutroneneinfang aus Co-59.',
+    funktion:'β⁻ → ⁶⁰Ni* → angeregter Kern emittiert sehr energiereiche γ-Photonen (1,17 + 1,33 MeV).',
+    klinik:'<b>Strahlentherapie</b> (Telekobalt-Geräte, früher Standard, heute v.a. durch Linearbeschleuniger ersetzt). Auch Sterilisation.',
+    medat:'Klassischer γ-Strahler in Therapie. T = 5,3 a.',
+    svg:atomSVG({id:'co60',label:'⁶⁰Co',subLabel:'β⁻γ 1.3 MeV',nucleusColor:'#2d6a8e',glowColor:'#6db8e0',emission:`
+      <g stroke="#f5c542" stroke-width="2.5" fill="none">
+        <path d="M 130 80 Q 150 70 165 85 T 190 70" opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="1.2s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 130 120 Q 150 130 165 115 T 190 130" opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="1.2s" begin="0.6s" repeatCount="indefinite"/>
+        </path>
+      </g>
+      <circle cx="0" cy="0" r="3.5" fill="#6db8e0">
+        <animateMotion dur="2s" repeatCount="indefinite" path="M 100 100 L 30 160"/>
+        <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite"/>
+      </circle>`})
+  },
+  {
+    id:'f18', name:'Fluor-18', symbol:'¹⁸F',
+    thalf:'110 min', strahl:'β⁺',
+    aufbau:'9 Protonen, 9 Neutronen. Künstlich im Zyklotron erzeugt.',
+    funktion:'Sendet Positronen aus → Annihilation mit Elektron → 2 γ-Photonen mit 511 keV in entgegengesetzte Richtung → PET-Detektor.',
+    klinik:'<b>FDG-PET</b> (Fluordesoxyglucose) - Tumordiagnostik, Hirnstoffwechsel, Herz. Kurze HWZ → vor Ort herstellen.',
+    medat:'<b>Klassiker:</b> β⁺-Strahler für PET, T ≈ 110 min.',
+    svg:atomSVG({id:'f18',label:'¹⁸F',subLabel:'β⁺ → 2γ',nucleusColor:'#4a9a6a',glowColor:'#6db88a',emission:`
+      <g>
+        <line x1="100" y1="100" x2="20" y2="20" stroke="#f5c542" stroke-width="3" opacity="0">
+          <animate attributeName="opacity" values="0;1;0.6;0" dur="2s" repeatCount="indefinite"/>
+        </line>
+        <line x1="100" y1="100" x2="180" y2="180" stroke="#f5c542" stroke-width="3" opacity="0">
+          <animate attributeName="opacity" values="0;1;0.6;0" dur="2s" repeatCount="indefinite"/>
+        </line>
+        <circle cx="20" cy="20" r="5" fill="#f5c542" opacity="0">
+          <animate attributeName="opacity" values="0;0;1;0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="180" cy="180" r="5" fill="#f5c542" opacity="0">
+          <animate attributeName="opacity" values="0;0;1;0" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <text x="25" y="40" font-family="JetBrains Mono" font-size="10" font-weight="800" fill="#f5c542">511 keV γ</text>
+        <text x="120" y="180" font-family="JetBrains Mono" font-size="10" font-weight="800" fill="#f5c542">511 keV γ</text>
+      </g>`})
+  }
+];
+
+function buildIsoGrid(){
+  const grid = document.getElementById('isoGrid');
+  grid.innerHTML = '';
+  ISOTOPE.forEach(iso=>{
+    const card = document.createElement('div');
+    card.className = 'iso-card';
+    card.innerHTML = `<div class="iso-img">${iso.svg}</div><div class="iso-info"><h4>${iso.name}</h4><span class="symbol">${iso.symbol}</span><div class="t-half">T = ${iso.thalf} · ${iso.strahl}</div></div>`;
+    card.addEventListener('click', ()=>openIsoModal(iso));
+    grid.appendChild(card);
+  });
+}
+buildIsoGrid();
+
+// ========== STABILITÄT (Nuklidkarte) ==========
+const STABIL_DATA = [
+  {id:'c14',  name:'¹⁴C',   Z:6,  N:8,   color:'#6db8e0', daughter:{name:'¹⁴N',Z:7,N:7,stable:true},
+   why:'<b>Instabil weil:</b> 6 Protonen, 8 Neutronen → N/Z = 1,33. Stabiles ¹²C hat N=Z=6. Das überzählige Neutron wandelt sich in ein Proton um (β⁻-Zerfall).',
+   chain:'¹⁴C → ¹⁴N + e⁻ + ν̄  → <b>¹⁴N stabil</b> (N=Z=7, beide ungerade aber Ausnahme)'},
+  {id:'i131', name:'¹³¹I',  Z:53, N:78,  color:'#9b7fc4', daughter:{name:'¹³¹Xe',Z:54,N:77,stable:true},
+   why:'<b>Instabil weil:</b> Neutronenüberschuss (N/Z = 1,47) - mehr als das stabile ¹²⁷I (N/Z=1,40). Ein Neutron wandelt sich in ein Proton um.',
+   chain:'¹³¹I → ¹³¹Xe + e⁻ + ν̄ + γ  → <b>¹³¹Xe stabil</b> (Edelgas)'},
+  {id:'tc99m',name:'⁹⁹ᵐTc', Z:43, N:56,  color:'#f5c542', daughter:{name:'⁹⁹Tc',Z:43,N:56,stable:false,note:'metastabil → ⁹⁹Tc (T=2·10⁵ a)'},
+   why:'<b>Instabil weil:</b> Angeregter Zustand des Kerns (m = metastabil). Der Kern hat überschüssige Energie, die er als γ-Photon abgibt. Z+N bleiben gleich!',
+   chain:'⁹⁹ᵐTc → ⁹⁹Tc + γ (140 keV)  → ⁹⁹Tc → ⁹⁹Ru (β⁻, sehr langsam)'},
+  {id:'u235', name:'²³⁵U',  Z:92, N:143, color:'#e07b8b', daughter:{name:'²³¹Th',Z:90,N:141,stable:false,note:'weiter zerfallend'},
+   why:'<b>Instabil weil:</b> Z &gt; 83. Bei so vielen Protonen ist die Coulomb-Abstoßung größer als die starke Wechselwirkung. Der Kern emittiert α-Teilchen (⁴He) um Z und N zu reduzieren.',
+   chain:'²³⁵U → ²³¹Th + α  → ²²⁷Ra → … (insgesamt 7α + 4β⁻) → <b>²⁰⁷Pb stabil</b>'},
+  {id:'co60', name:'⁶⁰Co',  Z:27, N:33,  color:'#7da4d4', daughter:{name:'⁶⁰Ni',Z:28,N:32,stable:true},
+   why:'<b>Instabil weil:</b> u-u-Kern (Z=27 ungerade, N=33 ungerade) → fast immer instabil. Außerdem Neutronenüberschuss. Wandelt n→p um.',
+   chain:'⁶⁰Co → ⁶⁰Ni* + e⁻ + ν̄  → ⁶⁰Ni + 2γ (1,17 + 1,33 MeV)  → <b>⁶⁰Ni stabil</b> (g-g)'},
+  {id:'f18',  name:'¹⁸F',   Z:9,  N:9,   color:'#6db88a', daughter:{name:'¹⁸O',Z:8,N:10,stable:true},
+   why:'<b>Instabil weil:</b> 9 Protonen sind <i>zu viele</i> (Protonenüberschuss). Stabiles ¹⁹F hat 9p+10n. Ein Proton wandelt sich in ein Neutron um (β⁺-Zerfall).',
+   chain:'¹⁸F → ¹⁸O + e⁺ + ν  → e⁺ trifft e⁻ → <b>2 γ (511 keV)</b> ← PET!'}
+];
+
+function nzCoord(Z,N){
+  // Map Z to x (60..760), N to y (430..40)
+  const x = 60 + Z * 7.1;
+  const y = 430 - N * 2.6;
+  return {x:Math.max(60,Math.min(770,x)), y:Math.max(40,Math.min(430,y))};
+}
+
+let stabilInited = false;
+function ensureStabil(){
+  if(stabilInited) return;
+  const dotsG = document.getElementById('isoDots');
+  dotsG.innerHTML = '';
+  STABIL_DATA.forEach(iso=>{
+    const p = nzCoord(iso.Z, iso.N);
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('style','cursor:pointer');
+    g.setAttribute('data-id', iso.id);
+    g.innerHTML = `
+      <circle cx="${p.x}" cy="${p.y}" r="14" fill="${iso.color}" opacity="0.25">
+        <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="${p.x}" cy="${p.y}" r="7" fill="${iso.color}" stroke="#fff" stroke-width="1.5"/>
+      <text x="${p.x}" y="${p.y - 18}" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="JetBrains Mono">${iso.name}</text>
+    `;
+    g.addEventListener('click', ()=>showDecayPath(iso));
+    dotsG.appendChild(g);
+  });
+  stabilInited = true;
+}
+
+function showDecayPath(iso){
+  const pathG = document.getElementById('decayPath');
+  const start = nzCoord(iso.Z, iso.N);
+  const end = nzCoord(iso.daughter.Z, iso.daughter.N);
+  pathG.innerHTML = `
+    <line x1="${start.x}" y1="${start.y}" x2="${end.x}" y2="${end.y}" stroke="${iso.color}" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#nzArr)"/>
+    <circle cx="${end.x}" cy="${end.y}" r="9" fill="${iso.daughter.stable?'#6db88a':'#aaa'}" stroke="#fff" stroke-width="2">
+      <animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <text x="${end.x}" y="${end.y + 18}" text-anchor="middle" font-size="10" font-weight="800" fill="${iso.daughter.stable?'#6db88a':'#aaa'}" font-family="JetBrains Mono">${iso.daughter.name}${iso.daughter.stable?' ★':''}</text>
+    <circle r="4" fill="${iso.color}">
+      <animateMotion dur="2s" repeatCount="indefinite" path="M ${start.x} ${start.y} L ${end.x} ${end.y}"/>
+    </circle>
+  `;
+  document.getElementById('nzInfo').innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
+      <div style="width:40px;height:40px;border-radius:50%;background:${iso.color};display:flex;align-items:center;justify-content:center;color:#fff;font-family:JetBrains Mono;font-weight:800;font-size:.85rem;flex-shrink:0">${iso.name}</div>
+      <div style="flex:1"><b style="color:var(--lead-deep);font-size:.95rem">${iso.name} → ${iso.daughter.name}</b><br><span style="font-size:.78rem;color:var(--text-secondary)">Z=${iso.Z}, N=${iso.N} → Z=${iso.daughter.Z}, N=${iso.daughter.N}${iso.daughter.stable?' (stabil ★)':' (weiter instabil)'}</span></div>
+    </div>
+    <p style="margin:0 0 8px 0">${iso.why}</p>
+    <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:.78rem;background:#fff;padding:8px 10px;border-radius:8px;border:1px solid var(--border-light)">${iso.chain}</p>
+  `;
+}
+function openIsoModal(iso){
+  document.getElementById('modalTitle').textContent = iso.name;
+  document.getElementById('modalSymbol').textContent = `${iso.symbol} · T = ${iso.thalf} · ${iso.strahl}`;
+  document.getElementById('modalImg').innerHTML = iso.svg;
+  document.getElementById('modalSb').innerHTML = `
+    <div class="sb-section"><h4><i data-lucide="layers"></i>Aufbau</h4><p>${iso.aufbau}</p></div>
+    <div class="sb-section"><h4><i data-lucide="zap"></i>Funktion / Zerfall</h4><p>${iso.funktion}</p></div>
+    <div class="sb-section klinik"><h4><i data-lucide="stethoscope"></i>Klinik / Anwendung</h4><p>${iso.klinik}</p></div>
+    <div class="sb-section medat"><h4><i data-lucide="award"></i>MedAT-Bezug</h4><p>${iso.medat}</p></div>`;
+  document.getElementById('isoModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+document.getElementById('modalClose').addEventListener('click',()=>document.getElementById('isoModal').classList.remove('show'));
+document.getElementById('isoModal').addEventListener('click',(e)=>{if(e.target.id==='isoModal') e.target.classList.remove('show')});
+
+// ========== RECHNER ==========
+const CALC_FORMULAS = [
+  {
+    id:'nt', name:'Zerfallsgesetz',
+    latex:'N(t) = N_0 \\cdot \\left(\\tfrac{1}{2}\\right)^{t/T}',
+    vars:[
+      {k:'N',label:'N(t)',unit:'',def:500},
+      {k:'N0',label:'N_0',unit:'',def:1000},
+      {k:'t',label:'t',unit:'a',def:5},
+      {k:'T',label:'T',unit:'a',def:5}
+    ],
+    solve:{
+      N:(v)=>({val:v.N0*Math.pow(0.5,v.t/v.T), latex:`N = N_0 \\cdot (0{,}5)^{t/T} = ${v.N0} \\cdot (0{,}5)^{${v.t}/${v.T}}`}),
+      N0:(v)=>({val:v.N/Math.pow(0.5,v.t/v.T), latex:`N_0 = \\frac{N}{(0{,}5)^{t/T}} = \\frac{${v.N}}{(0{,}5)^{${v.t}/${v.T}}}`}),
+      t:(v)=>({val:v.T*Math.log(v.N/v.N0)/Math.log(0.5), latex:`t = T \\cdot \\frac{\\ln(N/N_0)}{\\ln(0{,}5)} = ${v.T} \\cdot \\frac{\\ln(${v.N}/${v.N0})}{\\ln 0{,}5}`}),
+      T:(v)=>({val:v.t*Math.log(0.5)/Math.log(v.N/v.N0), latex:`T = t \\cdot \\frac{\\ln(0{,}5)}{\\ln(N/N_0)} = ${v.t} \\cdot \\frac{\\ln 0{,}5}{\\ln(${v.N}/${v.N0})}`})
+    }
+  },
+  {
+    id:'lambda', name:'Zerfallskonstante',
+    latex:'\\lambda = \\frac{\\ln 2}{T}',
+    vars:[{k:'lambda',label:'\\lambda',unit:'1/s',def:0.1386},{k:'T',label:'T',unit:'s',def:5}],
+    solve:{
+      lambda:(v)=>({val:Math.LN2/v.T, latex:`\\lambda = \\frac{\\ln 2}{T} = \\frac{0{,}693}{${v.T}}`}),
+      T:(v)=>({val:Math.LN2/v.lambda, latex:`T = \\frac{\\ln 2}{\\lambda} = \\frac{0{,}693}{${v.lambda}}`})
+    }
+  },
+  {
+    id:'aktiv', name:'Aktivität',
+    latex:'A = \\lambda \\cdot N',
+    vars:[{k:'A',label:'A',unit:'Bq',def:138.6},{k:'lambda',label:'\\lambda',unit:'1/s',def:0.1386},{k:'N',label:'N',unit:'',def:1000}],
+    solve:{
+      A:(v)=>({val:v.lambda*v.N, latex:`A = \\lambda \\cdot N = ${v.lambda} \\cdot ${v.N}`}),
+      lambda:(v)=>({val:v.A/v.N, latex:`\\lambda = \\frac{A}{N} = \\frac{${v.A}}{${v.N}}`}),
+      N:(v)=>({val:v.A/v.lambda, latex:`N = \\frac{A}{\\lambda} = \\frac{${v.A}}{${v.lambda}}`})
+    }
+  },
+  {
+    id:'expdecay', name:'Exp.-Form',
+    latex:'N(t) = N_0 \\cdot e^{-\\lambda t}',
+    vars:[
+      {k:'N',label:'N(t)',unit:'',def:500},
+      {k:'N0',label:'N_0',unit:'',def:1000},
+      {k:'lambda',label:'\\lambda',unit:'1/a',def:0.1386},
+      {k:'t',label:'t',unit:'a',def:5}
+    ],
+    solve:{
+      N:(v)=>({val:v.N0*Math.exp(-v.lambda*v.t), latex:`N = N_0 e^{-\\lambda t} = ${v.N0} e^{-${v.lambda} \\cdot ${v.t}}`}),
+      N0:(v)=>({val:v.N/Math.exp(-v.lambda*v.t), latex:`N_0 = \\frac{N}{e^{-\\lambda t}} = \\frac{${v.N}}{e^{-${v.lambda} \\cdot ${v.t}}}`}),
+      lambda:(v)=>({val:-Math.log(v.N/v.N0)/v.t, latex:`\\lambda = -\\frac{\\ln(N/N_0)}{t} = -\\frac{\\ln(${v.N}/${v.N0})}{${v.t}}`}),
+      t:(v)=>({val:-Math.log(v.N/v.N0)/v.lambda, latex:`t = -\\frac{\\ln(N/N_0)}{\\lambda} = -\\frac{\\ln(${v.N}/${v.N0})}{${v.lambda}}`})
+    }
+  },
+  {
+    id:'frac', name:'Anteil nach n·T',
+    latex:'\\frac{N}{N_0} = \\left(\\tfrac{1}{2}\\right)^n',
+    vars:[{k:'frac',label:'N/N_0',unit:'',def:0.25},{k:'n',label:'n',unit:'',def:2}],
+    solve:{
+      frac:(v)=>({val:Math.pow(0.5,v.n), latex:`\\frac{N}{N_0} = (0{,}5)^n = (0{,}5)^{${v.n}}`}),
+      n:(v)=>({val:Math.log(v.frac)/Math.log(0.5), latex:`n = \\frac{\\ln(N/N_0)}{\\ln 0{,}5} = \\frac{\\ln ${v.frac}}{\\ln 0{,}5}`})
+    }
+  }
+];
+
+let calcInited = false;
+let activeFormula = CALC_FORMULAS[0];
+let activeSolveVar = null;
+let calcVals = {};
+
+function ensureCalc(){
+  if(calcInited) return;
+  buildFormulaGrid();
+  selectFormula(CALC_FORMULAS[0]);
+  calcInited = true;
+}
+function buildFormulaGrid(){
+  const grid = document.getElementById('calcFormulaGrid');
+  grid.innerHTML = '';
+  CALC_FORMULAS.forEach(f=>{
+    const c = document.createElement('div');
+    c.className = 'calc-formula-card';
+    c.innerHTML = `<div class="nm">${f.name}</div><div class="ltx" id="ltx-${f.id}"></div>`;
+    c.addEventListener('click', ()=>selectFormula(f));
+    grid.appendChild(c);
+    if(window.katex) katex.render(f.latex, c.querySelector('.ltx'), {throwOnError:false});
+  });
+}
+function selectFormula(f){
+  activeFormula = f;
+  activeSolveVar = f.vars[0].k;
+  calcVals = {};
+  f.vars.forEach(v=>calcVals[v.k]=v.def);
+  document.querySelectorAll('.calc-formula-card').forEach((c,i)=>c.classList.toggle('active', CALC_FORMULAS[i].id===f.id));
+  buildVarGrid();
+  updateCalc();
+}
+function buildVarGrid(){
+  const grid = document.getElementById('calcVarGrid');
+  grid.innerHTML = '';
+  activeFormula.vars.forEach(v=>{
+    const row = document.createElement('div');
+    row.className = 'calc-var-row';
+    const isSolve = v.k===activeSolveVar;
+    row.innerHTML = `
+      <div class="var-head">
+        <label id="varLbl-${v.k}"></label>
+        <span class="unit">${v.unit||''}</span>
+        <button class="solve-btn ${isSolve?'solving':''}" data-var="${v.k}">${isSolve?'lösen':'lösen nach'}</button>
+      </div>
+      <input type="number" step="any" data-var="${v.k}" value="${calcVals[v.k]}" ${isSolve?'disabled':''}>
+    `;
+    grid.appendChild(row);
+    if(window.katex) katex.render(v.label, row.querySelector(`#varLbl-${v.k}`), {throwOnError:false});
+  });
+  grid.querySelectorAll('.solve-btn').forEach(b=>b.addEventListener('click',(e)=>{activeSolveVar=e.currentTarget.dataset.var;buildVarGrid();updateCalc();}));
+  grid.querySelectorAll('input').forEach(i=>i.addEventListener('input',(e)=>{calcVals[e.target.dataset.var]=parseFloat(e.target.value)||0;updateCalc();}));
+}
+function updateCalc(){
+  const result = activeFormula.solve[activeSolveVar](calcVals);
+  if(isFinite(result.val)){
+    const inputEl = document.querySelector(`input[data-var="${activeSolveVar}"]`);
+    if(inputEl) inputEl.value = result.val.toFixed(4);
+    calcVals[activeSolveVar] = result.val;
+  }
+  const r = document.getElementById('calcResult');
+  const unit = activeFormula.vars.find(v=>v.k===activeSolveVar).unit;
+  r.innerHTML = `
+    <h4><i data-lucide="check-circle"></i>Lösung</h4>
+    <div class="step"><span class="label">Ausgangsformel</span><div class="ltx" id="rs-1"></div></div>
+    <div class="step"><span class="label">Umgestellt nach ${activeSolveVar}</span><div class="ltx" id="rs-2"></div></div>
+    <div class="final"><div class="lbl">Ergebnis</div><div class="val">${isFinite(result.val)?result.val.toFixed(4):'—'} ${unit}</div></div>
+  `;
+  if(window.katex){
+    katex.render(activeFormula.latex, document.getElementById('rs-1'), {throwOnError:false});
+    katex.render(result.latex+` = ${isFinite(result.val)?result.val.toFixed(4):'?'}`, document.getElementById('rs-2'), {throwOnError:false});
+  }
+  if(window.lucide) lucide.createIcons();
+}
+
+// ========== MATCH ==========
+const MATCH_DATA = {
+  iso:{
+    title:'Isotop → Halbwertszeit',
+    pairs:[
+      ['¹⁴C','5730 a'],['¹³¹I','8 Tage'],['⁹⁹ᵐTc','6 Stunden'],
+      ['²³⁵U','7·10⁸ a'],['⁶⁰Co','5,3 a'],['¹⁸F','110 min']
+    ]
+  },
+  strahl:{
+    title:'Strahlung → Eigenschaft',
+    pairs:[
+      ['α-Strahlung','Stoppt am Papier'],
+      ['β-Strahlung','Stoppt an Aluminium'],
+      ['γ-Strahlung','Braucht Bleimantel'],
+      ['β⁺ → 2γ','PET-Diagnostik'],
+      ['Neutronen','Mit Wasser/Beton bremsen'],
+      ['Z+1, A=0','β⁻-Zerfall']
+    ]
+  },
+  anw:{
+    title:'Isotop → Anwendung',
+    pairs:[
+      ['¹⁸F','PET-Tumordiagnostik'],
+      ['⁹⁹ᵐTc','Skelettszintigraphie'],
+      ['¹³¹I','Schilddrüsentherapie'],
+      ['⁶⁰Co','Strahlentherapie'],
+      ['¹⁴C','C14-Datierung'],
+      ['²²⁶Ra','(historisch) Brachytherapie']
+    ]
+  }
+};
+let activeMatchMode = 'iso';
+function buildMatch(){
+  document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===activeMatchMode));
+  const data = MATCH_DATA[activeMatchMode];
+  const board = document.getElementById('matchBoard');
+  document.getElementById('matchMsg').textContent = `Klick erst links, dann rechts den passenden Begriff`;
+
+  const lefts = data.pairs.map((p,i)=>({label:p[0], idx:i}));
+  const rights = data.pairs.map((p,i)=>({label:p[1], idx:i}));
+  rights.sort(()=>Math.random()-0.5);
+  lefts.sort(()=>Math.random()-0.5);
+
+  board.innerHTML = `
+    <div class="match-col"><div class="match-col-title">A</div>${lefts.map(l=>`<button class="match-item" data-side="L" data-idx="${l.idx}">${l.label}</button>`).join('')}</div>
+    <div class="match-col"><div class="match-col-title">B</div>${rights.map(r=>`<button class="match-item" data-side="R" data-idx="${r.idx}">${r.label}</button>`).join('')}</div>
+  `;
+  let selectedL = null, selectedR = null;
+  board.querySelectorAll('.match-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      if(el.classList.contains('matched')) return;
+      if(el.dataset.side==='L'){
+        if(selectedL) selectedL.classList.remove('selected');
+        selectedL = el; el.classList.add('selected');
+      } else {
+        if(selectedR) selectedR.classList.remove('selected');
+        selectedR = el; el.classList.add('selected');
+      }
+      if(selectedL && selectedR){
+        if(selectedL.dataset.idx === selectedR.dataset.idx){
+          selectedL.classList.add('matched'); selectedL.classList.remove('selected');
+          selectedR.classList.add('matched'); selectedR.classList.remove('selected');
+          selectedL = null; selectedR = null;
+          if(board.querySelectorAll('.matched').length === data.pairs.length*2){
+            document.getElementById('matchMsg').innerHTML = '<b style="color:var(--success)">✓ Alle Paare gefunden!</b>';
+          }
+        } else {
+          selectedL.classList.add('error'); selectedR.classList.add('error');
+          const sL=selectedL, sR=selectedR;
+          setTimeout(()=>{sL.classList.remove('error','selected');sR.classList.remove('error','selected');},500);
+          selectedL = null; selectedR = null;
+        }
+      }
+    });
+  });
+}
+document.querySelectorAll('.match-mode-btn').forEach(b=>b.addEventListener('click',()=>{activeMatchMode=b.dataset.mode;buildMatch();}));
+
+// ========== QUIZ ==========
+const QUIZ = [
+  {q:'Nach 3 Halbwertszeiten ist welcher Anteil der Atome noch übrig?',a:['1/2','1/4','1/8','1/16'],c:2,e:'Nach n Halbwertszeiten: (½)ⁿ. Nach 3·T also (½)³ = 1/8 = 12,5%.'},
+  {q:'Welche Strahlung wird durch ein Blatt Papier gestoppt?',a:['α','β','γ','Neutronen'],c:0,e:'α-Strahlung (Helium-Kerne) hat sehr hohe Masse und Ladung → wird durch Papier oder die Hornhaut der Haut komplett gestoppt.'},
+  {q:'Wie ist die Zerfallskonstante λ definiert?',a:['ln(2)·T','T/ln(2)','ln(2)/T','1/T'],c:2,e:'λ = ln(2)/T ≈ 0,693/T. Je kürzer die Halbwertszeit, desto größer λ.'},
+  {q:'¹⁸F (Fluor-18) wird genutzt für …',a:['CT','MRT','PET','Ultraschall'],c:2,e:'F-18 ist β⁺-Strahler. Die Annihilation des Positrons mit einem Elektron erzeugt zwei 511-keV-γ-Photonen → Grundlage der PET-Bildgebung.'},
+  {q:'Bei einem β⁻-Zerfall ändert sich die Ordnungszahl Z um:',a:['−2','−1','0','+1'],c:3,e:'β⁻: Neutron → Proton + Elektron + Antineutrino. Z steigt um 1, A bleibt gleich.'},
+  {q:'Was ist die SI-Einheit der Aktivität?',a:['Sievert','Becquerel','Gray','Roentgen'],c:1,e:'Becquerel (Bq) = 1 Zerfall pro Sekunde. Gray (Gy) ist die Energiedosis, Sievert (Sv) die Äquivalentdosis (mit Wichtungsfaktoren).'},
+  {q:'⁹⁹ᵐTc hat eine Halbwertszeit von etwa …',a:['6 Sekunden','6 Minuten','6 Stunden','6 Tagen'],c:2,e:'T(⁹⁹ᵐTc) ≈ 6 h - lang genug für die Untersuchung, kurz genug damit der Patient bald wieder strahlungsfrei ist.'},
+  {q:'Welche Aussage zur γ-Strahlung ist FALSCH?',a:['Hat keine Ladung','Ist elektromagnetische Welle','Verändert die Ordnungszahl','Braucht Bleimantel'],c:2,e:'γ-Strahlung verändert WEDER A noch Z - es ist nur die Abregung eines bereits vorhandenen Kerns. Sehr durchdringend.'},
+  {q:'Bei einem α-Zerfall ändert sich die Massenzahl A um:',a:['−4','−2','0','+1'],c:0,e:'α = ⁴He²⁺ → der Tochterkern verliert 4 Nukleonen (2p + 2n). Z sinkt um 2.'},
+  {q:'Nach 10 Halbwertszeiten ist noch etwa wieviel Prozent übrig?',a:['10%','5%','1%','0,1%'],c:3,e:'(½)¹⁰ = 1/1024 ≈ 0,098% ≈ 0,1%. Daumenregel: nach 10·T sind Strahler praktisch weg.'},
+  {q:'Iod-131 sammelt sich vorwiegend in …',a:['Knochen','Schilddrüse','Leber','Niere'],c:1,e:'Schilddrüsenzellen nehmen Iod aktiv auf - egal ob radioaktiv oder nicht. Daher Therapie bei Schilddrüsenkarzinom & KI-Tabletten bei Reaktorunfall.'},
+  {q:'Welche der folgenden Strahlungen ist KEINE Teilchenstrahlung?',a:['α','β⁻','β⁺','γ'],c:3,e:'γ ist elektromagnetische Welle (Photonen ohne Ruhemasse). α, β⁻ und β⁺ sind alle Teilchen mit Ruhemasse.'}
+];
+let qIdx = 0, qScore = 0, qInited = false;
+function ensureQuiz(){if(!qInited){qInited=true;document.getElementById('qTotal').textContent=QUIZ.length;renderQ();}}
+function renderQ(){
+  if(qIdx>=QUIZ.length){
+    document.getElementById('qBody').innerHTML = `<div class="q-finish"><div class="score">${qScore}/${QUIZ.length}</div><div class="msg">${qScore===QUIZ.length?'Perfekt!':qScore>=QUIZ.length*0.7?'Sehr gut!':'Üb noch ein wenig!'}</div><button onclick="qIdx=0;qScore=0;document.getElementById('qScore').textContent=0;renderQ();">Neu starten</button></div>`;
+    document.getElementById('qNumLbl').textContent = `Fertig`;
+    document.getElementById('qFill').style.width = '100%';
+    return;
+  }
+  const q = QUIZ[qIdx];
+  document.getElementById('qNumLbl').textContent = `Frage ${qIdx+1} / ${QUIZ.length}`;
+  document.getElementById('qFill').style.width = ((qIdx+1)/QUIZ.length*100)+'%';
+  document.getElementById('qBody').innerHTML = `
+    <div class="q-question">${q.q}</div>
+    <div class="q-options">${q.a.map((o,i)=>`<button class="q-option" data-i="${i}">${o}</button>`).join('')}</div>
+    <div class="q-explain"></div>
+    <button class="q-next">Nächste Frage <i data-lucide="arrow-right"></i></button>
+  `;
+  document.querySelectorAll('.q-option').forEach(b=>b.addEventListener('click',(e)=>{
+    const i = parseInt(e.target.dataset.i);
+    const correct = i===q.c;
+    if(correct){e.target.classList.add('correct');qScore++;document.getElementById('qScore').textContent=qScore;}
+    else{e.target.classList.add('wrong');document.querySelectorAll('.q-option')[q.c].classList.add('correct');}
+    document.querySelectorAll('.q-option').forEach(b=>b.disabled=true);
+    const ex = document.querySelector('.q-explain');
+    ex.innerHTML = `<b>${correct?'✓ Richtig!':'✗ '}:</b> ${q.e}`;
+    ex.classList.add('show');
+    document.querySelector('.q-next').classList.add('show');
+  }));
+  document.querySelector('.q-next').addEventListener('click', ()=>{qIdx++;renderQ();});
+  if(window.lucide) lucide.createIcons();
+}
+
+// Init icons
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

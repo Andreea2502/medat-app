@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stromkreis · MedAT Physik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;--gold-darker:#a87800;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);--shadow:0 4px 20px rgba(26,26,46,.06);--shadow-md:0 8px 32px rgba(26,26,46,.08);--shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--yellow-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--gold-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:var(--dark);border-color:transparent;box-shadow:0 4px 14px rgba(245,197,66,.5);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--gold-deep);color:var(--gold-deep);transform:translateY(-1px)}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--gold-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--gold-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--yellow-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(230,168,23,.25);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--gold-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* OHM-STUDIO */
+  .ohm-stage{background:radial-gradient(ellipse at center,#1f2c40 0%,#080c14 100%);border-radius:var(--radius);padding:14px;overflow-x:auto;box-shadow:inset 0 0 80px rgba(0,0,0,0.5);margin-bottom:14px}
+  .ohm-stage svg{display:block;margin:0 auto;max-width:100%}
+  .slider-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px}
+  @media(min-width:560px){.slider-grid{grid-template-columns:1fr 1fr 1fr}}
+  .slider-row{background:var(--bg-light);border-radius:14px;padding:14px}
+  .slider-row .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .slider-row label{font-size:.82rem;font-weight:700;color:var(--text)}
+  .slider-row .val{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--gold-deep);font-size:.95rem}
+  .ohm-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bg-warm);border-radius:4px;outline:none;cursor:pointer}
+  .ohm-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(230,168,23,.4);border:3px solid #fff}
+  .ohm-slider::-moz-range-thumb{width:24px;height:24px;background:linear-gradient(135deg,var(--gold),var(--gold-deep));border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(230,168,23,.4)}
+  .ohm-readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+  .ohm-readout{background:var(--surface);border:1.5px solid var(--border-light);border-radius:14px;padding:12px;text-align:center}
+  .ohm-readout .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+  .ohm-readout .val{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--gold-deep);margin-top:3px}
+
+  /* SCHALTUNGSARTEN */
+  .circ-mode-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:center}
+  .circ-mode-btn{padding:10px 16px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+  .circ-mode-btn [data-lucide]{width:14px;height:14px}
+  .circ-mode-btn:hover:not(.active){border-color:var(--gold-deep)}
+  .circ-mode-btn.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:var(--dark);border-color:transparent;box-shadow:0 4px 12px rgba(230,168,23,.4)}
+
+  /* BAUTEILE */
+  .comp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .comp-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s}
+  .comp-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--gold-deep)}
+  .comp-img{height:140px;background:radial-gradient(ellipse at center,#1f2c40 0%,#080c14 100%);display:flex;align-items:center;justify-content:center;padding:12px}
+  .comp-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+  .comp-info{padding:14px}
+  .comp-info h4{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .comp-info .symbol{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--gold-deep);font-weight:800;margin-bottom:6px;background:var(--yellow-soft);padding:4px 10px;border-radius:8px;display:inline-block}
+  .comp-info p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+
+  /* MODAL */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:600px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .modal-img{height:200px;background:radial-gradient(ellipse at center,#1f2c40 0%,#080c14 100%);display:flex;align-items:center;justify-content:center;padding:14px}
+  .modal-img svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));max-width:100%;max-height:100%}
+  .modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,var(--yellow-soft),var(--bg-light))}
+  .modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .modal-head .symbol{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--gold-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .modal-body{padding:18px 24px 24px}
+  .steckbrief{display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--gold-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--gold-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--gold-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--gold-deep);font-weight:700}
+  .sb-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+  .sb-list li{font-size:.84rem;color:var(--text);line-height:1.55;padding-left:18px;position:relative}
+  .sb-list li::before{content:'•';position:absolute;left:5px;color:var(--gold-deep);font-weight:800}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4{color:var(--green-deep)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.15);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+
+  /* RECHNER (gold) */
+  .calc-formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+  .calc-formula-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .2s;text-align:center}
+  .calc-formula-card:hover{transform:translateY(-2px);border-color:var(--gold-deep);box-shadow:var(--shadow-sm)}
+  .calc-formula-card.active{background:linear-gradient(135deg,var(--yellow-soft),#fff);border-color:var(--gold-deep);box-shadow:0 4px 14px rgba(230,168,23,.2)}
+  .calc-formula-card .nm{font-size:.78rem;color:var(--text-secondary);font-weight:600;margin-bottom:3px}
+  .calc-formula-card .ltx{min-height:24px;display:flex;align-items:center;justify-content:center}
+  .calc-formula-card .ltx .katex{font-size:.95rem!important;color:var(--gold-deep)}
+  .calc-arena{background:linear-gradient(135deg,#fff,var(--yellow-soft));border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0;box-shadow:var(--shadow-sm)}
+  .calc-base-display{min-height:40px;margin-bottom:6px}
+  .calc-base-display .katex{font-size:1.6rem!important}
+  .calc-base-name{font-size:.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+  .calc-var-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}
+  .calc-var-btn{padding:11px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .calc-var-btn .var-name{min-height:18px;display:flex;align-items:center;justify-content:center}
+  .calc-var-btn .var-name .katex{font-size:1.05rem!important}
+  .calc-var-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .calc-var-btn:hover:not(.active){border-color:var(--gold-deep);transform:translateY(-1px)}
+  .calc-var-btn.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:var(--dark);border-color:transparent;box-shadow:0 4px 12px rgba(230,168,23,.4)}
+  .calc-var-btn.active .var-name .katex,.calc-var-btn.active small{color:var(--dark)}
+  .calc-rearranged-display{background:var(--bg-light);border-radius:14px;padding:18px;text-align:center;margin:14px 0;border-left:3px solid var(--gold-deep);min-height:44px;display:flex;align-items:center;justify-content:center}
+  .calc-rearranged-display .katex{font-size:1.5rem!important;color:var(--gold-deep)}
+  .calc-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+  .calc-input-card{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:12px}
+  .calc-input-card .lbl{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .calc-input-card .lbl .katex{font-size:1rem!important;color:var(--gold-deep)}
+  .calc-input-card .input-row{display:flex;gap:6px;align-items:center}
+  .calc-input-card input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;background:var(--surface);color:var(--text);transition:all .2s}
+  .calc-input-card input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(230,168,23,.15)}
+  .calc-input-card .unit{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--text-secondary);font-weight:700}
+  .calc-result{background:linear-gradient(135deg,var(--mint),#fff);border-left:4px solid var(--success);border-radius:0 14px 14px 0;padding:18px;margin:14px 0;text-align:center}
+  .calc-result .lbl{font-size:.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .calc-result .val{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:900;color:var(--success);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .calc-result .val .unit{font-size:1rem;color:var(--text-secondary);margin-left:6px;font-weight:700}
+  .calc-result.error{background:linear-gradient(135deg,var(--coral-soft),#fff);border-left-color:var(--pink-deep)}
+  .calc-result.error .val{color:var(--pink-deep)}
+  .calc-steps{background:var(--bg-light);border-radius:14px;padding:14px 16px;margin-top:10px;display:none}
+  .calc-steps.show{display:block;animation:fadeUp .3s ease}
+  .calc-steps .step{padding:10px 0;border-bottom:1px dashed var(--border-light);display:flex;gap:14px;align-items:center}
+  .calc-steps .step:last-child{border-bottom:none;font-weight:700}
+  .calc-steps .step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--gold-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem}
+  .calc-steps .step-content{flex:1;display:flex;align-items:center}
+  .calc-steps .step-content .katex{font-size:1.05rem!important}
+
+  /* MATCH */
+  .match-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:640px){.match-mode-row{grid-template-columns:repeat(3,1fr)}}
+  .match-mode-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .match-mode-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .match-mode-btn:hover:not(.active){border-color:var(--gold-deep)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:var(--dark);border-color:transparent;box-shadow:0 4px 12px rgba(230,168,23,.3)}
+  .match-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .match-stat{background:var(--surface);padding:10px;border-radius:12px;text-align:center;border:1px solid var(--border-light)}
+  .match-stat .num{font-size:1.4rem;font-weight:800}
+  .match-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600}
+  .match-pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .match-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;text-align:center}
+  .match-list{display:flex;flex-direction:column;gap:8px}
+  .match-item{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;cursor:pointer;font-size:.84rem;transition:all .15s;font-weight:600;line-height:1.4}
+  .match-item:hover:not(.matched){border-color:var(--gold-deep);transform:translateY(-1px)}
+  .match-item.selected{border-color:var(--gold);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(245,197,66,.3)}
+  .match-item.matched{background:rgba(109,184,138,.12);border-color:var(--success);color:var(--success);cursor:default;opacity:.85}
+  .match-item.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);animation:wrongShake .35s ease}
+  @keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .match-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;line-height:1.55}
+  .match-status.show{display:block;animation:fadeUp .3s ease}
+  .match-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--gold-deep);background:rgba(230,168,23,.04);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-deep));transition:width .4s}
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:var(--dark);box-shadow:0 4px 14px rgba(230,168,23,.4);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(230,168,23,.5)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--gold-deep);color:var(--gold-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:520px){.header h1{font-size:1.15rem}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="zap"></i></div>
+    <div>
+      <h1>Stromkreis</h1>
+      <p>Ohm · Schaltungen · Bauteile · Rechner · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="ohm"><i data-lucide="bolt"></i>Ohm-Studio</button>
+  <button class="tab" data-tab="circ"><i data-lucide="git-branch"></i>Schaltungen</button>
+  <button class="tab" data-tab="comp"><i data-lucide="cpu"></i>Bauteile</button>
+  <button class="tab" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="match"><i data-lucide="link"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- TAB 1: OHM-STUDIO -->
+  <div class="section active" id="ohm">
+    <div class="hero-strip">
+      <h2><i data-lucide="bolt"></i>Ohm-Studio — U, R, I live</h2>
+      <p>Verschiebe die Slider — sieh wie sich Spannung, Widerstand und Strom gegenseitig beeinflussen. Plastische Schaltung mit fließenden Elektronen, leuchtende Lampe je nach Leistung.</p>
+    </div>
+    <div class="card">
+      <div class="ohm-stage">
+        <svg id="ohmSvg" viewBox="0 0 700 320" preserveAspectRatio="xMidYMid meet" width="100%"></svg>
+      </div>
+      <div class="slider-grid">
+        <div class="slider-row">
+          <div class="label-row"><label>Spannung U</label><span class="val" id="uVal">12 V</span></div>
+          <input class="ohm-slider" id="uSlider" type="range" min="0.5" max="48" step="0.5" value="12">
+        </div>
+        <div class="slider-row">
+          <div class="label-row"><label>Widerstand R</label><span class="val" id="rVal">6 Ω</span></div>
+          <input class="ohm-slider" id="rSlider" type="range" min="0.5" max="100" step="0.5" value="6">
+        </div>
+        <div class="slider-row">
+          <div class="label-row"><label>Stromstärke I</label><span class="val" id="iVal">2,00 A</span></div>
+          <input class="ohm-slider" id="iSlider" type="range" min="0.05" max="20" step="0.05" value="2" disabled style="opacity:.7">
+          <p style="font-size:.7rem;color:var(--muted);margin-top:4px">→ Wird automatisch berechnet</p>
+        </div>
+      </div>
+      <div class="ohm-readouts">
+        <div class="ohm-readout"><div class="lbl">Leistung P</div><div class="val" id="pVal">24 W</div></div>
+        <div class="ohm-readout"><div class="lbl">Energie/Std E</div><div class="val" id="eVal">86,4 kJ</div></div>
+        <div class="ohm-readout"><div class="lbl">Ladung/Sek Q</div><div class="val" id="qVal">2 C</div></div>
+      </div>
+      <div class="key-fact"><i data-lucide="zap"></i><div><b>Ohm'sches Gesetz:</b> U = R · I · <b>Leistung:</b> P = U · I = I² · R = U²/R · <b>Energie:</b> E = P · t · <b>Ladung:</b> Q = I · t.</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SCHALTUNGEN -->
+  <div class="section" id="circ">
+    <div class="hero-strip">
+      <h2><i data-lucide="git-branch"></i>Reihen- vs. Parallelschaltung</h2>
+      <p>Die zwei klassischen Schaltungsarten — wechsele und sieh sofort den Unterschied im Gesamtwiderstand und Strom.</p>
+    </div>
+    <div class="card">
+      <div class="circ-mode-row">
+        <button class="circ-mode-btn active" data-circ="reihe"><i data-lucide="minus"></i>Reihenschaltung</button>
+        <button class="circ-mode-btn" data-circ="parallel"><i data-lucide="git-merge"></i>Parallelschaltung</button>
+      </div>
+      <div class="ohm-stage">
+        <svg id="circSvg" viewBox="0 0 700 360" preserveAspectRatio="xMidYMid meet" width="100%"></svg>
+      </div>
+      <div class="slider-grid">
+        <div class="slider-row">
+          <div class="label-row"><label>Spannung U</label><span class="val" id="cUVal">12 V</span></div>
+          <input class="ohm-slider" id="cUSlider" type="range" min="1" max="48" step="0.5" value="12">
+        </div>
+        <div class="slider-row">
+          <div class="label-row"><label>R₁</label><span class="val" id="cR1Val">10 Ω</span></div>
+          <input class="ohm-slider" id="cR1Slider" type="range" min="1" max="50" step="0.5" value="10">
+        </div>
+        <div class="slider-row">
+          <div class="label-row"><label>R₂</label><span class="val" id="cR2Val">20 Ω</span></div>
+          <input class="ohm-slider" id="cR2Slider" type="range" min="1" max="50" step="0.5" value="20">
+        </div>
+      </div>
+      <div class="ohm-readouts">
+        <div class="ohm-readout"><div class="lbl">R<sub>ges</sub></div><div class="val" id="cRges">30 Ω</div></div>
+        <div class="ohm-readout"><div class="lbl">I<sub>ges</sub></div><div class="val" id="cIges">0,4 A</div></div>
+        <div class="ohm-readout"><div class="lbl">U<sub>1</sub> / I<sub>1</sub></div><div class="val" id="cVal1" style="font-size:1rem">—</div></div>
+        <div class="ohm-readout"><div class="lbl">U<sub>2</sub> / I<sub>2</sub></div><div class="val" id="cVal2" style="font-size:1rem">—</div></div>
+      </div>
+      <div class="key-fact"><i data-lucide="info"></i><div id="circRule"><b>Reihe:</b> R<sub>ges</sub> = R₁ + R₂. Strom überall gleich, Spannung teilt sich.</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 3: BAUTEILE -->
+  <div class="section" id="comp">
+    <div class="hero-strip">
+      <h2><i data-lucide="cpu"></i>Bauteile</h2>
+      <p>Klick auf eine Karte für Schaltsymbol, Funktion, Kennlinien und MedAT-Klinik.</p>
+    </div>
+    <div class="card">
+      <div class="comp-grid" id="compGrid"></div>
+    </div>
+  </div>
+
+  <!-- TAB 4: RECHNER -->
+  <div class="section" id="rechner">
+    <div class="hero-strip">
+      <h2><i data-lucide="calculator"></i>Formel-Rechner mit Umformung</h2>
+      <p>8 Stromkreis-Formeln umformbar nach jeder Variable, Live-Berechnung, Schritt-für-Schritt-Lösungsweg.</p>
+    </div>
+    <div class="card">
+      <h3>Formel wählen</h3>
+      <div class="calc-formula-grid" id="calcFormulaGrid"></div>
+      <div class="calc-arena">
+        <div class="calc-base-display" id="calcBaseDisplay"></div>
+        <div class="calc-base-name" id="calcBaseName">—</div>
+      </div>
+      <h3>Wonach willst du auflösen?</h3>
+      <div class="calc-var-row" id="calcVarRow"></div>
+      <div class="calc-rearranged-display" id="calcRearrangedDisplay"></div>
+      <h3>Werte einsetzen</h3>
+      <div class="calc-inputs" id="calcInputs"></div>
+      <div class="calc-result" id="calcResult"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="calcStepsBtn"><i data-lucide="list-ordered"></i>Lösungsweg zeigen</button>
+        <button class="btn ghost" id="calcResetBtn"><i data-lucide="rotate-ccw"></i>Werte zurücksetzen</button>
+      </div>
+      <div class="calc-steps" id="calcSteps"></div>
+    </div>
+  </div>
+
+  <!-- TAB 5: ZUORDNUNG -->
+  <div class="section" id="match">
+    <div class="hero-strip">
+      <h2><i data-lucide="link"></i>Zuordnung</h2>
+      <p>3 Modi: Größe → Einheit, Bauteil → Symbol, Schaltungsregel → Formel.</p>
+    </div>
+    <div class="card">
+      <h3>Modus wählen</h3>
+      <div class="match-mode-row" id="matchModeRow"></div>
+      <div class="match-stats">
+        <div class="match-stat"><div class="num" id="matchOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="match-stat"><div class="num" id="matchBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="match-stat"><div class="num" id="matchLeft">10</div><div class="lbl">Übrig</div></div>
+      </div>
+      <div class="match-pairs">
+        <div class="match-col"><h4 id="matchLeftLabel">Begriff</h4><div class="match-list" id="matchLeft1"></div></div>
+        <div class="match-col"><h4 id="matchRightLabel">Wert</h4><div class="match-list" id="matchRight"></div></div>
+      </div>
+      <div class="match-status" id="matchStatus"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="matchReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+        <button class="btn ghost" id="matchNext"><i data-lucide="arrow-right"></i>Nächster Modus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: QUIZ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">12 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="compModal" onclick="if(event.target===this)closeC()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeC()"><i data-lucide="x"></i></button>
+    <div class="modal-img" id="mImg"></div>
+    <div class="modal-head">
+      <h3 id="mName">—</h3>
+      <span class="symbol" id="mSymbol">—</span>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='match') initMatch();
+    if(t.dataset.tab==='rechner') ensureCalc();
+  });
+});
+
+/* ===== SVG SHARED ===== */
+const SVG_DEFS=`<defs>
+  <linearGradient id="batGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#ffd070"/>
+    <stop offset="100%" stop-color="#a87800"/>
+  </linearGradient>
+  <radialGradient id="lampOnGrad" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#fff8d0"/>
+    <stop offset="50%" stop-color="#f5c542"/>
+    <stop offset="100%" stop-color="#a87800"/>
+  </radialGradient>
+  <radialGradient id="lampOffGrad" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#a0a0b0"/>
+    <stop offset="100%" stop-color="#3a3a4a"/>
+  </radialGradient>
+  <linearGradient id="resGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#d8b888"/>
+    <stop offset="100%" stop-color="#7a5a28"/>
+  </linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="lampGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>`;
+
+/* ===== TAB 1: OHM-STUDIO ===== */
+function renderOhm(){
+  const U=parseFloat(document.getElementById('uSlider').value);
+  const R=parseFloat(document.getElementById('rSlider').value);
+  const I=U/R;
+  const P=U*I;
+  document.getElementById('uVal').textContent=U.toFixed(1)+' V';
+  document.getElementById('rVal').textContent=R.toFixed(1)+' Ω';
+  document.getElementById('iVal').textContent=I.toFixed(2)+' A';
+  document.getElementById('iSlider').value=Math.min(20,I);
+  document.getElementById('pVal').textContent=P.toFixed(2)+' W';
+  document.getElementById('eVal').textContent=(P*3.6).toFixed(1)+' kJ';
+  document.getElementById('qVal').textContent=I.toFixed(2)+' C';
+
+  const W=700,H=320;
+  const svg=document.getElementById('ohmSvg');
+  let html=SVG_DEFS;
+  // Wires (rectangle path)
+  const left=80,right=620,top=80,bot=240;
+  html+=`<rect x="${left}" y="${top}" width="${right-left}" height="${bot-top}" fill="none" stroke="#a0b0c0" stroke-width="3" rx="6"/>`;
+  // Battery (left side, vertical)
+  const batX=left, batY=160;
+  html+=`<line x1="${batX-12}" y1="${batY-20}" x2="${batX+12}" y2="${batY-20}" stroke="#fff" stroke-width="4"/>
+    <line x1="${batX-7}" y1="${batY-10}" x2="${batX+7}" y2="${batY-10}" stroke="#fff" stroke-width="4"/>
+    <line x1="${batX-12}" y1="${batY+10}" x2="${batX+12}" y2="${batY+10}" stroke="#fff" stroke-width="4"/>
+    <line x1="${batX-7}" y1="${batY+20}" x2="${batX+7}" y2="${batY+20}" stroke="#fff" stroke-width="4"/>
+    <text x="${batX-30}" y="${batY+5}" fill="#f5c542" font-size="14" font-weight="800" text-anchor="end" font-family="JetBrains Mono">${U.toFixed(1)}V</text>`;
+  // Resistor (top, zigzag)
+  const resX=350, resY=top;
+  html+=`<rect x="${resX-40}" y="${resY-12}" width="80" height="24" fill="url(#resGrad)" stroke="#a87800" stroke-width="1.5" rx="3"/>
+    <line x1="${resX-32}" y1="${resY}" x2="${resX-26}" y2="${resY-8}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${resX-26}" y1="${resY-8}" x2="${resX-18}" y2="${resY+8}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${resX-18}" y1="${resY+8}" x2="${resX-10}" y2="${resY-8}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${resX-10}" y1="${resY-8}" x2="${resX-2}" y2="${resY+8}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${resX-2}" y1="${resY+8}" x2="${resX+6}" y2="${resY-8}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${resX+6}" y1="${resY-8}" x2="${resX+14}" y2="${resY+8}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${resX+14}" y1="${resY+8}" x2="${resX+22}" y2="${resY-8}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${resX+22}" y1="${resY-8}" x2="${resX+30}" y2="${resY+8}" stroke="#3a2010" stroke-width="2"/>
+    <text x="${resX}" y="${resY-22}" fill="#f5c542" font-size="14" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">${R.toFixed(1)}Ω</text>`;
+  // Lamp (right side)
+  const lampX=right, lampY=160;
+  const brightness=Math.min(1,P/30); // 30 W max
+  const lampGrad=brightness>0.05?'url(#lampOnGrad)':'url(#lampOffGrad)';
+  html+=`<circle cx="${lampX}" cy="${lampY}" r="22" fill="${lampGrad}" stroke="#a0b0c0" stroke-width="2" filter="${brightness>0.05?'url(#lampGlow)':''}"/>`;
+  // Glow ring
+  if(brightness>0.05){
+    html+=`<circle cx="${lampX}" cy="${lampY}" r="${30+brightness*15}" fill="none" stroke="rgba(255,220,100,${brightness*0.4})" stroke-width="${brightness*5}"/>`;
+  }
+  html+=`<line x1="${lampX-15}" y1="${lampY-15}" x2="${lampX+15}" y2="${lampY+15}" stroke="#3a2010" stroke-width="2"/>
+    <line x1="${lampX-15}" y1="${lampY+15}" x2="${lampX+15}" y2="${lampY-15}" stroke="#3a2010" stroke-width="2"/>
+    <text x="${lampX+30}" y="${lampY+5}" fill="#f5c542" font-size="14" font-weight="800" font-family="JetBrains Mono">${P.toFixed(1)}W</text>`;
+  // Animated electrons (small balls flowing along the rectangle)
+  const speed=Math.max(2,Math.min(8,I*1.5));
+  const path='M '+left+' '+batY+' L '+left+' '+top+' L '+right+' '+top+' L '+right+' '+bot+' L '+left+' '+bot+' Z';
+  html+=`<path id="elPath" d="${path}" fill="none" stroke="none"/>`;
+  for(let i=0;i<6;i++){
+    html+=`<circle r="3.5" fill="#5fc878" filter="url(#glow)">
+      <animateMotion dur="${speed}s" repeatCount="indefinite" begin="-${speed*i/6}s">
+        <mpath href="#elPath"/>
+      </animateMotion>
+    </circle>`;
+  }
+  svg.innerHTML=html;
+}
+['uSlider','rSlider'].forEach(id=>document.getElementById(id).addEventListener('input',renderOhm));
+renderOhm();
+
+/* ===== TAB 2: SCHALTUNGEN ===== */
+let circType='reihe';
+document.querySelectorAll('.circ-mode-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.circ-mode-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    circType=b.dataset.circ;
+    renderCirc();
+  });
+});
+function renderCirc(){
+  const U=parseFloat(document.getElementById('cUSlider').value);
+  const R1=parseFloat(document.getElementById('cR1Slider').value);
+  const R2=parseFloat(document.getElementById('cR2Slider').value);
+  let Rges,Iges,U1,U2,I1,I2;
+  if(circType==='reihe'){
+    Rges=R1+R2;
+    Iges=U/Rges;
+    I1=I2=Iges;
+    U1=R1*Iges;
+    U2=R2*Iges;
+    document.getElementById('circRule').innerHTML='<b>Reihenschaltung:</b> R<sub>ges</sub> = R₁ + R₂. Strom überall gleich, Spannung teilt sich proportional zum Widerstand.';
+  } else {
+    Rges=(R1*R2)/(R1+R2);
+    Iges=U/Rges;
+    U1=U2=U;
+    I1=U/R1;
+    I2=U/R2;
+    document.getElementById('circRule').innerHTML='<b>Parallelschaltung:</b> 1/R<sub>ges</sub> = 1/R₁ + 1/R₂ → R<sub>ges</sub> = (R₁·R₂)/(R₁+R₂). Spannung überall gleich, Strom teilt sich.';
+  }
+  document.getElementById('cUVal').textContent=U.toFixed(1)+' V';
+  document.getElementById('cR1Val').textContent=R1.toFixed(1)+' Ω';
+  document.getElementById('cR2Val').textContent=R2.toFixed(1)+' Ω';
+  document.getElementById('cRges').textContent=Rges.toFixed(2)+' Ω';
+  document.getElementById('cIges').textContent=Iges.toFixed(3)+' A';
+  document.getElementById('cVal1').textContent=U1.toFixed(1)+' V / '+I1.toFixed(2)+' A';
+  document.getElementById('cVal2').textContent=U2.toFixed(1)+' V / '+I2.toFixed(2)+' A';
+  // SVG
+  const W=700,H=360;
+  const svg=document.getElementById('circSvg');
+  let html=SVG_DEFS;
+  const batX=80, batY=180;
+  html+=`<line x1="${batX-12}" y1="${batY-20}" x2="${batX+12}" y2="${batY-20}" stroke="#fff" stroke-width="4"/>
+    <line x1="${batX-7}" y1="${batY-10}" x2="${batX+7}" y2="${batY-10}" stroke="#fff" stroke-width="4"/>
+    <line x1="${batX-12}" y1="${batY+10}" x2="${batX+12}" y2="${batY+10}" stroke="#fff" stroke-width="4"/>
+    <line x1="${batX-7}" y1="${batY+20}" x2="${batX+7}" y2="${batY+20}" stroke="#fff" stroke-width="4"/>
+    <text x="${batX-30}" y="${batY+5}" fill="#f5c542" font-size="13" font-weight="800" text-anchor="end" font-family="JetBrains Mono">${U.toFixed(1)}V</text>`;
+  if(circType==='reihe'){
+    // Top wire from battery, then R1, then R2, back down
+    html+=`<line x1="${batX}" y1="${batY-20}" x2="${batX}" y2="80" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${batX}" y1="80" x2="620" y2="80" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="620" y1="80" x2="620" y2="${batY+20}" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="620" y1="${batY+20}" x2="${batX}" y2="${batY+20}" stroke="#a0b0c0" stroke-width="3"/>`;
+    // R1
+    html+=`<rect x="220" y="68" width="80" height="24" fill="url(#resGrad)" stroke="#a87800" stroke-width="1.5" rx="3"/>
+      <text x="260" y="62" fill="#f5c542" font-size="13" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">R₁ = ${R1.toFixed(1)}Ω</text>
+      <text x="260" y="106" fill="#5fc878" font-size="11" font-weight="700" text-anchor="middle" font-family="JetBrains Mono">U₁=${U1.toFixed(1)}V · I=${Iges.toFixed(2)}A</text>`;
+    // R2
+    html+=`<rect x="430" y="68" width="80" height="24" fill="url(#resGrad)" stroke="#a87800" stroke-width="1.5" rx="3"/>
+      <text x="470" y="62" fill="#f5c542" font-size="13" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">R₂ = ${R2.toFixed(1)}Ω</text>
+      <text x="470" y="106" fill="#5fc878" font-size="11" font-weight="700" text-anchor="middle" font-family="JetBrains Mono">U₂=${U2.toFixed(1)}V · I=${Iges.toFixed(2)}A</text>`;
+    // Animated electrons
+    const speed=Math.max(2,Math.min(6,1/Iges*2));
+    const path=`M ${batX} ${batY-20} L ${batX} 80 L 620 80 L 620 ${batY+20} L ${batX} ${batY+20} Z`;
+    html+=`<path id="circPath" d="${path}" fill="none" stroke="none"/>`;
+    for(let i=0;i<8;i++){
+      html+=`<circle r="3.5" fill="#5fc878" filter="url(#glow)">
+        <animateMotion dur="${speed}s" repeatCount="indefinite" begin="-${speed*i/8}s">
+          <mpath href="#circPath"/>
+        </animateMotion>
+      </circle>`;
+    }
+  } else {
+    // Parallel: split into 2 branches
+    html+=`<line x1="${batX}" y1="${batY-20}" x2="${batX}" y2="80" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${batX}" y1="80" x2="620" y2="80" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="620" y1="80" x2="620" y2="${batY+20}" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="620" y1="${batY+20}" x2="${batX}" y2="${batY+20}" stroke="#a0b0c0" stroke-width="3"/>
+      <!-- Branch 2 lower wire -->
+      <line x1="350" y1="80" x2="350" y2="220" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="350" y1="220" x2="350" y2="280" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="350" y1="280" x2="${batX}" y2="280" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${batX}" y1="280" x2="${batX}" y2="${batY+20}" stroke="#a0b0c0" stroke-width="3"/>`;
+    // Wait this doesn't quite work for parallel. Let me redo:
+    html=SVG_DEFS;
+    html+=`<line x1="${batX-12}" y1="${batY-20}" x2="${batX+12}" y2="${batY-20}" stroke="#fff" stroke-width="4"/>
+      <line x1="${batX-7}" y1="${batY-10}" x2="${batX+7}" y2="${batY-10}" stroke="#fff" stroke-width="4"/>
+      <line x1="${batX-12}" y1="${batY+10}" x2="${batX+12}" y2="${batY+10}" stroke="#fff" stroke-width="4"/>
+      <line x1="${batX-7}" y1="${batY+20}" x2="${batX+7}" y2="${batY+20}" stroke="#fff" stroke-width="4"/>
+      <text x="${batX-30}" y="${batY+5}" fill="#f5c542" font-size="13" font-weight="800" text-anchor="end" font-family="JetBrains Mono">${U.toFixed(1)}V</text>`;
+    // Lines: from battery up to top, right, down to junction at 350, splits to two branches with R1 and R2 in parallel, joins at right, back down to battery
+    // Junctions at x=200 and x=540
+    const jx1=200, jx2=540;
+    html+=`<line x1="${batX}" y1="${batY-20}" x2="${batX}" y2="100" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${batX}" y1="100" x2="${jx1}" y2="100" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${jx2}" y1="100" x2="620" y2="100" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="620" y1="100" x2="620" y2="260" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="620" y1="260" x2="${batX}" y2="260" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${batX}" y1="260" x2="${batX}" y2="${batY+20}" stroke="#a0b0c0" stroke-width="3"/>
+      <!-- Top branch (R1) -->
+      <line x1="${jx1}" y1="100" x2="${jx1}" y2="130" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${jx1}" y1="130" x2="${jx2}" y2="130" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${jx2}" y1="130" x2="${jx2}" y2="100" stroke="#a0b0c0" stroke-width="3"/>
+      <rect x="${(jx1+jx2)/2-40}" y="118" width="80" height="24" fill="url(#resGrad)" stroke="#a87800" stroke-width="1.5" rx="3"/>
+      <text x="${(jx1+jx2)/2}" y="113" fill="#f5c542" font-size="13" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">R₁=${R1.toFixed(1)}Ω · I₁=${I1.toFixed(2)}A</text>
+      <!-- Bottom branch (R2) -->
+      <line x1="${jx1}" y1="100" x2="${jx1}" y2="230" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${jx1}" y1="230" x2="${jx2}" y2="230" stroke="#a0b0c0" stroke-width="3"/>
+      <line x1="${jx2}" y1="100" x2="${jx2}" y2="230" stroke="#a0b0c0" stroke-width="3"/>
+      <rect x="${(jx1+jx2)/2-40}" y="218" width="80" height="24" fill="url(#resGrad)" stroke="#a87800" stroke-width="1.5" rx="3"/>
+      <text x="${(jx1+jx2)/2}" y="252" fill="#f5c542" font-size="13" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">R₂=${R2.toFixed(1)}Ω · I₂=${I2.toFixed(2)}A</text>`;
+    // Animated electrons - simplified, just on outer loop
+    const speed=Math.max(2,Math.min(6,1/Iges*1.5));
+    const path=`M ${batX} ${batY-20} L ${batX} 100 L 620 100 L 620 260 L ${batX} 260 Z`;
+    html+=`<path id="circPath" d="${path}" fill="none" stroke="none"/>`;
+    for(let i=0;i<6;i++){
+      html+=`<circle r="3.5" fill="#5fc878" filter="url(#glow)">
+        <animateMotion dur="${speed}s" repeatCount="indefinite" begin="-${speed*i/6}s">
+          <mpath href="#circPath"/>
+        </animateMotion>
+      </circle>`;
+    }
+  }
+  svg.innerHTML=html;
+}
+['cUSlider','cR1Slider','cR2Slider'].forEach(id=>document.getElementById(id).addEventListener('input',renderCirc));
+renderCirc();
+
+/* ===== TAB 3: BAUTEILE ===== */
+function svgRes(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}<line x1="20" y1="70" x2="60" y2="70" stroke="#fff" stroke-width="3"/><rect x="60" y="58" width="100" height="24" fill="url(#resGrad)" stroke="#a87800" stroke-width="1.5" rx="3"/><line x1="160" y1="70" x2="200" y2="70" stroke="#fff" stroke-width="3"/></svg>`}
+function svgBat(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}<line x1="20" y1="70" x2="100" y2="70" stroke="#fff" stroke-width="3"/><line x1="100" y1="40" x2="100" y2="100" stroke="#fff" stroke-width="5"/><line x1="115" y1="55" x2="115" y2="85" stroke="#fff" stroke-width="3"/><line x1="115" y1="70" x2="200" y2="70" stroke="#fff" stroke-width="3"/><text x="85" y="35" fill="#f5c542" font-size="20" font-weight="900" text-anchor="middle">+</text><text x="125" y="35" fill="#f5c542" font-size="20" font-weight="900" text-anchor="middle">−</text></svg>`}
+function svgKond(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}<line x1="20" y1="70" x2="100" y2="70" stroke="#fff" stroke-width="3"/><line x1="100" y1="40" x2="100" y2="100" stroke="#fff" stroke-width="4"/><line x1="115" y1="40" x2="115" y2="100" stroke="#fff" stroke-width="4"/><line x1="115" y1="70" x2="200" y2="70" stroke="#fff" stroke-width="3"/></svg>`}
+function svgLamp(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}<line x1="20" y1="70" x2="80" y2="70" stroke="#fff" stroke-width="3"/><line x1="140" y1="70" x2="200" y2="70" stroke="#fff" stroke-width="3"/><circle cx="110" cy="70" r="28" fill="url(#lampOnGrad)" stroke="#fff" stroke-width="2" filter="url(#lampGlow)"/><line x1="92" y1="52" x2="128" y2="88" stroke="#3a2010" stroke-width="2"/><line x1="92" y1="88" x2="128" y2="52" stroke="#3a2010" stroke-width="2"/></svg>`}
+function svgSchalt(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}<line x1="20" y1="70" x2="85" y2="70" stroke="#fff" stroke-width="3"/><circle cx="85" cy="70" r="3" fill="#fff"/><circle cx="135" cy="70" r="3" fill="#fff"/><line x1="85" y1="70" x2="125" y2="48" stroke="#fff" stroke-width="3"/><line x1="135" y1="70" x2="200" y2="70" stroke="#fff" stroke-width="3"/></svg>`}
+function svgDiode(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}<line x1="20" y1="70" x2="85" y2="70" stroke="#fff" stroke-width="3"/><polygon points="85,50 85,90 125,70" fill="#f5c542" stroke="#a87800" stroke-width="1.5"/><line x1="125" y1="50" x2="125" y2="90" stroke="#fff" stroke-width="4"/><line x1="125" y1="70" x2="200" y2="70" stroke="#fff" stroke-width="3"/></svg>`}
+
+const COMPONENTS=[
+  {key:'res',name:'Widerstand',symbol:'R [Ω]',svg:svgRes,short:'Begrenzt den Strom in einem Stromkreis.',
+    aufbau:'Bauteil mit zwei Anschlüssen, das einen definierten elektrischen Widerstand hat. Materialien: Kohle, Metallschicht, Drahtwicklung.',
+    funktion:['Strombegrenzung','Spannungsteiler','Wärme-Erzeugung (Heizung)','Schutz vor Überstrom'],
+    formel:'U = R · I (Ohm\'sches Gesetz). Einheit Ω = V/A.',
+    klinik:'<b>Defibrillator</b>: Widerstand des Brustkorbs ~50–80 Ω. <b>EKG</b>: misst Spannungen, die durch Körpergewebe-Widerstand entstehen.',
+    medat:'Reihe: R<sub>ges</sub> = R₁ + R₂. Parallel: 1/R<sub>ges</sub> = 1/R₁ + 1/R₂.'},
+  {key:'bat',name:'Spannungsquelle (Batterie)',symbol:'U [V]',svg:svgBat,short:'Liefert konstante Gleichspannung.',
+    aufbau:'Zwei Elektroden in Elektrolyt — chemische Reaktion erzeugt Spannungsdifferenz. Pluspol = längerer Strich.',
+    funktion:['Liefert Energie für den Stromkreis','Treibt den Strom durch den Verbraucher','Kann mehrere Zellen kombinieren (Reihe → höhere Spannung)'],
+    formel:'EMK ε. Reale Quelle: U<sub>Klemme</sub> = ε − I·R<sub>i</sub>',
+    klinik:'<b>Herzschrittmacher</b>: Lithium-Iod-Batterie ~5–10 Jahre Lebensdauer. <b>Membranpotential</b>: ~−70 mV durch Ionen-Ungleichgewicht.',
+    medat:'Pol-Konvention: Strom fließt (technisch) von + nach −, Elektronen tatsächlich von − nach +.'},
+  {key:'kond',name:'Kondensator',symbol:'C [F]',svg:svgKond,short:'Speichert elektrische Ladung zwischen zwei Platten.',
+    aufbau:'Zwei leitende Platten mit Isolator (Dielektrikum) dazwischen. Speichert Energie im elektrischen Feld.',
+    funktion:['Energie kurzzeitig speichern','Hochpass / Tiefpass-Filter','Glättung von Spannung','Schwingkreise (mit Spule)'],
+    formel:'Q = C · U · E = ½ · C · U². Einheit Farad (F) = C/V.',
+    klinik:'<b>Defibrillator</b>: Kondensator wird auf hohe Spannung geladen, entlädt sich kurz über das Herz (~360 J).',
+    medat:'Reihe: 1/C<sub>ges</sub> = 1/C₁ + 1/C₂. Parallel: C<sub>ges</sub> = C₁ + C₂. (Umgekehrt zu Widerständen!)'},
+  {key:'lamp',name:'Glühlampe / Verbraucher',symbol:'P [W]',svg:svgLamp,short:'Wandelt elektrische Energie in Licht und Wärme um.',
+    aufbau:'Wolfram-Glühdraht in evakuiertem Glaskolben (oder Edelgas). Wird durch Strom auf ~2500°C erhitzt.',
+    funktion:['Lichterzeugung (~5% Wirkungsgrad)','Wärme als Hauptprodukt (~95%)','Symbol für „Verbraucher" allgemein'],
+    formel:'P = U · I = I² · R = U²/R. Einheit Watt (W) = V·A.',
+    klinik:'<b>OP-Lampen</b> heute fast ausschließlich LED. <b>Phototherapie</b> bei Neugeborenen-Ikterus mit blauem Licht.',
+    medat:'Leistung in Watt = Energie pro Zeit. 1 kWh = 3,6 MJ.'},
+  {key:'schalt',name:'Schalter',symbol:'',svg:svgSchalt,short:'Öffnet oder schließt einen Stromkreis.',
+    aufbau:'Mechanischer oder elektronischer Kontakt — leitet (geschlossen) oder unterbricht (offen).',
+    funktion:['Stromkreis ein/ausschalten','Schaltung umschalten (Wechselschalter)','Sicherheits-Trennung'],
+    formel:'Geschlossen: R ≈ 0 Ω. Offen: R → ∞.',
+    klinik:'<b>Spannungs-Sensitivität von Ionenkanälen</b> in Nervenzellen wirkt wie biologischer Schalter — bei Schwellenpotential öffnen sich Na⁺-Kanäle.',
+    medat:'Reihen-Schalter im Stromkreis ⇒ einfache Ein/Aus-Funktion.'},
+  {key:'diode',name:'Diode',symbol:'',svg:svgDiode,short:'Leitet Strom nur in einer Richtung.',
+    aufbau:'PN-Übergang aus Halbleitermaterial. Anode (+) und Kathode (−). LED = Light Emitting Diode.',
+    funktion:['Gleichrichtung von Wechselstrom','Spannungs-Schutz (Polarität)','Lichterzeugung (LED)','Photodiode (Lichtsensor)'],
+    formel:'Schwellenspannung ~0,7 V (Si) / ~0,3 V (Ge) / ~2 V (rote LED).',
+    klinik:'<b>Pulsoximeter</b> nutzt zwei LEDs (rot + IR), um die O₂-Sättigung im Blut zu messen.',
+    medat:'Strom fließt nur in Durchlassrichtung. In Sperrrichtung blockiert. Pfeil im Symbol zeigt technische Stromrichtung.'}
+];
+
+const compGrid=document.getElementById('compGrid');
+COMPONENTS.forEach(c=>{
+  const card=document.createElement('div');
+  card.className='comp-card';
+  card.innerHTML=`<div class="comp-img">${c.svg()}</div>
+    <div class="comp-info"><h4>${c.name}</h4><span class="symbol">${c.symbol||'—'}</span><p>${c.short}</p></div>`;
+  card.onclick=()=>showComp(c.key);
+  compGrid.appendChild(card);
+});
+function showComp(key){
+  const c=COMPONENTS.find(x=>x.key===key); if(!c) return;
+  document.getElementById('mImg').innerHTML=c.svg();
+  document.getElementById('mName').textContent=c.name;
+  document.getElementById('mSymbol').textContent=c.symbol||'—';
+  let html='<div class="steckbrief">';
+  if(c.aufbau) html+=`<div class="sb-section"><h4><i data-lucide="layers"></i>Aufbau</h4><p>${c.aufbau}</p></div>`;
+  if(c.funktion) html+=`<div class="sb-section"><h4><i data-lucide="zap"></i>Funktion</h4><ul class="sb-list">${c.funktion.map(f=>`<li>${f}</li>`).join('')}</ul></div>`;
+  if(c.formel) html+=`<div class="sb-section"><h4><i data-lucide="function-square"></i>Formel</h4><p>${c.formel}</p></div>`;
+  if(c.klinik) html+=`<div class="sb-section klinik"><h4><i data-lucide="heart-pulse"></i>Klinik</h4><p>${c.klinik}</p></div>`;
+  if(c.medat) html+=`<div class="sb-section medat"><h4><i data-lucide="brain"></i>MedAT-Merksatz</h4><p>${c.medat}</p></div>`;
+  html+='</div>';
+  document.getElementById('mBody').innerHTML=html;
+  document.getElementById('compModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeC(){document.getElementById('compModal').classList.remove('show')}
+window.closeC=closeC;
+
+/* ===== TAB 4: RECHNER ===== */
+function kx(latex,el,display){
+  if(!window.katex) return;
+  try{katex.render(latex,el,{throwOnError:false,displayMode:!!display})}catch(e){el.textContent=latex}
+}
+function fmtNum(n){
+  if(!isFinite(n)) return '∞';
+  if(Math.abs(n)<0.001||Math.abs(n)>10000) return n.toExponential(3);
+  return parseFloat(n.toFixed(4)).toString();
+}
+
+const CALC_FORMULAS=[
+  {key:'ohm',name:'Ohm\'sches Gesetz',base:'U = R \\cdot I',desc:'Spannung = Widerstand × Strom',
+    vars:[
+      {k:'U',l:'U',u:'V',ltx:'U = R \\cdot I',solve:({R,I})=>R*I,
+        steps:({R,I},r)=>['U = R \\cdot I',`U = ${R} \\,\\Omega \\cdot ${I} \\,\\text{A}`,`U = ${fmtNum(r)} \\,\\text{V}`]},
+      {k:'R',l:'R',u:'Ω',ltx:'R = \\dfrac{U}{I}',solve:({U,I})=>U/I,
+        steps:({U,I},r)=>['U = R \\cdot I',`R = \\dfrac{U}{I}`,`R = \\dfrac{${U} \\,\\text{V}}{${I} \\,\\text{A}}`,`R = ${fmtNum(r)} \\,\\Omega`]},
+      {k:'I',l:'I',u:'A',ltx:'I = \\dfrac{U}{R}',solve:({U,R})=>U/R,
+        steps:({U,R},r)=>['U = R \\cdot I',`I = \\dfrac{U}{R}`,`I = \\dfrac{${U} \\,\\text{V}}{${R} \\,\\Omega}`,`I = ${fmtNum(r)} \\,\\text{A}`]}
+    ],defaults:{U:12,R:6,I:2}},
+
+  {key:'leistung',name:'Elektrische Leistung',base:'P = U \\cdot I',desc:'Leistung = Spannung × Strom',
+    vars:[
+      {k:'P',l:'P',u:'W',ltx:'P = U \\cdot I',solve:({U,I})=>U*I,
+        steps:({U,I},r)=>['P = U \\cdot I',`P = ${U} \\,\\text{V} \\cdot ${I} \\,\\text{A}`,`P = ${fmtNum(r)} \\,\\text{W}`]},
+      {k:'U',l:'U',u:'V',ltx:'U = \\dfrac{P}{I}',solve:({P,I})=>P/I,
+        steps:({P,I},r)=>['P = U \\cdot I',`U = \\dfrac{P}{I}`,`U = ${fmtNum(r)} \\,\\text{V}`]},
+      {k:'I',l:'I',u:'A',ltx:'I = \\dfrac{P}{U}',solve:({P,U})=>P/U,
+        steps:({P,U},r)=>['P = U \\cdot I',`I = \\dfrac{P}{U}`,`I = ${fmtNum(r)} \\,\\text{A}`]}
+    ],defaults:{P:60,U:12,I:5}},
+
+  {key:'leistungR',name:'Leistung über R',base:'P = I^2 \\cdot R = \\dfrac{U^2}{R}',desc:'Leistung über Widerstand',
+    vars:[
+      {k:'P',l:'P',u:'W',ltx:'P = I^2 \\cdot R',solve:({I,R})=>I*I*R,
+        steps:({I,R},r)=>['P = I^2 \\cdot R',`P = ${I}^2 \\cdot ${R}`,`P = ${I*I} \\cdot ${R}`,`P = ${fmtNum(r)} \\,\\text{W}`]},
+      {k:'R',l:'R',u:'Ω',ltx:'R = \\dfrac{P}{I^2}',solve:({P,I})=>P/(I*I),
+        steps:({P,I},r)=>['P = I^2 \\cdot R',`R = \\dfrac{P}{I^2}`,`R = ${fmtNum(r)} \\,\\Omega`]},
+      {k:'I',l:'I',u:'A',ltx:'I = \\sqrt{\\dfrac{P}{R}}',solve:({P,R})=>Math.sqrt(P/R),
+        steps:({P,R},r)=>['P = I^2 \\cdot R',`I^2 = \\dfrac{P}{R}`,`I = \\sqrt{\\dfrac{${P}}{${R}}}`,`I = ${fmtNum(r)} \\,\\text{A}`]}
+    ],defaults:{P:24,I:2,R:6}},
+
+  {key:'energie',name:'Elektrische Energie',base:'E = P \\cdot t',desc:'Energie = Leistung × Zeit',
+    vars:[
+      {k:'E',l:'E',u:'J',ltx:'E = P \\cdot t',solve:({P,t})=>P*t,
+        steps:({P,t},r)=>['E = P \\cdot t',`E = ${P} \\,\\text{W} \\cdot ${t} \\,\\text{s}`,`E = ${fmtNum(r)} \\,\\text{J}`]},
+      {k:'P',l:'P',u:'W',ltx:'P = \\dfrac{E}{t}',solve:({E,t})=>E/t,
+        steps:({E,t},r)=>['E = P \\cdot t',`P = \\dfrac{E}{t}`,`P = ${fmtNum(r)} \\,\\text{W}`]},
+      {k:'t',l:'t',u:'s',ltx:'t = \\dfrac{E}{P}',solve:({E,P})=>E/P,
+        steps:({E,P},r)=>['E = P \\cdot t',`t = \\dfrac{E}{P}`,`t = ${fmtNum(r)} \\,\\text{s}`]}
+    ],defaults:{E:3600,P:60,t:60}},
+
+  {key:'ladung',name:'Ladung',base:'Q = I \\cdot t',desc:'Ladung = Strom × Zeit',
+    vars:[
+      {k:'Q',l:'Q',u:'C',ltx:'Q = I \\cdot t',solve:({I,t})=>I*t,
+        steps:({I,t},r)=>['Q = I \\cdot t',`Q = ${I} \\,\\text{A} \\cdot ${t} \\,\\text{s}`,`Q = ${fmtNum(r)} \\,\\text{C}`]},
+      {k:'I',l:'I',u:'A',ltx:'I = \\dfrac{Q}{t}',solve:({Q,t})=>Q/t,
+        steps:({Q,t},r)=>['Q = I \\cdot t',`I = \\dfrac{Q}{t}`,`I = ${fmtNum(r)} \\,\\text{A}`]},
+      {k:'t',l:'t',u:'s',ltx:'t = \\dfrac{Q}{I}',solve:({Q,I})=>Q/I,
+        steps:({Q,I},r)=>['Q = I \\cdot t',`t = \\dfrac{Q}{I}`,`t = ${fmtNum(r)} \\,\\text{s}`]}
+    ],defaults:{Q:60,I:2,t:30}},
+
+  {key:'reihe',name:'Reihenschaltung R',base:'R_{ges} = R_1 + R_2',desc:'Widerstände in Reihe',
+    vars:[
+      {k:'R_ges',l:'R_{ges}',u:'Ω',ltx:'R_{ges} = R_1 + R_2',solve:({R1,R2})=>R1+R2,
+        steps:({R1,R2},r)=>['R_{ges} = R_1 + R_2',`R_{ges} = ${R1} + ${R2}`,`R_{ges} = ${fmtNum(r)} \\,\\Omega`]},
+      {k:'R1',l:'R_1',u:'Ω',ltx:'R_1 = R_{ges} - R_2',solve:({R_ges,R2})=>R_ges-R2,
+        steps:({R_ges,R2},r)=>['R_{ges} = R_1 + R_2',`R_1 = R_{ges} - R_2`,`R_1 = ${fmtNum(r)} \\,\\Omega`]},
+      {k:'R2',l:'R_2',u:'Ω',ltx:'R_2 = R_{ges} - R_1',solve:({R_ges,R1})=>R_ges-R1,
+        steps:({R_ges,R1},r)=>['R_{ges} = R_1 + R_2',`R_2 = R_{ges} - R_1`,`R_2 = ${fmtNum(r)} \\,\\Omega`]}
+    ],defaults:{R1:10,R2:20,R_ges:30}},
+
+  {key:'parallel',name:'Parallelschaltung R',base:'R_{ges} = \\dfrac{R_1 \\cdot R_2}{R_1 + R_2}',desc:'Widerstände parallel',
+    vars:[
+      {k:'R_ges',l:'R_{ges}',u:'Ω',ltx:'R_{ges} = \\dfrac{R_1 \\cdot R_2}{R_1 + R_2}',solve:({R1,R2})=>(R1*R2)/(R1+R2),
+        steps:({R1,R2},r)=>['\\dfrac{1}{R_{ges}} = \\dfrac{1}{R_1} + \\dfrac{1}{R_2}',`R_{ges} = \\dfrac{R_1 \\cdot R_2}{R_1 + R_2}`,`R_{ges} = \\dfrac{${R1} \\cdot ${R2}}{${R1} + ${R2}}`,`R_{ges} = ${fmtNum(r)} \\,\\Omega`]},
+      {k:'R1',l:'R_1',u:'Ω',ltx:'R_1 = \\dfrac{R_{ges} \\cdot R_2}{R_2 - R_{ges}}',solve:({R_ges,R2})=>(R_ges*R2)/(R2-R_ges),
+        steps:({R_ges,R2},r)=>['R_{ges} = \\dfrac{R_1 \\cdot R_2}{R_1 + R_2}',`R_1 = \\dfrac{R_{ges} \\cdot R_2}{R_2 - R_{ges}}`,`R_1 = ${fmtNum(r)} \\,\\Omega`]}
+    ],defaults:{R1:10,R2:20,R_ges:6.67}},
+
+  {key:'kondensator',name:'Kondensator',base:'Q = C \\cdot U',desc:'Ladung des Kondensators',
+    vars:[
+      {k:'Q',l:'Q',u:'C',ltx:'Q = C \\cdot U',solve:({C,U})=>C*U,
+        steps:({C,U},r)=>['Q = C \\cdot U',`Q = ${C} \\,\\text{F} \\cdot ${U} \\,\\text{V}`,`Q = ${fmtNum(r)} \\,\\text{C}`]},
+      {k:'C',l:'C',u:'F',ltx:'C = \\dfrac{Q}{U}',solve:({Q,U})=>Q/U,
+        steps:({Q,U},r)=>['Q = C \\cdot U',`C = \\dfrac{Q}{U}`,`C = ${fmtNum(r)} \\,\\text{F}`]},
+      {k:'U',l:'U',u:'V',ltx:'U = \\dfrac{Q}{C}',solve:({Q,C})=>Q/C,
+        steps:({Q,C},r)=>['Q = C \\cdot U',`U = \\dfrac{Q}{C}`,`U = ${fmtNum(r)} \\,\\text{V}`]}
+    ],defaults:{C:0.001,U:12,Q:0.012}}
+];
+
+let calcCurrentFormula=CALC_FORMULAS[0];
+let calcCurrentSolveFor=CALC_FORMULAS[0].vars[0];
+let calcValues={};
+let calcReady=false;
+function ensureCalc(){if(calcReady)return;if(!window.katex){setTimeout(ensureCalc,100);return}calcReady=true;buildFormulaGrid();selectFormula(CALC_FORMULAS[0])}
+function buildFormulaGrid(){const grid=document.getElementById('calcFormulaGrid');grid.innerHTML='';CALC_FORMULAS.forEach(f=>{const card=document.createElement('div');card.className='calc-formula-card'+(f===calcCurrentFormula?' active':'');card.dataset.key=f.key;card.innerHTML=`<div class="nm">${f.name}</div><div class="ltx"></div>`;card.onclick=()=>selectFormula(f);grid.appendChild(card);kx(f.base,card.querySelector('.ltx'))})}
+function selectFormula(f){calcCurrentFormula=f;calcCurrentSolveFor=f.vars[0];calcValues={...f.defaults};document.querySelectorAll('.calc-formula-card').forEach(c=>c.classList.toggle('active',c.dataset.key===f.key));document.getElementById('calcBaseName').textContent=f.desc;kx(f.base,document.getElementById('calcBaseDisplay'),true);buildVarRow();updateCalc()}
+function buildVarRow(){const row=document.getElementById('calcVarRow');row.innerHTML='';calcCurrentFormula.vars.forEach(v=>{const btn=document.createElement('button');btn.className='calc-var-btn'+(v===calcCurrentSolveFor?' active':'');btn.dataset.k=v.k;btn.innerHTML=`<div class="var-name"></div><small>${v.u||'—'}</small>`;btn.onclick=()=>{calcCurrentSolveFor=v;buildVarRow();updateCalc()};row.appendChild(btn);kx(v.l,btn.querySelector('.var-name'))})}
+function buildInputs(){const ctr=document.getElementById('calcInputs');ctr.innerHTML='';calcCurrentFormula.vars.forEach(v=>{if(v===calcCurrentSolveFor)return;const card=document.createElement('div');card.className='calc-input-card';card.innerHTML=`<div class="lbl"><span></span><span style="color:var(--text-secondary);font-size:.7rem">${v.u||''}</span></div><div class="input-row"><input type="number" step="any" data-k="${v.k}" value="${calcValues[v.k]??''}"><span class="unit">${v.u}</span></div>`;ctr.appendChild(card);kx(v.l,card.querySelector('.lbl span:first-child'));card.querySelector('input').addEventListener('input',e=>{calcValues[v.k]=parseFloat(e.target.value);updateCalc()})})}
+function updateCalc(){kx(calcCurrentSolveFor.ltx,document.getElementById('calcRearrangedDisplay'),true);buildInputs();const inputs={};let allOk=true;calcCurrentFormula.vars.forEach(v=>{if(v===calcCurrentSolveFor)return;const val=calcValues[v.k];if(val===undefined||isNaN(val))allOk=false;inputs[v.k]=val});const resBox=document.getElementById('calcResult');if(!allOk){resBox.className='calc-result error';resBox.innerHTML=`<div class="lbl">Werte unvollständig</div><div class="val">—</div>`;document.getElementById('calcSteps').classList.remove('show');return}let result;try{result=calcCurrentSolveFor.solve(inputs)}catch(e){result=NaN}resBox.className='calc-result';resBox.innerHTML=`<div class="lbl">Ergebnis</div><div class="val"><span></span> = ${fmtNum(result)}<span class="unit">${calcCurrentSolveFor.u}</span></div>`;kx(calcCurrentSolveFor.l,resBox.querySelector('.val span:first-child'));if(calcCurrentSolveFor.steps){const steps=calcCurrentSolveFor.steps(inputs,result);const stepsBox=document.getElementById('calcSteps');stepsBox.innerHTML='';steps.forEach((s,i)=>{const stepDiv=document.createElement('div');stepDiv.className='step';stepDiv.innerHTML=`<div class="step-num">${i+1}</div><div class="step-content"><span></span></div>`;stepsBox.appendChild(stepDiv);kx(s,stepDiv.querySelector('.step-content span'),true)})}}
+document.getElementById('calcStepsBtn').onclick=()=>{const box=document.getElementById('calcSteps');box.classList.toggle('show');const btn=document.getElementById('calcStepsBtn');btn.innerHTML=box.classList.contains('show')?'<i data-lucide="x"></i>Lösungsweg verbergen':'<i data-lucide="list-ordered"></i>Lösungsweg zeigen';if(window.lucide)lucide.createIcons()};
+document.getElementById('calcResetBtn').onclick=()=>{calcValues={...calcCurrentFormula.defaults};buildInputs();updateCalc()};
+
+/* ===== TAB 5: ZUORDNUNG ===== */
+const MATCH_MODES={
+  einheit:{label:'Einheiten',sub:'Größe → Einheit',leftLabel:'Größe',rightLabel:'Einheit',
+    pairs:[
+      {a:'Spannung U',b:'Volt (V)'},
+      {a:'Strom I',b:'Ampere (A)'},
+      {a:'Widerstand R',b:'Ohm (Ω)'},
+      {a:'Leistung P',b:'Watt (W)'},
+      {a:'Energie E',b:'Joule (J)'},
+      {a:'Ladung Q',b:'Coulomb (C)'},
+      {a:'Kapazität C',b:'Farad (F)'},
+      {a:'Frequenz f',b:'Hertz (Hz)'}
+    ]},
+  bauteil:{label:'Bauteile',sub:'Bauteil → Funktion',leftLabel:'Bauteil',rightLabel:'Funktion',
+    pairs:[
+      {a:'Widerstand',b:'Strom begrenzen'},
+      {a:'Spannungsquelle',b:'Energie liefern'},
+      {a:'Kondensator',b:'Ladung speichern'},
+      {a:'Diode',b:'Strom in eine Richtung'},
+      {a:'Schalter',b:'Stromkreis öffnen/schließen'},
+      {a:'LED',b:'Licht aussenden'},
+      {a:'Spule',b:'Magnetfeld erzeugen'}
+    ]},
+  formel:{label:'Formeln',sub:'Schaltungsregel → Formel',leftLabel:'Regel',rightLabel:'Formel',
+    pairs:[
+      {a:'Ohm\'sches Gesetz',b:'U = R · I'},
+      {a:'Leistung',b:'P = U · I'},
+      {a:'Energie',b:'E = P · t'},
+      {a:'Ladung',b:'Q = I · t'},
+      {a:'Reihe (R)',b:'R₁ + R₂'},
+      {a:'Parallel (R)',b:'(R₁·R₂)/(R₁+R₂)'},
+      {a:'Reihe (C)',b:'(C₁·C₂)/(C₁+C₂)'},
+      {a:'Parallel (C)',b:'C₁ + C₂'}
+    ]}
+};
+let matchCurrent='einheit';
+let matchOk=0,matchBad=0,matchSelected=null,matchTotal=0;
+function buildMatchModes(){const row=document.getElementById('matchModeRow');row.innerHTML='';Object.entries(MATCH_MODES).forEach(([k,m])=>{const btn=document.createElement('button');btn.className='match-mode-btn'+(k===matchCurrent?' active':'');btn.dataset.mode=k;btn.innerHTML=`${m.label}<small>${m.sub}</small>`;btn.onclick=()=>{matchCurrent=k;document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');initMatch()};row.appendChild(btn)})}
+buildMatchModes();
+function initMatch(){const m=MATCH_MODES[matchCurrent];matchOk=0;matchBad=0;matchSelected=null;matchTotal=m.pairs.length;document.getElementById('matchOk').textContent=0;document.getElementById('matchBad').textContent=0;document.getElementById('matchLeft').textContent=matchTotal;document.getElementById('matchStatus').classList.remove('show');document.getElementById('matchLeftLabel').textContent=m.leftLabel;document.getElementById('matchRightLabel').textContent=m.rightLabel;const left=document.getElementById('matchLeft1');const right=document.getElementById('matchRight');left.innerHTML='';right.innerHTML='';const indexed=m.pairs.map((p,i)=>({...p,key:'p'+i}));[...indexed].sort(()=>Math.random()-.5).forEach(p=>{const div=document.createElement('div');div.className='match-item';div.dataset.key=p.key;div.textContent=p.a;div.onclick=()=>matchTapLeft(div);left.appendChild(div)});[...indexed].sort(()=>Math.random()-.5).forEach(p=>{const div=document.createElement('div');div.className='match-item';div.dataset.key=p.key;div.textContent=p.b;div.onclick=()=>matchTapRight(div);right.appendChild(div)})}
+function matchTapLeft(el){if(el.classList.contains('matched'))return;document.querySelectorAll('#matchLeft1 .match-item.selected').forEach(x=>x.classList.remove('selected'));if(matchSelected===el){matchSelected=null;return}el.classList.add('selected');matchSelected=el}
+function matchTapRight(el){if(el.classList.contains('matched'))return;if(!matchSelected){el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),350);return}if(el.dataset.key===matchSelected.dataset.key){el.classList.add('matched');matchSelected.classList.add('matched');matchSelected.classList.remove('selected');matchSelected=null;matchOk++;document.getElementById('matchOk').textContent=matchOk;document.getElementById('matchLeft').textContent=matchTotal-matchOk;if(matchOk===matchTotal){const s=document.getElementById('matchStatus');s.className='match-status show success';s.innerHTML=`<b>Geschafft!</b> ${matchOk} richtig, ${matchBad} Fehler.`}}else{el.classList.add('wrong');matchSelected.classList.add('wrong');setTimeout(()=>{el.classList.remove('wrong');if(matchSelected)matchSelected.classList.remove('wrong')},400);matchBad++;document.getElementById('matchBad').textContent=matchBad}}
+document.getElementById('matchReset').onclick=initMatch;
+document.getElementById('matchNext').onclick=()=>{const keys=Object.keys(MATCH_MODES);matchCurrent=keys[(keys.indexOf(matchCurrent)+1)%keys.length];document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===matchCurrent));initMatch()};
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Wie lautet das Ohm\'sche Gesetz?',o:['U = R · I','U = R / I','U = R + I','U = R²·I'],c:0,e:'U = R · I. Spannung gleich Widerstand mal Strom. Einheiten: V = Ω · A.'},
+  {q:'Wie groß ist der Strom durch einen Widerstand von 6 Ω bei 12 V?',o:['0,5 A','1 A','2 A','72 A'],c:2,e:'I = U/R = 12 V / 6 Ω = 2 A.'},
+  {q:'Wie viel Leistung verbraucht ein Gerät bei 230 V und 0,5 A?',o:['115 W','460 W','11,5 W','1150 W'],c:0,e:'P = U · I = 230 · 0,5 = 115 W.'},
+  {q:'Reihenschaltung von 10 Ω + 20 Ω. R<sub>ges</sub> = ?',o:['6,67 Ω','15 Ω','30 Ω','200 Ω'],c:2,e:'R<sub>ges</sub> = R₁ + R₂ = 10 + 20 = 30 Ω.'},
+  {q:'Parallelschaltung von 10 Ω + 20 Ω. R<sub>ges</sub> = ?',o:['6,67 Ω','15 Ω','30 Ω','200 Ω'],c:0,e:'R<sub>ges</sub> = (10·20)/(10+20) = 200/30 ≈ 6,67 Ω.'},
+  {q:'In einer Reihenschaltung gilt:',o:['Strom überall gleich','Spannung überall gleich','Beides','Keines'],c:0,e:'Strom überall gleich, Spannung teilt sich. (Parallel umgekehrt.)'},
+  {q:'Welche Einheit hat die Ladung Q?',o:['Volt','Ampere','Coulomb','Watt'],c:2,e:'Coulomb (C) = A·s. 1 C ist die Ladung, die in 1 Sekunde bei 1 A fließt.'},
+  {q:'Wie ist die Energie definiert?',o:['E = U · I','E = P · t','E = R · I','E = Q · t'],c:1,e:'E = P · t. Mit Einheit Joule (J) = W·s. 1 kWh = 3,6 MJ.'},
+  {q:'Welches Bauteil leitet Strom nur in eine Richtung?',o:['Widerstand','Kondensator','Spule','Diode'],c:3,e:'Diode: PN-Übergang im Halbleiter, leitet ab Schwellenspannung in Durchlassrichtung.'},
+  {q:'Was speichert ein Kondensator?',o:['Strom','Ladung im elektrischen Feld','Magnetisches Feld','Wärme'],c:1,e:'Q = C · U. Energie E = ½·C·U². Im Defibrillator als Energiespeicher genutzt.'},
+  {q:'Wie viel Coulomb fließen in 30 s bei 2 A?',o:['15 C','30 C','60 C','120 C'],c:2,e:'Q = I · t = 2 · 30 = 60 C.'},
+  {q:'Welche Aussage zur Parallelschaltung von Widerständen ist falsch?',o:['Spannung überall gleich','R<sub>ges</sub> ist kleiner als kleinster Einzelwiderstand','Strom teilt sich','R<sub>ges</sub> = R₁ + R₂'],c:3,e:'Bei Parallel: 1/R<sub>ges</sub> = 1/R₁ + 1/R₂. R<sub>ges</sub> ist immer kleiner als der kleinste R.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){const Q=QUIZ[qi];document.getElementById('qText').innerHTML=Q.q;const opts=document.getElementById('qOpts');opts.innerHTML='';document.getElementById('qFb').classList.remove('show');document.getElementById('qIdx').textContent=qi+1;document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';Q.o.forEach((o,i)=>{const b=document.createElement('button');b.className='q-opt';b.innerHTML=o;b.onclick=()=>answer(i,Q);opts.appendChild(b)})}
+function answer(i,Q){qTotal++;const correct=i===Q.c;document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{x.disabled=true;if(idx===Q.c)x.classList.add('correct');else if(idx===i&&!correct)x.classList.add('wrong')});if(correct)qScore++;const fb=document.getElementById('qFb');fb.className='q-feedback show '+(correct?'correct':'wrong');fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

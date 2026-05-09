@@ -23,7 +23,8 @@
   <meta name="twitter:description" content="Über 1000 Fragen für den kognitiven Teil des MedAT. Kostenlos starten!">
   <meta name="twitter:image" content="https://medat-trainer.vercel.app/icon-512.png">
 
-  <link rel="stylesheet" href="css/style.css?v=20260326g">
+  <link rel="stylesheet" href="css/style.css?v=20260426a">
+  <link rel="stylesheet" href="css/goodies.css?v=20260424e">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
@@ -75,13 +76,17 @@
         <div class="hero-countdown-number" id="hero-countdown-days">–</div>
         <div class="hero-countdown-label" id="hero-countdown-label">Tage bis zum MedAT</div>
       </div>
+      <button class="hero-upgrade-btn" id="hero-upgrade-btn" style="display:none"
+        onclick="App.showScreen('screen-konto');App.renderKonto();">
+        ⭐ Jetzt upgraden
+      </button>
     </div>
 
+    <!-- Cheat-Sheets-Teaser (wird dynamisch befüllt, wenn ungeholte Cheat Sheets vorhanden sind) -->
+    <div id="home-goodies-teaser"></div>
+
     <!-- ===== HAUPT-AKTIONEN ===== -->
-    
-  <!-- Fragen-Limit Anzeige -->
-  <div id="question-limit-card" class="fade-up" style="margin:0.6rem 1.25rem 0"></div>
-  <div class="home-main-actions fade-up" style="margin-top:1rem">
+    <div class="home-main-actions fade-up" style="margin-top:1rem">
 
       <!-- Hauptkategorie 1: Üben in der App -->
       <button class="main-action-btn main-action-practice" id="btn-practice">
@@ -133,6 +138,30 @@
       </button>
     </div>
 
+    <!-- Wissens-Lab Banner (NEU) -->
+    <button class="home-tools-banner fade-up" onclick="App.showScreen('screen-tools')">
+      <div class="home-tools-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 v6 l-5 9 a2 2 0 0 0 1.7 3 h12.6 a2 2 0 0 0 1.7 -3 l-5 -9 V 3"/><line x1="9" y1="3" x2="15" y2="3"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
+      </div>
+      <div class="home-tools-banner-info">
+        <span class="label">Wissens-Lab<span class="badge-new">NEU</span></span>
+        <span class="desc">19 interaktive Lern-Tools – Bio · Physik · Chemie</span>
+      </div>
+      <span class="home-tools-banner-arrow">›</span>
+    </button>
+
+    <!-- Lern-Studio Banner -->
+    <div class="fade-up" style="margin:0.6rem 1.25rem 0;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);border-radius:14px;padding:0.9rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 4px 16px rgba(26,26,46,0.18);gap:0.75rem" onclick="Tutor.openFreeMode()">
+      <div style="display:flex;align-items:center;gap:0.65rem;flex:1">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f5c542,#e6a817);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0">🎓</div>
+        <div>
+          <div style="font-size:0.9rem;font-weight:800;color:#ffffff">Lern-Studio</div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6)">Eigenes Thema eingeben • Chat + Bilder generieren</div>
+        </div>
+      </div>
+      <span style="font-size:1.1rem;color:rgba(255,255,255,0.5);font-weight:600">›</span>
+    </div>
+
     <!-- Freunde einladen -->
     <div class="fade-up" style="margin:0.6rem 1.25rem 0;background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.8rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 2px 8px rgba(26,26,46,0.04)" onclick="App.shareApp()">
       <div style="display:flex;align-items:center;gap:0.65rem">
@@ -146,11 +175,8 @@
 
   </div>
 
-  <!-- Upgrade Badge (visible for free users) -->
-  <button class="upgrade-float-btn" id="upgrade-float-btn" style="display:none" onclick="App.showScreen('screen-konto');App.renderKonto();" aria-label="Upgrade">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-    <span class="upgrade-float-label">Upgrade</span>
-  </button>
+  <!-- Old floating upgrade button — permanently hidden, replaced by hero-upgrade-btn -->
+  <button id="upgrade-float-btn" style="display:none !important" aria-hidden="true"></button>
 
   <!-- Credit Counter (hidden element for JS state, no visible bar) -->
   <span id="credit-counter" style="display:none"></span>
@@ -182,31 +208,23 @@
         <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
         Üben in der App
       </a>
+      <a class="slide-menu-item" id="snav-gallery" onclick="Gallery.open()">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
+        Lernarchiv
+      </a>
+      <a class="slide-menu-item" id="snav-goodies">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
+        Cheat Sheets
+      </a>
       <a class="slide-menu-item" id="snav-pdf" onclick="PDFExport.openDialog()">
         <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></span>
         PDF-Simulator
-      </a>
-      <a class="slide-menu-item" id="snav-my-pdfs" onclick="App._closeMenu();PDFExport.openMyPdfs()">
-        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-        Meine PDFs
-      </a>
-      <a class="slide-menu-item" id="snav-stats">
-        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
-        Statistik
-      </a>
-      <a class="slide-menu-item" id="snav-konto">
-        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg></span>
-        Konto & Plan
-      </a>
-      <a class="slide-menu-item" id="snav-credits" onclick="App._closeMenu();Credits.showHistory()" style="display:none">
-        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
-        <span id="snav-credits-label">Credits</span>
       </a>
 
       <!-- Trennlinie -->
       <div style="height:1px;background:rgba(255,255,255,0.06);margin:0.5rem 1rem"></div>
 
-      <!-- Unterkategorien -->
+      <!-- Training-Features -->
       <a class="slide-menu-item slide-menu-sub" id="snav-weaknesses" onclick="App.openSmartTraining()">
         <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></span>
         Schwächen trainieren
@@ -215,9 +233,30 @@
         <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>
         Tägliche Challenge
       </a>
+      <a class="slide-menu-item slide-menu-sub" id="snav-lernplan">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg></span>
+        Lernplan
+      </a>
+
+      <!-- Trennlinie -->
+      <div style="height:1px;background:rgba(255,255,255,0.06);margin:0.5rem 1rem"></div>
+
+      <!-- Konto & Extras -->
+      <a class="slide-menu-item slide-menu-sub" id="snav-stats">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+        Statistik
+      </a>
+      <a class="slide-menu-item slide-menu-sub" id="snav-summaries" onclick="App.showScreen('screen-summaries');App.loadSummaries()">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+        Zusammenfassungen
+      </a>
+      <a class="slide-menu-item slide-menu-sub" id="snav-konto">
+        <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg></span>
+        Konto
+      </a>
       <a class="slide-menu-item slide-menu-sub" id="snav-notes" onclick="App.showNotesScreen()">
         <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-        Meine Notizen
+        Notizen
       </a>
       <a class="slide-menu-item slide-menu-sub" id="snav-share" onclick="App.shareApp()">
         <span class="slide-menu-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
@@ -245,6 +284,12 @@
 
   <!-- Menu overlay -->
   <div class="slide-menu-overlay" id="slide-menu-overlay"></div>
+
+  <!-- Credit badge removed — was blocking tutor close button -->
+  <div id="credit-badge" style="display:none !important"></div>
+
+  <!-- Onboarding reminder banner (for users who skipped) -->
+  <!-- Onboarding reminder removed -->
 
   <!-- ===== ELI5 LERNSEITEN ===== -->
   <div id="screen-eli5" class="screen">
@@ -285,6 +330,136 @@
     </div>
 
     <!-- Platz für zukünftige ELI5 Themen -->
+  </div>
+
+  <!-- ===== WISSENS-LAB (Bio · Physik · Chemie) ===== -->
+  <div id="screen-tools" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>Wissens-Lab</h1>
+    </header>
+
+    <div class="tools-intro fade-up">
+      <p>19 interaktive Lern-Tools nach einheitlichem 6-Modul-Schema: <b>Studio</b> · <b>Steckbriefe</b> · <b>Phänomene/Anwendungen</b> · <b>Rechner</b> · <b>Zuordnung</b> · <b>Quiz</b>. Pro Fach gibt's ein Tool gratis – mit <b>Premium</b> schaltest du alle frei.</p>
+    </div>
+
+    <!-- BIOLOGIE -->
+    <div class="tools-section-title bio fade-up"><span class="tools-section-dot"></span>Biologie</div>
+    <div class="tools-grid fade-up">
+      <a href="test-bio-tools/test-mitose-meiose.html" class="tools-card bio" data-free="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><line x1="9" y1="12" x2="15" y2="12"/><circle cx="6" cy="6" r="1.5"/><circle cx="18" cy="18" r="1.5"/></svg></div>
+        <div class="tools-card-body"><h3>Mitose &amp; Meiose</h3><p>Phasen-Visualizer, Phasen-Steckbriefe</p></div>
+        <span class="tools-card-free-badge">Frei</span>
+      </a>
+      <a href="test-bio-tools/test-zellbiologie.html" class="tools-card bio" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="6" r="1"/><circle cx="17" cy="14" r="1"/><circle cx="8" cy="16" r="1"/></svg></div>
+        <div class="tools-card-body"><h3>Zellbiologie</h3><p>Organellen, Zellvergleich, Steckbriefe</p></div>
+      </a>
+      <a href="test-bio-tools/test-stammbaum.html" class="tools-card bio" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><rect x="14" y="4" width="4" height="4"/><line x1="8" y1="6" x2="14" y2="6"/><circle cx="8" cy="18" r="2"/><rect x="14" y="16" width="4" height="4"/><line x1="12" y1="8" x2="12" y2="14"/></svg></div>
+        <div class="tools-card-body"><h3>Stammbaum</h3><p>Erbgänge diagnostizieren, 5 Steckbriefe</p></div>
+      </a>
+      <a href="test-bio-tools/test-blutgruppen.html" class="tools-card bio" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C 8 8, 5 12, 5 16 a7 7 0 0 0 14 0 c0-4-3-8-7-14z"/></svg></div>
+        <div class="tools-card-body"><h3>Blutgruppen</h3><p>AB0/Rh, Spende-Labor, Steckbriefe</p></div>
+      </a>
+      <a href="test-bio-tools/test-dna-translator.html" class="tools-card bio" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 c5 4 11 4 16 0"/><path d="M4 20 c5-4 11-4 16 0"/><line x1="6" y1="7" x2="6" y2="17"/><line x1="10" y1="9" x2="10" y2="15"/><line x1="14" y1="9" x2="14" y2="15"/><line x1="18" y1="7" x2="18" y2="17"/></svg></div>
+        <div class="tools-card-body"><h3>DNA &amp; Translation</h3><p>Codon-Sonne, Mutationen, Steckbriefe</p></div>
+      </a>
+      <a href="test-bio-tools/test-aminosaeuren.html" class="tools-card bio" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/><line x1="12" y1="15" x2="12" y2="21"/></svg></div>
+        <div class="tools-card-body"><h3>Aminosäuren</h3><p>20 AS, Eigenschaften, Code-Tabelle</p></div>
+      </a>
+      <a href="test-bio-tools/test-hormonsystem.html" class="tools-card bio" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="19" r="2"/><line x1="12" y1="7" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="17"/></svg></div>
+        <div class="tools-card-body"><h3>Hormonsystem</h3><p>10 Drüsen, Achsen, Steckbriefe</p></div>
+      </a>
+      <a href="test-bio-tools/test-histologie.html" class="tools-card bio" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16" y1="16" x2="21" y2="21"/><circle cx="11" cy="11" r="2"/></svg></div>
+        <div class="tools-card-body"><h3>Histologie</h3><p>Gewebearten erkennen &amp; zuordnen</p></div>
+      </a>
+    </div>
+
+    <!-- PHYSIK -->
+    <div class="tools-section-title physik fade-up"><span class="tools-section-dot"></span>Physik</div>
+    <div class="tools-grid fade-up">
+      <a href="test-physik-tools/test-wellen.html" class="tools-card physik-blue" data-free="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12 C 5 6, 8 18, 12 12 S 19 6, 22 12"/></svg></div>
+        <div class="tools-card-body"><h3>Wellen</h3><p>Transversal/Longitudinal, Doppler, Phänomene</p></div>
+        <span class="tools-card-free-badge">Frei</span>
+      </a>
+      <a href="test-physik-tools/test-hebel.html" class="tools-card physik-coral" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="2" rx="1"/><polygon points="12,13 9,19 15,19"/><circle cx="6" cy="9" r="2"/><circle cx="18" cy="9" r="2.5"/></svg></div>
+        <div class="tools-card-body"><h3>Hebelgesetz</h3><p>3 Hebelklassen, Drehmoment, 6 Anwendungen</p></div>
+      </a>
+      <a href="test-physik-tools/test-kraefte.html" class="tools-card physik-amber" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="17"/><polyline points="6 11 12 17 18 11"/><line x1="3" y1="21" x2="21" y2="21"/></svg></div>
+        <div class="tools-card-body"><h3>Kräfte</h3><p>Newton, Vektoren, Reibung, freier Fall</p></div>
+      </a>
+      <a href="test-physik-tools/test-stromkreis.html" class="tools-card physik-gold" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 4 13 11 13 11 22 20 11 13 11 13 2"/></svg></div>
+        <div class="tools-card-body"><h3>Stromkreis</h3><p>Ohm, Reihen-/Parallelschaltung, Rechner</p></div>
+      </a>
+      <a href="test-physik-tools/test-linsen-optik.html" class="tools-card physik-teal" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/></svg></div>
+        <div class="tools-card-body"><h3>Linsen &amp; Optik</h3><p>Sammel-/Zerstreuungslinse, Strahlengang</p></div>
+      </a>
+      <a href="test-physik-tools/test-halbwertszeit.html" class="tools-card physik-purple" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3 a9 9 0 0 1 0 18"/><line x1="12" y1="7" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="12"/></svg></div>
+        <div class="tools-card-body"><h3>Halbwertszeit</h3><p>Zerfall, Isotope, Nuklidkarte, Steckbriefe</p></div>
+      </a>
+    </div>
+
+    <!-- CHEMIE -->
+    <div class="tools-section-title chemie fade-up"><span class="tools-section-dot"></span>Chemie</div>
+    <div class="tools-grid fade-up">
+      <a href="test-chemie-tools/test-ph-rechner.html" class="tools-card chemie" data-free="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 v8 a4 4 0 0 0 -2 3 a4 4 0 0 0 4 4 a4 4 0 0 0 4 -4 a4 4 0 0 0 -2 -3 v-8"/><line x1="9" y1="3" x2="15" y2="3"/></svg></div>
+        <div class="tools-card-body"><h3>pH-Rechner</h3><p>Säure-Base, Puffer, Henderson-Hasselbalch</p></div>
+        <span class="tools-card-free-badge">Frei</span>
+      </a>
+      <a href="test-chemie-tools/test-pse.html" class="tools-card chemie" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg></div>
+        <div class="tools-card-body"><h3>Periodensystem</h3><p>Elemente, Gruppen, Trends</p></div>
+      </a>
+      <a href="test-chemie-tools/test-redox.html" class="tools-card chemie" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 7 9 7 9 17 15 17 15 7 21 7"/><polyline points="6 4 6 10"/><polyline points="18 14 18 20"/></svg></div>
+        <div class="tools-card-body"><h3>Redox</h3><p>Oxidation, Reduktion, Halbzellen</p></div>
+      </a>
+      <a href="test-chemie-tools/test-stoechiometrie.html" class="tools-card chemie" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="6 7 12 3 18 7"/><polyline points="6 17 12 21 18 17"/></svg></div>
+        <div class="tools-card-body"><h3>Stöchiometrie</h3><p>Mol-Rechnen, Reaktionsgleichungen</p></div>
+      </a>
+      <a href="test-chemie-tools/test-funktionelle-gruppen.html" class="tools-card chemie" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><line x1="9" y1="12" x2="15" y2="7"/><line x1="9" y1="12" x2="15" y2="17"/></svg></div>
+        <div class="tools-card-body"><h3>Funktionelle Gruppen</h3><p>OH · COOH · NH₂ · Aldehyd · Keton</p></div>
+      </a>
+    </div>
+
+    <div class="eli5-coming-soon">
+      <p>Pro Fach ist <b>1 Tool gratis</b>. Mit <b>Ultimate</b> schaltest du alle Tools frei.</p>
+    </div>
+  </div>
+
+  <!-- ===== UPGRADE-MODAL für gesperrte Tools ===== -->
+  <div id="tools-upgrade-modal" class="tools-upgrade-modal" onclick="if(event.target===this)App.closeToolsUpgradeModal()">
+    <div class="tools-upgrade-modal-card">
+      <button class="tools-upgrade-modal-close" onclick="App.closeToolsUpgradeModal()" aria-label="Schließen">✕</button>
+      <div class="tools-upgrade-modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11 V 7 a4 4 0 0 1 8 0 v 4"/></svg>
+      </div>
+      <h3 id="tools-upgrade-modal-title">Dieses Tool ist Teil von Premium</h3>
+      <p id="tools-upgrade-modal-desc">Pro Fach ist ein Tool gratis. Mit <b>Premium</b> schaltest du alle 19 Wissens-Lab-Tools frei – Bio, Physik und Chemie komplett.</p>
+      <div class="tools-upgrade-modal-price">
+        <div class="price" id="tools-upgrade-modal-price">€39,90</div>
+        <div class="desc" id="tools-upgrade-modal-pricedesc">einmalig · alle Tools für immer</div>
+      </div>
+      <div class="tools-upgrade-modal-actions">
+        <button class="btn-cancel" onclick="App.closeToolsUpgradeModal()">Später</button>
+        <button class="btn-cta" onclick="App.openPremiumUpgrade()">Premium sichern</button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== ÜBUNGSMODUS: THEMENAUSWAHL ===== -->
@@ -344,6 +519,7 @@
           <option value="easy">Leicht</option>
           <option value="medium">Mittel</option>
           <option value="hard">Schwer</option>
+          <option value="expert">Expert</option>
         </select>
       </div>
       <div class="setting-row">
@@ -359,7 +535,7 @@
       <div class="setting-row">
         <label for="prac-timer-toggle">Timer anzeigen</label>
         <label class="toggle">
-          <input type="checkbox" id="prac-timer-toggle" checked>
+          <input type="checkbox" id="prac-timer-toggle">
           <span class="toggle-slider"></span>
         </label>
       </div>
@@ -506,6 +682,57 @@
     <button class="btn-primary btn-full" id="mem-skip" style="margin-top:1rem">Phase beenden</button>
   </div>
 
+  <!-- ===== LERNARCHIV ===== -->
+  <div id="screen-gallery" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>📚 Mein Lernarchiv</h1>
+    </header>
+
+    <div class="gallery-filter-bar" id="gallery-filter-bar"></div>
+
+    <div class="gallery-content">
+      <div class="gallery-grid" id="gallery-grid"></div>
+      <div id="gallery-empty" class="gallery-empty hidden">
+        <div class="gallery-empty-icon">📚</div>
+        <h3>Noch nichts gespeichert</h3>
+        <p>Speichere Tutoren-Gespräche mit 💾 oder erstelle Lernbilder mit dem 🍌 Banana-Tutor!</p>
+      </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="gallery-modal" class="gallery-modal hidden">
+      <div class="gallery-modal-inner">
+        <div class="gallery-modal-header">
+          <h2 id="gm-title" class="gallery-modal-title"></h2>
+          <button id="gallery-modal-close" class="gallery-modal-close">✕</button>
+        </div>
+        <p id="gm-meta" class="gallery-modal-meta"></p>
+
+        <!-- Image view (for Banana images) -->
+        <div id="gm-img-wrap" class="gallery-modal-img-wrap">
+          <img id="gm-img" src="" alt="" class="gallery-modal-img" style="display:none">
+        </div>
+
+        <!-- Conversation view (for saved chats) -->
+        <div id="gm-conversation-wrap" class="gallery-modal-conv-wrap" style="display:none"></div>
+
+        <p id="gm-question" class="gallery-modal-question"></p>
+        <div class="gallery-modal-notes">
+          <label class="gallery-notes-label">📝 Meine Notizen</label>
+          <textarea id="gm-notes" class="gallery-notes-textarea" rows="3" placeholder="Füge deine persönlichen Notizen hinzu…"></textarea>
+          <button id="gm-save-notes" class="btn-primary" style="margin-top:0.5rem;width:100%">💾 Notizen speichern</button>
+        </div>
+        <div class="gallery-modal-actions">
+          <button id="gm-load-scratchpad" class="btn-secondary">✏️ Notizblock</button>
+          <button id="gm-share" class="btn-secondary">⬆️ Teilen</button>
+          <button id="gm-download" class="btn-secondary">⬇️ Download</button>
+          <button id="gm-delete" class="btn-danger">🗑️ Löschen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== FRAGE-BILDSCHIRM (Üben + Simulation) ===== -->
   <div id="screen-question" class="screen">
     <header class="app-header" id="question-header">
@@ -530,36 +757,56 @@
       <div id="q-answers"></div>
     </div>
 
-    <!-- Scratchpad / Notizblock -->
+    <!-- Scratchpad / Notizblock v2 – Pro Edition -->
     <div id="scratchpad-container" class="scratchpad-container hidden">
-      <div class="scratchpad-header">
-        <span class="scratchpad-title">✏️ Notizblock</span>
-        <div class="scratchpad-tools">
-          <button class="scratchpad-tool active" id="sp-pen" title="Stift">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-          </button>
-          <button class="scratchpad-tool" id="sp-highlighter" title="Textmarker">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
-          </button>
-          <button class="scratchpad-tool" id="sp-eraser" title="Radierer">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
-          </button>
-          <button class="scratchpad-tool" id="sp-clear" title="Alles löschen">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-          </button>
-          <span class="scratchpad-divider"></span>
-          <button class="scratchpad-color active" id="sp-c-black" style="background:#1a1a2e" title="Schwarz"></button>
-          <button class="scratchpad-color" id="sp-c-red" style="background:#e74c3c" title="Rot"></button>
-          <button class="scratchpad-color" id="sp-c-blue" style="background:#3498db" title="Blau"></button>
-          <button class="scratchpad-color" id="sp-c-green" style="background:#27ae60" title="Grün"></button>
-          <button class="scratchpad-color" id="sp-c-yellow" style="background:#f1c40f" title="Gelb"></button>
+      <div class="sp-header">
+        <span class="sp-title">✏️ Notizblock</span>
+        <div class="sp-header-actions">
+          <button class="sp-act-btn" id="sp-undo" title="Rückgängig (Ctrl+Z)" disabled>↩️</button>
+          <button class="sp-act-btn" id="sp-redo" title="Wiederholen (Ctrl+Y)" disabled>↪️</button>
+          <button class="sp-act-btn" id="sp-export" title="Als PNG herunterladen">⬇️</button>
+          <button class="sp-act-btn" id="sp-fullscreen" title="Vollbild">⛶</button>
+          <button class="sp-act-btn" id="sp-minimize" title="Zuklappen">✕</button>
         </div>
-        <button class="scratchpad-toggle" id="sp-minimize" title="Zuklappen">▼</button>
       </div>
-      <canvas id="scratchpad-canvas" width="600" height="280"></canvas>
-      <div class="scratchpad-note-bar">
-        <input type="text" id="sp-note-input" placeholder="Notiz speichern, z.B. 'Mendel-Gesetze nochmal lernen'" maxlength="300">
-        <button id="sp-note-save">Merken</button>
+      <div class="sp-toolbar">
+        <div class="sp-tool-group">
+          <button class="sp-tool active" id="sp-pen" title="Stift (P)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+          </button>
+          <button class="sp-tool" id="sp-highlighter" title="Textmarker (H)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
+          </button>
+          <button class="sp-tool" id="sp-text-tool" title="Text einfügen (T)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+          </button>
+          <button class="sp-tool" id="sp-eraser" title="Radierer (E)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+          </button>
+        </div>
+        <div class="sp-size-group">
+          <button class="sp-size active" id="sp-size-s" data-size="s">S</button>
+          <button class="sp-size" id="sp-size-m" data-size="m">M</button>
+          <button class="sp-size" id="sp-size-l" data-size="l">L</button>
+        </div>
+        <div class="sp-color-group">
+          <button class="sp-color active" id="sp-c-black" data-color="#1a1a2e" style="background:#1a1a2e" title="Schwarz"></button>
+          <button class="sp-color" id="sp-c-navy" data-color="#3b82f6" style="background:#3b82f6" title="Blau"></button>
+          <button class="sp-color" id="sp-c-red" data-color="#ef4444" style="background:#ef4444" title="Rot"></button>
+          <button class="sp-color" id="sp-c-green" data-color="#22c55e" style="background:#22c55e" title="Grün"></button>
+          <button class="sp-color" id="sp-c-yellow" data-color="#eab308" style="background:#eab308" title="Gelb"></button>
+          <button class="sp-color" id="sp-c-orange" data-color="#f97316" style="background:#f97316" title="Orange"></button>
+          <button class="sp-color" id="sp-c-purple" data-color="#a855f7" style="background:#a855f7" title="Lila"></button>
+          <button class="sp-color" id="sp-c-white" data-color="#ffffff" style="background:#ffffff;border:1.5px solid #cbd5e1" title="Weiß"></button>
+          <input type="color" id="sp-c-custom" class="sp-custom-color" title="Eigene Farbe" value="#1a1a2e">
+        </div>
+        <div class="sp-tool-group">
+          <button class="sp-act-btn" id="sp-clear" title="Alles löschen">🗑️</button>
+        </div>
+      </div>
+      <canvas id="scratchpad-canvas" width="600" height="320"></canvas>
+      <div id="sp-text-overlay" class="sp-text-overlay hidden">
+        <input type="text" id="sp-text-input" placeholder="Text eingeben, Enter zum Einfügen…" autocomplete="off">
       </div>
     </div>
 
@@ -572,6 +819,7 @@
       <p class="q-feedback-explanation" id="q-feedback-explanation" style="font-size:0.85rem;color:var(--text-muted);margin:4px 0;font-style:italic"></p>
       <p class="q-explanation" id="q-explanation"></p>
       <div id="q-euler-diagrams" class="euler-diagrams-container hidden"></div>
+      <div id="ki-nudge-inline" class="hidden"></div>
       <button class="btn-primary btn-full" id="q-next-btn">Nächste Frage →</button>
     </div>
   </div>
@@ -602,17 +850,6 @@
       <!-- Wird dynamisch befüllt -->
     </div>
 
-    <!-- Infografiken für falsche Antworten -->
-    <div id="result-infographics" class="result-infographics hidden">
-      <h3><span class="header-icon" id="icon-header-infographic"></span> Lernhilfe: Infografiken zu deinen Fehlern</h3>
-      <p class="infographics-subtitle">Automatisch generiert, um dir beim Verstehen zu helfen</p>
-      <div id="infographics-container"></div>
-      <div id="infographics-loading" class="hidden">
-        <div class="spinner"></div>
-        <p>Infografiken werden im Hintergrund generiert...</p>
-      </div>
-    </div>
-
     <!-- TV-Analyse -->
     <div id="tv-analysis-section" class="tv-analysis-section hidden">
       <button class="btn-tv-analyze" id="btn-tv-analyze">
@@ -629,6 +866,21 @@
       </div>
     </div>
 
+    <!-- Personalisierte KI-Zusammenfassung -->
+    <div id="result-resume" class="hidden">
+      <div id="resume-loading" style="text-align:center;padding:1.2rem">
+        <div class="spinner"></div>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem">Deine persönliche Zusammenfassung wird erstellt...</p>
+      </div>
+      <div id="resume-content" class="hidden"></div>
+      <div id="resume-saved-hint" class="hidden" style="text-align:center;padding:0.4rem;font-size:0.75rem;color:var(--text-muted)">
+        ✅ Gespeichert — du findest diese Zusammenfassung unter <a href="#" onclick="App.showScreen('screen-summaries');App.loadSummaries();return false" style="color:var(--primary);font-weight:600">Meine Zusammenfassungen</a>
+      </div>
+    </div>
+
+    <!-- KI-Nudge für Result Screen -->
+    <div id="ki-nudge-result" class="hidden"></div>
+
     <!-- Upgrade CTA für Free User -->
     <div id="result-upgrade-cta" class="hidden"></div>
 
@@ -644,11 +896,11 @@
       <div class="auth-header">
         <div class="auth-logo" id="icon-auth-logo"></div>
         <h1>MedAT Trainer</h1>
-        <p>Melde dich an, um deinen Fortschritt zu speichern</p>
+        <p>Erstelle dein Konto und starte deine MedAT-Vorbereitung</p>
       </div>
 
       <!-- Login Form -->
-      <form id="auth-login" class="auth-form" autocomplete="on" onsubmit="return false;">
+      <form id="auth-login" class="auth-form hidden" autocomplete="on" onsubmit="return false;">
         <div class="auth-input-group">
           <label for="login-email">E-Mail</label>
           <input type="email" id="login-email" name="email" placeholder="deine@email.at" autocomplete="username email">
@@ -667,7 +919,7 @@
       </form>
 
       <!-- Signup Form -->
-      <div id="auth-signup" class="auth-form hidden">
+      <div id="auth-signup" class="auth-form">
         <div class="auth-input-group">
           <label for="signup-name">Name</label>
           <input type="text" id="signup-name" placeholder="Dein Name" autocomplete="name">
@@ -692,12 +944,6 @@
           <input type="checkbox" id="signup-privacy" style="margin-top:0.2rem;width:18px;height:18px;flex-shrink:0;accent-color:var(--primary)">
           <label for="signup-privacy" style="font-size:0.8rem;line-height:1.4;font-weight:normal;color:var(--text-muted);cursor:pointer">
             Ich akzeptiere die <a href="#" id="link-agb" style="color:var(--primary);text-decoration:underline">AGB</a> und die <a href="#" id="link-datenschutz" style="color:var(--primary);text-decoration:underline">Datenschutzerklärung</a> und bin damit einverstanden, dass meine Daten zur Nutzung der App verarbeitet werden.
-          </label>
-        </div>
-        <div class="auth-input-group" style="flex-direction:row;align-items:flex-start;gap:0.5rem">
-          <input type="checkbox" id="signup-email-consent" style="margin-top:0.2rem;width:18px;height:18px;flex-shrink:0;accent-color:var(--primary)">
-          <label for="signup-email-consent" style="font-size:0.8rem;line-height:1.4;font-weight:normal;color:var(--text-muted);cursor:pointer">
-            Ich möchte Lern-Impulse (alle 3 Tage) sowie Infos zu neuen Features und Angeboten per E-Mail erhalten. Abmeldung jederzeit möglich.
           </label>
         </div>
         <div id="signup-error" class="auth-error hidden"></div>
@@ -734,167 +980,152 @@
     </div>
   </div>
 
-  <!-- ===== ONBOARDING SCREEN ===== -->
-<!-- ===== ONBOARDING SCREEN (NEU: 7 Schritte) ===== -->
-<!-- Ersetzt den bestehenden <div id="screen-onboarding"> Block in index.html -->
-<!-- Nutzt die bestehenden .ob- CSS Klassen aus style.css -->
-
-<div id="screen-onboarding" class="screen">
-  <div class="ob-container">
-    <!-- Progress bar -->
-    <div class="ob-progress">
-      <div class="ob-progress-bar" id="ob-progress-bar" style="width:0%"></div>
-    </div>
-
-    <!-- Schritt 1: Spitzname (NEU) -->
-    <div class="ob-step active" data-step="1">
-      <div class="ob-emoji">👋</div>
-      <h2>Wie dürfen wir dich nennen?</h2>
-      <p class="ob-sub">Dein Spitzname wird überall in der App verwendet — von deinem Dashboard bis zu deinen Tutoren.</p>
-      <div style="width:100%;max-width:380px">
-        <input type="text" id="ob-nickname"
-               placeholder="z.B. Andi, Lena, Doc..."
-               maxlength="30"
-               style="width:100%;padding:1rem 1.25rem;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);font-size:1rem;font-weight:600;color:var(--dark);font-family:inherit;outline:none;transition:all 0.25s ease;box-sizing:border-box"
-               onfocus="this.style.borderColor='var(--yellow)';this.style.boxShadow='0 0 0 3px var(--yellow-shadow)'"
-               onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
-        <button class="btn-primary btn-large btn-full" id="ob-nickname-next" style="margin-top:1.25rem">
-          Weiter →
-        </button>
+  <!-- Onboarding screen removed -->
+  <div id="screen-onboarding-REMOVED" style="display:none">
+    <div class="ob-container-REMOVED">
+      <!-- Progress bar -->
+      <div class="ob-progress">
+        <div class="ob-progress-bar" id="ob-progress-bar" style="width:0%"></div>
       </div>
-    </div>
 
-    <!-- Schritt 2: Uni-Wahl (wie Original) -->
-    <div class="ob-step" data-step="2">
-      <div class="ob-emoji">🎓</div>
-      <h2>An welcher Uni möchtest du studieren?</h2>
-      <p class="ob-sub">Wir passen dein Training an deinen Standort an.</p>
-      <div class="ob-options" data-field="target_uni">
-        <button class="ob-option" data-value="wien">🏛️ Wien</button>
-        <button class="ob-option" data-value="graz">🏔️ Graz</button>
-        <button class="ob-option" data-value="innsbruck">⛰️ Innsbruck</button>
-        <button class="ob-option" data-value="linz">🌉 Linz</button>
-      </div>
-    </div>
-
-    <!-- Schritt 3: Erster Antritt (wie Original) -->
-    <div class="ob-step" data-step="3">
-      <div class="ob-emoji">📋</div>
-      <h2>Ist das dein erster MedAT-Antritt?</h2>
-      <p class="ob-sub">So können wir deinen Wissensstand besser einschätzen.</p>
-      <div class="ob-options" data-field="is_first_attempt">
-        <button class="ob-option" data-value="true">✨ Ja, mein erstes Mal</button>
-        <button class="ob-option" data-value="false">🔄 Nein, ich wiederhole</button>
-      </div>
-    </div>
-
-    <!-- Schritt 4: Größte Sorgen (NEU — Multi-Select) -->
-    <div class="ob-step" data-step="4">
-      <div class="ob-emoji">😰</div>
-      <h2>Was bereitet dir die größten Sorgen?</h2>
-      <p class="ob-sub">Wähle alles aus, was dich stresst — wir kümmern uns drum. <strong>Mehrfachauswahl möglich.</strong></p>
-      <div class="ob-options" id="ob-worry-options">
-        <button class="ob-option ob-multi" data-worry="zeitdruck">⏱️ Zeitdruck bei der Prüfung</button>
-        <button class="ob-option ob-multi" data-worry="bms">🧬 BMS – Bio, Chemie, Physik, Mathe</button>
-        <button class="ob-option ob-multi" data-worry="tv">📖 Textverständnis</button>
-        <button class="ob-option ob-multi" data-worry="kff">🧩 Kognitive Fähigkeiten</button>
-        <button class="ob-option ob-multi" data-worry="sek">💬 Soziales Entscheiden</button>
-        <button class="ob-option ob-multi" data-worry="orientierung">🧭 Ich weiß nicht, wo ich anfangen soll</button>
-        <button class="ob-option ob-multi" data-worry="angst">😟 Angst, es nicht zu schaffen</button>
-      </div>
-      <button class="btn-primary btn-large btn-full" id="ob-worry-next" style="margin-top:1.25rem;display:none">
-        Weiter →
-      </button>
-    </div>
-
-    <!-- Schritt 5: Konkrete Schwachstellen (NEU — Freitext) -->
-    <div class="ob-step" data-step="5">
-      <div class="ob-emoji">🎯</div>
-      <h2>Welche Themen kannst du noch gar nicht?</h2>
-      <p class="ob-sub">Schreib rein, was dir Probleme macht — unsere Tutoren erstellen dann <strong>genau dafür</strong> passende Übungen.</p>
-      <div style="width:100%;max-width:420px">
-        <textarea id="ob-weak-topics"
-                  placeholder="z.B. Hormone, Stöchiometrie, Zahlenfolgen, Implikationen, p-Werte..."
-                  rows="4"
-                  style="width:100%;padding:1rem 1.25rem;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);font-size:0.95rem;font-weight:500;color:var(--dark);font-family:inherit;outline:none;transition:all 0.25s ease;resize:vertical;line-height:1.5;box-sizing:border-box"
-                  onfocus="this.style.borderColor='var(--yellow)';this.style.boxShadow='0 0 0 3px var(--yellow-shadow)'"
-                  onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"></textarea>
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:0.5rem;text-align:left">💡 Je genauer du schreibst, desto besser können wir helfen.</p>
-        <button class="btn-primary btn-large btn-full" id="ob-topics-next" style="margin-top:1rem">
-          Weiter →
-        </button>
-        <button class="ob-skip-link" id="ob-topics-skip" style="margin-top:0.5rem;display:block;text-align:center;width:100%">
-          Überspringen →
-        </button>
-      </div>
-    </div>
-
-    <!-- Schritt 6: Lade-Animation (angepasst) -->
-    <div class="ob-step" data-step="6">
-      <div class="ob-emoji">🔬</div>
-      <h2>Dein Training wird vorbereitet...</h2>
-      <div class="ob-loading" id="ob-loading">
-        <div class="ob-load-item" data-delay="0">
-          <div class="ob-load-check">⏳</div>
-          <span>Analysiere deine Schwachstellen...</span>
-        </div>
-        <div class="ob-load-item" data-delay="1500">
-          <div class="ob-load-check">⏳</div>
-          <span>Erstelle persönliche Tutor-Prompts...</span>
-        </div>
-        <div class="ob-load-item" data-delay="3000">
-          <div class="ob-load-check">⏳</div>
-          <span>Richte deinen Trainingsplan ein...</span>
-        </div>
-        <div class="ob-load-item" data-delay="4500">
-          <div class="ob-load-check">⏳</div>
-          <span>Alles bereit!</span>
+      <!-- Step 1: Uni-Wahl -->
+      <div class="ob-step active" data-step="1">
+        <div class="ob-emoji">🎓</div>
+        <h2>An welcher Uni möchtest du studieren?</h2>
+        <p class="ob-sub">Wir passen dein Training an deinen Standort an.</p>
+        <div class="ob-options" data-field="target_uni">
+          <button class="ob-option" data-value="wien">🏛️ Wien</button>
+          <button class="ob-option" data-value="graz">🏔️ Graz</button>
+          <button class="ob-option" data-value="innsbruck">⛰️ Innsbruck</button>
+          <button class="ob-option" data-value="linz">🌉 Linz</button>
         </div>
       </div>
-      <div class="ob-load-progress">
-        <div class="ob-load-progress-bar" id="ob-load-bar"></div>
-      </div>
-    </div>
 
-    <!-- Schritt 7: Willkommen + Paywall (angepasst) -->
-    <div class="ob-step" data-step="7">
-      <div class="ob-emoji">🎉</div>
-      <h2 id="ob-welcome-title">Dein Training ist bereit!</h2>
-      <p class="ob-sub">Starte jetzt kostenlos mit <strong>100 Fragen</strong>, oder schalte den vollen Zugang frei.</p>
-      <div class="ob-paywall" style="width:100%;max-width:400px">
-        <!-- Basic Plan -->
-        <div class="ob-pay-card" id="ob-plan-basic"
-             style="border:2px solid var(--border);border-radius:var(--radius-sm);padding:1.15rem 1.25rem;margin-bottom:0.65rem;cursor:pointer;transition:all 0.25s ease;background:var(--surface)"
-             onmouseover="this.style.borderColor='var(--yellow)';this.style.background='var(--yellow-soft)'"
-             onmouseout="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-weight:800;font-size:1rem;color:var(--dark)">Basic</div>
-              <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Alle Fragen + Statistiken</div>
-            </div>
-            <div style="font-size:1.3rem;font-weight:800;color:var(--dark)">€19,90</div>
+      <!-- Step 2: Erster Antritt -->
+      <div class="ob-step" data-step="2">
+        <div class="ob-emoji">📋</div>
+        <h2>Ist das dein erster MedAT-Antritt?</h2>
+        <p class="ob-sub">So können wir deinen Wissensstand besser einschätzen.</p>
+        <div class="ob-options" data-field="is_first_attempt">
+          <button class="ob-option" data-value="true">✨ Ja, mein erstes Mal</button>
+          <button class="ob-option" data-value="false">🔄 Nein, ich wiederhole</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Größte Sorge -->
+      <div class="ob-step" data-step="3">
+        <div class="ob-emoji">😰</div>
+        <h2>Welcher Testteil bereitet dir die größten Sorgen?</h2>
+        <p class="ob-sub">Wir starten mit dem, was dir am meisten Stress macht.</p>
+        <div class="ob-options" data-field="weakest_section">
+          <button class="ob-option" data-value="bms">🧬 BMS – Bio, Chemie, Physik, Mathe</button>
+          <button class="ob-option" data-value="tv">📖 TV – Textverständnis</button>
+          <button class="ob-option" data-value="kff">🧩 KFF – Kognitive Fähigkeiten</button>
+          <button class="ob-option" data-value="sek">💬 SEK – Soziales Entscheiden</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Sicherheits-Gefühl -->
+      <div class="ob-step" data-step="4">
+        <div class="ob-emoji">💭</div>
+        <h2>Wie sicher fühlst du dich gerade?</h2>
+        <p class="ob-sub">Sei ehrlich — es gibt keine falsche Antwort.</p>
+        <div class="ob-options" data-field="confidence_level">
+          <button class="ob-option" data-value="sehr_sicher">💪 Ziemlich sicher – ich brauch nur Feinschliff</button>
+          <button class="ob-option" data-value="unsicher">🤔 Unsicher – ich weiß nicht, wo ich stehe</button>
+          <button class="ob-option" data-value="angst">😟 Große Angst – ich fühl mich noch nicht bereit</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Quick Win — 3 easy questions -->
+      <div class="ob-step" data-step="5">
+        <div class="ob-emoji">⚡</div>
+        <h2>Kleiner Schnelltest – 3 Fragen</h2>
+        <p class="ob-sub">Lass uns sehen, was du schon draufhast!</p>
+        <div class="ob-quiz" id="ob-quiz">
+          <!-- Quiz question rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Step 6: Lernzeit-Präferenz -->
+      <div class="ob-step" data-step="6">
+        <div class="ob-emoji">⏰</div>
+        <h2>Wann lernst du am liebsten?</h2>
+        <p class="ob-sub">Wir erinnern dich zur perfekten Zeit.</p>
+        <div class="ob-options" data-field="preferred_study_time">
+          <button class="ob-option" data-value="morgens">🌅 Morgens – Frisch und ausgeruht</button>
+          <button class="ob-option" data-value="mittags">☀️ Mittags – Zwischen den Vorlesungen</button>
+          <button class="ob-option" data-value="abends">🌙 Abends – Wenn alles ruhig ist</button>
+        </div>
+      </div>
+
+      <!-- Step 7: Arbeits-Animation -->
+      <div class="ob-step" data-step="7">
+        <div class="ob-emoji">🔬</div>
+        <h2>Dein persönlicher Lernplan wird erstellt...</h2>
+        <div class="ob-loading" id="ob-loading">
+          <div class="ob-load-item" data-delay="0">
+            <div class="ob-load-check">⏳</div>
+            <span>Analysiere deine Schwächen...</span>
+          </div>
+          <div class="ob-load-item" data-delay="1500">
+            <div class="ob-load-check">⏳</div>
+            <span>Erstelle maßgeschneiderten MedAT-Lernplan...</span>
+          </div>
+          <div class="ob-load-item" data-delay="3000">
+            <div class="ob-load-check">⏳</div>
+            <span>Wähle deine ersten Übungsfragen aus...</span>
+          </div>
+          <div class="ob-load-item" data-delay="4500">
+            <div class="ob-load-check">⏳</div>
+            <span>Generiere deine PDF-Prüfungssimulationen...</span>
+          </div>
+          <div class="ob-load-item" data-delay="6000">
+            <div class="ob-load-check">⏳</div>
+            <span>Alles bereit!</span>
           </div>
         </div>
-        <!-- Premium Plan -->
-        <div class="ob-pay-card" id="ob-plan-premium"
-             style="border:2px solid var(--yellow);border-radius:var(--radius-sm);padding:1.15rem 1.25rem;margin-bottom:0.65rem;position:relative;background:var(--yellow-soft);cursor:pointer;box-shadow:0 4px 16px var(--yellow-shadow);transition:all 0.25s ease">
-          <div style="position:absolute;top:-8px;right:12px;background:linear-gradient(90deg,var(--yellow),var(--yellow-deep));color:var(--dark);font-size:0.65rem;font-weight:800;padding:2px 10px;border-radius:10px">BELIEBT</div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-weight:800;font-size:1rem;color:var(--dark)">Premium</div>
-              <div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">Alles + KI-Tutoren + PDF-Simulationen</div>
-            </div>
-            <div style="font-size:1.3rem;font-weight:800;color:var(--dark)">€29,90</div>
-          </div>
+        <div class="ob-load-progress">
+          <div class="ob-load-progress-bar" id="ob-load-bar"></div>
         </div>
-        <div style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin:0.5rem 0 1rem">Einmalzahlung · Kein Abo · Kein Kleingedrucktes</div>
-        <button class="ob-skip-link" id="ob-skip-paywall">Erstmal kostenlos testen →</button>
       </div>
-    </div>
 
+      <!-- Step 8: Roadmap Preview -->
+      <div class="ob-step" data-step="8">
+        <div class="ob-emoji">🗺️</div>
+        <h2>Dein persönlicher Trainingsplan</h2>
+        <p class="ob-sub">Basierend auf deinen Angaben haben wir diesen Plan für dich erstellt:</p>
+        <div class="ob-roadmap" id="ob-roadmap">
+          <!-- Rendered by JS based on answers -->
+        </div>
+        <button class="btn-primary btn-large btn-full ob-next-btn" id="ob-to-paywall">Jetzt loslegen 🚀</button>
+      </div>
+
+      <!-- Step 9: Paywall -->
+      <div class="ob-step" data-step="9">
+        <div class="ob-emoji">🔓</div>
+        <h2>Dein Lernplan ist fertig!</h2>
+        <p class="ob-sub">Schalte jetzt alle <strong>2.896+ Fragen</strong> und <strong>10+ PDF-Simulationen</strong> frei.</p>
+        <div class="ob-paywall">
+          <div class="ob-pay-card">
+            <div class="ob-pay-badge">Einmalzahlung</div>
+            <div class="ob-pay-price">€17</div>
+            <div class="ob-pay-desc">Kein Abo · Kein Kleingedrucktes</div>
+            <ul class="ob-pay-features">
+              <li>✓ Alle 2.896+ Übungsfragen</li>
+              <li>✓ 10+ PDF-Prüfungssimulationen</li>
+              <li>✓ Schwächen-Fokus & Statistiken</li>
+              <li>✓ Dein persönlicher Lernplan</li>
+              <li>✓ Laufend neue Fragen & Updates</li>
+            </ul>
+            <button class="btn-primary btn-large btn-full" id="ob-buy-btn">Vollzugang freischalten – €17</button>
+          </div>
+          <button class="ob-skip-link" id="ob-skip-paywall">Erstmal kostenlos testen →</button>
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
-
 
   <!-- ===== PROFIL-SCREEN ===== -->
   <div id="screen-profile" class="screen">
@@ -1003,6 +1234,20 @@
     </div>
   </div>
 
+  <!-- ===== ZUSAMMENFASSUNGEN SCREEN ===== -->
+  <div id="screen-summaries" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>📋 Meine Zusammenfassungen</h1>
+    </header>
+    <p style="padding:0 1rem;color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem">
+      Hier findest du alle deine gespeicherten Lern-Zusammenfassungen mit Tutor-Empfehlungen.
+    </p>
+    <div id="summaries-container" style="padding:0 1rem">
+      <div class="spinner" style="margin:2rem auto"></div>
+    </div>
+  </div>
+
   <!-- ===== NOTIZEN SCREEN ===== -->
   <div id="screen-notes" class="screen">
     <header class="app-header">
@@ -1034,6 +1279,18 @@
     </div>
   </div>
 
+  <!-- ===== LERNPLAN SCREEN ===== -->
+  <div id="screen-lernplan" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>📅 Mein Lernplan</h1>
+    </header>
+    <div id="lernplan-content" class="lernplan-container"></div>
+  </div>
+
+  <!-- ===== GOODIES-SCREEN (Cheat Sheets) ===== -->
+  <div id="screen-goodies" class="screen"></div>
+
   <!-- ===== ADMIN-SCREEN ===== -->
   <div id="screen-admin" class="screen">
     <header class="app-header">
@@ -1048,8 +1305,8 @@
     </div>
   </div>
 
-  <script src="js/icons.js?v=20260326g"></script>
-  <script src="js/allergie-photos.js?v=20260326g"></script>
+  <script src="js/icons.js?v=20260327f"></script>
+  <script src="js/allergie-photos.js?v=20260327f"></script>
   <!-- Datenschutzerklärung Modal -->
   <div id="modal-datenschutz" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;overflow-y:auto;padding:1rem">
     <div style="max-width:640px;margin:2rem auto;background:var(--bg,#fff);border-radius:16px;padding:2rem;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto">
@@ -1069,13 +1326,6 @@
         <p><strong>4. Rechtsgrundlage</strong><br>
         Die Verarbeitung erfolgt auf Grundlage der Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO) — dein Account ist notwendig, um dir die Dienste bereitzustellen. Für darüber hinausgehende Verarbeitungen (z.B. E-Mail-Kommunikation) nutzen wir deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO).</p>
 
-        <p><strong>4a. E-Mail-Kommunikation</strong><br>
-        Mit deiner gesonderten Einwilligung (Opt-in bei der Registrierung) senden wir dir folgende E-Mails:<br>
-        <em>Lern-Impulse:</em> Alle 3 Tage erhältst du personalisierte Lerntipps, Erinnerungen und Fortschrittsberichte, die auf deinem Lernverhalten basieren.<br>
-        <em>Produkt- und Angebots-Informationen:</em> Gelegentlich informieren wir dich über neue Funktionen, Aktionen und Angebote rund um den MedAT Trainer.<br>
-        <em>Transaktionale E-Mails:</em> Kaufbestätigungen, Passwort-Zurücksetzungen und sicherheitsrelevante Benachrichtigungen werden ohne separate Einwilligung versendet, da sie zur Vertragserfüllung notwendig sind (Art. 6 Abs. 1 lit. b DSGVO).<br><br>
-        Du kannst deine Einwilligung jederzeit widerrufen — entweder über den Abmelde-Link in jeder E-Mail oder per Nachricht an office@ai-guide.at. Der Widerruf berührt nicht die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung. Rechtsgrundlage: Art. 6 Abs. 1 lit. a DSGVO (Einwilligung) sowie § 174 TKG 2021 (österreichisches Telekommunikationsgesetz).</p>
-
         <p><strong>5. Speicherdauer</strong><br>
         Deine Daten werden gespeichert, solange dein Account besteht. Nach Löschung deines Accounts werden alle personenbezogenen Daten innerhalb von 30 Tagen gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten bestehen. Zahlungsdaten werden gemäß steuerrechtlicher Vorgaben (BAO) 7 Jahre aufbewahrt.</p>
 
@@ -1091,7 +1341,7 @@
         <p><strong>9. Beschwerderecht</strong><br>
         Du hast das Recht, dich bei einer Datenschutzbehörde zu beschweren. Die zuständige Aufsichtsbehörde in Österreich ist die Österreichische Datenschutzbehörde, Barichgasse 40-42, 1030 Wien, dsb.gv.at.</p>
 
-        <p><strong>Stand:</strong> April 2026</p>
+        <p><strong>Stand:</strong> März 2026</p>
       </div>
       <button onclick="document.getElementById('modal-datenschutz').style.display='none'" style="margin-top:1.5rem;width:100%;padding:0.75rem;background:var(--primary,#1a1a2e);color:white;border:none;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:600">Verstanden</button>
     </div>
@@ -1112,7 +1362,7 @@
         Für die Nutzung ist eine Registrierung mit gültiger E-Mail-Adresse erforderlich. Du bist für die Geheimhaltung deiner Zugangsdaten verantwortlich. Pro Person darf nur ein Account erstellt werden. Der Anbieter behält sich das Recht vor, Accounts bei Missbrauch zu sperren.</p>
 
         <p><strong>4. Kostenlose und kostenpflichtige Nutzung</strong><br>
-        Die App bietet eine kostenlose Basisversion mit eingeschränktem Funktionsumfang (begrenztes Fragenkontingent). Der „Vollzugang" ist als Einmalzahlung erhältlich und schaltet alle Funktionen bis zum MedAT-Prüfungstermin frei. Die aktuellen Preise werden auf der Konto-Seite der App angezeigt.</p>
+        Die App bietet eine kostenlose Basisversion mit eingeschränktem Funktionsumfang (300 Credits). Der „Vollzugang" ist als Einmalzahlung erhältlich und schaltet alle Funktionen bis zum MedAT-Prüfungstermin frei. Die aktuellen Preise werden auf der Konto-Seite der App angezeigt.</p>
 
         <p><strong>5. Zahlungsbedingungen</strong><br>
         Die Bezahlung des Vollzugangs erfolgt über den Zahlungsdienstleister Stripe. Mit dem Kauf wird der Gesamtbetrag sofort fällig. Alle Preise verstehen sich inklusive der gesetzlichen Umsatzsteuer (sofern anwendbar). Die Bezahlung ist eine Einmalzahlung — es entsteht kein Abonnement.</p>
@@ -1149,21 +1399,53 @@
         <p><strong>15. Salvatorische Klausel</strong><br>
         Sollten einzelne Bestimmungen dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
 
-        <p><strong>Stand:</strong> April 2026</p>
+        <p><strong>Stand:</strong> März 2026</p>
       </div>
       <button onclick="document.getElementById('modal-agb').style.display='none'" style="margin-top:1.5rem;width:100%;padding:0.75rem;background:var(--primary,#1a1a2e);color:white;border:none;border-radius:10px;font-size:1rem;cursor:pointer;font-weight:600">Verstanden</button>
     </div>
   </div>
 
-  <script src="js/config.js?v=20260326g"></script>
-  <script src="js/auth.js?v=20260326g"></script>
-  <script src="js/api.js?v=20260326g"></script>
-  <script src="js/figuren.js?v=20260326g"></script>
-  <script src="js/stats.js?v=20260326g"></script>
-  <script src="js/admin.js?v=20260326g"></script>
-  <script src="js/credits.js?v=20260326g"></script>
-  <script src="js/app.js?v=20260326g"></script>
-  <script src="js/pdf.js?v=20260326g"></script>
+  <script src="js/config.js?v=20260327f"></script>
+  <script src="js/auth.js?v=20260327f"></script>
+  <script src="js/api.js?v=20260416a"></script>
+  <script src="js/figuren.js?v=20260327f"></script>
+  <script src="js/stats.js?v=20260327f"></script>
+  <script src="js/admin.js?v=20260416a"></script>
+  <script src="js/admin-goodies.js?v=20260424e"></script>
+  <script src="js/goodies-mailer.js?v=20260424e"></script>
+  <script src="js/goodies-analytics.js?v=20260424e"></script>
+  <script src="js/credits.js?v=20260416a"></script>
+  <script src="js/app.js?v=20260416a"></script>
+  <script src="js/goodies.js?v=20260424e"></script>
+  <script src="js/lernplan.js?v=20260402d"></script>
+  <script src="js/pdf.js?v=20260404f"></script>
+  <script src="js/leadmagnet_pdf.js?v=20260328b"></script>
+  <script src="js/tutor.js?v=20260416a"></script>
+  <script src="js/mascot.js?v=20260405a"></script>
+  <script src="js/nudge.js?v=20260404a"></script>
+  <script src="js/gallery.js?v=20260416a"></script>
+
+  <!-- ===== TUTOR SYSTEM ===== -->
+
+  <!-- Floating Tutor Button (shown during practice) -->
+  <button id="tutor-fab" class="tutor-fab" style="display:none" title="KI-Tutor öffnen" aria-label="KI-Tutor öffnen">
+    <span class="tutor-fab-icon">🎓</span>
+    <span class="tutor-fab-label">Tutor</span>
+  </button>
+
+  <!-- Tutor Panel Overlay -->
+  <div id="tutor-overlay" class="tutor-overlay hidden" role="dialog" aria-modal="true" aria-label="KI-Tutor">
+    <div id="tutor-panel" class="tutor-panel">
+
+      <!-- View 1: Tutor Selection -->
+      <div id="tutor-view-select" class="tutor-view"></div>
+
+      <!-- View 2: Chat (+ Banana image controls) -->
+      <div id="tutor-view-chat" class="tutor-view hidden"></div>
+
+    </div>
+  </div>
+
   <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
@@ -1178,6 +1460,36 @@
       e.preventDefault();
       deferredInstallPrompt = e;
     });
+
+    // Persistent install hint on home screen — shows every time until installed
+    window.showInstallHint = function() {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      if (isStandalone) return;
+
+      // Don't add twice
+      if (document.getElementById('home-install-hint')) return;
+
+      const hint = document.createElement('div');
+      hint.id = 'home-install-hint';
+      hint.style.cssText = 'margin:0.6rem 1.25rem 0;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);border-radius:14px;padding:0.8rem 1rem;display:flex;align-items:center;gap:0.75rem;cursor:pointer;box-shadow:0 4px 16px rgba(26,26,46,0.18)';
+      hint.onclick = () => { if (typeof App !== 'undefined') App.showInstallGuide(); };
+      hint.innerHTML = `
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#3b82f6,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <span style="font-size:1.2rem">📲</span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:0.88rem;color:#fff">App installieren</div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.6)">Zum Homescreen hinzufügen — kein App Store nötig</div>
+        </div>
+        <div style="color:rgba(255,255,255,0.4);font-size:1rem">›</div>
+      `;
+
+      // Insert after hero card on home screen
+      const heroCard = document.querySelector('.hero-card');
+      if (heroCard && heroCard.parentElement) {
+        heroCard.parentElement.insertBefore(hint, heroCard.nextSibling);
+      }
+    };
 
     // Called from App after login to show install banner
     window.showPWAInstallBanner = function() {

@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Histologie · MedAT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--lavender),#fff);display:flex;align-items:center;justify-content:center;color:var(--purple-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(155,127,196,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--purple);color:var(--purple-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--purple-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--purple-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--lavender) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(155,127,196,.2);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--purple-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* TISSUE CATEGORIES */
+  .tissue-cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .tissue-cat-card{background:linear-gradient(135deg,var(--surface),var(--bg-light));border:1.5px solid var(--border-light);border-radius:18px;padding:16px;cursor:pointer;transition:all .25s;text-align:center}
+  .tissue-cat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--purple-deep)}
+  .tissue-cat-card.active{border-color:var(--purple-deep);background:linear-gradient(135deg,var(--lavender),#fff);box-shadow:var(--shadow-md)}
+  .tissue-cat-card .ico{width:60px;height:60px;border-radius:14px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--lavender),var(--mint));color:var(--purple-deep)}
+  .tissue-cat-card h4{font-size:.95rem;font-weight:800;color:var(--text)}
+  .tissue-cat-card .desc{font-size:.74rem;color:var(--text-secondary);margin-top:4px;line-height:1.4}
+
+  /* TISSUE GRID (sub-types) */
+  .tissue-types-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px}
+  .tissue-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s}
+  .tissue-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--purple-deep)}
+  .tissue-img{background:radial-gradient(ellipse at center,#1f3550 0%,#0e1620 100%);height:140px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .tissue-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+  .tissue-info{padding:14px}
+  .tissue-info h4{font-size:.92rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .tissue-info .sub{font-size:.7rem;color:var(--purple-deep);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+  .tissue-info p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+
+  /* MODAL — Steckbrief-Layout */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:600px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .modal-img{height:220px;background:radial-gradient(ellipse at center,#1f3550 0%,#0e1620 100%);display:flex;align-items:center;justify-content:center;padding:14px}
+  .modal-img svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));max-width:100%;max-height:100%}
+  .modal-head{padding:18px 24px 14px;background:linear-gradient(180deg,var(--lavender),var(--bg-light))}
+  .modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-.5px}
+  .modal-head .sub{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--purple-deep);font-weight:800;display:inline-block;background:rgba(155,127,196,.15);padding:3px 10px;border-radius:8px}
+  .modal-body{padding:18px 24px 24px}
+
+  .steckbrief{display:flex;flex-direction:column;gap:14px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:14px 16px;border-left:3px solid var(--purple-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--purple-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--purple-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--purple-deep);font-weight:700}
+  .sb-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+  .sb-list li{font-size:.84rem;color:var(--text);line-height:1.55;padding-left:18px;position:relative}
+  .sb-list li::before{content:'•';position:absolute;left:5px;color:var(--purple-deep);font-weight:800}
+  .sb-list li b{color:var(--purple-deep);font-weight:700}
+
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4{color:var(--pink-deep)}
+  .sb-section.klinik h4 [data-lucide]{color:var(--pink-deep)}
+  .sb-section.klinik p b{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4{color:var(--green-deep)}
+  .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+  .sb-section.medat p b{color:var(--green-deep)}
+
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.15);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+
+  /* MATCH */
+  .match-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:640px){.match-mode-row{grid-template-columns:repeat(3,1fr)}}
+  .match-mode-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .match-mode-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .match-mode-btn:hover:not(.active){border-color:var(--purple-deep);transform:translateY(-1px)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(155,127,196,.3)}
+  .match-mode-btn.active small{color:rgba(255,255,255,.85)}
+
+  .match-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .match-stat{background:var(--surface);padding:10px;border-radius:12px;text-align:center;border:1px solid var(--border-light)}
+  .match-stat .num{font-size:1.4rem;font-weight:800}
+  .match-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600}
+
+  .match-pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .match-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;text-align:center}
+  .match-list{display:flex;flex-direction:column;gap:8px}
+  .match-item{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;cursor:pointer;font-size:.84rem;transition:all .15s;font-weight:600;line-height:1.4}
+  .match-item:hover:not(.matched){border-color:var(--purple-deep);transform:translateY(-1px)}
+  .match-item.selected{border-color:var(--gold);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(245,197,66,.2)}
+  .match-item.matched{background:rgba(109,184,138,.12);border-color:var(--success);color:var(--success);cursor:default;opacity:.85}
+  .match-item.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);animation:wrongShake .35s ease}
+  @keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .match-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;line-height:1.55}
+  .match-status.show{display:block;animation:fadeUp .3s ease}
+  .match-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+
+  /* IDENTIFY GAME */
+  .identify-arena{background:radial-gradient(ellipse at center,#1f3550 0%,#0e1620 100%);border-radius:var(--radius);padding:28px;text-align:center;margin:14px 0;min-height:260px;display:flex;align-items:center;justify-content:center}
+  .identify-arena svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.6))}
+  .identify-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  @media(max-width:520px){.identify-options{grid-template-columns:1fr}}
+  .identify-opt{padding:13px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.86rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;color:var(--text)}
+  .identify-opt:hover:not(:disabled){border-color:var(--purple-deep);transform:translateY(-2px)}
+  .identify-opt.correct{border-color:var(--success);background:rgba(109,184,138,.12);color:var(--success)}
+  .identify-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);color:var(--pink-deep)}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--purple-deep);background:rgba(155,127,196,.05);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--gold));transition:width .4s}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--purple),var(--purple-deep));color:#fff;box-shadow:0 4px 14px rgba(155,127,196,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(155,127,196,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--purple-deep);color:var(--purple-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:520px){.header h1{font-size:1.15rem}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="microscope"></i></div>
+    <div>
+      <h1>Histologie</h1>
+      <p>4 Gewebearten · Subtypen · Errate · Zuordnung · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="overview"><i data-lucide="grid-3x3"></i>Übersicht</button>
+  <button class="tab" data-tab="types"><i data-lucide="layers"></i>Subtypen</button>
+  <button class="tab" data-tab="identify"><i data-lucide="target"></i>Errate</button>
+  <button class="tab" data-tab="match"><i data-lucide="link"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: ÜBERSICHT ============ -->
+  <div class="section active" id="overview">
+    <div class="hero-strip">
+      <h2><i data-lucide="grid-3x3"></i>Die 4 Grundgewebe</h2>
+      <p>Alle Gewebe des Körpers gehören in eine dieser 4 Hauptkategorien. Klick eine Karte für die Subtypen.</p>
+    </div>
+
+    <div class="card">
+      <div class="tissue-cat-grid" id="catGrid"></div>
+      <div class="key-fact" style="margin-top:14px"><i data-lucide="info"></i><div><b>Eselsbrücke:</b> Embryonal entstehen Gewebe aus den 3 Keimblättern: Ektoderm (Epidermis, Nervensystem), Mesoderm (Bindegewebe, Muskel, Blut), Entoderm (Innere Epithelien). Nervengewebe = Ektoderm.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: SUBTYPEN ============ -->
+  <div class="section" id="types">
+    <div class="hero-strip">
+      <h2><i data-lucide="layers"></i>Subtypen aller 4 Gewebearten</h2>
+      <p>Klick auf eine Subtyp-Karte für Details: Aufbau, Lokalisation, Funktion und MedAT-Klinik.</p>
+    </div>
+
+    <div class="card" id="typesCard"></div>
+  </div>
+
+  <!-- ============ TAB 3: ERRATE ============ -->
+  <div class="section" id="identify">
+    <div class="hero-strip">
+      <h2><i data-lucide="target"></i>Welches Gewebe ist das?</h2>
+      <p>Tool zeigt eine Skizze — du wählst den richtigen Gewebetyp aus 4 Optionen.</p>
+    </div>
+
+    <div class="card">
+      <div class="identify-arena" id="idArena"></div>
+      <h3 style="text-align:center;margin-top:14px">Antwort</h3>
+      <div class="identify-options" id="idOptions"></div>
+      <div class="q-feedback" id="idFb"></div>
+      <div class="btn-row">
+        <button class="btn" id="idNext">Nächstes Gewebe<i data-lucide="arrow-right"></i></button>
+      </div>
+      <p style="text-align:center;margin-top:10px;color:var(--muted);font-size:.78rem">Score: <b id="idScore">0 / 0</b></p>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: ZUORDNUNG ============ -->
+  <div class="section" id="match">
+    <div class="hero-strip">
+      <h2><i data-lucide="link"></i>Zuordnungs-Spiel</h2>
+      <p>3 Modi: Gewebe → Funktion, Gewebe → Lokalisation, Zelltyp → Gewebe.</p>
+    </div>
+
+    <div class="card">
+      <h3>Modus wählen</h3>
+      <div class="match-mode-row" id="matchModeRow"></div>
+
+      <div class="match-stats">
+        <div class="match-stat"><div class="num" id="matchOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="match-stat"><div class="num" id="matchBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="match-stat"><div class="num" id="matchLeft">10</div><div class="lbl">Übrig</div></div>
+      </div>
+
+      <div class="match-pairs">
+        <div class="match-col"><h4 id="matchLeftLabel">Gewebe</h4><div class="match-list" id="matchLeft1"></div></div>
+        <div class="match-col"><h4 id="matchRightLabel">Funktion</h4><div class="match-list" id="matchRight"></div></div>
+      </div>
+
+      <div class="match-status" id="matchStatus"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="matchReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+        <button class="btn ghost" id="matchNext"><i data-lucide="arrow-right"></i>Nächster Modus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">12 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="tissueModal" onclick="if(event.target===this)closeT()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeT()"><i data-lucide="x"></i></button>
+    <div class="modal-img" id="mImg"></div>
+    <div class="modal-head">
+      <div class="sub" id="mSub">Gewebe</div>
+      <h3 id="mName">—</h3>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='match') initMatch();
+    if(t.dataset.tab==='identify') newIdentify();
+  });
+});
+
+/* ===== TISSUE SVG GENERATORS — plastisch / 3D-Look ===== */
+const SVG_DEFS=`
+  <defs>
+    <radialGradient id="cellGrad" cx="30%" cy="22%" r="88%">
+      <stop offset="0%" stop-color="#fff0f3"/>
+      <stop offset="30%" stop-color="#f5b8c4"/>
+      <stop offset="65%" stop-color="#d97086"/>
+      <stop offset="100%" stop-color="#5a1828"/>
+    </radialGradient>
+    <radialGradient id="cellGradLight" cx="30%" cy="22%" r="88%">
+      <stop offset="0%" stop-color="#ffe0e8"/>
+      <stop offset="50%" stop-color="#f0a0b0"/>
+      <stop offset="100%" stop-color="#a04860"/>
+    </radialGradient>
+    <radialGradient id="nucGrad" cx="30%" cy="22%" r="85%">
+      <stop offset="0%" stop-color="#c8a8e5"/>
+      <stop offset="50%" stop-color="#7855a5"/>
+      <stop offset="100%" stop-color="#1f1038"/>
+    </radialGradient>
+    <radialGradient id="redCellGrad" cx="30%" cy="22%" r="88%">
+      <stop offset="0%" stop-color="#ffd0c0"/>
+      <stop offset="50%" stop-color="#e85040"/>
+      <stop offset="100%" stop-color="#5a1010"/>
+    </radialGradient>
+    <radialGradient id="adipGrad" cx="30%" cy="22%" r="90%">
+      <stop offset="0%" stop-color="#fffce0"/>
+      <stop offset="35%" stop-color="#fae28a"/>
+      <stop offset="80%" stop-color="#d09028"/>
+      <stop offset="100%" stop-color="#7a4800"/>
+    </radialGradient>
+    <linearGradient id="muscleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffc0a8"/>
+      <stop offset="40%" stop-color="#e87a5c"/>
+      <stop offset="100%" stop-color="#7a2820"/>
+    </linearGradient>
+    <linearGradient id="muscleHL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </linearGradient>
+    <radialGradient id="cartGrad" cx="35%" cy="25%" r="90%">
+      <stop offset="0%" stop-color="#f0f6fc"/>
+      <stop offset="50%" stop-color="#a8b8c8"/>
+      <stop offset="100%" stop-color="#3a4858"/>
+    </radialGradient>
+    <radialGradient id="cartCellGrad" cx="30%" cy="22%" r="85%">
+      <stop offset="0%" stop-color="#ffd8d8"/>
+      <stop offset="60%" stop-color="#f08090"/>
+      <stop offset="100%" stop-color="#702838"/>
+    </radialGradient>
+    <radialGradient id="boneGrad" cx="35%" cy="25%" r="90%">
+      <stop offset="0%" stop-color="#fff8e0"/>
+      <stop offset="60%" stop-color="#cba868"/>
+      <stop offset="100%" stop-color="#503820"/>
+    </radialGradient>
+    <radialGradient id="bgEpithel" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#3a4860"/>
+      <stop offset="100%" stop-color="#0a1018"/>
+    </radialGradient>
+    <radialGradient id="bgBlood" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#5a1828"/>
+      <stop offset="100%" stop-color="#1a0810"/>
+    </radialGradient>
+    <radialGradient id="neuronGrad" cx="30%" cy="22%" r="85%">
+      <stop offset="0%" stop-color="#ffe0c0"/>
+      <stop offset="50%" stop-color="#e0a060"/>
+      <stop offset="100%" stop-color="#7a4818"/>
+    </radialGradient>
+    <filter id="cellShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="1" dy="2"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.55"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+function hl(cx,cy,rx,ry){return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="rgba(255,255,255,0.55)"/>`}
+function hlSmall(cx,cy,rx,ry){return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="rgba(255,255,255,0.35)"/>`}
+
+function svgEpithel(type){
+  const W=240,H=160;
+  const bg=`<rect width="${W}" height="${H}" fill="url(#bgEpithel)"/>`;
+  const basal=`<rect x="0" y="${H-12}" width="${W}" height="6" fill="rgba(255,255,255,0.18)"/>
+    <rect x="0" y="${H-8}" width="${W}" height="3" fill="rgba(255,255,255,0.08)"/>`;
+  if(type==='platten'){
+    let cells='';
+    [[42,80],[100,80],[160,80],[218,80]].forEach(([x,y])=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <ellipse cx="${x}" cy="${y}" rx="28" ry="13" fill="url(#cellGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        ${hl(x-9,y-5,12,3.5)}${hlSmall(x-12,y-7,5,1.2)}
+        <circle cx="${x-2}" cy="${y-1}" r="4.5" fill="url(#nucGrad)"/>
+        ${hlSmall(x-3,y-2,1.6,0.8)}
+      </g>`;
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${cells}${basal}</svg>`;
+  }
+  if(type==='kubisch'){
+    let cells='';
+    [40,90,140,190].forEach(x=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <rect x="${x-22}" y="${H/2-25}" width="44" height="50" rx="8" fill="url(#cellGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        ${hl(x-10,H/2-15,12,4)}${hlSmall(x-13,H/2-19,5,1.5)}
+        <circle cx="${x-2}" cy="${H/2}" r="7" fill="url(#nucGrad)"/>
+        ${hlSmall(x-3,H/2-2,2.5,1.2)}
+      </g>`;
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${cells}${basal}</svg>`;
+  }
+  if(type==='zylindrisch'){
+    let cells='';
+    [25,60,95,130,165,200].forEach(x=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <rect x="${x-13}" y="22" width="32" height="116" rx="7" fill="url(#cellGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        ${hl(x-1,32,7,2.5)}${hlSmall(x-3,28,3,1)}
+        <circle cx="${x+3}" cy="115" r="6.5" fill="url(#nucGrad)"/>
+        ${hlSmall(x+2,113,2,0.9)}
+      </g>`;
+    });
+    // Cilia / microvilli
+    let cilia='';
+    for(let i=15;i<W;i+=4){
+      cilia+=`<line x1="${i}" y1="22" x2="${i}" y2="${10+Math.random()*4}" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-linecap="round"/>`;
+    }
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${cilia}${cells}${basal}</svg>`;
+  }
+  if(type==='uebergang'){
+    let cells='';
+    // Top layer: dome cells (when relaxed)
+    [[60,30],[180,30]].forEach(([x,y])=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <path d="M ${x-32} ${y+10} Q ${x-32} ${y-15}, ${x} ${y-18} Q ${x+32} ${y-15}, ${x+32} ${y+10} Z" fill="url(#cellGradLight)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        ${hl(x-10,y-8,16,4)}${hlSmall(x-14,y-12,6,1.5)}
+        <circle cx="${x-2}" cy="${y-2}" r="6" fill="url(#nucGrad)"/>
+      </g>`;
+    });
+    // Middle layer
+    [40,100,160,210].forEach(x=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <rect x="${x-22}" y="55" width="44" height="36" rx="9" fill="url(#cellGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        ${hl(x-10,63,12,3.5)}
+        <circle cx="${x-2}" cy="73" r="5.5" fill="url(#nucGrad)"/>
+      </g>`;
+    });
+    // Basal layer
+    let basalCells='';
+    [22,55,88,121,154,187,218].forEach(x=>{
+      basalCells+=`<rect x="${x-13}" y="100" width="26" height="32" rx="6" fill="url(#cellGrad)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8" filter="url(#cellShadow)"/>
+        <circle cx="${x}" cy="116" r="4.5" fill="url(#nucGrad)"/>`;
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${basalCells}${cells}${basal}</svg>`;
+  }
+}
+
+function svgBindegewebe(type){
+  const W=240,H=160;
+  if(type==='locker'){
+    let fibers='';
+    // Collagen fibers (wavy)
+    for(let i=0;i<5;i++){
+      const y=20+i*28+Math.random()*5;
+      fibers+=`<path d="M 0 ${y} Q ${W*.25} ${y-8}, ${W*.5} ${y} T ${W} ${y-3}" stroke="rgba(255,200,180,0.45)" stroke-width="2.5" fill="none"/>`;
+      fibers+=`<path d="M 0 ${y} Q ${W*.25} ${y-8}, ${W*.5} ${y} T ${W} ${y-3}" stroke="rgba(255,255,255,0.18)" stroke-width="1" fill="none"/>`;
+    }
+    // Elastic fibers (thinner, darker)
+    for(let i=0;i<4;i++){
+      const y=15+i*38+10;
+      fibers+=`<path d="M 0 ${y} Q ${W*.3} ${y+12}, ${W*.6} ${y} T ${W} ${y+8}" stroke="rgba(180,210,255,0.3)" stroke-width="1.2" fill="none" stroke-dasharray="6 3"/>`;
+    }
+    let cells='';
+    [[55,55,15,9],[150,40,13,8],[180,90,15,9],[105,105,14,8],[40,120,13,7],[200,135,12,7]].forEach(([x,y,rx,ry])=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="url(#cellGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        ${hl(x-rx*.4,y-ry*.4,rx*.5,ry*.3)}
+        <circle cx="${x-1}" cy="${y-1}" r="${ry*.5}" fill="url(#nucGrad)"/>
+      </g>`;
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}<rect width="${W}" height="${H}" fill="url(#bgEpithel)"/>${fibers}${cells}</svg>`;
+  }
+  if(type==='knorpel'){
+    const bg=`<rect width="${W}" height="${H}" fill="url(#cartGrad)"/>
+      <ellipse cx="${W/2}" cy="40" rx="${W/2}" ry="40" fill="rgba(255,255,255,0.12)"/>`;
+    let cells='';
+    // Lakunen: 2 chondrocytes per lacuna (isogeneous group), helle Halo um die Zelle
+    [[60,50],[170,60],[110,115]].forEach(([x,y])=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <ellipse cx="${x}" cy="${y}" rx="32" ry="22" fill="rgba(245,210,215,0.85)" stroke="rgba(255,255,255,0.8)" stroke-width="1.5"/>
+        <ellipse cx="${x-9}" cy="${y-2}" rx="13" ry="11" fill="url(#cartCellGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+        ${hl(x-12,y-5,4,2)}
+        <circle cx="${x-9}" cy="${y-2}" r="5" fill="url(#nucGrad)"/>
+        <ellipse cx="${x+9}" cy="${y+2}" rx="11" ry="9" fill="url(#cartCellGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+        ${hlSmall(x+7,y-1,3,1.5)}
+        <circle cx="${x+9}" cy="${y+2}" r="4" fill="url(#nucGrad)"/>
+      </g>`;
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${cells}</svg>`;
+  }
+  if(type==='knochen'){
+    const bg=`<rect width="${W}" height="${H}" fill="url(#boneGrad)"/>`;
+    // Osteon: concentric lamellae around Havers canal
+    const cx=120,cy=80;
+    let lamellae='';
+    [60,46,32,18].forEach((r,i)=>{
+      lamellae+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(80,55,25,${0.55-i*0.08})" stroke-width="1.5"/>`;
+    });
+    // Havers canal (center)
+    lamellae+=`<circle cx="${cx}" cy="${cy}" r="9" fill="url(#nucGrad)" filter="url(#cellShadow)"/>
+      ${hl(cx-3,cy-3,3.5,2)}`;
+    // Osteocytes in lacunae with canaliculi
+    let osteo='';
+    const positions=[[cx,cy-50],[cx+38,cy-30],[cx+50,cy+10],[cx+30,cy+45],[cx-30,cy+45],[cx-50,cy+10],[cx-38,cy-30]];
+    positions.forEach(([x,y])=>{
+      osteo+=`<g filter="url(#cellShadow)">
+        <ellipse cx="${x}" cy="${y}" rx="8" ry="4" fill="url(#nucGrad)"/>
+        ${hlSmall(x-2,y-1,2,0.8)}
+      </g>`;
+      // Canaliculi (Cell processes)
+      for(let a=0;a<8;a++){
+        const ang=a*Math.PI/4;
+        const x2=x+Math.cos(ang)*14, y2=y+Math.sin(ang)*8;
+        osteo+=`<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" stroke="rgba(80,55,25,0.4)" stroke-width="0.6"/>`;
+      }
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${lamellae}${osteo}</svg>`;
+  }
+  if(type==='blut'){
+    const bg=`<rect width="${W}" height="${H}" fill="url(#bgBlood)" opacity="0.5"/>`;
+    let cells='';
+    // Erythrozyten — bikonkav (donut) Look
+    [[40,45],[88,72],[132,40],[185,68],[55,115],[195,118],[100,135]].forEach(([x,y])=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <circle cx="${x}" cy="${y}" r="16" fill="url(#redCellGrad)"/>
+        <circle cx="${x}" cy="${y}" r="7" fill="rgba(80,15,15,0.55)"/>
+        ${hl(x-5,y-4,7,3)}
+      </g>`;
+    });
+    // Leukozyt (mit gelapptem Kern - Neutrophil)
+    cells+=`<g filter="url(#cellShadow)">
+      <circle cx="135" cy="100" r="20" fill="url(#cellGradLight)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      ${hl(128,93,7,3)}
+      <ellipse cx="128" cy="95" rx="6" ry="4" fill="url(#nucGrad)"/>
+      <ellipse cx="142" cy="98" rx="5" ry="4" fill="url(#nucGrad)"/>
+      <ellipse cx="135" cy="108" rx="5" ry="4" fill="url(#nucGrad)"/>
+      <line x1="132" y1="98" x2="139" y2="100" stroke="url(#nucGrad)" stroke-width="2"/>
+    </g>`;
+    // Thrombozyten (klein)
+    cells+=`<g filter="url(#cellShadow)">
+      <ellipse cx="20" cy="80" rx="4" ry="2.5" fill="rgba(155,127,196,0.8)"/>
+      <ellipse cx="220" cy="35" rx="4" ry="2.5" fill="rgba(155,127,196,0.8)"/>
+      <ellipse cx="170" cy="135" rx="3.5" ry="2" fill="rgba(155,127,196,0.8)"/>
+    </g>`;
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${cells}</svg>`;
+  }
+  if(type==='fett'){
+    const bg=`<rect width="${W}" height="${H}" fill="url(#bgEpithel)"/>`;
+    let cells='';
+    // Adipozyten — große Zellen mit dünner Zellmembran und großer zentraler Vakuole
+    [[55,55,38],[170,60,42],[105,118,28],[40,135,22]].forEach(([x,y,r])=>{
+      cells+=`<g filter="url(#cellShadow)">
+        <circle cx="${x}" cy="${y}" r="${r}" fill="url(#adipGrad)" stroke="rgba(80,50,0,0.5)" stroke-width="1.2"/>
+        <circle cx="${x}" cy="${y}" r="${r-3}" fill="rgba(255,250,210,0.55)"/>
+        ${hl(x-r*.4,y-r*.4,r*.4,r*.2)}
+        ${hlSmall(x-r*.6,y-r*.6,r*.18,r*.06)}
+        <ellipse cx="${x+r-6}" cy="${y+r-8}" rx="3.5" ry="2.8" fill="url(#nucGrad)"/>
+        <line x1="${x+r-9}" y1="${y+r-10}" x2="${x+r-3}" y2="${y+r-6}" stroke="rgba(80,55,120,0.3)" stroke-width="1.5"/>
+      </g>`;
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${cells}</svg>`;
+  }
+}
+
+function svgMuskel(type){
+  const W=240,H=160;
+  const bg=`<rect width="${W}" height="${H}" fill="url(#bgEpithel)"/>`;
+  if(type==='glatt'){
+    let cells='';
+    [[60,40,-10],[170,55,-8],[60,90,-12],[170,108,-10],[110,140,-8]].forEach(([x,y,rot])=>{
+      cells+=`<g transform="rotate(${rot} ${x} ${y})" filter="url(#cellShadow)">
+        <ellipse cx="${x}" cy="${y}" rx="62" ry="11" fill="url(#muscleGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <ellipse cx="${x}" cy="${y-3}" rx="55" ry="3" fill="rgba(255,255,255,0.35)"/>
+        <ellipse cx="${x-30}" cy="${y-4}" rx="20" ry="1.5" fill="rgba(255,255,255,0.55)"/>
+        <ellipse cx="${x}" cy="${y}" rx="6" ry="3.5" fill="url(#nucGrad)"/>
+      </g>`;
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${cells}</svg>`;
+  }
+  if(type==='skelett'){
+    let fibers='';
+    [25,75,125].forEach((y0)=>{
+      // muscle fiber as long rect
+      fibers+=`<g filter="url(#cellShadow)">
+        <rect x="10" y="${y0}" width="220" height="32" rx="6" fill="url(#muscleGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        <rect x="10" y="${y0}" width="220" height="14" fill="url(#muscleHL)" rx="6"/>
+      </g>`;
+      // Querstreifung — abwechselnd dunkle (A-Bande) und helle (I-Bande) Streifen mit Z-Linien
+      for(let x=20;x<230;x+=10){
+        const isA=Math.floor((x-20)/10)%2===0;
+        if(isA){
+          fibers+=`<rect x="${x}" y="${y0+2}" width="6" height="28" fill="rgba(80,20,20,0.45)"/>`;
+        }
+        fibers+=`<line x1="${x}" y1="${y0}" x2="${x}" y2="${y0+32}" stroke="rgba(40,10,10,0.7)" stroke-width="0.8"/>`;
+      }
+      // Several nuclei at edges (peripheral!)
+      const nucleiPositions=[35,90,155,210];
+      nucleiPositions.forEach((nx,i)=>{
+        const ny = i%2===0 ? y0+4 : y0+27;
+        fibers+=`<g filter="url(#cellShadow)">
+          <ellipse cx="${nx}" cy="${ny}" rx="5" ry="3" fill="url(#nucGrad)"/>
+        </g>`;
+      });
+    });
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${fibers}</svg>`;
+  }
+  if(type==='herz'){
+    let fibers='';
+    [40,90].forEach((y0)=>{
+      fibers+=`<g filter="url(#cellShadow)">
+        <rect x="10" y="${y0}" width="220" height="32" rx="6" fill="url(#muscleGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+        <rect x="10" y="${y0}" width="220" height="14" fill="url(#muscleHL)" rx="6"/>
+      </g>`;
+      // Querstreifung — feiner als Skelett
+      for(let x=20;x<230;x+=8){
+        const isA=Math.floor((x-20)/8)%2===0;
+        if(isA){
+          fibers+=`<rect x="${x}" y="${y0+2}" width="4" height="28" fill="rgba(80,20,20,0.4)"/>`;
+        }
+      }
+      // Glanzstreifen (disci intercalares) - zackige Linien quer
+      const glanz=[80,160];
+      glanz.forEach(gx=>{
+        fibers+=`<path d="M ${gx} ${y0} L ${gx+4} ${y0+6} L ${gx-2} ${y0+12} L ${gx+5} ${y0+18} L ${gx-1} ${y0+24} L ${gx+3} ${y0+32}" stroke="#000" stroke-width="2.5" fill="none"/>`;
+      });
+      // Central nuclei — only ONE per "cell" (between glanzstreifen segments)
+      [40,120,200].forEach(nx=>{
+        fibers+=`<g filter="url(#cellShadow)">
+          <ellipse cx="${nx}" cy="${y0+16}" rx="6" ry="4" fill="url(#nucGrad)"/>
+          ${hlSmall(nx-2,y0+15,2,1)}
+        </g>`;
+      });
+    });
+    fibers+=`<text x="${W-8}" y="${H-8}" fill="rgba(255,255,255,0.55)" font-size="9" text-anchor="end" font-weight="700">Disci intercalares</text>`;
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${fibers}</svg>`;
+  }
+}
+
+function svgNerv(type){
+  const W=240,H=170;
+  const bg=`<rect width="${W}" height="${H}" fill="url(#bgEpithel)"/>`;
+  if(type==='neuron'){
+    let svg='';
+    // Dendriten — verzweigt, mit Tiefe
+    const somaX=80, somaY=85;
+    const dendrites=[
+      [25,30],[55,15],[95,15],[125,30],[20,55],[15,90],[20,130],[55,140],[35,140]
+    ];
+    dendrites.forEach(([dx,dy])=>{
+      // Plain trunk
+      svg+=`<line x1="${dx}" y1="${dy}" x2="${somaX}" y2="${somaY}" stroke="url(#neuronGrad)" stroke-width="3.5" stroke-linecap="round" filter="url(#cellShadow)"/>`;
+      // small branches
+      for(let i=0;i<2;i++){
+        const t=0.4+i*0.25;
+        const bx=dx+(somaX-dx)*t, by=dy+(somaY-dy)*t;
+        const angle=Math.atan2(somaY-dy,somaX-dx)+Math.PI/2;
+        const len=8+Math.random()*4;
+        svg+=`<line x1="${bx}" y1="${by}" x2="${bx+Math.cos(angle)*len}" y2="${by+Math.sin(angle)*len}" stroke="url(#neuronGrad)" stroke-width="2" stroke-linecap="round"/>`;
+      }
+    });
+    // Soma
+    svg+=`<g filter="url(#cellShadow)">
+      <circle cx="${somaX}" cy="${somaY}" r="26" fill="url(#neuronGrad)" stroke="rgba(255,255,255,0.25)" stroke-width="1.2"/>
+      ${hl(somaX-9,somaY-9,12,5)}
+      ${hlSmall(somaX-13,somaY-13,4,1.5)}
+      <circle cx="${somaX-2}" cy="${somaY-1}" r="11" fill="url(#nucGrad)"/>
+      ${hlSmall(somaX-5,somaY-4,4,1.5)}
+      <circle cx="${somaX-3}" cy="${somaY-2}" r="3.5" fill="rgba(60,30,90,0.85)"/>
+    </g>`;
+    // Axonhügel + Axon
+    svg+=`<path d="M ${somaX+22} ${somaY+8} Q ${somaX+30} ${somaY+10}, ${somaX+45} ${somaY+12} L 215 ${somaY+15}" stroke="url(#neuronGrad)" stroke-width="7" fill="none" stroke-linecap="round" filter="url(#cellShadow)"/>`;
+    // Myelin scheath - gaps (Ranvier)
+    [115,155,195].forEach(mx=>{
+      svg+=`<rect x="${mx-3}" y="${somaY+8}" width="3" height="14" fill="url(#bgEpithel)" rx="1"/>`;
+    });
+    // Axonterminal
+    [[210,80],[218,90],[210,98]].forEach(([tx,ty])=>{
+      svg+=`<g filter="url(#cellShadow)">
+        <ellipse cx="${tx}" cy="${ty}" rx="6" ry="5" fill="url(#neuronGrad)"/>
+        ${hlSmall(tx-2,ty-2,2,1)}
+      </g>`;
+    });
+    svg+=`<text x="${somaX}" y="155" fill="rgba(255,255,255,0.6)" font-size="9" text-anchor="middle" font-weight="700">Dendriten · Soma · Axon</text>`;
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${svg}</svg>`;
+  }
+  if(type==='glia'){
+    let svg='';
+    // Astrocyte (left) — sternförmig mit vielen Fortsätzen
+    const ax=70,ay=80;
+    const astroEnds=[[15,15],[55,15],[95,15],[15,55],[125,55],[20,110],[60,140],[110,135],[125,90]];
+    astroEnds.forEach(([ex,ey])=>{
+      svg+=`<line x1="${ax}" y1="${ay}" x2="${ex}" y2="${ey}" stroke="url(#cellGradLight)" stroke-width="2.8" stroke-linecap="round" filter="url(#cellShadow)"/>`;
+      // small endfeet
+      svg+=`<circle cx="${ex}" cy="${ey}" r="3" fill="url(#cellGradLight)"/>`;
+    });
+    svg+=`<g filter="url(#cellShadow)">
+      <circle cx="${ax}" cy="${ay}" r="16" fill="url(#cellGradLight)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      ${hl(ax-5,ay-5,7,3)}
+      <circle cx="${ax-1}" cy="${ay-1}" r="7" fill="url(#nucGrad)"/>
+    </g>`;
+    svg+=`<text x="${ax}" y="${H-6}" fill="rgba(255,255,255,0.6)" font-size="9" text-anchor="middle" font-weight="700">Astrozyt</text>`;
+    // Oligodendrocyte (right) — wraps multiple axons
+    const ox=180,oy=80;
+    svg+=`<g filter="url(#cellShadow)">
+      <circle cx="${ox}" cy="${oy}" r="13" fill="url(#cellGradLight)" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      ${hl(ox-4,oy-4,6,2.5)}
+      <circle cx="${ox-1}" cy="${oy-1}" r="6" fill="url(#nucGrad)"/>
+    </g>`;
+    // axons being wrapped
+    [[ox-30,oy-15,ox+30,oy-25],[ox-30,oy+15,ox+30,oy+25]].forEach(([x1,y1,x2,y2])=>{
+      svg+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(220,180,140,0.5)" stroke-width="3" stroke-linecap="round"/>`;
+      // myelin wrap
+      const mx=(x1+x2)/2, my=(y1+y2)/2;
+      svg+=`<ellipse cx="${mx}" cy="${my}" rx="10" ry="5" fill="rgba(245,200,160,0.8)" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>`;
+      // connection from oligo to wrap
+      svg+=`<line x1="${ox}" y1="${oy}" x2="${mx}" y2="${my}" stroke="url(#cellGradLight)" stroke-width="1.5"/>`;
+    });
+    svg+=`<text x="${ox}" y="${H-6}" fill="rgba(255,255,255,0.6)" font-size="9" text-anchor="middle" font-weight="700">Oligodendrozyt</text>`;
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${SVG_DEFS}${bg}${svg}</svg>`;
+  }
+}
+
+/* ===== TISSUE DATA – Lehrbuch-Steckbriefe ===== */
+const TISSUES={
+  // ============ EPITHEL ============
+  platten:{cat:'epithel',name:'Plattenepithel',sub:'Epithelgewebe',svg:()=>svgEpithel('platten'),
+    aufbau:'Flache, schuppenförmige Zellen mit zentralem oder leicht nach apikal verschobenem Kern. <b>Einschichtig</b> (sehr dünn, nur eine Zelllage), <b>mehrschichtig unverhornt</b> oder <b>mehrschichtig verhornt</b> (mit Stratum corneum aus toten Zellen).',
+    lokalisation:[
+      '<b>Einschichtig:</b> Endothel (Blutgefäße), Mesothel (Pleura, Perikard, Peritoneum), Alveolen (Pneumozyten Typ I), Bowman-Kapsel der Niere',
+      '<b>Mehrschichtig unverhornt:</b> Mundhöhle, Pharynx, Ösophagus, Vagina, Cornea',
+      '<b>Mehrschichtig verhornt:</b> Epidermis (Haut)'
+    ],
+    funktion:[
+      'Diffusion (Alveolen, Endothel) — sehr dünn',
+      'Schutz vor mechanischer Beanspruchung (Haut, Speiseröhre)',
+      'Barrierenfunktion'
+    ],
+    zellen:'Plattenepithelzellen — einschichtig: dünn, optimal für Stoffaustausch. Verhornt: Keratinozyten mit Tonofilamenten (Keratin).',
+    klinik:'<b>Plattenepithelkarzinom</b> (Haut, Lunge, Ösophagus, Cervix). <b>Pemphigus vulgaris</b> (Autoantikörper gegen Desmosomen → Akantholyse).',
+    medat:'Einschichtig → Diffusion (Lunge!). Mehrschichtig → Schutz. Endothel = einschichtiges Plattenepithel mesodermalen Ursprungs.'},
+
+  kubisch:{cat:'epithel',name:'Kubisches Epithel',sub:'Epithelgewebe',svg:()=>svgEpithel('kubisch'),
+    aufbau:'Würfelförmige Zellen — annähernd gleich breit wie hoch. Runder, zentraler Kern. Meist einschichtig.',
+    lokalisation:[
+      'Schilddrüsenfollikel (Thyreozyten)',
+      'Sammelrohre der Niere',
+      'Kleine Drüsenausführungsgänge (Speicheldrüsen, Pankreas)',
+      'Ovaroberfläche (Müller-Epithel)'
+    ],
+    funktion:[
+      'Sekretion (Drüsen)',
+      'Resorption (Sammelrohre Niere)',
+      'Speicherung (Schilddrüse → Thyreoglobulin im Kolloid)'
+    ],
+    zellen:'Kubische Epithelzellen, oft drüsig differenziert mit ausgeprägtem Apparat für Sekretion (raues ER, Golgi).',
+    klinik:'<b>Adenokarzinome</b> (Thyreoidea-Ca, Nieren-Ca, Ovarial-Ca). Hashimoto-Thyreoiditis betrifft Schilddrüsen-Follikelepithel.',
+    medat:'Schilddrüse + Niere als Klassiker. Apikale Zellpolarität mit Mikrovilli möglich.'},
+
+  zylindrisch:{cat:'epithel',name:'Zylindrisches Epithel',sub:'Epithelgewebe',svg:()=>svgEpithel('zylindrisch'),
+    aufbau:'Säulenartige (prismatische) Zellen — höher als breit, oval, Kern im basalen Drittel. Apikal oft mit <b>Mikrovilli</b> (Bürstensaum) oder <b>Kinozilien</b>. Becherzellen sezernieren Schleim.',
+    lokalisation:[
+      '<b>Einschichtig:</b> Magen, Dünn-/Dickdarm (mit Mikrovilli), Uterus, Tuba uterina (mit Kinozilien), Gallenblase',
+      '<b>Mehrreihig mit Kinozilien (Flimmerepithel):</b> Trachea, große Bronchien'
+    ],
+    funktion:[
+      'Resorption (Dünndarm-Mikrovilli vergrößern Oberfläche 30×)',
+      'Sekretion (Becherzellen → Mucin/Schleim)',
+      'Mukoziliäre Clearance (Trachea: Schleim + Zilien transportieren Partikel)'
+    ],
+    zellen:'Zylinderzellen, <b>Becherzellen</b> (Goblet — Schleim), Bürstenzellen (Chemosensoren), Enteroendokrine Zellen.',
+    klinik:'<b>Adenokarzinom des Kolons</b> — häufigster GI-Tumor. <b>Barrett-Ösophagus</b>: metaplastische Umwandlung Plattenepithel → Zylinderepithel (Refluxösophagitis-Folge, Präkanzerose).',
+    medat:'Becherzellen, Mikrovilli (Bürstensaum), Flimmerepithel der Atemwege. Mehrreihig ≠ mehrschichtig (alle Zellen erreichen Basalmembran).'},
+
+  uebergang:{cat:'epithel',name:'Übergangsepithel (Urothel)',sub:'Epithelgewebe',svg:()=>svgEpithel('uebergang'),
+    aufbau:'Spezialisiertes <b>mehrschichtiges</b> Epithel mit kuppelförmigen <b>Deckzellen ("Schirmzellen")</b>. Wechselt Form je nach Füllungszustand: bei leerer Blase polygonal/kuboid, bei voller Blase abgeflacht.',
+    lokalisation:[
+      'Ausschließlich ableitende Harnwege:',
+      'Nierenbecken (Pelvis renalis)',
+      'Ureter',
+      'Harnblase',
+      'Proximaler Anteil der Urethra'
+    ],
+    funktion:[
+      'Dehnungsfähigkeit (Volumenanpassung der Blase)',
+      'Undurchlässige Barriere — schützt darunterliegendes Gewebe vor Urin (osmotisch und chemisch aggressiv)',
+      'Glykosaminoglykan-Schicht apikal als zusätzliche Barriere'
+    ],
+    zellen:'Urothelzellen (Schirm-, Intermediär-, Basalzellen). Apikale Membran enthält charakteristische Uroplakine.',
+    klinik:'<b>Urothelkarzinom</b> — häufigster Blasenkrebs (Risiko: Rauchen, aromatische Amine).',
+    medat:'Synonym Urothel. Nur in Harnwegen. Dehnbar — Form ändert sich mit Füllung.'},
+
+  // ============ BINDEGEWEBE ============
+  locker:{cat:'binde',name:'Lockeres Bindegewebe',sub:'Bindegewebe',svg:()=>svgBindegewebe('locker'),
+    aufbau:'Fibroblasten/-zyten in extrazellulärer Matrix mit lose verstreuten <b>Kollagen-</b> (Typ I + III) und <b>elastischen Fasern</b>. Reichlich Grundsubstanz (Proteoglykane wie Hyaluronsäure → bindet Wasser). Mesenchymalen Ursprungs.',
+    lokalisation:[
+      'Subkutangewebe (Tela subcutanea)',
+      'Lamina propria von Schleimhäuten',
+      'Stroma (Bindegewebsstruktur) aller Organe',
+      'Adventitia von Gefäßen'
+    ],
+    funktion:[
+      'Verbindung zwischen Geweben',
+      'Wasser- und Flüssigkeitsspeicher',
+      'Diffusionsraum für Gefäße + Nerven',
+      'Sitz vieler Immunzellen (immunologische Überwachung)',
+      'Stoffaustausch zwischen Blut und Parenchym'
+    ],
+    zellen:'<b>Fibroblasten</b> (aktiv), Fibrozyten (ruhend), Mastzellen (Histamin), Makrophagen (Phagozytose), Plasmazellen (Antikörper), Lymphozyten, vereinzelte Adipozyten.',
+    klinik:'Anschwellen bei Entzündung (Vasodilatation + Permeabilität). Fibrose = pathologische Vermehrung. Tumoren der Mesenchymzellen = Sarkome.',
+    medat:'Bestandteil aller Organkapseln. Hyaluronsäure-haltige Grundsubstanz. Sitz der Mastzellen (Allergie-Reaktion).'},
+
+  knorpel:{cat:'binde',name:'Knorpelgewebe',sub:'Bindegewebe',svg:()=>svgBindegewebe('knorpel'),
+    aufbau:'<b>Chondrozyten in Lakunen</b> (oft 2–4 isogene Gruppen) eingebettet in feste, druckelastische Matrix mit <b>Kollagen Typ II</b> + <b>Aggrecan</b> (großes Proteoglykan, hochnegativ → bindet Wasser → Druckelastizität). <b>Avaskulär</b> und ohne Nerven — Ernährung über Diffusion durch das Perichondrium.',
+    lokalisation:[
+      '<b>Hyaliner Knorpel</b> (häufigster): Gelenkflächen, Trachea/Bronchien, Rippenknorpel, Nasenseptum, fetales Skelett',
+      '<b>Elastischer Knorpel</b>: Ohrmuschel, Epiglottis, äußerer Gehörgang',
+      '<b>Faserknorpel</b>: Bandscheiben (Anulus fibrosus), Symphysis pubica, Menisken'
+    ],
+    funktion:[
+      'Druckelastische Stütze',
+      'Glatte Gleitfläche an Gelenken',
+      'Stoßdämpfer (Bandscheiben, Menisken)'
+    ],
+    zellen:'<b>Chondroblasten</b> (Aufbau, in Perichondrium), <b>Chondrozyten</b> (in Lakunen, isogene Gruppen).',
+    klinik:'<b>Arthrose</b>: Verschleiß des Gelenkknorpels — schlechte Heilungstendenz wegen Avaskularität. <b>Bandscheibenvorfall</b> (Diskusprolaps): Faserknorpel rupturiert, Nucleus pulposus quillt aus.',
+    medat:'<b>Avaskulär</b> + Kollagen Typ II + langsame Heilung. Chondrozyten in Lakunen, oft isogene Gruppen (Teilungsabkömmlinge).'},
+
+  knochen:{cat:'binde',name:'Knochengewebe',sub:'Bindegewebe',svg:()=>svgBindegewebe('knochen'),
+    aufbau:'<b>Osteozyten in Lakunen</b>, verbunden über feine Kanälchen (<b>Canaliculi</b>) für Stoffaustausch. Lamellen konzentrisch um den <b>Havers-Kanal</b> (mit Gefäß + Nerv) = <b>Osteon</b>. Volkmann-Kanäle queren mehrere Osteone. Matrix: <b>Hydroxylapatit</b> Ca₁₀(PO₄)₆(OH)₂ + <b>Kollagen Typ I</b>.',
+    lokalisation:[
+      '<b>Substantia compacta</b> (kortikal): Außenwand der Knochen, viele Osteone',
+      '<b>Substantia spongiosa</b>: Innenraum, Trabekel — Knochenmark in den Hohlräumen',
+      'Über 200 Knochen im menschlichen Skelett'
+    ],
+    funktion:[
+      'Mechanische Stütze des Körpers',
+      'Schutz innerer Organe (Schädel, Brustkorb)',
+      'Calcium- und Phosphat-Speicher',
+      '<b>Hämatopoese</b> im roten Knochenmark (spongiöse Bereiche)',
+      'Verankerung von Muskeln (Bewegung)'
+    ],
+    zellen:'<b>Osteoblasten</b> (Aufbau, einkernig, an Knochenoberfläche), <b>Osteozyten</b> (Erhalt, in Lakunen), <b>Osteoklasten</b> (Abbau, mehrkernig, aus Monozyten).',
+    klinik:'<b>Osteoporose</b>: Knochendichte ↓ (postmenopausal, Cortisol-Therapie). <b>Osteomalazie/Rachitis</b>: Mineralisierungs-Defekt (Vit-D-Mangel). <b>Osteosarkom</b>: häufigster primärer Knochentumor.',
+    medat:'Kollagen <b>Typ I</b> (vs. Knorpel: Typ II!). Osteon mit Havers-Kanal. <b>Wolff\'sches Gesetz</b>: Knochen passt sich der mechanischen Belastung an.'},
+
+  blut:{cat:'binde',name:'Blut',sub:'Bindegewebe (flüssig)',svg:()=>svgBindegewebe('blut'),
+    aufbau:'Flüssiges Bindegewebe. <b>Plasma (~55%)</b> + <b>zelluläre Bestandteile (~45%)</b>. Hämatokrit = Anteil der Erys (~42–47%).',
+    lokalisation:[
+      'Im Gefäßsystem: Arterien, Venen, Kapillaren',
+      'Gesamtmenge: ~5–6 L beim Erwachsenen'
+    ],
+    funktion:[
+      'O₂ / CO₂-Transport (Erythrozyten / Hb)',
+      'Nährstoff- und Hormontransport (Plasma)',
+      'Immunabwehr (Leukozyten, Antikörper)',
+      'Blutgerinnung (Thrombozyten + Plasma-Faktoren)',
+      'Wärmeverteilung im Körper',
+      'pH- und Osmolaritätsregulation'
+    ],
+    zellen:'<b>Erythrozyten</b> (4–5 Mio/μL, ♀ etwas weniger): kernlos, bikonkav, Hb-haltig, ~120 Tage Lebensdauer. <b>Leukozyten</b> (4–11k/μL): Neutrophile (~60%), Lymphozyten (~30%), Monozyten (~5%), Eosinophile (~3%), Basophile (<1%). <b>Thrombozyten</b> (150–400k/μL): kernlose Zellfragmente von Megakaryozyten, ~10 Tage Lebensdauer.',
+    klinik:'<b>Anämien</b>: Eisenmangel (mikrozytär), Vit-B12-/Folsäure-Mangel (megaloblastär), <b>Sichelzellanämie</b> (HbS, Glu→Val an Position 6 von β-Globin). <b>Leukämien</b>: maligne Vermehrung weißer Reihe. <b>Thrombozytopenie</b> → Blutungsneigung.',
+    medat:'Erys <b>kernlos</b>, bikonkav. Differentialblutbild („NLMEB" = Neutro-, Lympho-, Mono-, Eosino-, Basophile). Hämatokrit, Sichelzelle als Klassiker.'},
+
+  fett:{cat:'binde',name:'Fettgewebe',sub:'Bindegewebe',svg:()=>svgBindegewebe('fett'),
+    aufbau:'<b>Adipozyten</b> — sehr große Zellen (Ø ~100 μm) mit einer riesigen <b>zentralen Fettvakuole</b> (Triglyzeride). Kern und Cytoplasma werden an den Rand gedrängt → klassische <b>"Siegelring"-Form</b>. Zwei Typen:',
+    lokalisation:[
+      '<b>Weißes Fettgewebe</b> (univakuolär): subkutan, viszeral, retroperitoneal, perirenal, in Gelenkpolstern, im Knochenmark',
+      '<b>Braunes Fettgewebe</b> (multivakuolär, viele Mitochondrien mit UCP-1): bei Säuglingen interskapulär, paraaortal, perirenal — beim Erwachsenen nur Reste'
+    ],
+    funktion:[
+      '<b>Energiespeicher</b> (Triglyceride)',
+      '<b>Wärmeisolation</b> (subkutan)',
+      '<b>Mechanisches Polster</b> (Fußsohle, Augenhöhle, Gelenke)',
+      '<b>Endokrines Organ</b>: Leptin (Sättigung), Adiponektin (Insulin-Sensitivität), Resistin',
+      '<b>Wärmeproduktion (braunes FG)</b> via UCP-1 (Thermogenin) — entkoppelt Atmungskette → Wärme'
+    ],
+    zellen:'Adipozyten (uni- oder multivakuolär), wenige Fibroblasten und Makrophagen.',
+    klinik:'<b>Adipositas</b>: Risikofaktor für Diabetes Typ 2, Hypertonie, KHK. <b>Lipom</b>: gutartiger Fettgewebstumor. <b>Liposarkom</b>: bösartig.',
+    medat:'<b>Siegelring-Zelle</b> = mikroskopisches Erkennungsmerkmal. Braunes FG mit <b>UCP-1</b> für Wärme bei Säuglingen. FG ist endokrin aktiv (Leptin).'},
+
+  // ============ MUSKEL ============
+  glatt:{cat:'muskel',name:'Glatte Muskulatur',sub:'Muskelgewebe',svg:()=>svgMuskel('glatt'),
+    aufbau:'<b>Spindelförmige (fusiforme)</b> Zellen, 50–200 μm lang, mit <b>einem zentralen Kern</b>. <b>Keine Querstreifung</b> — Aktin/Myosin nicht in regelmäßige Sarkomere geordnet, sondern an "dichte Körper" verankert. Verbindung über Gap Junctions (funktionelles Synzytium).',
+    lokalisation:[
+      'Wand der Hohlorgane: GI-Trakt, Bronchien, Uterus, Ureter, Harnblase',
+      'Tunica media der Blutgefäße',
+      'Mm. erectores pilorum (Haarbalg → Gänsehaut)',
+      'Iris, Ziliarmuskel (Akkommodation)'
+    ],
+    funktion:[
+      'Unwillkürliche Kontraktion',
+      'Peristaltik (GI-Trakt)',
+      'Vasokonstriktion / -dilatation (Blutdruck-Regulation)',
+      'Geburtswehen (Uterus)',
+      'Blasenentleerung'
+    ],
+    zellen:'Glatte Muskelzellen.',
+    klinik:'<b>Asthma bronchiale</b>: Bronchokonstriktion durch glatte Muskulatur. <b>Hypertonie</b>: erhöhter Tonus der Gefäßmuskulatur. <b>Leiomyom</b> (Uterus = "Myom") — häufigster gutartiger Tumor der Frau. <b>Leiomyosarkom</b>: bösartig.',
+    medat:'<b>Einkernig</b> + spindelförmig + <b>kein Querstreif</b> + unwillkürlich. Steuerung durch autonomes NS und Hormone. Langsam, ermüdungsresistent.'},
+
+  skelett:{cat:'muskel',name:'Skelett-Muskulatur',sub:'Muskelgewebe',svg:()=>svgMuskel('skelett'),
+    aufbau:'Lange (cm-cm-lange), zylindrische Fasern mit <b>vielen randständigen (peripheren) Kernen</b> — entstehen durch Fusion von Myoblasten → <b>Synzytium</b>. <b>Querstreifung</b> durch regelmäßig angeordnete Sarkomere (Z-Linien, A-Banden, I-Banden, M-Linie, H-Zone). T-Tubuli + sarkoplasmatisches Retikulum bilden <b>Triaden</b> für Ca²⁺-Freisetzung.',
+    lokalisation:[
+      'Alle Skelettmuskeln',
+      'Zunge',
+      'Oberes Drittel der Speiseröhre',
+      'Äußerer Schließmuskel von Anus und Urethra',
+      'Mimische Muskulatur (Gesicht)',
+      'Zwerchfell (Diaphragma)'
+    ],
+    funktion:[
+      'Willkürliche Bewegung',
+      'Wärmeproduktion (Muskelzittern)',
+      'Aufrechterhaltung der Körperhaltung',
+      'Atmung (Zwerchfell, Interkostalmuskeln)'
+    ],
+    zellen:'Skelettmuskelfasern (= eine Zelle, aber vielkernig). Satellitenzellen für Regeneration.',
+    klinik:'<b>Muskeldystrophie Duchenne</b>: X-rez. — Dystrophin-Defekt, progressive Schwäche. <b>Myasthenia gravis</b>: Autoantikörper gegen Acetylcholin-Rezeptor → muskuläre Schwäche. <b>Rhabdomyolyse</b>: Zerstörung mit Myoglobin-Ausschüttung → akutes Nierenversagen.',
+    medat:'<b>Vielkernig + randständige Kerne + quergestreift + willkürlich</b>. Steuerung über motorische Endplatte (ACh). Sarkomer als Funktionseinheit (Z bis Z).'},
+
+  herz:{cat:'muskel',name:'Herzmuskulatur',sub:'Muskelgewebe',svg:()=>svgMuskel('herz'),
+    aufbau:'Verzweigte Zellen, <b>quergestreift</b> wie Skelettmuskel — aber mit <b>nur 1–2 zentralen Kernen</b> pro Zelle. Charakteristische <b>Glanzstreifen (Disci intercalares)</b>: Zell-Zell-Verbindungen mit <b>Desmosomen</b> (mechanische Kopplung) + <b>Gap Junctions</b> (elektrische Kopplung → Synchronisation). Eigene Erregungsleitung: Sinus → AV-Knoten → His-Bündel → Tawara-Schenkel → Purkinje-Fasern.',
+    lokalisation:[
+      'Ausschließlich Myokard (Herzmuskel)'
+    ],
+    funktion:[
+      'Rhythmische, autonome Pumpfunktion',
+      'Blutkreislauf in Gang halten (~70 Schläge/min in Ruhe)',
+      'Adaptation an Belastung über autonomes NS'
+    ],
+    zellen:'Kardiomyozyten (kontraktil), Schrittmacher- und Erregungsleitungs-Zellen (modifizierte Kardiomyozyten), Purkinje-Fasern.',
+    klinik:'<b>Myokardinfarkt</b>: Verschluss einer Koronararterie → Nekrose. Heilung als <b>Narbe</b> (kein Regenerationspotential!). <b>Myokarditis</b>, <b>Kardiomyopathien</b>. Rhythmusstörungen über Erregungsleitungs-System.',
+    medat:'<b>1–2 zentrale Kerne</b> + quergestreift + <b>Disci intercalares</b> mit Gap Junctions. Autorhythmisch (Sinusknoten = primärer Schrittmacher 60–80/min). Keine Regeneration nach Infarkt.'},
+
+  // ============ NERV ============
+  neuron:{cat:'nerv',name:'Neuron',sub:'Nervengewebe',svg:()=>svgNerv('neuron'),
+    aufbau:'<b>Soma</b> (Zellkörper, Perikaryon) mit großem Kern + Nucleolus, <b>raues ER (Nissl-Schollen)</b>. <b>Dendriten</b>: viele kurze, stark verzweigte Fortsätze für Reizempfang. <b>Axon</b>: ein langer Fortsatz vom Axonhügel ausgehend, oft myelinisiert mit <b>Ranvier-Schnürringen</b>. <b>Synapse</b> am Axonterminal mit synaptischen Vesikeln (Neurotransmitter).',
+    lokalisation:[
+      '<b>ZNS</b>: Gehirn (graue Substanz: Soma; weiße Substanz: Axone) und Rückenmark',
+      '<b>PNS</b>: periphere Nerven, Spinal- und Hirnganglien, autonomes NS',
+      'Beim Menschen: ~86 Mrd. Neuronen'
+    ],
+    funktion:[
+      '<b>Erregbarkeit</b> — Bildung und Weiterleitung von <b>Aktionspotentialen</b>',
+      'Verarbeitung und Integration von Information',
+      'Synaptische Übertragung (chemisch oder elektrisch)',
+      '<b>Saltatorische Erregungsleitung</b> bei myelinisierten Axonen (von Schnürring zu Schnürring → schneller)'
+    ],
+    zellen:'Verschiedene Typen: <b>multipolar</b> (häufigste, viele Dendriten + 1 Axon — Motoneurone, Pyramidenzellen), <b>bipolar</b> (Retina, olfaktorische Sinneszellen), <b>pseudounipolar</b> (sensible Spinalganglienzellen), unipolar (selten).',
+    klinik:'<b>Neurodegeneration</b>: Alzheimer (Aβ-Plaques + Tau-Tangles), Parkinson (Substantia nigra, Lewy-Körperchen). <b>Demyelinisierung</b>: Multiple Sklerose (ZNS), Guillain-Barré (PNS). <b>Schlaganfall</b>: ischämische oder hämorrhagische Neuronen-Schädigung.',
+    medat:'Soma + Dendriten + Axon. Aktionspotential. Saltatorische Erregungsleitung. Synapse mit Vesikeln. Tigroidschollen (= raues ER) im Soma.'},
+
+  glia:{cat:'nerv',name:'Gliazellen',sub:'Nervengewebe',svg:()=>svgNerv('glia'),
+    aufbau:'<b>Stützzellen des Nervensystems</b>. ZNS: 4 Typen — Astrozyten (sternförmig), Oligodendrozyten, Mikroglia, Ependymzellen. PNS: Schwann-Zellen, Mantelzellen.',
+    lokalisation:[
+      '<b>Astrozyten</b>: ZNS, sternförmig — protoplasmatisch (graue Substanz) vs. fibrös (weiße Substanz)',
+      '<b>Oligodendrozyten</b>: ZNS — Myelinbildung (eine Zelle myelinisiert mehrere Axone)',
+      '<b>Mikroglia</b>: ZNS — mesodermalen Ursprungs (alle anderen Glia neuroektodermal!)',
+      '<b>Ependymzellen</b>: kleiden Hirn-Ventrikel und Zentralkanal aus',
+      '<b>Schwann-Zellen</b>: PNS — Myelinbildung (eine Zelle pro Internodium, eine Wicklung pro Axon)'
+    ],
+    funktion:[
+      'Stützung, Wegweiser bei der Entwicklung',
+      'Myelinisierung der Axone (Oligo + Schwann)',
+      '<b>Blut-Hirn-Schranke</b> (Astrozyten-Endfüßchen an Kapillaren)',
+      'K⁺-Pufferung (Astrozyten)',
+      'Immunabwehr im ZNS (Mikroglia = Makrophagen des ZNS)',
+      'Liquorbildung (Plexus choroideus → Ependymzellen)'
+    ],
+    zellen:'Astrozyten (am häufigsten), Oligodendrozyten, Mikroglia, Ependymzellen, Schwann-Zellen.',
+    klinik:'<b>Gliome</b> — häufigste Primärtumoren des ZNS (Astrozytome, Glioblastom, Oligodendrogliom). <b>Multiple Sklerose</b>: autoimmune Demyelinisierung im ZNS. <b>Guillain-Barré</b>: PNS-Demyelinisierung.',
+    medat:'<b>~10× mehr Glia als Neurone.</b> BHS via Astrozyten. ZNS-Myelin = Oligodendrozyten, PNS-Myelin = Schwann-Zellen. Mikroglia mesodermal, alle anderen Glia neuroektodermal.'}
+};
+
+/* ===== TAB 1: ÜBERSICHT ===== */
+const CATEGORIES=[
+  {key:'epithel',name:'Epithelgewebe',desc:'Begrenzt Oberflächen, bildet Drüsen',icon:'layers-2'},
+  {key:'binde',name:'Bindegewebe',desc:'Stützt, verbindet, speichert',icon:'spline'},
+  {key:'muskel',name:'Muskelgewebe',desc:'Erzeugt Bewegung',icon:'activity'},
+  {key:'nerv',name:'Nervengewebe',desc:'Leitet Reize, verarbeitet Information',icon:'brain-circuit'}
+];
+let activeCat='epithel';
+
+function renderCats(){
+  const grid=document.getElementById('catGrid');
+  grid.innerHTML='';
+  CATEGORIES.forEach(c=>{
+    const card=document.createElement('div');
+    card.className='tissue-cat-card'+(c.key===activeCat?' active':'');
+    card.innerHTML=`<div class="ico"><i data-lucide="${c.icon}" style="width:28px;height:28px"></i></div>
+      <h4>${c.name}</h4>
+      <div class="desc">${c.desc}</div>`;
+    card.onclick=()=>{
+      activeCat=c.key;
+      document.querySelectorAll('.tissue-cat-card').forEach(x=>x.classList.remove('active'));
+      card.classList.add('active');
+      renderTypes();
+      // Switch to types tab
+      document.querySelector('.tab[data-tab="types"]').click();
+    };
+    grid.appendChild(card);
+  });
+  if(window.lucide) lucide.createIcons();
+}
+
+/* ===== TAB 2: SUBTYPEN ===== */
+function plainText(html){
+  // Strip HTML tags for short preview
+  return html.replace(/<[^>]+>/g,'');
+}
+function renderTypes(){
+  const card=document.getElementById('typesCard');
+  const cat=CATEGORIES.find(c=>c.key===activeCat);
+  let html=`<h2><i data-lucide="${cat.icon}"></i>${cat.name}</h2>
+    <p class="lead">${cat.desc}</p>
+    <div class="tissue-types-grid">`;
+  Object.entries(TISSUES).filter(([k,t])=>t.cat===activeCat).forEach(([k,t])=>{
+    const preview=plainText(t.aufbau);
+    html+=`<div class="tissue-card" data-key="${k}">
+      <div class="tissue-img">${t.svg()}</div>
+      <div class="tissue-info">
+        <div class="sub">${t.sub}</div>
+        <h4>${t.name}</h4>
+        <p>${preview.length>110?preview.slice(0,110)+'…':preview}</p>
+      </div>
+    </div>`;
+  });
+  html+=`</div>
+    <div class="key-fact" style="margin-top:14px"><i data-lucide="info"></i><div>Klick auf eine Karte für den vollständigen Steckbrief: Aufbau, Lokalisation, Funktion, Zellen, Klinik und MedAT-Merksatz.</div></div>`;
+  card.innerHTML=html;
+  card.querySelectorAll('.tissue-card').forEach(c=>{
+    c.onclick=()=>showTissue(c.dataset.key);
+  });
+  if(window.lucide) lucide.createIcons();
+}
+renderCats();
+renderTypes();
+
+function showTissue(key){
+  const t=TISSUES[key]; if(!t) return;
+  document.getElementById('mImg').innerHTML=t.svg();
+  document.getElementById('mSub').textContent=t.sub;
+  document.getElementById('mName').textContent=t.name;
+  let html='<div class="steckbrief">';
+  if(t.aufbau){
+    html+=`<div class="sb-section">
+      <h4><i data-lucide="layers"></i>Aufbau</h4>
+      <p>${t.aufbau}</p>
+    </div>`;
+  }
+  if(t.lokalisation && t.lokalisation.length){
+    html+=`<div class="sb-section">
+      <h4><i data-lucide="map-pin"></i>Lokalisation</h4>
+      <ul class="sb-list">${t.lokalisation.map(l=>`<li>${l}</li>`).join('')}</ul>
+    </div>`;
+  }
+  if(t.funktion && t.funktion.length){
+    html+=`<div class="sb-section">
+      <h4><i data-lucide="zap"></i>Funktion</h4>
+      <ul class="sb-list">${t.funktion.map(l=>`<li>${l}</li>`).join('')}</ul>
+    </div>`;
+  }
+  if(t.zellen){
+    html+=`<div class="sb-section">
+      <h4><i data-lucide="circle-dot"></i>Zellen / Komponenten</h4>
+      <p>${t.zellen}</p>
+    </div>`;
+  }
+  if(t.klinik){
+    html+=`<div class="sb-section klinik">
+      <h4><i data-lucide="heart-pulse"></i>Klinik</h4>
+      <p>${t.klinik}</p>
+    </div>`;
+  }
+  if(t.medat){
+    html+=`<div class="sb-section medat">
+      <h4><i data-lucide="brain"></i>MedAT-Merksatz</h4>
+      <p>${t.medat}</p>
+    </div>`;
+  }
+  html+='</div>';
+  document.getElementById('mBody').innerHTML=html;
+  document.getElementById('tissueModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeT(){document.getElementById('tissueModal').classList.remove('show')}
+window.closeT=closeT;
+
+/* ===== TAB 3: ERRATE ===== */
+let idScore=0,idTotal=0,idCurrent=null;
+function newIdentify(){
+  const keys=Object.keys(TISSUES);
+  idCurrent=keys[Math.floor(Math.random()*keys.length)];
+  document.getElementById('idArena').innerHTML=TISSUES[idCurrent].svg();
+  // Generate 4 options
+  const choices=[idCurrent];
+  while(choices.length<4){
+    const r=keys[Math.floor(Math.random()*keys.length)];
+    if(!choices.includes(r)) choices.push(r);
+  }
+  choices.sort(()=>Math.random()-.5);
+  const opts=document.getElementById('idOptions'); opts.innerHTML='';
+  choices.forEach(k=>{
+    const b=document.createElement('button');
+    b.className='identify-opt';
+    b.textContent=TISSUES[k].name;
+    b.dataset.key=k;
+    b.onclick=()=>checkId(k,b);
+    opts.appendChild(b);
+  });
+  document.getElementById('idFb').classList.remove('show');
+}
+function checkId(key,btn){
+  idTotal++;
+  const correct=key===idCurrent;
+  document.querySelectorAll('.identify-opt').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.key===idCurrent) b.classList.add('correct');
+    else if(b===btn&&!correct) b.classList.add('wrong');
+  });
+  if(correct) idScore++;
+  document.getElementById('idScore').textContent=`${idScore} / ${idTotal}`;
+  const fb=document.getElementById('idFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  const preview=plainText(TISSUES[idCurrent].aufbau);
+  fb.innerHTML=correct
+    ?`<b>Richtig.</b> ${TISSUES[idCurrent].name}: ${preview.slice(0,150)}`
+    :`<b>Nicht ganz — richtig: ${TISSUES[idCurrent].name}.</b> ${preview.slice(0,130)}`;
+}
+document.getElementById('idNext').onclick=newIdentify;
+
+/* ===== TAB 4: ZUORDNUNG (3 MODI) ===== */
+const MATCH_MODES={
+  funktion:{
+    label:'Funktion',sub:'Was macht es?',leftLabel:'Gewebe',rightLabel:'Funktion',
+    pairs:[
+      {a:'Plattenepithel (Lunge)',b:'Diffusion / Gasaustausch'},
+      {a:'Zylindrisches Ep. (Darm)',b:'Resorption von Nährstoffen'},
+      {a:'Übergangsepithel',b:'Dehnungsfähig (Harnblase)'},
+      {a:'Knorpel',b:'Druckbelastbare Gleitfläche'},
+      {a:'Knochen',b:'Mechanische Stütze + Mineralspeicher'},
+      {a:'Blut',b:'O₂-Transport, Immunabwehr'},
+      {a:'Fettgewebe',b:'Energiespeicher, Wärme'},
+      {a:'Glatter Muskel',b:'Unwillkürliche Bewegung Hohlorgane'},
+      {a:'Skelettmuskel',b:'Willkürliche Bewegung'},
+      {a:'Herzmuskel',b:'Synchronisierte Pumpfunktion'},
+      {a:'Neuron',b:'Reizleitung, Aktionspotential'},
+      {a:'Gliazellen',b:'Myelinbildung, BHS, Stütze'}
+    ]
+  },
+  lokation:{
+    label:'Lokalisation',sub:'Wo findet man es?',leftLabel:'Gewebe',rightLabel:'Lokalisation',
+    pairs:[
+      {a:'Plattenepithel (verhornt)',b:'Epidermis der Haut'},
+      {a:'Plattenepithel (unverhornt)',b:'Mund, Speiseröhre'},
+      {a:'Übergangsepithel',b:'Harnwege (Blase, Ureter)'},
+      {a:'Zylindrisches Ep.',b:'Magen, Darm'},
+      {a:'Hyaliner Knorpel',b:'Gelenkflächen, Trachea'},
+      {a:'Faserknorpel',b:'Bandscheibe, Menisken'},
+      {a:'Glatte Muskulatur',b:'Wand von GI-Trakt + Gefäßen'},
+      {a:'Herzmuskulatur',b:'Nur Myokard'},
+      {a:'Braunes Fettgewebe',b:'Säuglinge (Wärmeproduktion)'},
+      {a:'Astrozyten',b:'ZNS (Blut-Hirn-Schranke)'},
+      {a:'Schwann-Zellen',b:'PNS (Myelinscheide)'}
+    ]
+  },
+  zelltyp:{
+    label:'Zelltyp',sub:'Wo lebt diese Zelle?',leftLabel:'Zelle',rightLabel:'Gewebe',
+    pairs:[
+      {a:'Chondrozyt',b:'Knorpel'},
+      {a:'Osteozyt',b:'Knochen'},
+      {a:'Adipozyt',b:'Fettgewebe'},
+      {a:'Erythrozyt',b:'Blut'},
+      {a:'Fibrozyt',b:'Lockeres Bindegewebe'},
+      {a:'Astrozyt',b:'Nervengewebe (ZNS)'},
+      {a:'Oligodendrozyt',b:'Nervengewebe (ZNS, Myelin)'},
+      {a:'Schwann-Zelle',b:'Nervengewebe (PNS)'},
+      {a:'Becherzelle',b:'Zylindrisches Epithel'},
+      {a:'Osteoklast',b:'Knochen (Abbau)'},
+      {a:'Mikroglia',b:'Nervengewebe (Immun)'}
+    ]
+  }
+};
+
+let matchCurrentMode='funktion';
+let matchOk=0,matchBad=0,matchSelectedLeft=null,matchTotal=0;
+
+function buildMatchModes(){
+  const row=document.getElementById('matchModeRow');
+  row.innerHTML='';
+  Object.entries(MATCH_MODES).forEach(([key,mode])=>{
+    const btn=document.createElement('button');
+    btn.className='match-mode-btn'+(key===matchCurrentMode?' active':'');
+    btn.dataset.mode=key;
+    btn.innerHTML=`${mode.label}<small>${mode.sub}</small>`;
+    btn.onclick=()=>{
+      matchCurrentMode=key;
+      document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      initMatch();
+    };
+    row.appendChild(btn);
+  });
+}
+buildMatchModes();
+
+function initMatch(){
+  const mode=MATCH_MODES[matchCurrentMode];
+  matchOk=0; matchBad=0; matchSelectedLeft=null;
+  matchTotal=mode.pairs.length;
+  document.getElementById('matchOk').textContent=0;
+  document.getElementById('matchBad').textContent=0;
+  document.getElementById('matchLeft').textContent=matchTotal;
+  document.getElementById('matchStatus').classList.remove('show');
+  document.getElementById('matchLeftLabel').textContent=mode.leftLabel;
+  document.getElementById('matchRightLabel').textContent=mode.rightLabel;
+  const left=document.getElementById('matchLeft1');
+  const right=document.getElementById('matchRight');
+  left.innerHTML=''; right.innerHTML='';
+  const indexed=mode.pairs.map((p,i)=>({...p,key:'p'+i}));
+  [...indexed].sort(()=>Math.random()-.5).forEach(p=>{
+    const div=document.createElement('div');
+    div.className='match-item';
+    div.dataset.key=p.key;
+    div.textContent=p.a;
+    div.onclick=()=>matchTapLeft(div);
+    left.appendChild(div);
+  });
+  [...indexed].sort(()=>Math.random()-.5).forEach(p=>{
+    const div=document.createElement('div');
+    div.className='match-item';
+    div.dataset.key=p.key;
+    div.textContent=p.b;
+    div.onclick=()=>matchTapRight(div);
+    right.appendChild(div);
+  });
+}
+function matchTapLeft(el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#matchLeft1 .match-item.selected').forEach(x=>x.classList.remove('selected'));
+  if(matchSelectedLeft===el){matchSelectedLeft=null;return}
+  el.classList.add('selected'); matchSelectedLeft=el;
+}
+function matchTapRight(el){
+  if(el.classList.contains('matched')) return;
+  if(!matchSelectedLeft){el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),350);return}
+  if(el.dataset.key===matchSelectedLeft.dataset.key){
+    el.classList.add('matched'); matchSelectedLeft.classList.add('matched');
+    matchSelectedLeft.classList.remove('selected'); matchSelectedLeft=null;
+    matchOk++;
+    document.getElementById('matchOk').textContent=matchOk;
+    document.getElementById('matchLeft').textContent=matchTotal-matchOk;
+    if(matchOk===matchTotal){
+      const status=document.getElementById('matchStatus');
+      status.className='match-status show success';
+      status.innerHTML=`<b>Geschafft!</b> ${matchOk} richtig, ${matchBad} Fehlversuche.`;
+    }
+  } else {
+    el.classList.add('wrong'); matchSelectedLeft.classList.add('wrong');
+    setTimeout(()=>{el.classList.remove('wrong');if(matchSelectedLeft)matchSelectedLeft.classList.remove('wrong')},400);
+    matchBad++; document.getElementById('matchBad').textContent=matchBad;
+  }
+}
+document.getElementById('matchReset').onclick=initMatch;
+document.getElementById('matchNext').onclick=()=>{
+  const keys=Object.keys(MATCH_MODES);
+  matchCurrentMode=keys[(keys.indexOf(matchCurrentMode)+1)%keys.length];
+  document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===matchCurrentMode));
+  initMatch();
+};
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Wie viele <b>Grundgewebe-Arten</b> gibt es?',o:['2','3','4','5'],c:2,e:'4: Epithel, Binde, Muskel, Nerv. Daraus entstehen alle Organe.'},
+  {q:'Welches Gewebe bedeckt Oberflächen und bildet Drüsen?',o:['Bindegewebe','Epithel','Muskel','Nerv'],c:1,e:'Epithel: dicht gepackt, kaum ECM, polar (apikal/basal). Bildet auch Drüsen.'},
+  {q:'Welche Muskulatur ist <b>quergestreift, einkernig</b> und hat <b>Glanzstreifen</b>?',o:['Glatte','Skelett','Herz','Keine'],c:2,e:'Herzmuskulatur: quergestreift wie Skelett, aber einkernig. Glanzstreifen = Disci intercalares mit Gap Junctions.'},
+  {q:'Wo findet man <b>Übergangsepithel</b>?',o:['Magen','Bronchien','Harnblase','Schilddrüse'],c:2,e:'Urothel der ableitenden Harnwege. Dehnt sich, wenn Blase voll → flach.'},
+  {q:'Welche Zelle hat <b>keinen Zellkern</b>?',o:['Lymphozyt','Erythrozyt','Hepatozyt','Neuron'],c:1,e:'Reife Erythrozyten verlieren den Kern → mehr Platz für Hämoglobin.'},
+  {q:'Welches Bindegewebe hat <b>Chondrozyten in Lakunen</b>?',o:['Lockeres BG','Knorpel','Knochen','Fett'],c:1,e:'Knorpel: Chondrozyten in Höhlen. Matrix mit Kollagen II + Proteoglykanen → druckelastisch.'},
+  {q:'Welche Zellen bilden <b>Myelin im ZNS</b>?',o:['Schwann-Zellen','Oligodendrozyten','Astrozyten','Mikroglia'],c:1,e:'Im ZNS: Oligodendrozyten (eine Zelle myelinisiert mehrere Axone). Im PNS: Schwann-Zellen.'},
+  {q:'<b>Hydroxylapatit</b> ist Hauptmineral von:',o:['Knorpel','Knochen','Zähnen','Knochen und Zähnen'],c:3,e:'Ca₁₀(PO₄)₆(OH)₂ — verleiht Knochen und Zahnschmelz die Härte.'},
+  {q:'Welche Fasern überwiegen in einer <b>Sehne</b>?',o:['Elastische','Kollagen Typ I','Kollagen Typ II','Retikulin'],c:1,e:'Kollagen I = wichtigster Strukturkollagen-Typ in Knochen, Sehnen, Haut. Kollagen II in Knorpel.'},
+  {q:'Welches Gewebe hat <b>vielkernige Fasern</b>?',o:['Glatter Muskel','Skelettmuskel','Herzmuskel','Endothel'],c:1,e:'Skelettmuskelfasern entstehen durch Fusion von Myoblasten → vielkernig, randständige Kerne.'},
+  {q:'<b>Astrozyten</b> bilden im ZNS die:',o:['Myelinscheide','Blut-Hirn-Schranke','Liquor','Synapse'],c:1,e:'Astrozyten umhüllen mit ihren Endfüßchen die Kapillaren → BHS. Auch K⁺-Pufferung.'},
+  {q:'Welches Epithel ist im <b>Alveolarraum</b> der Lunge?',o:['Mehrschichtiges Plattenepithel','Einschichtiges Plattenepithel','Zylindrisches Ep.','Übergangsepithel'],c:1,e:'Einschichtiges Plattenepithel (Pneumozyten Typ I): dünn → optimaler Gasaustausch durch Diffusion.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

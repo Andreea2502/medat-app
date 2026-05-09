@@ -11,7 +11,7 @@ const App = {
   results: [],
   countdownTimer: null,
   countdownSeconds: 0,
-  showTimer: true,
+  showTimer: false,
 
   // Simulation state
   simBlocks: [],
@@ -55,21 +55,15 @@ const App = {
         Auth.migrateSessionData();
         this._updateUpgradeIcon();
         Credits.load();
-        // Check if onboarding is needed (handles email-confirm return etc.)
+        // Go straight to home (onboarding removed)
         const activeScreen = document.querySelector('.screen.active');
         const onAuth = activeScreen && activeScreen.id === 'screen-auth';
-        const onOnboarding = activeScreen && activeScreen.id === 'screen-onboarding';
-        if (onAuth && !onOnboarding) {
-          const needsOB = await Onboarding.checkOnboardingNeeded();
-          if (needsOB) {
-            Onboarding.start();
-          } else {
-            this.showScreen('screen-home');
-            this.loadHomeStats();
-            this._checkPaymentReturn();
-            this._checkEmailConfirmation();
-          }
-        } else if (!onOnboarding) {
+        if (onAuth) {
+          this.showScreen('screen-home');
+          this.loadHomeStats();
+          this._checkPaymentReturn();
+          this._checkEmailConfirmation();
+        } else {
           this.loadHomeStats();
         }
       } else {
@@ -82,18 +76,24 @@ const App = {
       this._updateUpgradeIcon();
       // Load credits
       Credits.load();
-      // Check if onboarding needed before showing home
-      const needsOnboarding = await Onboarding.checkOnboardingNeeded();
-      if (needsOnboarding && !this._checkPaymentReturn(true)) {
-        Onboarding.start();
+      // Deep-link: ?open=goodies (from goodie campaign emails) jumps to Cheat Sheets tab
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('open') === 'goodies') {
+        this.showScreen('screen-goodies');
+        window.history.replaceState({}, '', window.location.pathname);
       } else {
         this.showScreen('screen-home');
-        this.loadHomeStats();
-        this._checkPaymentReturn();
-        this._checkEmailConfirmation();
-        // Show PWA install prompt after login (delayed)
-        setTimeout(() => { if (window.showPWAInstallBanner) window.showPWAInstallBanner(); }, 4000);
       }
+      this.loadHomeStats();
+      this._checkPaymentReturn();
+      this._checkEmailConfirmation();
+      // Check if we're impersonating a user (show banner)
+      if (typeof Admin !== 'undefined') Admin.checkImpersonation();
+      // Show PWA install hint on home screen (persistent until installed)
+      setTimeout(() => {
+        if (window.showInstallHint) window.showInstallHint();
+        if (window.showPWAInstallBanner) window.showPWAInstallBanner();
+      }, 1500);
     } else {
       // Check for TikTok landing
       this._checkTikTokLanding();
@@ -150,6 +150,9 @@ const App = {
     document.getElementById(id)?.classList.add('active');
     window.scrollTo(0, 0);
 
+    // Apply tools-locking when entering Lern-Tools screen
+    if (id === 'screen-tools') this._applyToolsLocks();
+
     // Hide simulation generating overlay on any screen transition
     this._hideSimGeneratingOverlay();
 
@@ -179,13 +182,21 @@ const App = {
       document.getElementById('snav-stats')?.classList.add('active');
     } else if (id === 'screen-konto') {
       document.getElementById('snav-konto')?.classList.add('active');
+    } else if (id === 'screen-lernplan') {
+      document.getElementById('snav-lernplan')?.classList.add('active');
     }
 
     // Load data for specific screens
     if (id === 'screen-stats') this.loadStatsScreen();
     if (id === 'screen-admin') Admin.render();
     if (id === 'screen-konto') this.renderKonto();
-    if (id === 'screen-home') { this._updateHomeCountdown(); this._loadHomeSimulations(); }
+    if (id === 'screen-lernplan' && typeof Lernplan !== 'undefined') Lernplan.render();
+    if (id === 'screen-goodies' && typeof Goodies !== 'undefined') Goodies.render();
+    if (id === 'screen-home') {
+      this._updateHomeCountdown();
+      this._loadHomeSimulations();
+      if (typeof Goodies !== 'undefined') Goodies.showHomeBanner();
+    }
   },
 
   // ===== ABORT TEST =====
@@ -273,13 +284,10 @@ const App = {
             return;
           }
 
-          // Save AGB + Datenschutz acceptance timestamp + email consent
+          // Save AGB + Datenschutz acceptance timestamp
           try {
             const now = new Date().toISOString();
-            const emailConsent = document.getElementById('signup-email-consent')?.checked || false;
-            const profileData = { privacy_accepted_at: now, agb_accepted_at: now };
-            if (emailConsent) profileData.email_consent_at = now;
-            await Auth.updateProfile(profileData);
+            await Auth.updateProfile({ privacy_accepted_at: now, agb_accepted_at: now });
           } catch(ae) { console.warn('AGB/Datenschutz Timestamp speichern fehlgeschlagen:', ae); }
 
           // Set username
@@ -299,8 +307,9 @@ const App = {
             }
           }
 
-          // New users always get onboarding
-          Onboarding.start();
+          // Go straight to home (onboarding removed)
+          this.showScreen('screen-home');
+          this.loadHomeStats();
         } catch (e) {
           errorEl.textContent = this._authErrorMsg(e);
           errorEl.classList.remove('hidden');
@@ -375,7 +384,7 @@ const App = {
 
     // Logout
     document.getElementById('btn-logout')?.addEventListener('click', async () => {
-      await Auth.signOut();
+      try { await Auth.signOut(); } catch(e) { console.warn('signOut error:', e); }
       this.showScreen('screen-auth');
     });
 
@@ -436,8 +445,9 @@ const App = {
     const tier = impersonating
       ? Admin._impersonating.tier
       : Auth.licenseTier;
-    const tierLabel = (tier === 'premium' || tier === 'basic') ? 'Vollzugang' : 'Free';
-    const tierClass = tier === 'premium' ? 'tier-premium' : tier === 'basic' ? 'tier-basic' : 'tier-free';
+    // NEU: free | basic (Legacy) | pro (€29,90) | premium (€39,90, Vollzugang inkl. Wissens-Lab)
+    const tierLabel = (tier === 'premium' || tier === 'pro' || tier === 'basic') ? 'Vollzugang' : 'Free';
+    const tierClass = tier === 'premium' ? 'tier-premium' : tier === 'pro' ? 'tier-pro' : tier === 'basic' ? 'tier-basic' : 'tier-free';
     el.innerHTML = `
       <div class="slide-menu-user-name">${name}</div>
       <span class="slide-menu-user-tier ${tierClass}">${tierLabel}</span>
@@ -475,6 +485,10 @@ const App = {
       this._closeMenu();
       this.openPracticeSelect();
     });
+    document.getElementById('snav-lernplan')?.addEventListener('click', () => {
+      this._closeMenu();
+      this.showScreen('screen-lernplan');
+    });
     document.getElementById('snav-stats')?.addEventListener('click', () => {
       this._closeMenu();
       this.showScreen('screen-stats');
@@ -482,6 +496,10 @@ const App = {
     document.getElementById('snav-konto')?.addEventListener('click', () => {
       this._closeMenu();
       this.showScreen('screen-konto');
+    });
+    document.getElementById('snav-goodies')?.addEventListener('click', () => {
+      this._closeMenu();
+      this.showScreen('screen-goodies');
     });
     document.getElementById('snav-pdf')?.addEventListener('click', () => {
       this._closeMenu();
@@ -499,17 +517,13 @@ const App = {
     // Logout button
     document.getElementById('snav-logout')?.addEventListener('click', async () => {
       this._closeMenu();
-      if (Auth.session?.user) {
-        await Auth.logout();
-      } else {
-        localStorage.removeItem('guest_session_id');
-        this.showScreen('screen-auth');
-      }
+      try { await Auth.signOut(); } catch(e) { console.warn('signOut error:', e); }
+      this.showScreen('screen-auth');
     });
 
-    // Lernplan button (coming soon)
+    // Lernplan button
     document.getElementById('btn-lernplan')?.addEventListener('click', () => {
-      alert('Lernplan ist in Arbeit und wird bald freigeschaltet.');
+      this.showScreen('screen-lernplan');
     });
   },
 
@@ -546,7 +560,7 @@ const App = {
       banner.id = 'license-expired-banner';
       banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;padding:0.9rem 1.2rem;text-align:center;font-size:0.9rem;font-weight:600;box-shadow:0 2px 12px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;gap:0.8rem;flex-wrap:wrap;';
       banner.innerHTML = `
-        <span>⚠️ Dein Vollzugang ist${expDateStr ? ' am ' + expDateStr : ''} abgelaufen. Du nutzt jetzt nur eine begrenzte Auswahl an Fragen.</span>
+        <span>⚠️ Dein Vollzugang ist${expDateStr ? ' am ' + expDateStr : ''} abgelaufen. Du nutzt jetzt nur 20% der Fragen.</span>
         <button onclick="App.showScreen('screen-konto')" style="background:#fff;color:#c0392b;border:none;border-radius:8px;padding:0.4rem 1rem;font-weight:700;cursor:pointer;font-size:0.85rem;">Jetzt verlängern</button>
         <button onclick="document.getElementById('license-expired-banner').remove();localStorage.setItem('${dismissKey}','1')" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.5);border-radius:8px;padding:0.4rem 0.8rem;cursor:pointer;font-size:0.8rem;">×</button>
       `;
@@ -556,7 +570,6 @@ const App = {
 
   // ===== HOME STATS LADEN =====
   async loadHomeStats() {
-    this.updateDashboardLimitDisplay();
     try {
       const stats = await API.getSessionStats();
       if (!stats) return;
@@ -715,11 +728,33 @@ const App = {
     const container = document.getElementById('konto-container');
     if (!container) return;
 
-    const tier = Auth.licenseTier;
-    const isPaid = tier === 'premium' || tier === 'basic';
-    const isFree = !isPaid;
-    const email = Auth.currentUser?.email || '–';
-    const username = Auth.userProfile?.username || '–';
+    // NEUE Tier-Namen seit Premium-Launch 2026-05-09:
+    //   free | basic (Legacy €19,90) | pro (€29,90) | premium (€39,90 inkl. Wissens-Lab)
+    const tier       = Auth.licenseTier;
+    const isPremium  = tier === 'premium';        // Vollzugang inkl. Wissens-Lab
+    const isPro      = tier === 'pro';
+    const isBasic    = tier === 'basic';          // Legacy / grandfathered
+    const isPaid     = isPremium || isPro || isBasic;
+    const isFree     = !isPaid;
+    const email      = Auth.currentUser?.email || '–';
+    const username   = Auth.userProfile?.username || '–';
+
+    // Promo-Window-Daten (aus user_profiles)
+    const promoUntilStr = Auth.userProfile?.promo_window_until || null;
+    const totalPaidCents = Auth.userProfile?.total_paid_cents || 0;
+    const totalPaidEuro = totalPaidCents / 100;
+    const inPromoWindow = !!promoUntilStr && new Date(promoUntilStr) > new Date();
+
+    // Premium-Upgrade-Preis (Bestandskunde): (39,90 − bisher_bezahlt) × 0,8 — NUR im Promo-Fenster
+    const PREMIUM_FULL = 39.90;
+    const upgradeBasePrice = isBasic ? 19.90 : isPro ? 29.90 : 0;
+    const upgradePrice = (isPaid && !isPremium && inPromoWindow)
+      ? Math.max(1.00, +((PREMIUM_FULL - totalPaidEuro) * 0.8).toFixed(2))
+      : null;
+    const upgradePriceStr = upgradePrice !== null ? upgradePrice.toFixed(2).replace('.', ',') : null;
+    // Free-User im Promo-Fenster: 20 % auf vollen Premium-Preis
+    const freePromoPrice = (isFree && inPromoWindow) ? +(PREMIUM_FULL * 0.8).toFixed(2) : null;
+    const freePromoPriceStr = freePromoPrice !== null ? freePromoPrice.toFixed(2).replace('.', ',') : null;
 
     const expiresAt = Auth.licenseExpiresAt;
     let daysLeft = null;
@@ -729,101 +764,241 @@ const App = {
       expiryStr = daysLeft > 0 ? `bis ${expiresAt.toLocaleDateString('de-AT')} (noch ${daysLeft} Tage)` : 'Abgelaufen';
     }
 
+    // AI-Credit Daten — neue Defaults: free=10, basic=200 (Legacy), pro=400, premium=800
+    const aiSessUsed  = Credits._credits?.ai_sessions_used  ?? 0;
+    const aiSessTotal = Credits._credits?.ai_sessions_total ?? (isFree ? 10 : isBasic ? 200 : isPro ? 400 : 800);
+    const aiSessRem   = Math.max(0, aiSessTotal - aiSessUsed);
+    const aiImgUsed   = Credits._credits?.ai_images_used    ?? 0;
+    const aiImgTotal  = Credits._credits?.ai_images_total   ?? (isFree ? 3 : isBasic ? 50 : isPro ? 100 : 200);
+    const aiImgRem    = Math.max(0, aiImgTotal - aiImgUsed);
+    const lernplanResets = Credits._credits?.lernplan_resets ?? 0;
+
+    const MEDAT_DATE = '4. Juli 2026';
+
     let html = '';
 
-    // ===== ACCOUNT INFO (white card) =====
+    // ===== ACCOUNT INFO =====
+    // Tier-Farben (NEU):
+    //   free → grau · basic → blau (Legacy) · pro → gold · premium → indigo (Vollzugang)
+    const avatarBg = isFree ? '#e8e2d8'
+      : isBasic ? 'linear-gradient(135deg,#60a5fa,#3b82f6)'
+      : isPro ? 'linear-gradient(135deg,#f5c542,#d4a017)'
+      : 'linear-gradient(135deg,#6366f1,#4338ca)'; // premium = indigo
+    const avatarColor = isFree ? '#5c5c6e' : '#fff';
+    const planBadge = isFree
+      ? 'background:#e8e2d8;color:#5c5c6e'
+      : isBasic
+        ? 'background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff'
+        : isPro
+          ? 'background:linear-gradient(135deg,#f5c542,#d4a017);color:#1a1a2e'
+          : 'background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff'; // premium
+    const planBadgeText = isFree?'FREE':isBasic?'BASIC':isPro?'PRO':'PREMIUM';
+
     html += `
       <div style="display:flex;align-items:center;gap:0.85rem;padding:1rem 1.1rem;background:#fff;border-radius:14px;margin-bottom:1.25rem;box-shadow:0 2px 8px rgba(26,26,46,0.06)">
-        <div style="width:46px;height:46px;border-radius:50%;background:${isFree ? '#e8e2d8' : 'linear-gradient(135deg,#f5c542,#d4a017)'};display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;color:${isFree ? '#5c5c6e' : '#1a1a2e'};flex-shrink:0">${(username[0] || '?').toUpperCase()}</div>
+        <div style="width:46px;height:46px;border-radius:50%;background:${avatarBg};display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;color:${avatarColor};flex-shrink:0">${(username[0]||'?').toUpperCase()}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${username || email.split('@')[0]}</div>
+          <div style="font-weight:700;font-size:0.95rem;color:#1a1a2e;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${username||email.split('@')[0]}</div>
           <div style="font-size:0.78rem;color:#9e9eae;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${email}</div>
         </div>
-        <span style="padding:0.25rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:0.02em;${isFree ? 'background:#e8e2d8;color:#5c5c6e' : 'background:#f5c542;color:#1a1a2e'}">${isFree ? 'FREE' : 'VOLLZUGANG'}</span>
+        <span style="padding:0.25rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;letter-spacing:0.02em;${planBadge}">${planBadgeText}</span>
       </div>
     `;
 
-    // ===== PLAN CARDS =====
-    html += `
-      <div style="margin-bottom:1.25rem">
-        <div style="font-size:1.1rem;font-weight:800;color:#1a1a2e;margin-bottom:0.85rem">Dein Plan</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1rem">
-          <!-- FREE -->
-          <div style="border-radius:14px;padding:1.1rem 0.9rem;border:2px solid ${isFree ? '#1a1a2e' : '#e8e2d8'};background:#fff;position:relative;text-align:center;${isFree ? 'box-shadow:0 2px 12px rgba(26,26,46,0.08)' : 'opacity:0.5'}">
-            ${isFree ? '<div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;font-size:0.58rem;font-weight:800;padding:0.15rem 0.6rem;border-radius:8px;letter-spacing:0.04em">AKTUELL</div>' : ''}
-            <div style="font-size:0.82rem;font-weight:700;color:#5c5c6e;margin-bottom:0.4rem">Free</div>
-            <div style="font-size:1.7rem;font-weight:800;color:#1a1a2e;line-height:1">€0</div>
-            <div style="font-size:0.68rem;color:#9e9eae;margin-top:0.3rem">Kostenlos</div>
+    // ===== PLAN CARDS (Screenshot-Style) =====
+    const _yes = (t) => `<div class="kpf kpf--yes"><span class="kpf-icon">✓</span>${t}</div>`;
+    const _no  = (t) => `<div class="kpf kpf--no"><span class="kpf-icon">✗</span><s>${t}</s></div>`;
+    const _ki  = (t) => `<div class="kpf kpf--ki"><span class="kpf-icon">✦</span>${t}</div>`;
+    const _kihdr = (t) => `<div class="kpf-ki-header">${t}</div>`;
+    const _kaufBtn = (plan, cls) => `
+      <button class="konto-plan-btn ${cls}" data-stripe-plan="${plan}" onclick="App.startStripeCheckout('${plan}')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Kaufen
+      </button>`;
+
+    // Promo-Countdown String (für CTAs)
+    const promoCountdown = inPromoWindow
+      ? (() => {
+          const ms = new Date(promoUntilStr) - new Date();
+          const h = Math.floor(ms / 3600000);
+          const m = Math.floor((ms % 3600000) / 60000);
+          return h > 0 ? `noch ${h} h ${m} min` : `noch ${m} min`;
+        })()
+      : null;
+    const promoStripBlock = inPromoWindow ? `
+      <div style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:14px;padding:0.95rem 1.1rem;margin-bottom:1rem;text-align:center;box-shadow:0 6px 18px rgba(67,56,202,0.28)">
+        <div style="font-size:.7rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:0.85">🎁 Premium-Launch · 20 % Rabatt</div>
+        <div style="font-size:1.05rem;font-weight:800;margin-top:3px">Endet in ${promoCountdown}</div>
+      </div>` : '';
+
+    html += promoStripBlock + `
+      <div class="konto-section-title">Wähle deinen Plan</div>
+      <div class="konto-plans-grid">
+
+        <!-- FREE -->
+        <div class="konto-plan-card ${isFree ? 'konto-plan-card--active-gray' : ''}">
+          ${isFree ? '<div class="konto-plan-badge konto-plan-badge--gray">Aktuell</div>' : ''}
+          <div class="konto-plan-name">Kostenlos</div>
+          <div class="konto-plan-subtitle">Reinschnuppern</div>
+          <div class="konto-plan-price">€<span class="konto-plan-price-num">0</span> <span class="konto-plan-price-period">für immer</span></div>
+          <div class="konto-plan-features">
+            ${_yes('Alle Fragen & Übungen')}
+            ${_yes('1 PDF-Simulation gratis')}
+            ${_yes('Lernplan (3 Resets)')}
+            ${_yes('Statistiken & Auswertung')}
+            ${_yes('Wissens-Lab: 1 Tool pro Fach gratis')}
+            ${_ki('10 KI-Tutor-Sessions')}
+            ${_ki('3 KI-Merkbilder (Banana)')}
+            ${_ki('5 Tutoren freigeschaltet')}
           </div>
-          <!-- VOLLZUGANG -->
-          <div onclick="${isFree ? 'App.startStripeCheckout()' : ''}" style="border-radius:14px;padding:1.1rem 0.9rem;border:2px solid #f5c542;background:linear-gradient(135deg,#fdf3d7,#fef9e7);position:relative;text-align:center;${isFree ? 'cursor:pointer;box-shadow:0 4px 16px rgba(245,197,66,0.2);' : 'box-shadow:0 2px 12px rgba(26,26,46,0.08);'}transition:transform 0.15s" ${isFree ? 'onmousedown="this.style.transform=\'scale(0.97)\'" onmouseup="this.style.transform=\'scale(1)\'" onmouseleave="this.style.transform=\'scale(1)\'"' : ''}>
-            ${isPaid ? '<div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#f5c542;color:#1a1a2e;font-size:0.58rem;font-weight:800;padding:0.15rem 0.6rem;border-radius:8px;letter-spacing:0.04em">AKTUELL</div>' : '<div style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#f5c542;color:#1a1a2e;font-size:0.58rem;font-weight:800;padding:0.15rem 0.6rem;border-radius:8px;letter-spacing:0.04em">EMPFOHLEN</div>'}
-            <div style="font-size:0.82rem;font-weight:700;color:#b8860b;margin-bottom:0.4rem">Vollzugang</div>
-            <div style="font-size:1.7rem;font-weight:800;color:#1a1a2e;line-height:1">€17</div>
-            <div style="font-size:0.68rem;color:#9e9eae;margin-top:0.3rem">Einmalig · bis MedAT 2026</div>
-            ${isFree ? '<div style="margin-top:0.65rem;background:#1a1a2e;color:#f5c542;font-size:0.75rem;font-weight:700;padding:0.4rem 1rem;border-radius:8px;display:inline-block">Jetzt freischalten</div>' : ''}
-          </div>
+          <button class="konto-plan-btn konto-plan-btn--gray" disabled>${isFree ? 'Gratis starten' : '—'}</button>
         </div>
+
+        ${isBasic ? `
+        <!-- BASIC (Legacy / grandfathered, nur sichtbar für Bestandskunden) -->
+        <div class="konto-plan-card konto-plan-card--basic konto-plan-card--active-blue">
+          <div class="konto-plan-badge konto-plan-badge--blue">Aktuell · Bestand</div>
+          <div class="konto-plan-name" style="color:#3b82f6">Basic</div>
+          <div class="konto-plan-subtitle">Dein bisheriger Plan (nicht mehr verkaufbar)</div>
+          <div class="konto-plan-price">€<span class="konto-plan-price-num">19,90</span></div>
+          <div class="konto-plan-price-sub">bezahlt · gültig bis 3. Juli 2026</div>
+          <div class="konto-plan-features">
+            ${_yes('Alle Fragen & unbegr. PDF-Simulationen')}
+            ${_yes('Lernplan unbegrenzt')}
+            ${_yes('Wissens-Lab: 1 Tool pro Fach')}
+            ${_ki('200 KI-Tutor-Sessions')}
+            ${_ki('50 KI-Merkbilder')}
+          </div>
+          <button class="konto-plan-btn konto-plan-btn--blue-active" disabled>✓ Aktueller Plan</button>
+        </div>` : ''}
+
+        <!-- PRO (€29,90) -->
+        <div class="konto-plan-card konto-plan-card--premium ${isPro ? 'konto-plan-card--active-dark' : ''}">
+          <div class="konto-plan-badge konto-plan-badge--dark">${isPro ? 'Aktuell' : 'BELIEBT'}</div>
+          <div class="konto-plan-name" style="color:#f59e0b">Pro</div>
+          <div class="konto-plan-subtitle">Alle Tutoren. Unbegrenzt üben.</div>
+          <div class="konto-plan-price">
+            <span class="konto-plan-price-old">€50</span>
+            €<span class="konto-plan-price-num">29,90</span>
+          </div>
+          <div class="konto-plan-discount" style="background:rgba(245,158,11,0.15);color:#f59e0b">Du sparst 40 %</div>
+          <div class="konto-plan-price-sub">einmalig · gültig bis 3. Juli 2026</div>
+          <div class="konto-plan-features">
+            ${_yes('Alle Fragen & unbegr. PDF-Simulationen')}
+            ${_yes('Lernplan unbegrenzt')}
+            ${_yes('Wissens-Lab: 1 Tool pro Fach')}
+            ${_ki('<strong>Alle 10 KI-Tutoren</strong> freigeschaltet')}
+            ${_ki('<strong>400 KI-Tutor-Sessions</strong>')}
+            ${_ki('<strong>100 KI-Merkbilder</strong> (Banana)')}
+          </div>
+          ${isPro
+            ? '<button class="konto-plan-btn konto-plan-btn--dark-active" disabled>✓ Aktueller Plan</button>'
+            : isPremium
+              ? '<button class="konto-plan-btn konto-plan-btn--gray" disabled>Bereits in Premium enthalten</button>'
+              : isBasic
+                ? '<button class="konto-plan-btn konto-plan-btn--gray" disabled>—</button>'
+                : '<button class="konto-plan-btn konto-plan-btn--yellow" data-stripe-plan="pro" onclick="App.startStripeCheckout(\'pro\')">Pro sichern – €29,90</button>'
+          }
+          ${!isPro && !isPremium ? '<div class="konto-plan-note">Einmalzahlung – kein Abo</div>' : ''}
+        </div>
+
+        <!-- PREMIUM (€39,90, Vollzugang inkl. Wissens-Lab) -->
+        <div class="konto-plan-card ${isPremium ? 'konto-plan-card--active-dark' : ''}" style="position:relative;background:linear-gradient(180deg,#fff,#f5f0ff);border:2px solid #6366f1">
+          <div class="konto-plan-badge" style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff">${isPremium ? 'Aktuell' : 'ALLES DRIN'}</div>
+          <div class="konto-plan-name" style="color:#4338ca">Premium</div>
+          <div class="konto-plan-subtitle">Alles + alle 19 Wissens-Lab-Tools</div>
+          <div class="konto-plan-price">
+            ${upgradePriceStr
+              ? `<span class="konto-plan-price-old">€39,90</span>€<span class="konto-plan-price-num">${upgradePriceStr}</span>`
+              : freePromoPriceStr
+                ? `<span class="konto-plan-price-old">€39,90</span>€<span class="konto-plan-price-num">${freePromoPriceStr}</span>`
+                : `<span class="konto-plan-price-old">€60</span>€<span class="konto-plan-price-num">39,90</span>`
+            }
+          </div>
+          ${upgradePriceStr
+            ? `<div class="konto-plan-discount" style="background:rgba(99,102,241,0.15);color:#4338ca">Treue-Rabatt · 48 h</div>
+               <div class="konto-plan-price-sub">Upgrade von ${isBasic ? 'Basic' : 'Pro'} · ${promoCountdown}</div>`
+            : freePromoPriceStr
+              ? `<div class="konto-plan-discount" style="background:rgba(99,102,241,0.15);color:#4338ca">Launch-Rabatt 20 % · 48 h</div>
+                 <div class="konto-plan-price-sub">${promoCountdown}</div>`
+              : `<div class="konto-plan-discount" style="background:rgba(99,102,241,0.15);color:#4338ca">Du sparst 33 %</div>
+                 <div class="konto-plan-price-sub">einmalig · gültig bis 3. Juli 2026</div>`
+          }
+          <div class="konto-plan-features">
+            ${_yes('Alle Fragen & unbegr. PDF-Simulationen')}
+            ${_yes('Lernplan unbegrenzt')}
+            ${_yes('<strong>Alle 19 Wissens-Lab-Tools</strong> (Bio · Physik · Chemie)')}
+            ${_ki('<strong>Alle 10 KI-Tutoren</strong> freigeschaltet')}
+            ${_ki('<strong>800 KI-Tutor-Sessions</strong>')}
+            ${_ki('<strong>200 KI-Merkbilder</strong> (Banana)')}
+          </div>
+          ${isPremium
+            ? '<button class="konto-plan-btn konto-plan-btn--dark-active" disabled>✓ Aktueller Plan</button>'
+            : `<button class="konto-plan-btn" style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff" data-stripe-plan="premium" onclick="App.startStripeCheckout('premium')">${
+                upgradePriceStr ? `Upgrade auf Premium – €${upgradePriceStr}`
+                : freePromoPriceStr ? `Premium sichern – €${freePromoPriceStr}`
+                : 'Premium sichern – €39,90'
+              }</button>`
+          }
+          ${!isPremium ? '<div class="konto-plan-note">Einmalzahlung – kein Abo</div>' : ''}
+        </div>
+
       </div>
     `;
 
-    // ===== FEATURE COMPARISON TABLE =====
-    const chk = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-    const dash = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d4d0c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>';
 
-    const feats = [
-      { label: 'Alle Testbereiche (BMS, TV, KFF, SEK)', free: chk, paid: chk },
-      { label: 'Fragen pro Untertest', free: '<span style="font-weight:700;color:#9e9eae">Begrenzt</span>', paid: '<span style="font-weight:800;color:#16a34a">Unbegrenzt</span>' },
-      { label: 'PDF-Simulationen', free: '<span style="font-weight:700;color:#9e9eae">2</span>', paid: '<span style="font-weight:800;color:#16a34a">10+</span>' },
-      { label: 'Schwächen-Trainer', free: chk, paid: chk },
-      { label: 'Tägliche Challenge', free: chk, paid: chk },
-      { label: 'Erklärungen & Statistiken', free: chk, paid: chk },
-      { label: 'Neue Inhalte & Updates', free: dash, paid: chk, paidOnly: true },
-      { label: 'Feedback & Wünsche', free: dash, paid: chk, paidOnly: true },
-      { label: 'Priorität bei Features', free: dash, paid: chk, paidOnly: true },
-    ];
+    // ===== KI-CREDITS VERBRAUCH =====
+    const sp = aiSessTotal > 0 ? Math.round((aiSessUsed/aiSessTotal)*100) : 0;
+    const ip = aiImgTotal  > 0 ? Math.round((aiImgUsed /aiImgTotal )*100) : 0;
+    const sc = sp >= 90 ? '#ef4444' : sp >= 70 ? '#f59e0b' : '#4ade80';
+    const ic = ip >= 90 ? '#ef4444' : ip >= 70 ? '#f59e0b' : '#4ade80';
 
     html += `
-      <div style="margin-bottom:1.25rem">
-        <div style="font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:0.65rem">Was ist enthalten?</div>
-        <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(26,26,46,0.06)">
-          <div style="display:grid;grid-template-columns:1fr 56px 56px;padding:0.55rem 0.75rem;background:#1a1a2e;color:#a0a0b8;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em">
-            <span>Feature</span><span style="text-align:center;color:#a0a0b8">Free</span><span style="text-align:center;color:#f5c542">Voll</span>
+      <div style="background:#fff;border-radius:14px;padding:1.1rem;margin-bottom:1.25rem;box-shadow:0 2px 8px rgba(26,26,46,0.06)">
+        <div style="font-size:0.95rem;font-weight:700;color:#1a1a2e;margin-bottom:0.85rem">KI-Credits Verbrauch</div>
+        <div style="margin-bottom:0.85rem">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem">
+            <span style="font-size:0.82rem;color:#5c5c6e;font-weight:600">🤖 Sessions mit smarten Tutoren</span>
+            <span style="font-size:0.78rem;font-weight:700;color:${sc}">${aiSessRem} / ${aiSessTotal} übrig</span>
           </div>
-          ${feats.map((f, i) => `
-            <div style="display:grid;grid-template-columns:1fr 56px 56px;padding:0.7rem 0.75rem;align-items:center;${i % 2 === 0 ? 'background:#fff' : 'background:#faf6ee'};${f.paidOnly ? 'border-left:3px solid #f5c542' : ''}">
-              <span style="font-size:0.88rem;color:${f.paidOnly ? '#b8860b' : '#1a1a2e'};font-weight:${f.paidOnly ? '600' : '500'};line-height:1.3">${f.label}</span>
-              <span style="text-align:center;display:flex;align-items:center;justify-content:center">${f.free}</span>
-              <span style="text-align:center;display:flex;align-items:center;justify-content:center">${f.paid}</span>
-            </div>
-          `).join('')}
+          <div style="background:#f0ede8;border-radius:6px;height:7px;overflow:hidden">
+            <div style="background:${sc};height:100%;width:${sp}%;border-radius:6px;transition:width .5s"></div>
+          </div>
+          <div style="font-size:0.68rem;color:#9e9eae;margin-top:0.25rem">${aiSessUsed} verbraucht · gültig bis MedAT ${MEDAT_DATE}</div>
         </div>
+        <div style="margin-bottom:${isFree && lernplanResets > 0 ? '0.85rem' : '0'}">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.35rem">
+            <span style="font-size:0.82rem;color:#5c5c6e;font-weight:600">🖼️ Merkbilder</span>
+            <span style="font-size:0.78rem;font-weight:700;color:${ic}">${aiImgRem} / ${aiImgTotal} übrig</span>
+          </div>
+          <div style="background:#f0ede8;border-radius:6px;height:7px;overflow:hidden">
+            <div style="background:${ic};height:100%;width:${ip}%;border-radius:6px;transition:width .5s"></div>
+          </div>
+          <div style="font-size:0.68rem;color:#9e9eae;margin-top:0.25rem">${aiImgUsed} verbraucht · gültig bis MedAT ${MEDAT_DATE}</div>
+        </div>
+        ${isFree ? `
+          <div style="margin-top:0.85rem;padding-top:0.85rem;border-top:1px solid #f0ede8;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.82rem;color:#5c5c6e;font-weight:600">📅 Lernplan-Resets</span>
+            <span style="font-size:0.78rem;font-weight:700;color:${lernplanResets>=3?'#ef4444':'#5c5c6e'}">${lernplanResets} / 3 genutzt</span>
+          </div>
+        ` : ''}
       </div>
     `;
 
-    // ===== DYNAMIC NOTE (paid) =====
+    // ===== PLAN AKTIV HINWEIS =====
     if (isPaid) {
       html += `
-        <div style="background:#fdf3d7;border:2px solid #f5c542;border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.25rem;font-size:0.85rem">
-          <div style="font-weight:700;margin-bottom:0.3rem;color:#b8860b">Vollzugang aktiv</div>
+        <div style="background:${isBasic?'#eff6ff':'#fdf3d7'};border:2px solid ${isBasic?'#3b82f6':'#f5c542'};border-radius:14px;padding:1rem 1.1rem;margin-bottom:1.25rem;font-size:0.85rem">
+          <div style="font-weight:700;margin-bottom:0.3rem;color:${isBasic?'#2563eb':'#b8860b'}">${isBasic?'⚡ Basic':'👑 Premium'} aktiv</div>
           <div style="color:#5c5c6e;line-height:1.5">
-            ${expiryStr ? `Gültig ${expiryStr}.` : 'Unbegrenzt gültig.'} Dein Fragenpool und die Simulationen werden laufend erweitert — neue Inhalte sind automatisch freigeschaltet.
+            Einmalige Zahlung · gültig bis zum MedAT am <strong>${MEDAT_DATE}</strong>. Alle Inhalte und KI-Credits bleiben bis dahin vollständig verfügbar.
           </div>
         </div>
       `;
     }
 
-    // ===== UPGRADE CTA (free) =====
-    if (isFree) {
-      html += `
-        <div style="margin-bottom:1.25rem">
-          <button class="btn-primary" id="konto-buy-btn" onclick="App.startStripeCheckout()" style="display:block;width:100%;text-align:center;padding:0.95rem;font-size:1.05rem;font-weight:700;border:none;border-radius:12px;background:#1a1a2e;color:#f5c542;cursor:pointer;box-shadow:0 4px 16px rgba(26,26,46,0.15);transition:transform 0.15s" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
-            Jetzt Vollzugang freischalten →
-          </button>
-          <div style="text-align:center;font-size:0.7rem;color:#9e9eae;margin-top:0.45rem">Einmalzahlung €17 · Kein Abo · Gültig bis nach dem MedAT am 04.07.2026</div>
-        </div>
-      `;
-    } else if (daysLeft !== null && daysLeft <= 14 && daysLeft > 0) {
+    // ===== UPGRADE CTA (only show for edge cases) =====
+    if (daysLeft !== null && daysLeft <= 14 && daysLeft > 0) {
       html += `
         <div style="background:#fee2e2;border:2px solid #ef4444;border-radius:14px;padding:1rem;margin-bottom:1.25rem">
           <div style="font-weight:700;color:#dc2626;margin-bottom:0.3rem">Zugang läuft bald ab</div>
@@ -832,7 +1007,7 @@ const App = {
       `;
     }
 
-    // ===== LICENSE CODE (free) =====
+    // ===== LIZENZCODE (nur free) =====
     if (isFree) {
       html += `
         <div style="background:#fff;border:2px solid #e8e2d8;border-radius:14px;padding:1.1rem;margin-bottom:1.25rem;box-shadow:0 2px 8px rgba(26,26,46,0.04)">
@@ -840,7 +1015,7 @@ const App = {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             <span style="font-size:0.95rem;font-weight:700;color:#1a1a2e">Lizenzcode einlösen</span>
           </div>
-          <div style="font-size:0.82rem;color:#5c5c6e;margin-bottom:0.7rem;line-height:1.4">Du hast einen Aktivierungscode erhalten? Gib ihn hier ein, um deinen Vollzugang sofort freizuschalten.</div>
+          <div style="font-size:0.82rem;color:#5c5c6e;margin-bottom:0.7rem;line-height:1.4">Du hast einen Aktivierungscode erhalten? Gib ihn hier ein.</div>
           <div style="display:flex;gap:0.5rem">
             <input type="text" id="konto-license-input" placeholder="MEDAT-XXXX-XXXX-XXXX" style="flex:1;padding:0.7rem 0.8rem;border-radius:10px;border:2px solid #e8e2d8;background:#faf6ee;color:#1a1a2e;font-family:monospace;font-size:0.9rem;letter-spacing:0.03em">
             <button id="konto-activate-btn" style="white-space:nowrap;padding:0.7rem 1.1rem;font-size:0.88rem;font-weight:700;border-radius:10px;background:#1a1a2e;color:#f5c542;border:none;cursor:pointer">Einlösen</button>
@@ -857,9 +1032,7 @@ const App = {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span style="font-weight:700;font-size:0.92rem;color:#1a1a2e">Feedback & Wünsche</span>
         </div>
-        <div style="font-size:0.82rem;color:#5c5c6e;line-height:1.5;margin-bottom:0.7rem">
-          Du wünschst dir mehr Fragen zu einem bestimmten Thema? Dir fehlt eine Übung oder du hast Verbesserungsvorschläge? Schreib uns — wir bauen den Trainer laufend aus!
-        </div>
+        <div style="font-size:0.82rem;color:#5c5c6e;line-height:1.5;margin-bottom:0.7rem">Du wünschst dir mehr Fragen, hast Verbesserungsvorschläge oder Ideen? Schreib uns!</div>
         <a href="mailto:office@ai-guide.at?subject=MedAT%20Trainer%20Feedback" style="display:inline-flex;align-items:center;gap:0.4rem;background:#1a1a2e;color:#f5c542;font-weight:600;font-size:0.82rem;padding:0.5rem 1rem;border-radius:8px;text-decoration:none">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           Feedback senden
@@ -892,15 +1065,15 @@ const App = {
 
     container.innerHTML = html;
 
-    // Bind activate button
+    // Lizenzcode-Button binden
     document.getElementById('konto-activate-btn')?.addEventListener('click', async () => {
-      const input = document.getElementById('konto-license-input');
+      const input  = document.getElementById('konto-license-input');
       const status = document.getElementById('konto-activate-status');
       if (!input?.value.trim()) { status.textContent = 'Bitte Code eingeben.'; status.style.color = '#ef4444'; return; }
       try {
         status.textContent = 'Wird aktiviert...'; status.style.color = '#b8860b';
-        const tier = await Auth.activateLicense(input.value.trim(), Auth.currentUser?.email);
-        status.textContent = 'Erfolgreich! Dein Plan: Vollzugang bis 04.07.2026';
+        await Auth.activateLicense(input.value.trim(), Auth.currentUser?.email);
+        status.textContent = 'Erfolgreich freigeschaltet! 🎉';
         status.style.color = '#16a34a';
         setTimeout(() => this.renderKonto(), 1500);
       } catch (e) {
@@ -908,6 +1081,131 @@ const App = {
       }
     });
   },
+
+  // ===== STRIPE CHECKOUT =====
+  async startStripeCheckout(plan) {
+    if (!Auth.isLoggedIn) {
+      this.showToast('Bitte zuerst einloggen', 'error');
+      return;
+    }
+    // Disable the clicked button and show loading state
+    const btn = document.querySelector(`[data-stripe-plan="${plan}"]`);
+    const origHTML = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Weiterleitung…'; }
+
+    try {
+      const { data: { session } } = await Auth.supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Bitte neu einloggen');
+
+      const resp = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': CONFIG.SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ plan }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'Checkout fehlgeschlagen');
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (e) {
+      this.showToast('Fehler: ' + (e.message || 'Unbekannt'), 'error');
+      if (btn) { btn.disabled = false; btn.innerHTML = origHTML; }
+    }
+  },
+
+  // ===== WISSENS-LAB: Lock-State anwenden =====
+  // Wird beim Betreten von screen-tools aufgerufen.
+  // Logik: Premium-User haben alle Tools frei. Alle anderen
+  // sehen nur das "data-free=1" Tool pro Fach freigeschaltet,
+  // die anderen ausgegraut + Klick öffnet Upgrade-Modal.
+  _applyToolsLocks() {
+    const tier = (Auth && Auth.licenseTier) || 'free';
+    const hasAll = tier === 'premium';
+
+    document.querySelectorAll('#screen-tools .tools-card').forEach(card => {
+      const isLockedByDefault = card.dataset.toolLocked === '1';
+      const isFreeShowcase    = card.dataset.free === '1';
+
+      // Reset previous state
+      card.classList.remove('is-locked');
+      const oldLock = card.querySelector('.tools-card-lock');
+      if (oldLock) oldLock.remove();
+
+      if (hasAll) {
+        // Ultimate users: unlock everything (and hide the "Frei"-badge)
+        card.querySelectorAll('.tools-card-free-badge').forEach(b => b.style.display = 'none');
+        card.onclick = null;
+        return;
+      }
+
+      // Non-ultimate users
+      if (isFreeShowcase) {
+        // Free showcase stays clickable as a normal link, badge visible
+        card.querySelectorAll('.tools-card-free-badge').forEach(b => b.style.display = '');
+        card.onclick = null;
+      } else if (isLockedByDefault) {
+        card.classList.add('is-locked');
+        // Inject lock icon (only if not already there)
+        if (!card.querySelector('.tools-card-lock')) {
+          const lock = document.createElement('span');
+          lock.className = 'tools-card-lock';
+          lock.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11 V 7 a4 4 0 0 1 8 0 v 4"/></svg>';
+          card.appendChild(lock);
+        }
+        // Intercept click → open upgrade modal
+        card.onclick = (e) => {
+          e.preventDefault();
+          this.openToolsUpgradeModal();
+          return false;
+        };
+      }
+    });
+  },
+
+  // ===== WISSENS-LAB: Upgrade-Modal =====
+  openToolsUpgradeModal() {
+    const tier = (Auth && Auth.licenseTier) || 'free';
+    const isPaid = tier === 'basic' || tier === 'pro';
+    const promoUntilStr = Auth?.userProfile?.promo_window_until || null;
+    const inPromoWindow = !!promoUntilStr && new Date(promoUntilStr) > new Date();
+    const totalPaidCents = Auth?.userProfile?.total_paid_cents || 0;
+    const totalPaidEuro = totalPaidCents / 100;
+
+    let priceStr = '€39,90';
+    let descStr  = 'einmalig · alle Tools für immer';
+
+    if (inPromoWindow) {
+      if (isPaid) {
+        const upgrade = Math.max(1.00, +((39.90 - totalPaidEuro) * 0.8).toFixed(2));
+        priceStr = '€' + upgrade.toFixed(2).replace('.', ',');
+        const fromLabel = tier === 'basic' ? 'Basic' : 'Pro';
+        descStr = `Treue-Upgrade von ${fromLabel} · 48 h`;
+      } else {
+        const launch = +(39.90 * 0.8).toFixed(2);
+        priceStr = '€' + launch.toFixed(2).replace('.', ',');
+        descStr = 'Launch-Rabatt 20 % · 48 h';
+      }
+    }
+
+    const priceEl = document.getElementById('tools-upgrade-modal-price');
+    const descEl  = document.getElementById('tools-upgrade-modal-pricedesc');
+    if (priceEl) priceEl.textContent = priceStr;
+    if (descEl)  descEl.textContent  = descStr;
+
+    document.getElementById('tools-upgrade-modal')?.classList.add('show');
+  },
+  closeToolsUpgradeModal() {
+    document.getElementById('tools-upgrade-modal')?.classList.remove('show');
+  },
+  openPremiumUpgrade() {
+    this.closeToolsUpgradeModal();
+    this.startStripeCheckout('premium');
+  },
+  // Backward compatibility, falls irgendwo noch openUltimateUpgrade verwendet wird
+  openUltimateUpgrade() { return this.openPremiumUpgrade(); },
 
   // ===== MEINE SIMULATIONEN LIST =====
   async _loadSimulationsList() {
@@ -1394,42 +1692,11 @@ const App = {
     container.innerHTML = html;
   },
 
-  // ===== STRIPE CHECKOUT =====
-  async startStripeCheckout() {
-    // Re-check session in case Auth state is stale
-    if (!Auth.isLoggedIn && Auth.supabase) {
-      try {
-        const { data } = await Auth.supabase.auth.getSession();
-        if (data?.session?.user) {
-          Auth.currentUser = data.session.user;
-        }
-      } catch (e) { /* ignore */ }
-    }
-
-    if (!Auth.isLoggedIn) {
-      this.showToast('Bitte melde dich zuerst an, um den Vollzugang zu kaufen.');
-      this.showScreen('screen-auth');
-      return;
-    }
-
-    const btn = document.getElementById('konto-buy-btn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Weiterleitung zu Stripe...'; }
-
-    try {
-      const userId = Auth.currentUser?.id;
-      if (!userId) throw new Error('Nicht eingeloggt');
-
-      // Redirect to Stripe Payment Link with client_reference_id for webhook identification
-      const stripeUrl = new URL('https://buy.stripe.com/eVqbJ10Qs7vjalG3si2B200');
-      stripeUrl.searchParams.set('client_reference_id', userId);
-      stripeUrl.searchParams.set('prefilled_email', Auth.currentUser?.email || '');
-      window.location.href = stripeUrl.toString();
-
-    } catch (err) {
-      console.error('Stripe checkout error:', err);
-      if (btn) { btn.disabled = false; btn.textContent = 'Jetzt für €17 freischalten →'; }
-      this.showToast('Fehler: ' + err.message);
-    }
+  // ===== STRIPE CHECKOUT (Onboarding fallback — leitet zu Konto-Screen) =====
+  async _startOnboardingCheckout() {
+    // Simply show konto screen so user can pick Basic or Premium
+    this.showScreen('screen-konto');
+    this.renderKonto();
   },
 
   // Handle payment success redirect. If checkOnly=true, just returns whether a payment param exists.
@@ -1439,12 +1706,24 @@ const App = {
     if (checkOnly) return hasPayment;
 
     if (params.get('payment') === 'success') {
-      this.showToast('Zahlung erfolgreich! Dein Vollzugang wird aktiviert...');
+      // Goodie purchase?
+      const goodieId = params.get('goodie');
+      if (goodieId) {
+        this.showToast('✅ Cheat Sheet gekauft — wird freigeschaltet…');
+        window.history.replaceState({}, '', window.location.pathname);
+        // Jump to Cheat Sheets tab after a short delay (webhook may need a moment)
+        setTimeout(() => {
+          this.showScreen('screen-goodies');
+        }, 2000);
+        return;
+      }
+      const planLabel = params.get('plan') === 'basic' ? 'Basic' : 'Premium';
+      this.showToast(`✅ Zahlung erfolgreich! Dein ${planLabel}-Zugang wird aktiviert…`);
       window.history.replaceState({}, '', window.location.pathname);
       // Poll for license activation (webhook may take a few seconds)
       this._pollForLicenseActivation(0);
     } else if (params.get('payment') === 'cancelled') {
-      this.showToast('Zahlung abgebrochen.');
+      this.showToast(params.get('goodie') ? 'Kauf abgebrochen.' : 'Zahlung abgebrochen.');
       window.history.replaceState({}, '', window.location.pathname);
     }
   },
@@ -1467,7 +1746,7 @@ const App = {
     setTimeout(() => this._pollForLicenseActivation(attempt + 1), 3000);
   },
 
-  // ===== FREE TIER CONTENT LIMIT (begrenzte Fragen) =====
+  // ===== FREE TIER CONTENT LIMIT (20% per Untertest) =====
   _isAdmin() {
     return typeof Admin !== 'undefined' && Admin.isAdmin();
   },
@@ -1477,71 +1756,10 @@ const App = {
     return Auth.licenseTier === 'free';
   },
 
-  // --- Begrenztes Fragen-Kontingent für Free User ---
-  _limitCache: null,
-
-  async getFreeQuestionLimit(requestedCount) {
+  // Limit question count for free users: 20% of the requested amount
+  getFreeQuestionLimit(requestedCount) {
     if (!this.isFreeUser()) return requestedCount;
-    if (!this._limitCache) this._limitCache = { lastFetch: 0, data: null };
-    const now = Date.now();
-    if (this._limitCache.data && (now - this._limitCache.lastFetch) < 60000) {
-      const remaining = this._limitCache.data.limit - this._limitCache.data.totalAnswered;
-      return Math.min(requestedCount, Math.max(0, remaining));
-    }
-    try {
-      const uid = Auth.currentUser.id;
-      const [creditsRes, profileRes] = await Promise.all([
-        Auth.supabase.from('user_credits').select('questions_limit').eq('user_id', uid).maybeSingle(),
-        Auth.supabase.from('user_profiles').select('total_questions_answered').eq('user_id', uid).maybeSingle()
-      ]);
-      const limit = creditsRes.data?.questions_limit ?? 100;
-      const totalAnswered = profileRes.data?.total_questions_answered ?? 0;
-      this._limitCache = { lastFetch: now, data: { limit, totalAnswered } };
-      return Math.min(requestedCount, Math.max(0, limit - totalAnswered));
-    } catch (e) { console.error('Limit-Fehler:', e); return requestedCount; }
-  },
-
-  async checkQuestionAccess() {
-    if (!this.isFreeUser()) return { allowed: true, remaining: 999999, limit: 999999, totalAnswered: 0 };
-    try {
-      const uid = Auth.currentUser.id;
-      const [cr, pr] = await Promise.all([
-        Auth.supabase.from('user_credits').select('questions_limit').eq('user_id', uid).maybeSingle(),
-        Auth.supabase.from('user_profiles').select('total_questions_answered').eq('user_id', uid).maybeSingle()
-      ]);
-      const limit = cr.data?.questions_limit ?? 100;
-      const totalAnswered = pr.data?.total_questions_answered ?? 0;
-      const remaining = Math.max(0, limit - totalAnswered);
-      return { allowed: remaining > 0, remaining, limit, totalAnswered };
-    } catch (e) { console.error('Access-Check-Fehler:', e); return { allowed: true, remaining: 100, limit: 100, totalAnswered: 0 }; }
-  },
-
-  async updateDashboardLimitDisplay() {
-    const card = document.getElementById('question-limit-card');
-    if (!card) return;
-    if (!this.isFreeUser()) {
-      card.innerHTML = '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.8rem 1rem;background:#e8f5e9;border-radius:12px;font-size:0.85rem;color:#2e7d32;font-weight:600"><span>✓</span> Unbegrenzter Zugang</div>';
-      return;
-    }
-    try {
-      const a = await this.checkQuestionAccess();
-      const pct = Math.round((a.totalAnswered / a.limit) * 100);
-      const clr = a.remaining <= 10 ? '#e53935' : a.remaining <= 25 ? '#ff9800' : 'var(--primary, #667eea)';
-      card.innerHTML = `<div style="background:var(--surface,#fff);border:2px solid var(--border,#e8e8ef);border-radius:var(--radius-sm,14px);padding:1rem 1.1rem;box-shadow:0 2px 8px rgba(26,26,46,0.05)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem"><span style="font-size:0.88rem;font-weight:700;color:var(--dark,#1a1a2e)">📊 Noch ${a.remaining} von ${a.limit} Fragen</span><button onclick="App.showUpgradeOverlay('dashboard')" style="background:var(--dark,#1a1a2e);color:var(--yellow,#f5c542);border:none;border-radius:8px;padding:0.35rem 0.75rem;font-size:0.75rem;font-weight:700;cursor:pointer">Upgrade</button></div><div style="background:var(--bg-warm,#f0f0f5);border-radius:6px;height:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--yellow,#f5c542),var(--yellow-deep,#d4a017));border-radius:6px;transition:width 0.5s ease"></div></div><div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted,#9e9eae);margin-top:0.35rem"><span>${a.totalAnswered} beantwortet</span><span>${a.remaining} verfügbar</span></div></div>`;
-    } catch (e) { console.error('Dashboard-Limit-Fehler:', e); }
-  },
-
-  showUpgradeOverlay(reason) {
-    let ov = document.getElementById('upgrade-overlay');
-    if (ov) ov.remove();
-    const t = reason === 'limit_reached' ? '🔒 Dein kostenloses Kontingent ist aufgebraucht!' : '🚀 Alle Fragen freischalten';
-    const s = reason === 'limit_reached' ? 'Du hast deine 100 kostenlosen Fragen aufgebraucht. Schalte jetzt den Vollzugang frei!' : 'Upgrade für unbegrenzten Zugang zu allen Fragen, Simulationen und KI-Tutoren.';
-    ov = document.createElement('div');
-    ov.id = 'upgrade-overlay';
-    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-    ov.innerHTML = `<div style="background:var(--surface,#fff);border-radius:var(--radius,20px);max-width:400px;width:100%;padding:2rem;text-align:center;position:relative"><button onclick="document.getElementById('upgrade-overlay').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-muted)">✕</button><h2 style="font-size:1.3rem;margin:0 0 0.5rem;color:var(--dark)">${t}</h2><p style="color:var(--text-muted);font-size:0.9rem;margin:0 0 1.5rem">${s}</p><div style="display:flex;flex-direction:column;gap:0.65rem"><div onclick="App.startStripeCheckout('basic')" style="border:2px solid var(--border);border-radius:var(--radius-sm,14px);padding:1rem;cursor:pointer;text-align:left;transition:all 0.2s"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800;color:var(--dark)">Basic</div><div style="font-size:0.8rem;color:var(--text-muted)">Alle Fragen + Statistiken</div></div><div style="font-size:1.2rem;font-weight:800;color:var(--dark)">€19,90</div></div></div><div onclick="App.startStripeCheckout('premium')" style="border:2px solid var(--yellow);border-radius:var(--radius-sm,14px);padding:1rem;cursor:pointer;background:var(--yellow-soft);position:relative;text-align:left"><div style="position:absolute;top:-8px;right:12px;background:linear-gradient(90deg,var(--yellow),var(--yellow-deep));color:var(--dark);font-size:0.65rem;font-weight:800;padding:2px 10px;border-radius:10px">BELIEBT</div><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800;color:var(--dark)">Premium</div><div style="font-size:0.8rem;color:var(--text-muted)">Alles + KI-Tutoren + PDF-Simulationen</div></div><div style="font-size:1.2rem;font-weight:800;color:var(--dark)">€29,90</div></div></div></div><p style="font-size:0.72rem;color:var(--text-muted);margin:1rem 0 0">Einmalzahlung · Kein Abo · Kein Kleingedrucktes</p></div>`;
-    document.body.appendChild(ov);
-    ov.addEventListener('click', (e) => { if (e.target === ov) ov.remove(); });
+    return Math.max(2, Math.ceil(requestedCount * 0.2));
   },
 
   // ===== SHARE / FREUNDE EINLADEN =====
@@ -1572,9 +1790,12 @@ const App = {
 
   // ===== UPGRADE ICON (for free users) =====
   _updateUpgradeIcon() {
-    const btn = document.getElementById('upgrade-float-btn');
-    if (!btn) return;
-    btn.style.display = this.isFreeUser() ? 'flex' : 'none';
+    // Always hide old floating button — it blocks the tutor close button
+    const floatBtn = document.getElementById('upgrade-float-btn');
+    if (floatBtn) floatBtn.style.display = 'none';
+    // Hero upgrade button: show for free users, hide for paid
+    const heroBtn = document.getElementById('hero-upgrade-btn');
+    if (heroBtn) heroBtn.style.display = this.isFreeUser() ? 'block' : 'none';
   },
 
   // ===== SIMULATIONS-LIMIT CHECK (2 free simulations) =====
@@ -1588,8 +1809,16 @@ const App = {
         .from('user_simulations')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', Auth.currentUser.id);
-      this._simulationCount = error ? 0 : (count || 0);
-    } catch { this._simulationCount = 0; }
+      if (error) {
+        console.warn('[SimLimit] Fehler beim Laden der Simulationsanzahl:', error);
+        this._simulationCount = this.MAX_SIMULATIONS_FREE; // sicher blockieren bei DB-Fehler
+      } else {
+        this._simulationCount = count || 0;
+      }
+    } catch (e) {
+      console.warn('[SimLimit] Exception beim Laden der Simulationsanzahl:', e);
+      this._simulationCount = this.MAX_SIMULATIONS_FREE; // sicher blockieren bei Exception
+    }
     return this._simulationCount;
   },
 
@@ -1614,12 +1843,11 @@ const App = {
         <div class="sim-limit-icon">🔒</div>
         <div class="sim-limit-title">Kostenloses Kontingent aufgebraucht</div>
         <div class="sim-limit-desc">
-          Du hast deine kostenlose Simulation bereits verwendet.
-          Schalte den Vollzugang frei, um unbegrenzt Simulationen zu generieren
-          und auf alle Fragen zuzugreifen.
+          Deine kostenlose PDF-Simulation wurde bereits erstellt.
+          Mit Basic oder Premium bekommst du unbegrenzte PDF-Simulationen — so oft du willst, bis zum MedAT.
         </div>
         <button class="sim-limit-btn" onclick="App.showScreen('screen-konto');App.renderKonto();">
-          Jetzt für €17 freischalten →
+          Jetzt upgraden →
         </button>
       </div>
     `;
@@ -1869,6 +2097,32 @@ const App = {
     }
   },
 
+  // ===== ONBOARDING REMINDER =====
+  async _checkOnboardingReminder() {
+    if (!Auth.isLoggedIn) return;
+    // Don't show for premium/basic users
+    if (typeof Credits !== 'undefined' && Credits.isUnlimited()) return;
+    // Don't show if user already dismissed
+    if (localStorage.getItem('medat_ob_reminder_dismissed') === 'true') return;
+    try {
+      const { data, error } = await Auth.supabase
+        .from('user_onboarding')
+        .select('onboarding_completed')
+        .eq('user_id', Auth.currentUser.id)
+        .maybeSingle();
+      if (error) { console.warn('[Onboarding] Reminder check error:', error); return; }
+      // If user has completed onboarding, no reminder needed
+      if (data && data.onboarding_completed) return;
+      // No record or not completed → show reminder after short delay
+      setTimeout(() => {
+        const banner = document.getElementById('onboarding-reminder');
+        if (banner) banner.style.display = '';
+      }, 3000);
+    } catch (e) {
+      console.warn('[Onboarding] Reminder check exception:', e);
+    }
+  },
+
   // ===== TIKTOK LANDING =====
   _checkTikTokLanding() {
     const params = new URLSearchParams(window.location.search);
@@ -2089,6 +2343,7 @@ const App = {
     this.showTimer = true;
     this._sprintMode = false;
     this._dailyChallenge = true;
+    if (typeof Nudge !== 'undefined') Nudge.resetSession();
 
     // Get BMS block
     const bmsBlock = CONFIG.TEST_BLOCKS.bms;
@@ -2649,8 +2904,9 @@ const App = {
   },
 
   _updateCreditCostHint() {
+    // Questions are unlimited for all users — no cost hint needed
     const hint = document.getElementById('credit-cost-hint');
-    if (hint) hint.style.display = 'none'; // Credits-System entfernt
+    if (hint) hint.style.display = 'none';
   },
 
   async _loadWeaknessHint(subtype, topicSelect) {
@@ -2715,18 +2971,56 @@ const App = {
     await this.loadAndStartQuestions(section, difficulty, count, section.minutes, false);
   },
 
+  // ── Start a KFF/BMS practice session directly (from Lernplan) ───────────
+  async startSectionDirect(sectionKey) {
+    // Find section across all blocks
+    let foundSection = null, foundBlock = null;
+    for (const [blockId, block] of Object.entries(CONFIG.TEST_BLOCKS || {})) {
+      if (block.sections && block.sections[sectionKey]) {
+        foundSection = block.sections[sectionKey];
+        foundBlock = block;
+        this.currentBlock = block;
+        this.currentSectionKey = sectionKey;
+        this.currentSection = foundSection;
+        break;
+      }
+    }
+    if (!foundSection) {
+      // Fallback: open practice select
+      this.openPracticeSelect();
+      return;
+    }
+    this.showTimer = true;
+    this.wrongAnswers = [];
+    this._infographicQueue = [];
+    this._infographicResults = [];
+    this.currentTopic = null;
+    await this.loadAndStartQuestions(foundSection, 'medium', Math.min(15, foundSection.questions || 15), foundSection.minutes || 10, false);
+  },
+
   async loadAndStartQuestions(section, difficulty, count, minutes, isSimulation) {
-    // Free user: 100 Fragen-Limit
-    if (this.isFreeUser() && !isSimulation) {
-      const access = await this.checkQuestionAccess();
-      if (!access.allowed) {
-        this.showUpgradeOverlay('limit_reached');
+    // Free-user question limit check (150 Fragen gesamt)
+    if (this.isFreeUser()) {
+      const remaining = await Credits.getQuestionsRemaining();
+      if (remaining <= 0) {
+        Credits.showPaywall();
         return;
       }
-      if (access.remaining < count) {
-        count = access.remaining;
-        this.showToast(`Nur noch ${count} Fragen verfügbar`);
+      if (count > remaining) {
+        count = remaining;
+        this.showToast(`Noch ${remaining} kostenlose Fragen übrig — Anzahl angepasst`);
       }
+    }
+
+    // Credit check (legacy)
+    if (!Credits.isUnlimited() && !Credits.hasEnough(count)) {
+      if (Credits.remaining <= 0) {
+        Credits.showPaywall();
+        return;
+      }
+      // Reduce to available credits
+      count = Credits.remaining;
+      this.showToast(`Nur noch ${count} Credits — Fragenanzahl angepasst`);
     }
 
     this.questions = [];
@@ -2753,6 +3047,27 @@ const App = {
           const diff = difficulty === 'mixed' ? null : difficulty;
           this.questions = FigurenGenerator.generateBatch(count, diff || 'medium');
         }
+      } else if (section.dbType === 'allergieausweis_frage') {
+        // Allergieausweise: Generate client-side memorize cards + recall questions
+        const cards = this.generateMemorizeCards(count);
+        this._allergieCards = cards;
+        // Generate recall-style questions from the cards
+        this.questions = cards.map((card, i) => ({
+          id: `allergie_practice_${i}`,
+          type: 'allergieausweis_frage',
+          content: {
+            question: `Welche Blutgruppe hat ${card.name}?`,
+            options: [...new Set([card.bloodGroup, ...['A', 'B', 'AB', '0'].filter(b => b !== card.bloodGroup)])].slice(0, 5).sort(() => Math.random() - 0.5),
+            correct: 0,
+            photoFile: card.photoFile,
+            cardData: card,
+          },
+        }));
+        // Fix correct index after shuffle
+        this.questions.forEach(q => {
+          const cIdx = q.content.options.indexOf(q.content.cardData.bloodGroup);
+          q.content.correct = cIdx >= 0 ? cIdx : 0;
+        });
       } else if (section.isAIGenerated && section.dbType === 'textverstaendnis') {
         // TV: Try DB first, then AI generation
         this.questions = await API.getQuestions('textverstaendnis', difficulty === 'mixed' ? null : difficulty, count, section.dbSubtype).catch(() => []);
@@ -2821,7 +3136,7 @@ const App = {
           const selected = preGen.slice(0, textCount);
 
           this._tvTexts = selected.map(t => ({
-            title: (t.text_content || '').substring(0, 80).split('.')[0] || 'Text',
+            title: t.title || 'Text',
             content: t.text_content,
             questions: typeof t.questions === 'string' ? JSON.parse(t.questions) : t.questions,
           }));
@@ -3036,7 +3351,7 @@ const App = {
     html += `<div class="sek-scenario" style="background:var(--coral-soft);border-left:4px solid var(--coral);padding:12px 16px;border-radius:8px;margin-bottom:12px;">`;
     html += `<p style="margin:0;line-height:1.6">${data.scenario || ''}</p>`;
     html += `</div>`;
-    html += `<p class="q-text">${data.question}</p>`;
+    html += `<p class="q-text">${this._escapeHtml(data.question)}</p>`;
     content.innerHTML = html;
 
     if (isEE) {
@@ -3154,7 +3469,7 @@ const App = {
     if (data.explanation) {
       const expDiv = document.createElement('div');
       expDiv.style.cssText = 'margin-top:12px;padding:12px;background:var(--bg-card);border-radius:8px;border-left:4px solid var(--coral);font-size:0.9rem;line-height:1.5;color:var(--text)';
-      expDiv.innerHTML = `<strong>Erklärung:</strong> ${data.explanation}`;
+      expDiv.innerHTML = `<strong>Erklärung:</strong> ${this._escapeHtml(data.explanation)}`;
       container.appendChild(expDiv);
     }
 
@@ -3162,6 +3477,12 @@ const App = {
     const isCorrect = allCorrect;
     this.score += isCorrect ? 1 : 0;
     this.results.push({ correct: isCorrect });
+
+    // Save progress to DB
+    const q = this.questions[this.currentIndex];
+    API.saveProgress({ question_id: q.id, answered_correctly: isCorrect, time_taken_seconds: Math.round((Date.now() - this.questionStartTime) / 1000) }, this.currentSectionKey).catch(() => {});
+    // Deduct 1 credit
+    Credits.use(1, 'question', this.currentSectionKey || 'sek_ee');
 
     // Show next button
     const nextBtn = document.getElementById('q-next-btn');
@@ -3174,7 +3495,7 @@ const App = {
     html += `<div class="sek-scenario" style="background:var(--coral-soft);border-left:4px solid var(--coral);padding:12px 16px;border-radius:8px;margin-bottom:12px;">`;
     html += `<p style="margin:0;line-height:1.6">${data.scenario || ''}</p>`;
     html += `</div>`;
-    html += `<p class="q-text">${data.question}</p>`;
+    html += `<p class="q-text">${this._escapeHtml(data.question)}</p>`;
     html += `<p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px">Ordne die Überlegungen nach ihrer Wichtigkeit (1 = wichtigste Überlegung)</p>`;
     content.innerHTML = html;
 
@@ -3300,6 +3621,13 @@ const App = {
     document.getElementById('q-feedback-explanation').textContent = this._sekData.explanation || '';
 
     this.results.push({ correct: isCorrect, timeTaken: Math.round((Date.now() - this.questionStartTime) / 1000), score });
+
+    // Save progress to DB
+    const q = this.questions[this.currentIndex];
+    API.saveProgress({ question_id: q.id, answered_correctly: isCorrect, time_taken_seconds: Math.round((Date.now() - this.questionStartTime) / 1000) }, this.currentSectionKey).catch(() => {});
+    // Deduct 1 credit
+    Credits.use(1, 'question', this.currentSectionKey || 'sek_se');
+
     this.currentIndex++;
 
     // Next button
@@ -3366,6 +3694,9 @@ const App = {
     // Progress
     document.getElementById('q-progress-fill').style.width = `${((this.currentIndex + 1) / total) * 100}%`;
     document.getElementById('q-progress-text').textContent = `${this.currentIndex + 1} / ${total}`;
+
+    // Clear nudge from previous question
+    if (typeof Nudge !== 'undefined') Nudge.clearInline();
 
     // Hide feedback and clear ALL extra fields (prevents cross-section leaking)
     document.getElementById('q-feedback').classList.add('hidden');
@@ -3501,6 +3832,8 @@ const App = {
           if (typeof API !== 'undefined' && API.saveProgress) {
             API.saveProgress(q.id || 'figur_gen', isCorrect, Date.now() - this.questionStartTime).catch(() => {});
           }
+          // Deduct 1 credit for Figuren question
+          Credits.use(1, 'question', 'figuren');
         }, 150);
       };
     });
@@ -3520,12 +3853,12 @@ const App = {
       <div class="tv-text-section">
         <div class="tv-text-title">${textLabel}</div>
         <div class="tv-text-body${isFirstQuestionOfText ? '' : ' tv-collapsed'}" id="tv-text-body">
-          ${text.content.split('\n').map(p => `<p>${p}</p>`).join('')}
+          <p class="tv-passage">${this._escapeHtml(text.content)}</p>
         </div>
         ${!isFirstQuestionOfText ? '<button class="tv-toggle-btn" id="tv-toggle-btn">Text anzeigen ▼</button>' : ''}
       </div>
       <div class="tv-question-label">Frage ${qIdx + 1} von ${text.questions.length} zu diesem Text</div>
-      <p class="q-text">${data.question}</p>
+      <p class="q-text">${this._escapeHtml(data.question)}</p>
     `;
 
     // Toggle button for collapsed text
@@ -3581,8 +3914,8 @@ const App = {
     content.innerHTML = `
       <p class="q-header-label">Welche Schlussfolgerung ist korrekt?</p>
       <div class="premise-box">
-        <div class="premise"><span class="premise-label">P1:</span> ${data.premise1}</div>
-        <div class="premise"><span class="premise-label">P2:</span> ${data.premise2}</div>
+        <div class="premise"><span class="premise-label">P1:</span> ${this._escapeHtml(data.premise1)}</div>
+        <div class="premise"><span class="premise-label">P2:</span> ${this._escapeHtml(data.premise2)}</div>
       </div>
     `;
     const opts = data.answer_options || data.options || [];
@@ -3632,7 +3965,7 @@ const App = {
       const cssClass = i === 4 ? ' wf-keine-option' : '';
       return `<button class="answer-btn${cssClass}" data-idx="${i}">
         <span class="answer-label">${label}</span>
-        <span class="answer-text">${i === 4 ? opt : `Buchstabe ${opt}`}</span>
+        <span class="answer-text">${i === 4 ? this._escapeHtml(opt) : `Buchstabe ${this._escapeHtml(opt)}`}</span>
       </button>`;
     }).join('');
 
@@ -3682,7 +4015,7 @@ const App = {
         onerror="this.parentElement.innerHTML='<div class=\\'placeholder-image\\'>Allergieausweis</div>'"></div>`;
     }
 
-    content.innerHTML = `${tag}${img}<p class="q-text">${data.question}</p>`;
+    content.innerHTML = `${tag}${img}<p class="q-text">${this._escapeHtml(data.question)}</p>`;
     this._renderMCButtons(data.answer_options || data.options || [], answers, data);
   },
 
@@ -3693,7 +4026,7 @@ const App = {
       ? `<span class="subject-tag" style="background:${colors[q.subtype] || '#6b7280'}">${labels[q.subtype]}</span>`
       : '';
 
-    content.innerHTML = `${tag}<p class="q-text">${data.question}</p>`;
+    content.innerHTML = `${tag}<p class="q-text">${this._escapeHtml(data.question)}</p>`;
     this._renderMCButtons(data.options || data.answer_options || [], answers, data);
   },
 
@@ -3831,11 +4164,17 @@ const App = {
 
     API.saveProgress(progressData, this.currentSectionKey).catch(() => {});
 
-    // Track question count for free user limit (100 Fragen)
-    this._limitCache = null; // Invalidate cache after each answer
+    // Deduct 1 credit per answered question
+    Credits.use(1, 'question', this.currentSectionKey || 'practice');
 
     // Auto-scroll to feedback
     fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // KI-Nudge: suggest tutors/Banana after wrong answer
+    if (typeof Nudge !== 'undefined') Nudge.maybeShow(correct, this.questions[this.currentIndex]);
+
+    // Mister Owl reacts to wrong answers
+    if (!correct && typeof Mascot !== 'undefined') Mascot.onWrongAnswer();
   },
 
   /**
@@ -4033,10 +4372,7 @@ const App = {
 
     this.showResult(this.score, this.questions.length, this.results);
 
-    // Start generating infographics in background for wrong answers
-    if (this.wrongAnswers.length > 0 && this.mode === 'practice') {
-      this._startInfographicGeneration();
-    }
+    // Infographic auto-generation removed (was confusing in questions flow)
   },
 
   // ===== INFOGRAPHIC BACKGROUND GENERATION =====
@@ -4256,14 +4592,297 @@ const App = {
               <span style="font-size:1.1rem;font-weight:700;color:#1a1a2e;">2.300+ Fragen</span> in allen Kategorien<br>
               <span style="font-size:1.1rem;font-weight:700;color:#1a1a2e;">10+ PDF-Simulationen</span> im MedAT-Format
             </div>
-            <button onclick="App.showScreen('screen-konto')" style="background:#1a1a2e;color:#f5c542;border:none;border-radius:12px;padding:0.7rem 1.8rem;font-size:0.95rem;font-weight:700;cursor:pointer;">Vollzugang für nur €17 →</button>
+            <button onclick="App.showScreen('screen-konto')" style="background:#1a1a2e;color:#f5c542;border:none;border-radius:12px;padding:0.7rem 1.8rem;font-size:0.95rem;font-weight:700;cursor:pointer;">Vollzugang ab €19,90 →</button>
           </div>`;
       } else {
         upgradeEl.classList.add('hidden');
       }
     }
 
+    // Auto-generate personalized KI-Zusammenfassung if there are wrong answers
+    const resumeSection = document.getElementById('result-resume');
+    if (resumeSection) {
+      if (this.wrongAnswers && this.wrongAnswers.length > 0 && this.mode !== 'simulation') {
+        resumeSection.classList.remove('hidden');
+        document.getElementById('resume-loading').classList.remove('hidden');
+        document.getElementById('resume-content').classList.add('hidden');
+        document.getElementById('resume-content').innerHTML = '';
+        // Auto-trigger — no click needed
+        this._generateResume();
+      } else {
+        resumeSection.classList.add('hidden');
+      }
+    }
+
+    // KI-Nudge on result screen for low scores
+    if (typeof Nudge !== 'undefined') {
+      const wrongCount = total - score;
+      const topicLabel = this.currentSectionKey || 'deine Schwachstellen';
+      Nudge.maybeShowOnResult(pct, wrongCount, topicLabel);
+    }
+
     this.showScreen('screen-result');
+  },
+
+  // ===== PERSONALISIERTE KI-ZUSAMMENFASSUNG =====
+  async _generateResume() {
+    const resumeSection = document.getElementById('result-resume');
+    const loading = document.getElementById('resume-loading');
+    const content = document.getElementById('resume-content');
+    if (!resumeSection) return;
+
+    loading.classList.remove('hidden');
+    content.classList.add('hidden');
+
+    // Zusammenfassung is FREE — no credit deduction
+    // Credits are only used when user actually clicks to open a tutor
+
+    try {
+      const userName = (Auth.currentUser?.user_metadata?.display_name
+        || Auth.currentUser?.user_metadata?.username
+        || Auth.currentUser?.email?.split('@')[0]
+        || 'du').split(' ')[0]; // First name only
+
+      const wrong = this.wrongAnswers || [];
+      const score = this.score || 0;
+      const total = this.results?.length || 0;
+      const pct = total > 0 ? Math.round(score / total * 100) : 0;
+      const section = this.currentSectionKey || 'gemischt';
+
+      // Build wrong questions summary for the AI
+      const wrongSummary = wrong.slice(0, 8).map((w, i) => {
+        const q = w.question?.content || {};
+        const qText = (q.question || q.premise1 || w.topic || '').slice(0, 200);
+        const correct = (w.correctAnswer || '').slice(0, 150);
+        const expl = (w.explanation || '').slice(0, 200);
+        const subtype = w.question?.subtype || w.type || section;
+        return `FEHLER ${i + 1}:
+Thema: ${subtype}
+Frage: ${qText}
+Richtige Antwort: ${correct}
+Erklärung: ${expl}`;
+      }).join('\n\n');
+
+      const systemPrompt = `Du bist der persönliche MedAT-Lerncoach in einer App zur Vorbereitung auf den österreichischen Medizinaufnahmetest.
+Du sprichst den/die User:in mit Vornamen an und duzt. Dein Ton ist motivierend, direkt, wie ein:e clevere:r Freund:in — österreichischer Jargon erlaubt, aber nicht übertrieben. Kein generisches Blabla.
+
+DER/DIE USER:IN HEIßT: ${userName}
+ERGEBNIS: ${score}/${total} richtig (${pct}%)
+SEKTION: ${section}
+
+VERFÜGBARE KI-TUTOREN (empfehle pro Fehler genau 2 davon):
+• Sokrates 🦉 — Sokratische Methode: stellt Gegenfragen bis du es selbst checkst. IDEAL FÜR: Verständnisfragen, Konzepte durchdenken
+• Lilly 🧸 — ELI5 mit Alltagsmetaphern: "Mitochondrium = Kraftwerk der Zelle". IDEAL FÜR: Komplexe Themen vereinfachen, erste Annäherung
+• Banana 🍌 — Generiert Merkbilder & Infografiken als Bild. IDEAL FÜR: Visuelles Lernen, Fakten die man sich merken muss
+• Rico Reality 🌍 — Klinischer Kontext: "Als Arzt brauchst du das wenn...". IDEAL FÜR: Praxisbezug, Motivation
+• Bela Babel 🔤 — Zerlegt Fachbegriffe etymologisch. IDEAL FÜR: Fachbegriffe merken, Latein/Griechisch-Stämme
+• Mnemofix 🧠 — Eselsbrücken-Profi: Akronyme, Reime, absurde Geschichten. IDEAL FÜR: Aufzählungen, Reihenfolgen, trockene Fakten
+• Sherlock 🔍 — Detektiv-Logik: baut Indizienketten. IDEAL FÜR: Logische Schlüsse, Implikationen, Ausschlussverfahren
+• Drillmaster ⚡ — Blitz-Training: kurz, hart, effizient. IDEAL FÜR: Speed-Training, Zeitdruck üben
+• Professor Grimm 😤 — Sarkastisch aber brillant. IDEAL FÜR: Wer Herausforderung braucht, sich nicht einlullen will
+• Jojo 🏆 — MedAT-Strategie-Buddy: Zeitbudgets, Fallen, Taktik. IDEAL FÜR: Prüfungsstrategie, KFF-Taktiken
+
+DEINE AUFGABE:
+1. Sprich ${userName} direkt an (Vorname!). Kurzer motivierender Einstieg (1-2 Sätze, nicht generisch, bezieh dich aufs konkrete Ergebnis).
+2. Zeig eine TABELLE mit ALLEN Fehlern (JEDE falsche Frage bekommt eine Zeile). Pro Fehler:
+   - Thema/Frage (kurz)
+   - Was die richtige Antwort war (1 Satz)
+   - 2 konkrete Tutor-Empfehlungen mit ICON + NAME + warum GENAU dieser Tutor bei DIESER Frage hilft
+   - Für JEDEN Tutor-Vorschlag einen klickbaren Button
+   - WICHTIG: Mindestens bei jeder 2. Frage soll einer der Vorschläge 🍌 Banana (Merkbild) sein! Merkbilder sind perfekt für Fakten, Aufzählungen, Strukturen — und die meisten User unterschätzen sie.
+   - Am Ende jeder Zeile kommt IMMER noch ein extra Button: <div class="resume-other-tutor-btn" data-question-idx="ZEILENINDEX">🔄 Anderen Tutor wählen</div>
+3. Social Proof einbauen: subtil, durch die Blume. Erwähne auch, dass Merkbilder der Geheimtipp vieler User sind.
+4. Abschluss: motivierend, kurz.
+
+TUTOR-KEYS für data-tutor: sokrates, lilly, banana, rico, babel, mnemofix, sherlock, drillmaster, grimm, jojo
+
+FORMAT: Antworte in HTML (kein Markdown). Verwende:
+- <div class="resume-intro"> für den Einstieg
+- <div class="resume-mobile-hint">📱 Kippe dein Handy für die volle Tabellenansicht</div> (NUR einmal, vor der Tabelle)
+- <table class="resume-table"><thead><tr><th>Thema</th><th>Richtige Antwort</th><th>Deine Tutoren</th></tr></thead><tbody>
+- In der Tutoren-Spalte pro Zeile:
+  <div class="resume-tutor-rec"><span class="resume-tutor-icon">🦉</span> <b>Sokrates</b> — Warum hilft</div>
+  <div class="resume-tutor-btn" data-tutor="sokrates" data-question-idx="0">🦉 Mit Sokrates üben</div>
+  (dasselbe für Tutor 2)
+  <div class="resume-other-tutor-btn" data-question-idx="0">🔄 Anderen Tutor wählen</div>
+- <div class="resume-social-proof"> für Social Proof
+- <div class="resume-outro"> für den Abschluss
+
+WICHTIG: Sei SPEZIFISCH. Banana/Merkbilder AKTIV empfehlen — nicht nur als letzte Option. Bei Fakten-Fragen ist Banana oft die beste Wahl.`;
+
+      const session = await Auth.supabase.auth.getSession();
+      const token = session?.data?.session?.access_token;
+
+      const resp = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/tutor-chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'apikey': CONFIG.SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          tutor_typ: 'resume',
+          system_prompt: systemPrompt,
+          messages: [{ role: 'user', content: wrongSummary || 'Keine Details zu den Fehlern verfügbar.' }],
+          model: 'gemini-2.0-flash',
+        }),
+      });
+
+      const result = await resp.json();
+      if (result.error) throw new Error(result.error);
+
+      let html = result.response || '';
+
+      // Make tutor buttons clickable
+      content.innerHTML = html;
+      content.classList.remove('hidden');
+      loading.classList.add('hidden');
+
+      // Bind ALL tutor buttons — each button links to the specific wrong question
+      content.querySelectorAll('.resume-tutor-btn').forEach(btn => {
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('click', () => {
+          const tutorKey = btn.dataset.tutor;
+          const qIdx = parseInt(btn.dataset.questionIdx) || 0;
+          if (typeof Tutor !== 'undefined') {
+            const wrongEntry = this.wrongAnswers?.[qIdx];
+            const question = wrongEntry?.question;
+            if (question) {
+              Tutor.open(question);
+              setTimeout(() => {
+                if (tutorKey && typeof Tutor.selectTutor === 'function') Tutor.selectTutor(tutorKey);
+              }, 200);
+            } else {
+              Tutor.openFreeMode('');
+              setTimeout(() => {
+                if (tutorKey && typeof Tutor.selectTutor === 'function') Tutor.selectTutor(tutorKey);
+              }, 200);
+            }
+          }
+        });
+      });
+
+      // Bind "Anderen Tutor wählen" buttons — opens tutor overview WITHOUT pre-selecting
+      content.querySelectorAll('.resume-other-tutor-btn').forEach(btn => {
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('click', () => {
+          const qIdx = parseInt(btn.dataset.questionIdx) || 0;
+          if (typeof Tutor !== 'undefined') {
+            const wrongEntry = this.wrongAnswers?.[qIdx];
+            const question = wrongEntry?.question;
+            if (question) {
+              // Open tutor panel with question context but let user pick the tutor
+              Tutor.open(question);
+            } else {
+              Tutor.openFreeMode('');
+            }
+          }
+        });
+      });
+
+      // Save summary to DB for later access
+      this._saveSummaryToDB(html, wrong, score, total, section);
+
+    } catch (e) {
+      console.error('Resume generation error:', e);
+      content.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:1rem">Zusammenfassung konnte nicht erstellt werden. Versuch's nochmal.</p>`;
+      content.classList.remove('hidden');
+      loading.classList.add('hidden');
+    }
+  },
+
+  async _saveSummaryToDB(html, wrongAnswers, score, total, sectionKey) {
+    try {
+      if (!Auth.currentUser?.id) return;
+      const wrongQuestions = (wrongAnswers || []).map(w => ({
+        question_id: w.question?.id || null,
+        topic: w.question?.subtype || w.type || sectionKey,
+        correct_answer: (w.correctAnswer || '').slice(0, 300),
+      }));
+      const { error } = await Auth.supabase.from('user_summaries').insert({
+        user_id: Auth.currentUser.id,
+        section_key: sectionKey || null,
+        score,
+        total,
+        wrong_questions: wrongQuestions,
+        summary_html: html,
+      });
+      if (!error) {
+        const hint = document.getElementById('resume-saved-hint');
+        if (hint) hint.classList.remove('hidden');
+      }
+    } catch (e) {
+      console.warn('Could not save summary:', e);
+    }
+  },
+
+  async loadSummaries() {
+    const container = document.getElementById('summaries-container');
+    if (!container) return;
+    container.innerHTML = '<div class="spinner" style="margin:2rem auto"></div>';
+
+    try {
+      if (!Auth.currentUser?.id) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center">Bitte einloggen um Zusammenfassungen zu sehen.</p>';
+        return;
+      }
+
+      const { data, error } = await Auth.supabase
+        .from('user_summaries')
+        .select('id, section_key, score, total, created_at, summary_html')
+        .eq('user_id', Auth.currentUser.id)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:2rem">Noch keine Zusammenfassungen vorhanden. Beende eine Übungssession mit Fehlern — die KI-Zusammenfassung wird automatisch gespeichert.</p>';
+        return;
+      }
+
+      const sectionLabels = { biologie: 'Biologie', chemie: 'Chemie', physik: 'Physik', mathematik: 'Mathematik' };
+
+      container.innerHTML = data.map((s, i) => {
+        const date = new Date(s.created_at).toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const pct = s.total > 0 ? Math.round(s.score / s.total * 100) : 0;
+        const label = sectionLabels[s.section_key] || s.section_key || 'Gemischt';
+        const wrongCount = s.total - s.score;
+        return `
+          <div class="summary-card" style="background:var(--surface);border-radius:var(--radius-sm);padding:0.85rem;margin-bottom:0.75rem;border:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+              <span style="font-weight:700;font-size:0.9rem">${label}</span>
+              <span style="color:var(--text-muted);font-size:0.75rem">${date}</span>
+            </div>
+            <div style="display:flex;gap:0.75rem;margin-bottom:0.5rem;font-size:0.82rem">
+              <span>📊 ${s.score}/${s.total} (${pct}%)</span>
+              <span style="color:#e74c3c">❌ ${wrongCount} Fehler</span>
+            </div>
+            <details>
+              <summary style="cursor:pointer;color:var(--primary);font-weight:600;font-size:0.82rem">Zusammenfassung anzeigen</summary>
+              <div class="summary-expand" style="margin-top:0.5rem;font-size:0.82rem" id="summary-expand-${i}">${s.summary_html || '<p>Kein Inhalt</p>'}</div>
+            </details>
+          </div>
+        `;
+      }).join('');
+
+      // Bind tutor buttons in expanded summaries
+      container.querySelectorAll('.resume-tutor-btn').forEach(btn => {
+        btn.style.cursor = 'pointer';
+        btn.addEventListener('click', () => {
+          const tutorKey = btn.dataset.tutor;
+          if (typeof Tutor !== 'undefined') {
+            Tutor.openFreeMode('');
+            setTimeout(() => {
+              if (tutorKey && typeof Tutor.selectTutor === 'function') Tutor.selectTutor(tutorKey);
+            }, 200);
+          }
+        });
+      });
+
+    } catch (e) {
+      console.error('Load summaries error:', e);
+      container.innerHTML = '<p style="color:var(--text-muted);text-align:center">Fehler beim Laden.</p>';
+    }
   },
 
   async _runTVAnalysis() {
@@ -5096,42 +5715,105 @@ const App = {
   },
 };
 
-// === SCRATCHPAD / NOTIZBLOCK ===
+// === SCRATCHPAD / NOTIZBLOCK v2 – Pro Edition ===
 const Scratchpad = {
-  canvas: null, ctx: null, drawing: false, mode: 'pen', lastX: 0, lastY: 0,
-  color: '#1a1a2e', canvasHeight: 280,
+  canvas: null, ctx: null,
+  drawing: false, mode: 'pen', color: '#1a1a2e', size: 's',
+  lastX: 0, lastY: 0,
+
+  // Undo/redo history (ImageData snapshots)
+  _history: [], _historyIndex: -1, _maxHistory: 40,
+
+  // State
+  _currentSequence: null, _isFullscreen: false, _textPos: null,
+  _palmRejecting: false,
+
+  SIZES: {
+    pen:         { s: 1.5, m: 3.5, l: 7 },
+    highlighter: { s: 10,  m: 18,  l: 30 },
+    eraser:      { s: 16,  m: 28,  l: 50 },
+    text:        { s: 14,  m: 20,  l: 28 },
+  },
 
   init() {
     this.canvas = document.getElementById('scratchpad-canvas');
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
 
-    // Tool buttons
+    // Tools
     document.getElementById('sp-pen')?.addEventListener('click', () => this.setMode('pen'));
     document.getElementById('sp-highlighter')?.addEventListener('click', () => this.setMode('highlighter'));
+    document.getElementById('sp-text-tool')?.addEventListener('click', () => this.setMode('text'));
     document.getElementById('sp-eraser')?.addEventListener('click', () => this.setMode('eraser'));
     document.getElementById('sp-clear')?.addEventListener('click', () => this.clear(true));
     document.getElementById('sp-minimize')?.addEventListener('click', () => this.toggle());
     document.getElementById('scratchpad-btn')?.addEventListener('click', () => this.toggle());
+    document.getElementById('sp-undo')?.addEventListener('click', () => this.undo());
+    document.getElementById('sp-redo')?.addEventListener('click', () => this.redo());
+    document.getElementById('sp-export')?.addEventListener('click', () => this.exportPNG());
+    document.getElementById('sp-fullscreen')?.addEventListener('click', () => this.toggleFullscreen());
 
-    // Color buttons
-    const colors = { 'sp-c-black': '#1a1a2e', 'sp-c-red': '#e74c3c', 'sp-c-blue': '#3498db', 'sp-c-green': '#27ae60', 'sp-c-yellow': '#f1c40f' };
-    for (const [id, c] of Object.entries(colors)) {
-      document.getElementById(id)?.addEventListener('click', () => this.setColor(c, id));
+    // Sizes
+    document.querySelectorAll('.sp-size').forEach(btn => {
+      btn.addEventListener('click', () => this.setSize(btn.dataset.size));
+    });
+
+    // Colors
+    document.querySelectorAll('.sp-color[data-color]').forEach(btn => {
+      btn.addEventListener('click', () => this.setColor(btn.dataset.color, btn.id));
+    });
+
+    // Custom color picker
+    const customColorInput = document.getElementById('sp-c-custom');
+    if (customColorInput) {
+      customColorInput.addEventListener('input', () => {
+        this.color = customColorInput.value;
+        document.querySelectorAll('.sp-color').forEach(b => b.classList.remove('active'));
+      });
     }
 
-    // Note save
-    document.getElementById('sp-note-save')?.addEventListener('click', () => this.saveNote());
-    document.getElementById('sp-note-input')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.saveNote(); });
-
-    // Canvas drawing events — pointer events for stylus + touch + mouse
+    // Canvas pointer events
     this.canvas.addEventListener('pointerdown', (e) => this.startDraw(e));
     this.canvas.addEventListener('pointermove', (e) => this.draw(e));
-    this.canvas.addEventListener('pointerup', () => this.stopDraw());
-    this.canvas.addEventListener('pointerleave', () => this.stopDraw());
-    // Prevent scroll while drawing on canvas
-    this.canvas.addEventListener('touchstart', (e) => { if (this.drawing) e.preventDefault(); }, { passive: false });
+    this.canvas.addEventListener('pointerup', (e) => this.stopDraw(e));
+    this.canvas.addEventListener('pointerleave', (e) => this.stopDraw(e));
+    this.canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length > 1) e.preventDefault();
+    }, { passive: false });
     this.canvas.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      const container = document.getElementById('scratchpad-container');
+      if (!container || container.classList.contains('hidden')) return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') { e.preventDefault(); this.undo(); }
+      else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.shiftKey && e.key === 'z'))) { e.preventDefault(); this.redo(); }
+      else if (!e.ctrlKey && !e.metaKey) {
+        if (e.key === 'p' || e.key === 'P') this.setMode('pen');
+        else if (e.key === 'h' || e.key === 'H') this.setMode('highlighter');
+        else if (e.key === 'e' || e.key === 'E') this.setMode('eraser');
+        else if (e.key === 't' || e.key === 'T') this.setMode('text');
+        else if (e.key === 'Escape') {
+          this._cancelText();
+          if (this._isFullscreen) this.toggleFullscreen();
+        }
+      }
+    });
+
+    // Text tool input
+    const textInput = document.getElementById('sp-text-input');
+    if (textInput) {
+      textInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { this._commitText(textInput.value); e.preventDefault(); }
+        if (e.key === 'Escape') { this._cancelText(); e.preventDefault(); }
+      });
+      textInput.addEventListener('blur', () => {
+        if (textInput.value.trim()) this._commitText(textInput.value);
+        else this._cancelText();
+      });
+    }
   },
 
   show() {
@@ -5153,54 +5835,337 @@ const Scratchpad = {
     container.classList.toggle('hidden');
 
     if (isHidden) {
-      fab.classList.add('hidden');
+      fab?.classList.add('hidden');
 
-      // Check if current question is Zahlenfolge → prefill sequence on canvas
+      // Zahlenfolge check
       const q = App.questions?.[App.currentIndex];
       const data = q?.content;
-      // content might be a JSON string from the DB
       const parsed = typeof data === 'string' ? (() => { try { return JSON.parse(data); } catch { return data; } })() : data;
-      console.log('[Scratchpad] toggle check:', { type: q?.type, hasSequence: !!parsed?.sequence, parsed: parsed });
       if (q?.type === 'zahlenfolge' && parsed?.sequence) {
-        this.canvasHeight = 360; // Taller for calculation space
         this._currentSequence = parsed.sequence;
       } else {
-        this.canvasHeight = 280;
         this._currentSequence = null;
       }
 
-      // Use rAF to ensure the container is visible and has dimensions before drawing
       requestAnimationFrame(() => {
         this.resizeCanvas();
+        this._saveToHistory(); // initial state
         if (this._currentSequence) {
-          this.clear(false);
           this.drawSequenceOnCanvas(this._currentSequence);
         }
       });
     } else {
-      fab.classList.remove('hidden');
+      fab?.classList.remove('hidden');
+      if (this._isFullscreen) this.toggleFullscreen();
     }
   },
 
-  // === ZAHLENFOLGE PREFILL: draw numbers on bottom of canvas ===
-  drawSequenceOnCanvas(sequence) {
-    if (!this.ctx || !this.canvas) { console.warn('[Scratchpad] No canvas/ctx'); return; }
-    if (!sequence || !Array.isArray(sequence) || sequence.length === 0) { console.warn('[Scratchpad] Invalid sequence:', sequence); return; }
-    const ctx = this.ctx;
-    const canvasW = this.canvas.clientWidth || (this.canvas.width / (window.devicePixelRatio || 1));
-    const canvasH = this.canvasHeight;
-    console.log('[Scratchpad] Drawing sequence on canvas:', { canvasW, canvasH, sequence });
+  // ── History (undo/redo) ─────────────────────────────────────────────────
+  _saveToHistory() {
+    if (!this.ctx || !this.canvas) return;
+    // Truncate forward history when new action taken
+    if (this._historyIndex < this._history.length - 1) {
+      this._history = this._history.slice(0, this._historyIndex + 1);
+    }
+    const snap = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    this._history.push(snap);
+    if (this._history.length > this._maxHistory) this._history.shift();
+    this._historyIndex = this._history.length - 1;
+    this._updateUndoRedoBtns();
+  },
 
-    // Layout: numbers in a row at the bottom, with arrows between them
+  undo() {
+    if (this._historyIndex <= 0) return;
+    this._historyIndex--;
+    this.ctx.putImageData(this._history[this._historyIndex], 0, 0);
+    this._updateUndoRedoBtns();
+  },
+
+  redo() {
+    if (this._historyIndex >= this._history.length - 1) return;
+    this._historyIndex++;
+    this.ctx.putImageData(this._history[this._historyIndex], 0, 0);
+    this._updateUndoRedoBtns();
+  },
+
+  _updateUndoRedoBtns() {
+    const undoBtn = document.getElementById('sp-undo');
+    const redoBtn = document.getElementById('sp-redo');
+    if (undoBtn) undoBtn.disabled = this._historyIndex <= 0;
+    if (redoBtn) redoBtn.disabled = this._historyIndex >= this._history.length - 1;
+  },
+
+  // ── Resize canvas ────────────────────────────────────────────────────────
+  resizeCanvas() {
+    if (!this.canvas) return;
+    const container = document.getElementById('scratchpad-container');
+    const isFullscreen = container?.classList.contains('sp-fullscreen');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = this.canvas.parentElement.getBoundingClientRect();
+    const w = rect.width || 360;
+    const h = isFullscreen ? (window.innerHeight - 90) : (this._hasImportedImage ? Math.max(480, Math.min(w, 600)) : 320);
+
+    // Preserve content
+    let saved = null;
+    try { saved = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height); } catch(e) {}
+    this.canvas.width = w * dpr;
+    this.canvas.height = h * dpr;
+    this.ctx.scale(dpr, dpr);
+    this.canvas.style.width = w + 'px';
+    this.canvas.style.height = h + 'px';
+    if (saved) this.ctx.putImageData(saved, 0, 0);
+  },
+
+  // ── Mode / size / color ──────────────────────────────────────────────────
+  setMode(mode) {
+    this._cancelText();
+    this.mode = mode;
+    document.querySelectorAll('.sp-tool').forEach(b => b.classList.remove('active'));
+    const idMap = { pen: 'sp-pen', highlighter: 'sp-highlighter', text: 'sp-text-tool', eraser: 'sp-eraser' };
+    document.getElementById(idMap[mode])?.classList.add('active');
+    this.canvas.style.cursor = mode === 'eraser' ? 'cell' : mode === 'text' ? 'text' : 'crosshair';
+  },
+
+  setSize(size) {
+    this.size = size;
+    document.querySelectorAll('.sp-size').forEach(b => b.classList.remove('active'));
+    document.getElementById('sp-size-' + size)?.classList.add('active');
+  },
+
+  setColor(color, btnId) {
+    this.color = color;
+    document.querySelectorAll('.sp-color').forEach(b => b.classList.remove('active'));
+    if (btnId) document.getElementById(btnId)?.classList.add('active');
+    const customColorInput = document.getElementById('sp-c-custom');
+    if (customColorInput) customColorInput.value = color;
+  },
+
+  // ── Clear ────────────────────────────────────────────────────────────────
+  clear(keepPrefill) {
+    if (!this.ctx || !this.canvas) return;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (keepPrefill && this._currentSequence) {
+      this.drawSequenceOnCanvas(this._currentSequence);
+    }
+    this._saveToHistory();
+  },
+
+  // ── Drawing ──────────────────────────────────────────────────────────────
+  _isPalmInput(e) {
+    // Reject palm: touch contact area wider than ~35px in either dimension
+    if (e.pointerType === 'touch' && ((e.width || 0) > 35 || (e.height || 0) > 35)) return true;
+    return false;
+  },
+
+  _getLineWidth(e) {
+    const base = this.SIZES[this.mode]?.[this.size] || 2;
+    // Pressure sensitivity (pressure 0.0–1.0, default 0.5)
+    const p = (e.pressure && e.pressure > 0) ? e.pressure : 0.5;
+    // Pen/stylus: scale by pressure; touch/mouse: fixed
+    if (e.pointerType === 'pen') return base * (0.5 + p * 1.0);
+    return base;
+  },
+
+  getPos(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left),
+      y: (e.clientY - rect.top),
+    };
+  },
+
+  startDraw(e) {
+    e.preventDefault();
+    if (this._isPalmInput(e)) { this._palmRejecting = true; return; }
+    this._palmRejecting = false;
+
+    if (this.mode === 'text') {
+      this._placeTextInput(e);
+      return;
+    }
+
+    this.drawing = true;
+    const pos = this.getPos(e);
+    this.lastX = pos.x;
+    this.lastY = pos.y;
+
+    // Draw a dot on click
+    const lw = this._getLineWidth(e);
+    this.ctx.beginPath();
+    if (this.mode === 'eraser') {
+      this.ctx.globalCompositeOperation = 'destination-out';
+      this.ctx.arc(pos.x, pos.y, lw / 2, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.globalCompositeOperation = 'source-over';
+    } else if (this.mode === 'highlighter') {
+      this.ctx.globalAlpha = 0.35;
+      this.ctx.fillStyle = this.color;
+      this.ctx.arc(pos.x, pos.y, lw / 2, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.globalAlpha = 1.0;
+    } else {
+      this.ctx.fillStyle = this.color;
+      this.ctx.arc(pos.x, pos.y, lw / 2, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+
+    this.canvas.setPointerCapture(e.pointerId);
+  },
+
+  draw(e) {
+    if (!this.drawing || this._palmRejecting) return;
+    if (this.mode === 'text') return;
+    e.preventDefault();
+
+    const pos = this.getPos(e);
+    const lw = this._getLineWidth(e);
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.lastX, this.lastY);
+    this.ctx.lineTo(pos.x, pos.y);
+    this.ctx.lineCap = 'round';
+    this.ctx.lineJoin = 'round';
+    this.ctx.lineWidth = lw;
+
+    if (this.mode === 'eraser') {
+      this.ctx.globalCompositeOperation = 'destination-out';
+      this.ctx.stroke();
+      this.ctx.globalCompositeOperation = 'source-over';
+    } else if (this.mode === 'highlighter') {
+      this.ctx.globalAlpha = 0.35;
+      this.ctx.strokeStyle = this.color;
+      this.ctx.stroke();
+      this.ctx.globalAlpha = 1.0;
+    } else {
+      this.ctx.strokeStyle = this.color;
+      this.ctx.stroke();
+    }
+
+    this.lastX = pos.x;
+    this.lastY = pos.y;
+  },
+
+  stopDraw(e) {
+    if (this.drawing) {
+      this.drawing = false;
+      this._saveToHistory();
+    }
+    this._palmRejecting = false;
+  },
+
+  // ── Text tool ────────────────────────────────────────────────────────────
+  _placeTextInput(e) {
+    const pos = this.getPos(e);
+    this._textPos = pos;
+    const overlay = document.getElementById('sp-text-overlay');
+    const input = document.getElementById('sp-text-input');
+    if (!overlay || !input) return;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('active');
+    input.style.position = 'absolute';
+    input.style.left = pos.x + 'px';
+    input.style.top = pos.y + 'px';
+    input.style.fontSize = this.SIZES.text[this.size] + 'px';
+    input.style.color = this.color;
+    input.value = '';
+    requestAnimationFrame(() => input.focus());
+  },
+
+  _commitText(text) {
+    if (!text || !text.trim() || !this._textPos) { this._cancelText(); return; }
+    const fontSize = this.SIZES.text[this.size];
+    this.ctx.save();
+    this.ctx.fillStyle = this.color;
+    this.ctx.font = `600 ${fontSize}px Inter, -apple-system, sans-serif`;
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText(text.trim(), this._textPos.x, this._textPos.y);
+    this.ctx.restore();
+    this._saveToHistory();
+    this._cancelText();
+  },
+
+  _cancelText() {
+    this._textPos = null;
+    const overlay = document.getElementById('sp-text-overlay');
+    if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('active'); }
+    const input = document.getElementById('sp-text-input');
+    if (input) input.value = '';
+  },
+
+  // ── Fullscreen ───────────────────────────────────────────────────────────
+  toggleFullscreen() {
+    const container = document.getElementById('scratchpad-container');
+    if (!container) return;
+    this._isFullscreen = !this._isFullscreen;
+    container.classList.toggle('sp-fullscreen', this._isFullscreen);
+    const btn = document.getElementById('sp-fullscreen');
+    if (btn) btn.textContent = this._isFullscreen ? '⊠' : '⛶';
+    requestAnimationFrame(() => this.resizeCanvas());
+  },
+
+  // ── Export PNG ────────────────────────────────────────────────────────────
+  exportPNG() {
+    if (!this.canvas) return;
+    const link = document.createElement('a');
+    link.href = this.canvas.toDataURL('image/png');
+    link.download = `notizblock_${Date.now()}.png`;
+    link.click();
+  },
+
+  // ── Import Banana image ───────────────────────────────────────────────────
+  importBananaImage(src) {
+    if (!src || !this.canvas || !this.ctx) return;
+    this._hasImportedImage = true; // Flag for larger canvas
+    const img = new Image();
+    img.onload = () => {
+      const container = document.getElementById('scratchpad-container');
+      const isHidden = container?.classList.contains('hidden');
+      if (isHidden) {
+        container.classList.remove('hidden');
+        document.getElementById('scratchpad-btn')?.classList.add('hidden');
+      }
+      // Always resize to fit imported image
+      requestAnimationFrame(() => {
+        this.resizeCanvas();
+        this._drawBananaImg(img);
+        this._saveHistory();
+      });
+    };
+    img.src = src;
+  },
+
+  _drawBananaImg(img) {
+    const dpr = window.devicePixelRatio || 1;
+    const cw = this.canvas.width / dpr;
+    const ch = this.canvas.height / dpr;
+    // Draw scaled to fit, centered, with some padding
+    const scale = Math.min(cw / img.width, ch / img.height, 1) * 0.9;
+    const w = img.width * scale;
+    const h = img.height * scale;
+    const x = (cw - w) / 2;
+    const y = (ch - h) / 2;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.drawImage(img, x, y, w, h);
+    if (this._currentSequence) this.drawSequenceOnCanvas(this._currentSequence);
+    this._saveToHistory();
+  },
+
+  // ── Zahlenfolge prefill (unchanged logic) ────────────────────────────────
+  drawSequenceOnCanvas(sequence) {
+    if (!this.ctx || !this.canvas) return;
+    if (!sequence || !Array.isArray(sequence) || sequence.length === 0) return;
+    const ctx = this.ctx;
+    const dpr = window.devicePixelRatio || 1;
+    const canvasW = this.canvas.width / dpr;
+    const canvasH = this.canvas.height / dpr;
     const numCount = sequence.length;
     const fontSize = numCount > 8 ? 16 : 20;
     const arrowGap = numCount > 8 ? 14 : 20;
     const numWidth = numCount > 8 ? 36 : 44;
     const totalWidth = numCount * numWidth + (numCount - 1) * arrowGap;
     const startX = Math.max(10, (canvasW - totalWidth) / 2);
-    const baseY = canvasH - 20; // Bottom of canvas
+    const baseY = canvasH - 20;
 
-    // Draw separator line
     ctx.save();
     ctx.strokeStyle = '#94a3b8';
     ctx.lineWidth = 0.5;
@@ -5211,22 +6176,17 @@ const Scratchpad = {
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Label
     ctx.fillStyle = '#94a3b8';
-    ctx.font = `500 11px Inter, -apple-system, sans-serif`;
+    ctx.font = '500 11px Inter, -apple-system, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('Zahlenfolge — schreibe darüber ↑', 10, baseY - fontSize - 18);
 
-    // Draw each number/blank
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-
     let x = startX + numWidth / 2;
     for (let i = 0; i < numCount; i++) {
       const val = sequence[i];
-
       if (val === null) {
-        // Blank: draw dashed box with "?"
         ctx.strokeStyle = '#F5C542';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([3, 3]);
@@ -5238,198 +6198,58 @@ const Scratchpad = {
         ctx.font = `700 ${fontSize}px Inter, -apple-system, sans-serif`;
         ctx.fillText('?', x, baseY);
       } else {
-        // Number: draw clearly
         ctx.fillStyle = '#e2e8f0';
         ctx.font = `600 ${fontSize}px "SF Mono", "Fira Code", monospace`;
         ctx.fillText(String(val), x, baseY);
       }
-
-      // Arrow between numbers
       if (i < numCount - 1) {
         const arrowX = x + numWidth / 2 + arrowGap / 2;
         ctx.fillStyle = '#64748b';
         ctx.font = `400 ${fontSize - 4}px Inter, sans-serif`;
         ctx.fillText('→', arrowX, baseY);
       }
-
       x += numWidth + arrowGap;
     }
-
     ctx.restore();
   },
 
-  resizeCanvas() {
-    if (!this.canvas) return;
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-    this.canvas.width = rect.width * dpr;
-    this.canvas.height = this.canvasHeight * dpr;
-    this.ctx.scale(dpr, dpr);
-    this.canvas.style.width = rect.width + 'px';
-    this.canvas.style.height = this.canvasHeight + 'px';
-    this.ctx.putImageData(imageData, 0, 0);
-  },
-
-  setMode(mode) {
-    this.mode = mode;
-    document.getElementById('sp-pen')?.classList.toggle('active', mode === 'pen');
-    document.getElementById('sp-highlighter')?.classList.toggle('active', mode === 'highlighter');
-    document.getElementById('sp-eraser')?.classList.toggle('active', mode === 'eraser');
-  },
-
-  setColor(color, btnId) {
-    this.color = color;
-    document.querySelectorAll('.scratchpad-color').forEach(b => b.classList.remove('active'));
-    document.getElementById(btnId)?.classList.add('active');
-  },
-
-  clear(keepPrefill) {
-    if (!this.ctx || !this.canvas) return;
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    // Re-draw the Zahlenfolge prefill if we just cleared user drawings
-    if (keepPrefill && this._currentSequence) {
-      this.drawSequenceOnCanvas(this._currentSequence);
-    }
-  },
-
-  getPos(e) {
-    const rect = this.canvas.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-  },
-
-  startDraw(e) {
-    this.drawing = true;
-    const pos = this.getPos(e);
-    this.lastX = pos.x;
-    this.lastY = pos.y;
-    this.ctx.beginPath();
-    if (this.mode === 'eraser') {
-      this.ctx.globalCompositeOperation = 'destination-out';
-      this.ctx.arc(pos.x, pos.y, 12, 0, Math.PI * 2);
-      this.ctx.fill();
-      this.ctx.globalCompositeOperation = 'source-over';
-    } else if (this.mode === 'highlighter') {
-      this.ctx.globalAlpha = 0.3;
-      this.ctx.arc(pos.x, pos.y, 6, 0, Math.PI * 2);
-      this.ctx.fillStyle = this.color;
-      this.ctx.fill();
-      this.ctx.globalAlpha = 1.0;
-    } else {
-      this.ctx.arc(pos.x, pos.y, 1.2, 0, Math.PI * 2);
-      this.ctx.fillStyle = this.color;
-      this.ctx.fill();
-    }
-  },
-
-  draw(e) {
-    if (!this.drawing) return;
-    const pos = this.getPos(e);
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.lastX, this.lastY);
-    this.ctx.lineTo(pos.x, pos.y);
-
-    if (this.mode === 'eraser') {
-      this.ctx.globalCompositeOperation = 'destination-out';
-      this.ctx.lineWidth = 24;
-      this.ctx.lineCap = 'round';
-      this.ctx.stroke();
-      this.ctx.globalCompositeOperation = 'source-over';
-    } else if (this.mode === 'highlighter') {
-      this.ctx.globalAlpha = 0.3;
-      this.ctx.strokeStyle = this.color;
-      this.ctx.lineWidth = 14;
-      this.ctx.lineCap = 'round';
-      this.ctx.stroke();
-      this.ctx.globalAlpha = 1.0;
-    } else {
-      this.ctx.strokeStyle = this.color;
-      this.ctx.lineWidth = 2.4;
-      this.ctx.lineCap = 'round';
-      this.ctx.lineJoin = 'round';
-      this.ctx.stroke();
-    }
-
-    this.lastX = pos.x;
-    this.lastY = pos.y;
-  },
-
-  stopDraw() {
-    this.drawing = false;
-  },
-
-  // === NOTE SAVING ===
+  // ── Note saving (legacy, kept for compatibility) ─────────────────────────
   async saveNote() {
-    const input = document.getElementById('sp-note-input');
-    if (!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-    if (!Auth.isLoggedIn || !Auth.currentUser) {
-      input.value = '';
-      return;
-    }
-
-    // Get current question context
-    const q = App.questions?.[App.currentIndex];
-    const contextType = q?.type || null;
-    const contextSubtype = q?.subtype || null;
-    const contextQuestion = (q?.content?.question || q?.content?.pattern_description || q?.content?.word || '').substring(0, 200);
-
-    try {
-      const { error } = await Auth.supabase.from('user_notes').insert({
-        user_id: Auth.currentUser.id,
-        note_text: text,
-        context_type: contextType,
-        context_subtype: contextSubtype,
-        context_question: contextQuestion,
-      });
-      if (error) throw error;
-
-      // Show saved confirmation
-      input.value = '';
-      const bar = input.parentElement;
-      const msg = document.createElement('span');
-      msg.className = 'sp-saved-msg';
-      msg.textContent = '✓ Gespeichert!';
-      bar.appendChild(msg);
-      setTimeout(() => msg.remove(), 2000);
-    } catch (e) {
-      console.error('Note save error:', e);
-      input.placeholder = 'Fehler beim Speichern';
-      setTimeout(() => { input.placeholder = 'Notiz speichern...'; }, 2000);
-    }
+    // Kept for backward compat if called elsewhere
   }
 };
 
 // ============================================================
 // ONBOARDING MODULE
 // ============================================================
-/**
- * Neues Onboarding-Modul für MedAT Trainer App (7 Schritte)
- * Ersetzt den bestehenden "const Onboarding = {...}" Block in app.js
- *
- * Nutzt dieselben .ob- CSS-Klassen wie das bisherige Onboarding.
- *
- * Schritte:
- * 1. Spitzname ("Wie dürfen wir dich nennen?")
- * 2. Uni-Wahl (wie Original)
- * 3. Erster Antritt (wie Original)
- * 4. Größte Sorgen (Multi-Select, NEU)
- * 5. Konkrete Schwachstellen (Freitext, NEU)
- * 6. Lade-Animation (angepasste Texte)
- * 7. Willkommen + Paywall (€19,90 Basic / €29,90 Premium)
- */
-
 const Onboarding = {
   currentStep: 1,
-  totalSteps: 7,
+  totalSteps: 9,
   data: {},
-  selectedWorries: [],
+  quizQuestions: [
+    {
+      q: 'Welches Vitamin ist fettlöslich?',
+      options: ['Vitamin C', 'Vitamin D', 'Vitamin B12', 'Folsäure'],
+      correct: 1
+    },
+    {
+      q: 'Was beschreibt die Osmose?',
+      options: ['Gasaustausch', 'Diffusion von Wasser durch eine semipermeable Membran', 'Aktiver Transport von Ionen', 'Enzymkatalyse'],
+      correct: 1
+    },
+    {
+      q: 'Wie viele Kammern hat das menschliche Herz?',
+      options: ['2', '3', '4', '6'],
+      correct: 2
+    }
+  ],
+  quizIdx: 0,
+  quizScore: 0,
 
-  // --- Prüfe ob Onboarding nötig ist (von App.init() aufgerufen) ---
   async checkOnboardingNeeded() {
     if (!Auth.isLoggedIn) return false;
     const uid = Auth.currentUser.id;
+    // Fast localStorage check first (bulletproof fallback)
     const lsKey = 'medat_onboarding_done_' + uid;
     if (localStorage.getItem(lsKey) === 'true') return false;
     try {
@@ -5439,8 +6259,9 @@ const Onboarding = {
         .eq('user_id', uid)
         .maybeSingle();
       if (error) { console.error('Onboarding check error:', error); return false; }
-      if (!data) return true;
+      if (!data) return true; // No record → needs onboarding
       if (data.onboarding_completed) {
+        // Sync localStorage so future checks are instant
         localStorage.setItem(lsKey, 'true');
         return false;
       }
@@ -5451,129 +6272,141 @@ const Onboarding = {
     }
   },
 
-  // --- Starte Onboarding ---
   start() {
     this.currentStep = 1;
     this.data = {};
-    this.selectedWorries = [];
+    this.quizIdx = 0;
+    this.quizScore = 0;
     App.showScreen('screen-onboarding');
     this._showStep(1);
     this._bindEvents();
   },
 
-  // --- Alle Events binden ---
   _bindEvents() {
-    // Schritt 1: Nickname → Weiter-Button
-    const nicknameNext = document.getElementById('ob-nickname-next');
-    const nicknameInput = document.getElementById('ob-nickname');
-    if (nicknameNext) nicknameNext.onclick = () => {
-      const val = nicknameInput?.value?.trim();
-      if (!val) { nicknameInput?.focus(); App.showToast('Bitte gib einen Namen ein 😊'); return; }
-      this.data.display_nickname = val;
-      this._nextStep();
-    };
-    // Enter-Taste für Nickname
-    if (nicknameInput) nicknameInput.onkeydown = (e) => {
-      if (e.key === 'Enter') nicknameNext?.click();
-    };
-
-    // Schritte 2 + 3: ob-option Buttons mit auto-advance (wie Original)
-    document.querySelectorAll('.ob-options:not(#ob-worry-options)').forEach(group => {
-      group.querySelectorAll('.ob-option:not(.ob-multi)').forEach(btn => {
+    // Option buttons (steps 1-4, 6)
+    document.querySelectorAll('.ob-options').forEach(group => {
+      group.querySelectorAll('.ob-option').forEach(btn => {
         btn.onclick = () => {
           const field = group.dataset.field;
           const value = btn.dataset.value;
+          // Visual selection
           group.querySelectorAll('.ob-option').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
+          // Store
           this.data[field] = value;
+          // Auto-advance after brief delay
           setTimeout(() => this._nextStep(), 400);
         };
       });
     });
 
-    // Schritt 4: Sorgen — Multi-Select (kein auto-advance)
-    document.querySelectorAll('.ob-multi').forEach(btn => {
-      btn.onclick = () => {
-        btn.classList.toggle('selected');
-        const worry = btn.dataset.worry;
-        if (btn.classList.contains('selected')) {
-          if (!this.selectedWorries.includes(worry)) this.selectedWorries.push(worry);
-        } else {
-          this.selectedWorries = this.selectedWorries.filter(w => w !== worry);
-        }
-        // Weiter-Button zeigen wenn mindestens 1 ausgewählt
-        const nextBtn = document.getElementById('ob-worry-next');
-        if (nextBtn) nextBtn.style.display = this.selectedWorries.length > 0 ? 'block' : 'none';
-      };
-    });
-    const worryNext = document.getElementById('ob-worry-next');
-    if (worryNext) worryNext.onclick = () => {
-      this.data.biggest_worry = [...this.selectedWorries];
-      this._nextStep();
-    };
-
-    // Schritt 5: Schwachstellen → Weiter + Überspringen
-    const topicsNext = document.getElementById('ob-topics-next');
-    if (topicsNext) topicsNext.onclick = () => {
-      this.data.weak_topics_freetext = document.getElementById('ob-weak-topics')?.value?.trim() || '';
-      this._nextStep();
-    };
-    const topicsSkip = document.getElementById('ob-topics-skip');
-    if (topicsSkip) topicsSkip.onclick = () => {
-      this.data.weak_topics_freetext = '';
-      this._nextStep();
-    };
-
-    // Schritt 7: Paywall
-    const planBasic = document.getElementById('ob-plan-basic');
-    if (planBasic) planBasic.onclick = () => {
+    // Paywall buttons
+    const buyBtn = document.getElementById('ob-buy-btn');
+    if (buyBtn) buyBtn.onclick = () => {
       this._saveOnboarding(true);
-      App.startStripeCheckout('basic');
+      App._startOnboardingCheckout();
     };
-    const planPremium = document.getElementById('ob-plan-premium');
-    if (planPremium) planPremium.onclick = () => {
-      this._saveOnboarding(true);
-      App.startStripeCheckout('premium');
-    };
-    const skipPaywall = document.getElementById('ob-skip-paywall');
-    if (skipPaywall) skipPaywall.onclick = () => {
+    const skipBtn = document.getElementById('ob-skip-paywall');
+    if (skipBtn) skipBtn.onclick = () => {
       this._saveOnboarding(true);
       App.showScreen('screen-home');
-      if (App.loadHomeStats) App.loadHomeStats();
-      const name = this.data.display_nickname || '';
-      App.showToast(`Willkommen${name ? ', ' + name : ''}! 🎉`);
+      App.loadHomeStats();
+      App.showToast('Willkommen beim MedAT Trainer! 🎉');
+      // Show PWA install prompt after onboarding completes
       setTimeout(() => { if (window.showPWAInstallBanner) window.showPWAInstallBanner(); }, 3000);
     };
+
+    // Roadmap → paywall button
+    const toPaywall = document.getElementById('ob-to-paywall');
+    if (toPaywall) toPaywall.onclick = () => this._nextStep();
   },
 
-  // --- Nächster Schritt ---
   _nextStep() {
     if (this.currentStep >= this.totalSteps) return;
     this.currentStep++;
     this._showStep(this.currentStep);
   },
 
-  // --- Zeige Schritt ---
   _showStep(step) {
-    // Alle Steps verstecken, aktuellen zeigen
+    // Hide all, show current
     document.querySelectorAll('.ob-step').forEach(s => s.classList.remove('active'));
     const el = document.querySelector(`.ob-step[data-step="${step}"]`);
     if (el) {
       el.classList.remove('active');
-      void el.offsetWidth; // Re-trigger Animation
+      // Force re-trigger animation
+      void el.offsetWidth;
       el.classList.add('active');
     }
-    // Fortschrittsbalken aktualisieren
+    // Update progress bar
     const pct = ((step - 1) / (this.totalSteps - 1)) * 100;
     const bar = document.getElementById('ob-progress-bar');
     if (bar) bar.style.width = pct + '%';
 
-    // Spezielle Logik pro Schritt
-    if (step === 6) this._runLoadingAnimation();
-    if (step === 7) this._prepareWelcome();
+    // Step-specific init
+    if (step === 5) this._initQuiz();
+    if (step === 7) this._runLoadingAnimation();
+    if (step === 8) this._renderRoadmap();
   },
 
-  // --- Lade-Animation (Schritt 6) ---
+  // ---- Quick Win Quiz ----
+  _initQuiz() {
+    this.quizIdx = 0;
+    this.quizScore = 0;
+    this._renderQuizQuestion();
+  },
+
+  _renderQuizQuestion() {
+    const container = document.getElementById('ob-quiz');
+    if (this.quizIdx >= this.quizQuestions.length) {
+      // Show result
+      const emoji = this.quizScore >= 2 ? '🎉' : '💪';
+      const msg = this.quizScore === 3
+        ? 'Perfekt! Du hast eine starke Basis.'
+        : this.quizScore === 2
+          ? 'Super, 2 von 3 richtig! Du bist auf einem guten Weg.'
+          : 'Kein Problem – genau dafür ist der MedAT Trainer da!';
+      container.innerHTML = `
+        <div class="ob-quiz-result">
+          <div class="ob-emoji">${emoji}</div>
+          <h3>${this.quizScore} von 3 richtig!</h3>
+          <p>${msg}</p>
+          <button class="btn-primary btn-large btn-full" id="ob-quiz-next">Weiter</button>
+        </div>`;
+      document.getElementById('ob-quiz-next').onclick = () => this._nextStep();
+      return;
+    }
+
+    const q = this.quizQuestions[this.quizIdx];
+    container.innerHTML = `
+      <div class="ob-quiz-counter">Frage ${this.quizIdx + 1} von ${this.quizQuestions.length}</div>
+      <div class="ob-quiz-q">${q.q}</div>
+      <div class="ob-quiz-options">
+        ${q.options.map((opt, i) => `<button class="ob-quiz-opt" data-idx="${i}">${opt}</button>`).join('')}
+      </div>`;
+
+    container.querySelectorAll('.ob-quiz-opt').forEach(btn => {
+      btn.onclick = () => {
+        const idx = parseInt(btn.dataset.idx);
+        const isCorrect = idx === q.correct;
+        if (isCorrect) this.quizScore++;
+
+        // Disable all, highlight correct/wrong
+        container.querySelectorAll('.ob-quiz-opt').forEach(b => {
+          b.classList.add('disabled');
+          if (parseInt(b.dataset.idx) === q.correct) b.classList.add('correct');
+          else if (b === btn && !isCorrect) b.classList.add('wrong');
+        });
+
+        // Next question after delay
+        setTimeout(() => {
+          this.quizIdx++;
+          this._renderQuizQuestion();
+        }, 1000);
+      };
+    });
+  },
+
+  // ---- Loading Animation (step 7) ----
   _runLoadingAnimation() {
     const items = document.querySelectorAll('.ob-load-item');
     const bar = document.getElementById('ob-load-bar');
@@ -5586,22 +6419,24 @@ const Onboarding = {
     });
     if (bar) bar.style.width = '0%';
 
-    // Speichere Daten im Hintergrund während Animation läuft
-    this._saveOnboarding(false);
-    this._generateTutorPrompts();
-
     items.forEach((item, i) => {
       const delay = parseInt(item.dataset.delay) || i * 1500;
+
+      // Start
       setTimeout(() => {
         item.classList.add('active');
         if (bar) bar.style.width = ((i + 0.5) / items.length * 100) + '%';
       }, delay);
+
+      // Complete
       setTimeout(() => {
         item.classList.remove('active');
         item.classList.add('done');
         item.querySelector('.ob-load-check').textContent = '✓';
         completed++;
         if (bar) bar.style.width = (completed / items.length * 100) + '%';
+
+        // All done → auto-advance
         if (completed === items.length) {
           setTimeout(() => this._nextStep(), 800);
         }
@@ -5609,82 +6444,38 @@ const Onboarding = {
     });
   },
 
-  // --- Welcome-Schritt vorbereiten ---
-  _prepareWelcome() {
-    const title = document.getElementById('ob-welcome-title');
-    if (title && this.data.display_nickname) {
-      title.textContent = `${this.data.display_nickname}, dein Training ist bereit!`;
-    }
-  },
+  // ---- Roadmap (step 8) ----
+  _renderRoadmap() {
+    const container = document.getElementById('ob-roadmap');
+    const weak = this.data.weakest_section || 'bms';
+    const names = { bms: 'BMS', tv: 'Textverständnis', kff: 'Kognitive Fähigkeiten', sek: 'Soziales Entscheiden' };
+    const weakName = names[weak] || 'BMS';
 
-  // --- Tutor-Prompts generieren basierend auf weak_topics_freetext ---
-  async _generateTutorPrompts() {
-    if (!Auth.isLoggedIn) return;
-    const uid = Auth.currentUser.id;
-    const topics = (this.data.weak_topics_freetext || '').toLowerCase();
-    if (!topics) return;
+    // Sections minus the weak one (it comes first)
+    const others = Object.entries(names).filter(([k]) => k !== weak);
 
-    const tutors = [
-      {
-        name: 'Banana',
-        keywords: ['bms', 'bio', 'chemie', 'physik', 'mathe', 'hormone', 'stöchiometrie', 'aminosäuren', 'kohlenwasserstoffe', 'enzyme', 'zelle'],
-        prompt: `Erstelle ein lustiges Merkbild (Mnemonic) für: ${this.data.weak_topics_freetext}. Nutze visuelle Assoziationen und Geschichten, die man nicht vergisst.`
-      },
-      {
-        name: 'Professor Grimm',
-        keywords: ['bms', 'bio', 'chemie', 'physik', 'mathe', 'hormone', 'stöchiometrie', 'galvanisch', 'osmose', 'enzyme', 'dna'],
-        prompt: `Erkläre mir Schritt für Schritt: ${this.data.weak_topics_freetext}. Nutze Analogien und Beispiele, als würde ich es zum ersten Mal hören.`
-      },
-      {
-        name: 'Rico',
-        keywords: ['kff', 'zahlenfolgen', 'kognitiv', 'muster', 'logik', 'sequenz'],
-        prompt: `Gib mir 5 typische MedAT-Zahlenfolgen zu: ${this.data.weak_topics_freetext}. Zeig mir die Muster und Lösungsstrategien.`
-      },
-      {
-        name: 'Jojo',
-        keywords: ['kff', 'figuren', 'räumlich', 'geometrie', 'figural', 'würfel'],
-        prompt: `Trainiere mich in figuralem Reasoning: ${this.data.weak_topics_freetext}. Gib mir Übungen mit Erklärungen.`
-      },
-      {
-        name: 'Drillmaster',
-        keywords: ['schnell', 'speed', 'drill', 'zeitdruck', 'bms'],
-        prompt: `Erstelle einen Schnelltest zu: ${this.data.weak_topics_freetext}. 10 Fragen, maximale Geschwindigkeit!`
-      },
-      {
-        name: 'Lilly',
-        keywords: ['sek', 'sozial', 'entscheiden', 'ethik', 'emotion'],
-        prompt: `Gib mir realistische SEK-Szenarien zu: ${this.data.weak_topics_freetext}. Erkläre die ethische Dimension.`
-      }
+    const steps = [
+      { label: 'Jetzt', title: `${weakName} – Dein Fokus-Bereich`, desc: 'Starte mit dem, was dir Sorgen macht. Gezielte Übungen und Erklärungen.', now: true },
+      { label: 'W2', title: `${others[0][1]} aufbauen`, desc: 'Erweitere dein Training auf den nächsten Testteil.', now: false },
+      { label: 'W3', title: `${others[1][1]} & ${others[2][1]}`, desc: 'Alle Testteile abdecken und Schwächen ausgleichen.', now: false },
+      { label: 'W4+', title: 'PDF-Simulationen unter Zeitdruck', desc: 'Komplette Prüfungssimulationen – wie am echten MedAT-Tag.', now: false },
     ];
 
-    const prompts = [];
-    for (const tutor of tutors) {
-      const isRelevant = tutor.keywords.some(kw => topics.includes(kw));
-      // Drillmaster immer, wenn Themen angegeben
-      if (isRelevant || tutor.name === 'Drillmaster') {
-        prompts.push({
-          user_id: uid,
-          tutor_name: tutor.name,
-          prompt_text: tutor.prompt,
-          topic: this.data.weak_topics_freetext.substring(0, 200),
-          created_at: new Date().toISOString()
-        });
-      }
-    }
-
-    if (prompts.length > 0) {
-      try {
-        await Auth.supabase.from('onboarding_saved_prompts').insert(prompts);
-      } catch (e) {
-        console.warn('Prompts speichern fehlgeschlagen:', e);
-      }
-    }
+    container.innerHTML = steps.map(s => `
+      <div class="ob-road-item">
+        <div class="ob-road-dot ${s.now ? 'now' : 'later'}">${s.label}</div>
+        <div class="ob-road-text">
+          <h4>${s.title}</h4>
+          <p>${s.desc}</p>
+        </div>
+      </div>`).join('');
   },
 
-  // --- Onboarding-Daten in Supabase speichern ---
+  // ---- Save to Supabase ----
   async _saveOnboarding(completed) {
     if (!Auth.isLoggedIn) return;
     const uid = Auth.currentUser.id;
+    // Always set localStorage immediately (bulletproof)
     if (completed) {
       localStorage.setItem('medat_onboarding_done_' + uid, 'true');
     }
@@ -5693,30 +6484,25 @@ const Onboarding = {
         user_id: uid,
         target_uni: this.data.target_uni || null,
         is_first_attempt: this.data.is_first_attempt === 'true' ? true : this.data.is_first_attempt === 'false' ? false : null,
-        biggest_worry: this.data.biggest_worry || this.selectedWorries || [],
-        weak_topics_freetext: this.data.weak_topics_freetext || null,
+        weakest_section: this.data.weakest_section || null,
+        confidence_level: this.data.confidence_level || null,
+        preferred_study_time: this.data.preferred_study_time || null,
         onboarding_completed: completed,
         onboarding_completed_at: completed ? new Date().toISOString() : null,
         updated_at: new Date().toISOString()
       };
+
       const { error } = await Auth.supabase
         .from('user_onboarding')
         .upsert(payload, { onConflict: 'user_id' });
-      if (error) console.error('Onboarding save error:', error);
 
-      // Nickname in user_profiles speichern
-      if (this.data.display_nickname) {
-        await Auth.supabase
-          .from('user_profiles')
-          .update({ display_nickname: this.data.display_nickname })
-          .eq('user_id', uid);
-      }
+      if (error) console.error('Onboarding save error:', error);
+      else console.log('Onboarding saved successfully:', completed);
     } catch (e) {
       console.error('Onboarding save error:', e);
     }
   }
 };
-
 
 // Start
 document.addEventListener('DOMContentLoaded', () => App.init().catch(e => {

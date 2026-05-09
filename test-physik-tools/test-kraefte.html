@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kräfte · MedAT Physik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;--purple:#9b7fc4;--purple-deep:#7a60a8;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-deep:#e07a55;--coral-soft:#fde8e0;
+    --amber:#d96540;--amber-deep:#a8431f;--amber-soft:#fde2d0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:980px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--amber-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--amber-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--amber),var(--amber-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(217,101,64,.4);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--amber);color:var(--amber-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--amber-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--amber-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--amber-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(217,101,64,.2);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--amber-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* KRAFT-KARTEN GRID */
+  .force-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .force-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1)}
+  .force-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--amber-deep)}
+  .force-img{height:140px;background:radial-gradient(ellipse at center,#1f2c40 0%,#080c14 100%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .force-img svg{display:block;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+  .force-info{padding:14px}
+  .force-info h4{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:3px}
+  .force-info .formula{font-family:'JetBrains Mono',monospace;font-size:.84rem;color:var(--amber-deep);font-weight:800;margin-bottom:6px;background:var(--amber-soft);padding:5px 10px;border-radius:8px;display:inline-block}
+  .force-info p{font-size:.78rem;color:var(--text-secondary);line-height:1.5}
+
+  /* MODAL — Steckbrief */
+  .modal{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fadeUp .3s ease}
+  .modal-card{background:var(--surface);border-radius:var(--radius);max-width:620px;width:100%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-height:92vh;overflow-y:auto}
+  .modal-img{height:240px;background:radial-gradient(ellipse at center,#1f2c40 0%,#080c14 100%);display:flex;align-items:center;justify-content:center;padding:14px}
+  .modal-img svg{filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));max-width:100%;max-height:100%}
+  .modal-head{padding:20px 24px 14px;background:linear-gradient(180deg,var(--amber-soft),var(--bg-light))}
+  .modal-head h3{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px;letter-spacing:-.5px}
+  .modal-head .formula{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:800;color:var(--amber-deep);background:#fff;padding:6px 14px;border-radius:10px;display:inline-block;box-shadow:var(--shadow-sm)}
+  .modal-body{padding:18px 24px 24px}
+
+  .steckbrief{display:flex;flex-direction:column;gap:12px}
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--amber-deep)}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--amber-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--amber-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--amber-deep);font-weight:700}
+  .sb-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px}
+  .sb-list li{font-size:.84rem;color:var(--text);line-height:1.55;padding-left:18px;position:relative}
+  .sb-list li::before{content:'•';position:absolute;left:5px;color:var(--amber-deep);font-weight:800}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.klinik h4{color:var(--pink-deep)}
+  .sb-section.klinik h4 [data-lucide]{color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
+  .sb-section.medat h4{color:var(--green-deep)}
+  .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+  .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.15);border:none;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:5;backdrop-filter:blur(4px)}
+
+  /* WIRKUNGS-VISUALISIERUNG */
+  .scene-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+  .scene-btn{padding:11px 10px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .scene-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .scene-btn:hover:not(.active){border-color:var(--amber-deep);transform:translateY(-1px)}
+  .scene-btn.active{background:linear-gradient(135deg,var(--amber),var(--amber-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(217,101,64,.3)}
+  .scene-btn.active small{color:rgba(255,255,255,.85)}
+
+  .scene-stage{background:radial-gradient(ellipse at center,#1f2c40 0%,#080c14 100%);border-radius:var(--radius);padding:14px;overflow-x:auto;box-shadow:inset 0 0 60px rgba(0,0,0,0.5);margin-bottom:14px}
+  .scene-stage svg{display:block;margin:0 auto;max-width:100%}
+
+  .slider-row{margin:14px 0}
+  .slider-row .label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .slider-row label{font-size:.85rem;font-weight:700;color:var(--text)}
+  .slider-row .val{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--amber-deep);font-size:.95rem}
+  .scene-slider{-webkit-appearance:none;appearance:none;width:100%;height:8px;background:var(--bg-warm);border-radius:4px;outline:none;cursor:pointer}
+  .scene-slider::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;background:linear-gradient(135deg,var(--amber),var(--amber-deep));border-radius:50%;cursor:pointer;box-shadow:0 2px 6px rgba(217,101,64,.4);border:3px solid #fff}
+  .scene-slider::-moz-range-thumb{width:24px;height:24px;background:linear-gradient(135deg,var(--amber),var(--amber-deep));border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 2px 6px rgba(217,101,64,.4)}
+
+  .scene-result{background:var(--bg-light);border-radius:14px;padding:14px;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:.86rem;line-height:1.7}
+  .scene-result b{color:var(--amber-deep)}
+  .scene-result .val-big{font-size:1.4rem;font-weight:800;color:var(--amber-deep);letter-spacing:-.5px}
+
+  /* NEWTON */
+  .newton-grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:780px){.newton-grid{grid-template-columns:1fr 1fr 1fr}}
+  .newton-card{background:linear-gradient(135deg,var(--surface),var(--bg-light));border:1.5px solid var(--border-light);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm)}
+  .newton-num{display:inline-block;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--amber),var(--amber-deep));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.1rem;margin-bottom:10px;box-shadow:0 4px 10px rgba(217,101,64,.3)}
+  .newton-card h4{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:6px}
+  .newton-card .formula{font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:800;color:var(--amber-deep);background:var(--amber-soft);padding:6px 10px;border-radius:8px;display:inline-block;margin:6px 0}
+  .newton-card p{font-size:.82rem;color:var(--text-secondary);line-height:1.55}
+  .newton-card p b{color:var(--text)}
+  .newton-card .ex{font-size:.78rem;color:var(--text-secondary);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light)}
+
+  /* RECHNER */
+  .calc-formula-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-bottom:14px}
+  .calc-formula-card{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1.5px solid var(--border-light);border-radius:14px;padding:11px 13px;cursor:pointer;transition:all .2s;text-align:center}
+  .calc-formula-card:hover{transform:translateY(-2px);border-color:var(--amber-deep);box-shadow:var(--shadow-sm)}
+  .calc-formula-card.active{background:linear-gradient(135deg,var(--amber-soft),#fff);border-color:var(--amber-deep);box-shadow:0 4px 14px rgba(217,101,64,.2)}
+  .calc-formula-card .nm{font-size:.78rem;color:var(--text-secondary);font-weight:600;margin-bottom:3px}
+  .calc-formula-card .ltx{min-height:24px;display:flex;align-items:center;justify-content:center}
+  .calc-formula-card .ltx .katex{font-size:.95rem!important;color:var(--amber-deep)}
+
+  .calc-arena{background:linear-gradient(135deg,#fff,var(--amber-soft));border-radius:var(--radius);padding:24px;text-align:center;margin:14px 0;box-shadow:var(--shadow-sm)}
+  .calc-base-display{min-height:40px;margin-bottom:6px}
+  .calc-base-display .katex{font-size:1.6rem!important}
+  .calc-base-name{font-size:.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+
+  .calc-var-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:14px}
+  .calc-var-btn{padding:11px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .calc-var-btn .var-name{min-height:18px;display:flex;align-items:center;justify-content:center}
+  .calc-var-btn .var-name .katex{font-size:1.05rem!important}
+  .calc-var-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .calc-var-btn:hover:not(.active){border-color:var(--amber-deep);transform:translateY(-1px)}
+  .calc-var-btn.active{background:linear-gradient(135deg,var(--amber),var(--amber-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(217,101,64,.3)}
+  .calc-var-btn.active .var-name .katex,.calc-var-btn.active small{color:#fff}
+
+  .calc-rearranged-display{background:var(--bg-light);border-radius:14px;padding:18px;text-align:center;margin:14px 0;border-left:3px solid var(--amber-deep);min-height:44px;display:flex;align-items:center;justify-content:center}
+  .calc-rearranged-display .katex{font-size:1.5rem!important;color:var(--amber-deep)}
+
+  .calc-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+  .calc-input-card{background:var(--bg-light);border:1.5px solid var(--border-light);border-radius:14px;padding:12px}
+  .calc-input-card .lbl{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+  .calc-input-card .lbl .katex{font-size:1rem!important;color:var(--amber-deep)}
+  .calc-input-card .input-row{display:flex;gap:6px;align-items:center}
+  .calc-input-card input{flex:1;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;background:var(--surface);color:var(--text);transition:all .2s}
+  .calc-input-card input:focus{outline:none;border-color:var(--amber-deep);box-shadow:0 0 0 3px rgba(217,101,64,.15)}
+  .calc-input-card .unit{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--text-secondary);font-weight:700}
+
+  .calc-result{background:linear-gradient(135deg,var(--mint),#fff);border-left:4px solid var(--success);border-radius:0 14px 14px 0;padding:18px;margin:14px 0;text-align:center}
+  .calc-result .lbl{font-size:.78rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+  .calc-result .val{font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:900;color:var(--success);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .calc-result .val .unit{font-size:1rem;color:var(--text-secondary);margin-left:6px;font-weight:700}
+  .calc-result.error{background:linear-gradient(135deg,var(--coral-soft),#fff);border-left-color:var(--pink-deep)}
+  .calc-result.error .val{color:var(--pink-deep)}
+
+  .calc-steps{background:var(--bg-light);border-radius:14px;padding:14px 16px;margin-top:10px;display:none}
+  .calc-steps.show{display:block;animation:fadeUp .3s ease}
+  .calc-steps .step{padding:10px 0;border-bottom:1px dashed var(--border-light);display:flex;gap:14px;align-items:center}
+  .calc-steps .step:last-child{border-bottom:none;font-weight:700}
+  .calc-steps .step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--amber-deep);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem}
+  .calc-steps .step-content{flex:1;display:flex;align-items:center}
+  .calc-steps .step-content .katex{font-size:1.05rem!important}
+
+  /* MATCH */
+  .match-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:640px){.match-mode-row{grid-template-columns:repeat(3,1fr)}}
+  .match-mode-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .match-mode-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .match-mode-btn:hover:not(.active){border-color:var(--amber-deep);transform:translateY(-1px)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--amber),var(--amber-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(217,101,64,.3)}
+  .match-mode-btn.active small{color:rgba(255,255,255,.85)}
+
+  .match-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .match-stat{background:var(--surface);padding:10px;border-radius:12px;text-align:center;border:1px solid var(--border-light)}
+  .match-stat .num{font-size:1.4rem;font-weight:800}
+  .match-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600}
+
+  .match-pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .match-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;text-align:center}
+  .match-list{display:flex;flex-direction:column;gap:8px}
+  .match-item{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;cursor:pointer;font-size:.84rem;transition:all .15s;font-weight:600;line-height:1.4}
+  .match-item.formula{font-family:'JetBrains Mono',monospace}
+  .match-item:hover:not(.matched){border-color:var(--amber-deep);transform:translateY(-1px)}
+  .match-item.selected{border-color:var(--gold);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(245,197,66,.2)}
+  .match-item.matched{background:rgba(109,184,138,.12);border-color:var(--success);color:var(--success);cursor:default;opacity:.85}
+  .match-item.wrong{border-color:var(--pink);background:rgba(224,123,139,.12);animation:wrongShake .35s ease}
+  @keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .match-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;line-height:1.55}
+  .match-status.show{display:block;animation:fadeUp .3s ease}
+  .match-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--amber-deep);background:rgba(217,101,64,.05);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--gold));transition:width .4s}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--purple-deep);flex-shrink:0;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--amber),var(--amber-deep));color:#fff;box-shadow:0 4px 14px rgba(217,101,64,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(217,101,64,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--amber-deep);color:var(--amber-deep);transform:translateY(-2px)}
+  .btn [data-lucide]{width:15px;height:15px}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  @media(max-width:520px){.header h1{font-size:1.15rem}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="zap"></i></div>
+    <div>
+      <h1>Kräfte</h1>
+      <p>Übersicht · Wirkung · Newton · Zuordnung · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="overview"><i data-lucide="grid-3x3"></i>Übersicht</button>
+  <button class="tab" data-tab="scenes"><i data-lucide="move-3d"></i>Wirkung</button>
+  <button class="tab" data-tab="newton"><i data-lucide="atom"></i>Newton</button>
+  <button class="tab" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="match"><i data-lucide="link"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: ÜBERSICHT ============ -->
+  <div class="section active" id="overview">
+    <div class="hero-strip">
+      <h2><i data-lucide="grid-3x3"></i>Die wichtigsten Kräfte</h2>
+      <p>Eine Kraft ist eine vektorielle Größe (Betrag + Richtung), die Bewegung ändert oder Verformung erzeugt. Einheit: Newton (N) = kg·m/s². Klick auf eine Kraft für den vollen Lehrbuch-Steckbrief.</p>
+    </div>
+
+    <div class="card">
+      <div class="force-grid" id="forceGrid"></div>
+    </div>
+
+    <div class="card">
+      <h2><i data-lucide="info"></i>Kraft als Vektor</h2>
+      <p class="lead">Jede Kraft hat <b>Betrag, Richtung und Angriffspunkt</b>. Mehrere Kräfte addieren sich vektoriell zur <b>resultierenden Kraft F<sub>res</sub></b>.</p>
+      <div class="key-fact"><i data-lucide="check"></i><div><b>Gleichgewicht:</b> ΣF = 0 → keine Beschleunigung. <b>Resultierende ≠ 0</b> → Beschleunigung in Richtung von F<sub>res</sub>.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 2: WIRKUNG ============ -->
+  <div class="section" id="scenes">
+    <div class="hero-strip">
+      <h2><i data-lucide="move-3d"></i>Kräfte in Aktion</h2>
+      <p>Wähle eine Szene — verschiebe den Slider und sieh, wie sich die Kräfte ändern. Die Vektorpfeile zeigen Richtung und Betrag, die Berechnung läuft live.</p>
+    </div>
+
+    <div class="card">
+      <div class="scene-controls" id="sceneControls"></div>
+
+      <div class="scene-stage">
+        <svg id="sceneSvg" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet" width="100%"></svg>
+      </div>
+
+      <div class="slider-row">
+        <div class="label-row">
+          <label id="sceneSliderLabel">—</label>
+          <span class="val" id="sceneSliderVal">—</span>
+        </div>
+        <input class="scene-slider" id="sceneSlider" type="range" min="0" max="100" step="1" value="50">
+      </div>
+
+      <div class="scene-result" id="sceneResult">—</div>
+
+      <div class="key-fact" id="sceneFact"><i data-lucide="info"></i><div>—</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: NEWTON ============ -->
+  <div class="section" id="newton">
+    <div class="hero-strip">
+      <h2><i data-lucide="atom"></i>Newton'sche Gesetze</h2>
+      <p>Drei einfache Sätze — die Grundlage der gesamten klassischen Mechanik. Jeder ist eine direkte Aussage über Kräfte und Bewegung.</p>
+    </div>
+
+    <div class="newton-grid">
+      <div class="newton-card">
+        <span class="newton-num">1</span>
+        <h4>Trägheitsprinzip</h4>
+        <p><b>Ohne resultierende Kraft</b> bleibt ein Körper in Ruhe oder bewegt sich gleichförmig geradlinig.</p>
+        <div class="formula">ΣF = 0 ⇒ v = const.</div>
+        <p class="ex">Beispiel: Eishockey-Puck gleitet (fast) reibungsfrei mit konstanter Geschwindigkeit weiter.</p>
+      </div>
+      <div class="newton-card">
+        <span class="newton-num">2</span>
+        <h4>Aktionsprinzip</h4>
+        <p><b>Beschleunigung</b> ist proportional zur Kraft, in deren Richtung — umgekehrt proportional zur Masse.</p>
+        <div class="formula">F = m · a</div>
+        <p class="ex">Beispiel: 1 N beschleunigt 1 kg mit 1 m/s². Beim Auto: F = m·a → schwerere Autos brauchen mehr Kraft.</p>
+      </div>
+      <div class="newton-card">
+        <span class="newton-num">3</span>
+        <h4>Wechselwirkungsprinzip</h4>
+        <p><b>actio = reactio.</b> Übt Körper A eine Kraft auf B aus, übt B eine gleich große, entgegengesetzte Kraft auf A aus.</p>
+        <div class="formula">F<sub>A→B</sub> = − F<sub>B→A</sub></div>
+        <p class="ex">Beispiel: Du drückst die Erde mit deinem Gewicht — die Erde drückt mit gleicher Kraft auf dich (Normalkraft).</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><i data-lucide="info"></i>Konsequenzen</h2>
+      <div class="key-fact"><i data-lucide="check"></i><div><b>Trägheit braucht Masse:</b> große Masse → schwer in Bewegung zu setzen, schwer abzubremsen (z. B. Lastwagen).</div></div>
+      <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Impuls p = m·v:</b> Das 2. Gesetz lautet allgemeiner F = dp/dt. Kraft ist Änderung des Impulses pro Zeit.</div></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB: RECHNER ============ -->
+  <div class="section" id="rechner">
+    <div class="hero-strip">
+      <h2><i data-lucide="calculator"></i>Formel-Rechner mit Umformung</h2>
+      <p>Wähle eine Formel · wähle die gesuchte Größe — Tool stellt die Formel automatisch nach dieser Variable um (echte mathematische Schreibweise mit KaTeX), berechnet das Ergebnis live und zeigt den Lösungsweg Schritt für Schritt.</p>
+    </div>
+
+    <div class="card">
+      <h3>Formel wählen</h3>
+      <div class="calc-formula-grid" id="calcFormulaGrid"></div>
+
+      <div class="calc-arena">
+        <div class="calc-base-display" id="calcBaseDisplay"></div>
+        <div class="calc-base-name" id="calcBaseName">—</div>
+      </div>
+
+      <h3>Wonach willst du auflösen?</h3>
+      <div class="calc-var-row" id="calcVarRow"></div>
+
+      <div class="calc-rearranged-display" id="calcRearrangedDisplay"></div>
+
+      <h3>Werte einsetzen</h3>
+      <div class="calc-inputs" id="calcInputs"></div>
+
+      <div class="calc-result" id="calcResult"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="calcStepsBtn"><i data-lucide="list-ordered"></i>Lösungsweg zeigen</button>
+        <button class="btn ghost" id="calcResetBtn"><i data-lucide="rotate-ccw"></i>Werte zurücksetzen</button>
+      </div>
+
+      <div class="calc-steps" id="calcSteps"></div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: ZUORDNUNG ============ -->
+  <div class="section" id="match">
+    <div class="hero-strip">
+      <h2><i data-lucide="link"></i>Zuordnungs-Spiel</h2>
+      <p>Drei Modi: Kraft → Formel, Kraft → Beispiel/Anwendung, Formel → Einheit/Größe.</p>
+    </div>
+
+    <div class="card">
+      <h3>Modus wählen</h3>
+      <div class="match-mode-row" id="matchModeRow"></div>
+
+      <div class="match-stats">
+        <div class="match-stat"><div class="num" id="matchOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="match-stat"><div class="num" id="matchBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="match-stat"><div class="num" id="matchLeft">10</div><div class="lbl">Übrig</div></div>
+      </div>
+
+      <div class="match-pairs">
+        <div class="match-col"><h4 id="matchLeftLabel">Kraft</h4><div class="match-list" id="matchLeft1"></div></div>
+        <div class="match-col"><h4 id="matchRightLabel">Formel</h4><div class="match-list" id="matchRight"></div></div>
+      </div>
+
+      <div class="match-status" id="matchStatus"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="matchReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+        <button class="btn ghost" id="matchNext"><i data-lucide="arrow-right"></i>Nächster Modus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">15 Fragen</span></h2>
+      <p class="lead">Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal" id="forceModal" onclick="if(event.target===this)closeF()">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeF()"><i data-lucide="x"></i></button>
+    <div class="modal-img" id="mImg"></div>
+    <div class="modal-head">
+      <h3 id="mName">—</h3>
+      <span class="formula" id="mFormula">—</span>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='match') initMatch();
+    if(t.dataset.tab==='scenes') ensureScene();
+    if(t.dataset.tab==='rechner') ensureCalc();
+  });
+});
+
+/* ===== RECHNER mit Umformung + KaTeX ===== */
+function kx(latex,el,display){
+  if(!window.katex) return;
+  try{katex.render(latex,el,{throwOnError:false,displayMode:!!display})}catch(e){el.textContent=latex}
+}
+function fmtNum(n){
+  if(!isFinite(n)) return '∞';
+  if(Math.abs(n)<0.001||Math.abs(n)>10000) return n.toExponential(3);
+  return parseFloat(n.toFixed(4)).toString();
+}
+
+const CALC_FORMULAS=[
+  {key:'gewicht',name:'Gewichtskraft',base:'F_G = m \\cdot g',desc:'Erdanziehung',
+    vars:[
+      {k:'F_G',l:'F_G',u:'N',ltx:'F_G = m \\cdot g',def:null,solve:({m,g})=>m*g,
+        steps:({m,g},r)=>['F_G = m \\cdot g',`F_G = ${m} \\,\\text{kg} \\cdot ${g} \\,\\text{m/s}^2`,`F_G = ${fmtNum(r)} \\,\\text{N}`]},
+      {k:'m',l:'m',u:'kg',ltx:'m = \\dfrac{F_G}{g}',def:null,solve:({F_G,g})=>F_G/g,
+        steps:({F_G,g},r)=>['F_G = m \\cdot g',`m = \\dfrac{F_G}{g}`,`m = \\dfrac{${F_G} \\,\\text{N}}{${g} \\,\\text{m/s}^2}`,`m = ${fmtNum(r)} \\,\\text{kg}`]},
+      {k:'g',l:'g',u:'m/s²',ltx:'g = \\dfrac{F_G}{m}',def:9.81,solve:({F_G,m})=>F_G/m,
+        steps:({F_G,m},r)=>['F_G = m \\cdot g',`g = \\dfrac{F_G}{m}`,`g = \\dfrac{${F_G} \\,\\text{N}}{${m} \\,\\text{kg}}`,`g = ${fmtNum(r)} \\,\\text{m/s}^2`]}
+    ],
+    defaults:{m:10,g:9.81,F_G:98.1}},
+
+  {key:'newton',name:'Newton 2 (F = m·a)',base:'F = m \\cdot a',desc:'Aktionsprinzip',
+    vars:[
+      {k:'F',l:'F',u:'N',ltx:'F = m \\cdot a',solve:({m,a})=>m*a,
+        steps:({m,a},r)=>['F = m \\cdot a',`F = ${m} \\,\\text{kg} \\cdot ${a} \\,\\text{m/s}^2`,`F = ${fmtNum(r)} \\,\\text{N}`]},
+      {k:'m',l:'m',u:'kg',ltx:'m = \\dfrac{F}{a}',solve:({F,a})=>F/a,
+        steps:({F,a},r)=>['F = m \\cdot a',`m = \\dfrac{F}{a}`,`m = \\dfrac{${F} \\,\\text{N}}{${a} \\,\\text{m/s}^2}`,`m = ${fmtNum(r)} \\,\\text{kg}`]},
+      {k:'a',l:'a',u:'m/s²',ltx:'a = \\dfrac{F}{m}',solve:({F,m})=>F/m,
+        steps:({F,m},r)=>['F = m \\cdot a',`a = \\dfrac{F}{m}`,`a = \\dfrac{${F} \\,\\text{N}}{${m} \\,\\text{kg}}`,`a = ${fmtNum(r)} \\,\\text{m/s}^2`]}
+    ],
+    defaults:{F:100,m:10,a:10}},
+
+  {key:'reibung',name:'Reibungskraft',base:'F_R = \\mu \\cdot F_N',desc:'Coulomb-Reibung',
+    vars:[
+      {k:'F_R',l:'F_R',u:'N',ltx:'F_R = \\mu \\cdot F_N',solve:({mu,F_N})=>mu*F_N,
+        steps:({mu,F_N},r)=>['F_R = \\mu \\cdot F_N',`F_R = ${mu} \\cdot ${F_N} \\,\\text{N}`,`F_R = ${fmtNum(r)} \\,\\text{N}`]},
+      {k:'mu',l:'\\mu',u:'',ltx:'\\mu = \\dfrac{F_R}{F_N}',solve:({F_R,F_N})=>F_R/F_N,
+        steps:({F_R,F_N},r)=>['F_R = \\mu \\cdot F_N',`\\mu = \\dfrac{F_R}{F_N}`,`\\mu = \\dfrac{${F_R}}{${F_N}}`,`\\mu = ${fmtNum(r)}`]},
+      {k:'F_N',l:'F_N',u:'N',ltx:'F_N = \\dfrac{F_R}{\\mu}',solve:({F_R,mu})=>F_R/mu,
+        steps:({F_R,mu},r)=>['F_R = \\mu \\cdot F_N',`F_N = \\dfrac{F_R}{\\mu}`,`F_N = \\dfrac{${F_R}}{${mu}}`,`F_N = ${fmtNum(r)} \\,\\text{N}`]}
+    ],
+    defaults:{F_R:30,mu:0.3,F_N:100}},
+
+  {key:'feder',name:'Federkraft (Hooke)',base:'F = D \\cdot s',desc:'Hooke\'sches Gesetz',
+    vars:[
+      {k:'F',l:'F',u:'N',ltx:'F = D \\cdot s',solve:({D,s})=>D*s,
+        steps:({D,s},r)=>['F = D \\cdot s',`F = ${D} \\,\\text{N/m} \\cdot ${s} \\,\\text{m}`,`F = ${fmtNum(r)} \\,\\text{N}`]},
+      {k:'D',l:'D',u:'N/m',ltx:'D = \\dfrac{F}{s}',solve:({F,s})=>F/s,
+        steps:({F,s},r)=>['F = D \\cdot s',`D = \\dfrac{F}{s}`,`D = \\dfrac{${F} \\,\\text{N}}{${s} \\,\\text{m}}`,`D = ${fmtNum(r)} \\,\\text{N/m}`]},
+      {k:'s',l:'s',u:'m',ltx:'s = \\dfrac{F}{D}',solve:({F,D})=>F/D,
+        steps:({F,D},r)=>['F = D \\cdot s',`s = \\dfrac{F}{D}`,`s = \\dfrac{${F} \\,\\text{N}}{${D} \\,\\text{N/m}}`,`s = ${fmtNum(r)} \\,\\text{m}`]}
+    ],
+    defaults:{F:5,D:50,s:0.1}},
+
+  {key:'zentripetal',name:'Zentripetalkraft',base:'F_z = \\dfrac{m \\cdot v^2}{r}',desc:'Kreisbewegung',
+    vars:[
+      {k:'F_z',l:'F_z',u:'N',ltx:'F_z = \\dfrac{m \\cdot v^2}{r}',solve:({m,v,r})=>(m*v*v)/r,
+        steps:({m,v,r},res)=>['F_z = \\dfrac{m \\cdot v^2}{r}',`F_z = \\dfrac{${m} \\cdot ${v}^2}{${r}}`,`F_z = \\dfrac{${m*v*v}}{${r}}`,`F_z = ${fmtNum(res)} \\,\\text{N}`]},
+      {k:'m',l:'m',u:'kg',ltx:'m = \\dfrac{F_z \\cdot r}{v^2}',solve:({F_z,v,r})=>(F_z*r)/(v*v),
+        steps:({F_z,v,r},res)=>['F_z = \\dfrac{m \\cdot v^2}{r}',`m = \\dfrac{F_z \\cdot r}{v^2}`,`m = \\dfrac{${F_z} \\cdot ${r}}{${v}^2}`,`m = ${fmtNum(res)} \\,\\text{kg}`]},
+      {k:'v',l:'v',u:'m/s',ltx:'v = \\sqrt{\\dfrac{F_z \\cdot r}{m}}',solve:({F_z,m,r})=>Math.sqrt((F_z*r)/m),
+        steps:({F_z,m,r},res)=>['F_z = \\dfrac{m \\cdot v^2}{r}',`v^2 = \\dfrac{F_z \\cdot r}{m}`,`v = \\sqrt{\\dfrac{${F_z} \\cdot ${r}}{${m}}}`,`v = ${fmtNum(res)} \\,\\text{m/s}`]},
+      {k:'r',l:'r',u:'m',ltx:'r = \\dfrac{m \\cdot v^2}{F_z}',solve:({F_z,m,v})=>(m*v*v)/F_z,
+        steps:({F_z,m,v},res)=>['F_z = \\dfrac{m \\cdot v^2}{r}',`r = \\dfrac{m \\cdot v^2}{F_z}`,`r = \\dfrac{${m} \\cdot ${v}^2}{${F_z}}`,`r = ${fmtNum(res)} \\,\\text{m}`]}
+    ],
+    defaults:{m:2,v:10,r:5,F_z:40}},
+
+  {key:'auftrieb',name:'Auftriebskraft (Archimedes)',base:'F_A = \\rho \\cdot V \\cdot g',desc:'Auftrieb in Fluid',
+    vars:[
+      {k:'F_A',l:'F_A',u:'N',ltx:'F_A = \\rho \\cdot V \\cdot g',solve:({rho,V,g})=>rho*V*g,
+        steps:({rho,V,g},r)=>['F_A = \\rho \\cdot V \\cdot g',`F_A = ${rho} \\,\\text{kg/m}^3 \\cdot ${V} \\,\\text{m}^3 \\cdot ${g} \\,\\text{m/s}^2`,`F_A = ${fmtNum(r)} \\,\\text{N}`]},
+      {k:'rho',l:'\\rho',u:'kg/m³',ltx:'\\rho = \\dfrac{F_A}{V \\cdot g}',solve:({F_A,V,g})=>F_A/(V*g),
+        steps:({F_A,V,g},r)=>['F_A = \\rho \\cdot V \\cdot g',`\\rho = \\dfrac{F_A}{V \\cdot g}`,`\\rho = \\dfrac{${F_A}}{${V} \\cdot ${g}}`,`\\rho = ${fmtNum(r)} \\,\\text{kg/m}^3`]},
+      {k:'V',l:'V',u:'m³',ltx:'V = \\dfrac{F_A}{\\rho \\cdot g}',solve:({F_A,rho,g})=>F_A/(rho*g),
+        steps:({F_A,rho,g},r)=>['F_A = \\rho \\cdot V \\cdot g',`V = \\dfrac{F_A}{\\rho \\cdot g}`,`V = \\dfrac{${F_A}}{${rho} \\cdot ${g}}`,`V = ${fmtNum(r)} \\,\\text{m}^3`]},
+      {k:'g',l:'g',u:'m/s²',ltx:'g = \\dfrac{F_A}{\\rho \\cdot V}',def:9.81,solve:({F_A,rho,V})=>F_A/(rho*V),
+        steps:({F_A,rho,V},r)=>['F_A = \\rho \\cdot V \\cdot g',`g = \\dfrac{F_A}{\\rho \\cdot V}`,`g = ${fmtNum(r)} \\,\\text{m/s}^2`]}
+    ],
+    defaults:{rho:1000,V:0.001,g:9.81,F_A:9.81}},
+
+  {key:'hangabtrieb',name:'Hangabtrieb',base:'F_H = m \\cdot g \\cdot \\sin(\\alpha)',desc:'Schiefe Ebene',
+    vars:[
+      {k:'F_H',l:'F_H',u:'N',ltx:'F_H = m \\cdot g \\cdot \\sin(\\alpha)',solve:({m,g,alpha})=>m*g*Math.sin(alpha*Math.PI/180),
+        steps:({m,g,alpha},r)=>['F_H = m \\cdot g \\cdot \\sin(\\alpha)',`F_H = ${m} \\cdot ${g} \\cdot \\sin(${alpha}°)`,`F_H = ${m} \\cdot ${g} \\cdot ${fmtNum(Math.sin(alpha*Math.PI/180))}`,`F_H = ${fmtNum(r)} \\,\\text{N}`]},
+      {k:'alpha',l:'\\alpha',u:'°',ltx:'\\alpha = \\arcsin\\!\\left(\\dfrac{F_H}{m \\cdot g}\\right)',solve:({F_H,m,g})=>Math.asin(F_H/(m*g))*180/Math.PI,
+        steps:({F_H,m,g},r)=>['F_H = m \\cdot g \\cdot \\sin(\\alpha)',`\\sin(\\alpha) = \\dfrac{F_H}{m \\cdot g}`,`\\alpha = \\arcsin\\!\\left(\\dfrac{${F_H}}{${m} \\cdot ${g}}\\right)`,`\\alpha = ${fmtNum(r)}°`]},
+      {k:'m',l:'m',u:'kg',ltx:'m = \\dfrac{F_H}{g \\cdot \\sin(\\alpha)}',solve:({F_H,g,alpha})=>F_H/(g*Math.sin(alpha*Math.PI/180)),
+        steps:({F_H,g,alpha},r)=>['F_H = m \\cdot g \\cdot \\sin(\\alpha)',`m = \\dfrac{F_H}{g \\cdot \\sin(\\alpha)}`,`m = \\dfrac{${F_H}}{${g} \\cdot \\sin(${alpha}°)}`,`m = ${fmtNum(r)} \\,\\text{kg}`]}
+    ],
+    defaults:{m:10,g:9.81,alpha:30,F_H:49.05}},
+
+  {key:'druck',name:'Druck',base:'p = \\dfrac{F}{A}',desc:'Druck = Kraft / Fläche',
+    vars:[
+      {k:'p',l:'p',u:'Pa',ltx:'p = \\dfrac{F}{A}',solve:({F,A})=>F/A,
+        steps:({F,A},r)=>['p = \\dfrac{F}{A}',`p = \\dfrac{${F} \\,\\text{N}}{${A} \\,\\text{m}^2}`,`p = ${fmtNum(r)} \\,\\text{Pa}`]},
+      {k:'F',l:'F',u:'N',ltx:'F = p \\cdot A',solve:({p,A})=>p*A,
+        steps:({p,A},r)=>['p = \\dfrac{F}{A}',`F = p \\cdot A`,`F = ${p} \\cdot ${A}`,`F = ${fmtNum(r)} \\,\\text{N}`]},
+      {k:'A',l:'A',u:'m²',ltx:'A = \\dfrac{F}{p}',solve:({F,p})=>F/p,
+        steps:({F,p},r)=>['p = \\dfrac{F}{A}',`A = \\dfrac{F}{p}`,`A = \\dfrac{${F}}{${p}}`,`A = ${fmtNum(r)} \\,\\text{m}^2`]}
+    ],
+    defaults:{F:100,A:0.01,p:10000}},
+
+  {key:'gravitation',name:'Gravitation (Newton)',base:'F = G \\cdot \\dfrac{m_1 \\cdot m_2}{r^2}',desc:'Massenanziehung',
+    vars:[
+      {k:'F',l:'F',u:'N',ltx:'F = G \\cdot \\dfrac{m_1 \\cdot m_2}{r^2}',solve:({G,m1,m2,r})=>(G*m1*m2)/(r*r),
+        steps:({G,m1,m2,r},res)=>['F = G \\cdot \\dfrac{m_1 \\cdot m_2}{r^2}',`F = ${G.toExponential(2)} \\cdot \\dfrac{${m1} \\cdot ${m2}}{${r}^2}`,`F = ${fmtNum(res)} \\,\\text{N}`]},
+      {k:'r',l:'r',u:'m',ltx:'r = \\sqrt{\\dfrac{G \\cdot m_1 \\cdot m_2}{F}}',solve:({F,G,m1,m2})=>Math.sqrt((G*m1*m2)/F),
+        steps:({F,G,m1,m2},res)=>['F = G \\cdot \\dfrac{m_1 \\cdot m_2}{r^2}',`r^2 = \\dfrac{G \\cdot m_1 \\cdot m_2}{F}`,`r = \\sqrt{\\dfrac{G \\cdot m_1 \\cdot m_2}{F}}`,`r = ${fmtNum(res)} \\,\\text{m}`]}
+    ],
+    defaults:{G:6.674e-11,m1:5.972e24,m2:7.348e22,r:3.844e8,F:1.98e20}},
+
+  {key:'coulomb',name:'Coulomb-Kraft',base:'F = k \\cdot \\dfrac{q_1 \\cdot q_2}{r^2}',desc:'Elektrische Kraft',
+    vars:[
+      {k:'F',l:'F',u:'N',ltx:'F = k \\cdot \\dfrac{q_1 \\cdot q_2}{r^2}',solve:({k,q1,q2,r})=>(k*q1*q2)/(r*r),
+        steps:({k,q1,q2,r},res)=>['F = k \\cdot \\dfrac{q_1 \\cdot q_2}{r^2}',`F = ${k.toExponential(2)} \\cdot \\dfrac{${q1} \\cdot ${q2}}{${r}^2}`,`F = ${fmtNum(res)} \\,\\text{N}`]},
+      {k:'r',l:'r',u:'m',ltx:'r = \\sqrt{\\dfrac{k \\cdot q_1 \\cdot q_2}{F}}',solve:({F,k,q1,q2})=>Math.sqrt((k*q1*q2)/F),
+        steps:({F,k,q1,q2},res)=>['F = k \\cdot \\dfrac{q_1 \\cdot q_2}{r^2}',`r^2 = \\dfrac{k \\cdot q_1 \\cdot q_2}{F}`,`r = ${fmtNum(res)} \\,\\text{m}`]}
+    ],
+    defaults:{k:8.99e9,q1:1.6e-19,q2:1.6e-19,r:1e-10,F:2.3e-8}}
+];
+
+let calcCurrentFormula=CALC_FORMULAS[0];
+let calcCurrentSolveFor=CALC_FORMULAS[0].vars[0];
+let calcValues={};
+let calcReady=false;
+
+function ensureCalc(){
+  if(calcReady) return;
+  calcReady=true;
+  // Wait for KaTeX to be loaded
+  if(!window.katex){setTimeout(ensureCalc,100); calcReady=false; return}
+  buildFormulaGrid();
+  selectFormula(CALC_FORMULAS[0]);
+}
+
+function buildFormulaGrid(){
+  const grid=document.getElementById('calcFormulaGrid');
+  grid.innerHTML='';
+  CALC_FORMULAS.forEach(f=>{
+    const card=document.createElement('div');
+    card.className='calc-formula-card'+(f===calcCurrentFormula?' active':'');
+    card.dataset.key=f.key;
+    card.innerHTML=`<div class="nm">${f.name}</div><div class="ltx" data-tex="${f.base}"></div>`;
+    card.onclick=()=>selectFormula(f);
+    grid.appendChild(card);
+    kx(f.base,card.querySelector('.ltx'));
+  });
+}
+
+function selectFormula(f){
+  calcCurrentFormula=f;
+  calcCurrentSolveFor=f.vars[0];
+  calcValues={...f.defaults};
+  document.querySelectorAll('.calc-formula-card').forEach(c=>c.classList.toggle('active',c.dataset.key===f.key));
+  document.getElementById('calcBaseName').textContent=f.desc;
+  kx(f.base,document.getElementById('calcBaseDisplay'),true);
+  buildVarRow();
+  updateCalc();
+}
+
+function buildVarRow(){
+  const row=document.getElementById('calcVarRow');
+  row.innerHTML='';
+  calcCurrentFormula.vars.forEach(v=>{
+    const btn=document.createElement('button');
+    btn.className='calc-var-btn'+(v===calcCurrentSolveFor?' active':'');
+    btn.dataset.k=v.k;
+    btn.innerHTML=`<div class="var-name" data-tex="${v.l}"></div><small>${v.u||'—'}</small>`;
+    btn.onclick=()=>{calcCurrentSolveFor=v;buildVarRow();updateCalc()};
+    row.appendChild(btn);
+    kx(v.l,btn.querySelector('.var-name'));
+  });
+}
+
+function buildInputs(){
+  const ctr=document.getElementById('calcInputs');
+  ctr.innerHTML='';
+  calcCurrentFormula.vars.forEach(v=>{
+    if(v===calcCurrentSolveFor) return; // skip the one we're solving for
+    const card=document.createElement('div');
+    card.className='calc-input-card';
+    card.innerHTML=`<div class="lbl"><span data-tex="${v.l}"></span><span style="color:var(--text-secondary);font-size:.7rem">${v.u||''}</span></div>
+      <div class="input-row">
+        <input type="number" step="any" data-k="${v.k}" value="${calcValues[v.k]??''}">
+        <span class="unit">${v.u}</span>
+      </div>`;
+    ctr.appendChild(card);
+    kx(v.l,card.querySelector('[data-tex]'));
+    card.querySelector('input').addEventListener('input',e=>{
+      calcValues[v.k]=parseFloat(e.target.value);
+      updateCalc();
+    });
+  });
+}
+
+function updateCalc(){
+  kx(calcCurrentSolveFor.ltx,document.getElementById('calcRearrangedDisplay'),true);
+  buildInputs();
+  // Compute result
+  const inputs={};
+  let allOk=true;
+  calcCurrentFormula.vars.forEach(v=>{
+    if(v===calcCurrentSolveFor) return;
+    const val=calcValues[v.k];
+    if(val===undefined||isNaN(val)) allOk=false;
+    inputs[v.k]=val;
+  });
+  const resBox=document.getElementById('calcResult');
+  if(!allOk){
+    resBox.className='calc-result error';
+    resBox.innerHTML=`<div class="lbl">Werte unvollständig</div><div class="val">—</div>`;
+    document.getElementById('calcSteps').classList.remove('show');
+    return;
+  }
+  let result;
+  try{result=calcCurrentSolveFor.solve(inputs)}catch(e){result=NaN}
+  resBox.className='calc-result';
+  resBox.innerHTML=`<div class="lbl">Ergebnis</div><div class="val"><span data-tex="${calcCurrentSolveFor.l}"></span> = ${fmtNum(result)}<span class="unit">${calcCurrentSolveFor.u}</span></div>`;
+  kx(calcCurrentSolveFor.l,resBox.querySelector('[data-tex]'));
+  // Steps
+  if(calcCurrentSolveFor.steps){
+    const steps=calcCurrentSolveFor.steps(inputs,result);
+    const stepsBox=document.getElementById('calcSteps');
+    stepsBox.innerHTML='';
+    steps.forEach((s,i)=>{
+      const stepDiv=document.createElement('div');
+      stepDiv.className='step';
+      stepDiv.innerHTML=`<div class="step-num">${i+1}</div><div class="step-content"><span></span></div>`;
+      stepsBox.appendChild(stepDiv);
+      kx(s,stepDiv.querySelector('.step-content span'),true);
+    });
+  }
+}
+
+document.getElementById('calcStepsBtn').onclick=()=>{
+  const box=document.getElementById('calcSteps');
+  box.classList.toggle('show');
+  const btn=document.getElementById('calcStepsBtn');
+  btn.innerHTML=box.classList.contains('show')?'<i data-lucide="x"></i>Lösungsweg verbergen':'<i data-lucide="list-ordered"></i>Lösungsweg zeigen';
+  if(window.lucide) lucide.createIcons();
+};
+document.getElementById('calcResetBtn').onclick=()=>{
+  calcValues={...calcCurrentFormula.defaults};
+  buildInputs();
+  updateCalc();
+};
+
+/* ===== SVG SHARED DEFS ===== */
+const SVG_DEFS=`<defs>
+  <radialGradient id="blockGrad" cx="30%" cy="22%" r="88%">
+    <stop offset="0%" stop-color="#f5d8a8"/>
+    <stop offset="50%" stop-color="#d09058"/>
+    <stop offset="100%" stop-color="#5c3818"/>
+  </radialGradient>
+  <radialGradient id="ballGrad" cx="30%" cy="22%" r="88%">
+    <stop offset="0%" stop-color="#ffd0a8"/>
+    <stop offset="50%" stop-color="#e08858"/>
+    <stop offset="100%" stop-color="#5a2818"/>
+  </radialGradient>
+  <radialGradient id="metalGrad" cx="30%" cy="22%" r="88%">
+    <stop offset="0%" stop-color="#f0f5fa"/>
+    <stop offset="50%" stop-color="#a0b0c0"/>
+    <stop offset="100%" stop-color="#404858"/>
+  </radialGradient>
+  <linearGradient id="floorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#3a4858"/>
+    <stop offset="100%" stop-color="#1a2230"/>
+  </linearGradient>
+  <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#5fa8d8" stop-opacity="0.55"/>
+    <stop offset="100%" stop-color="#1a4878" stop-opacity="0.85"/>
+  </linearGradient>
+  <radialGradient id="springGrad" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#d0d8e0"/>
+    <stop offset="100%" stop-color="#6a7280"/>
+  </radialGradient>
+  <radialGradient id="magnetN" cx="30%" cy="22%" r="88%">
+    <stop offset="0%" stop-color="#ffb8c0"/>
+    <stop offset="50%" stop-color="#dc4040"/>
+    <stop offset="100%" stop-color="#5a1010"/>
+  </radialGradient>
+  <radialGradient id="magnetS" cx="30%" cy="22%" r="88%">
+    <stop offset="0%" stop-color="#a8c8e8"/>
+    <stop offset="50%" stop-color="#4070a8"/>
+    <stop offset="100%" stop-color="#102040"/>
+  </radialGradient>
+  <radialGradient id="planetGrad" cx="30%" cy="22%" r="88%">
+    <stop offset="0%" stop-color="#d8e8f8"/>
+    <stop offset="50%" stop-color="#5070a0"/>
+    <stop offset="100%" stop-color="#0a1830"/>
+  </radialGradient>
+  <linearGradient id="arrowG" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#ffaa30"/>
+    <stop offset="100%" stop-color="#ff6020"/>
+  </linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+    <feOffset dx="1" dy="2"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
+    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>`;
+
+function arrowMarker(id,color){return `<defs><marker id="${id}" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 12 5 L 0 10 z" fill="${color}"/></marker></defs>`}
+
+function vec(x1,y1,x2,y2,color,label,labelOff){
+  const id='arr'+Math.random().toString(36).slice(2,8);
+  let s=`<defs><marker id="${id}" viewBox="0 0 12 10" refX="11" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 0 0 L 12 5 L 0 10 z" fill="${color}"/></marker></defs>`;
+  s+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="3.5" marker-end="url(#${id})" filter="url(#glow)" stroke-linecap="round"/>`;
+  if(label){
+    const mx=(x1+x2)/2, my=(y1+y2)/2;
+    const off=labelOff||{x:0,y:-8};
+    s+=`<text x="${mx+off.x}" y="${my+off.y}" fill="${color}" font-size="13" font-weight="800" text-anchor="middle" font-family="JetBrains Mono">${label}</text>`;
+  }
+  return s;
+}
+
+/* ===== FORCE ICONS (für die Übersichts-Karten) ===== */
+function svgGewicht(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="80" y="40" width="60" height="60" rx="8" fill="url(#blockGrad)" stroke="rgba(255,255,255,.25)" stroke-width="1.5" filter="url(#dropShadow)"/>
+  <ellipse cx="95" cy="50" rx="18" ry="4" fill="rgba(255,255,255,.4)"/>
+  ${vec(110,100,110,128,'#ff6020','F_G')}
+  <line x1="20" y1="118" x2="200" y2="118" stroke="#3a4858" stroke-width="3" stroke-linecap="round"/>
+</svg>`}
+function svgNormal(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="80" y="55" width="60" height="50" rx="8" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+  <ellipse cx="95" cy="63" rx="18" ry="4" fill="rgba(255,255,255,.4)"/>
+  ${vec(110,55,110,18,'#5fc878','F_N')}
+  ${vec(110,80,110,118,'#ff6020','F_G')}
+  <line x1="20" y1="105" x2="200" y2="105" stroke="#3a4858" stroke-width="3"/>
+</svg>`}
+function svgReibung(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="50" y="55" width="55" height="45" rx="6" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+  <ellipse cx="65" cy="62" rx="14" ry="3" fill="rgba(255,255,255,.4)"/>
+  ${vec(105,80,170,80,'#5fc878','F_Zug')}
+  ${vec(50,80,15,80,'#ff6020','F_R')}
+  <line x1="0" y1="100" x2="220" y2="100" stroke="#3a4858" stroke-width="3"/>
+  <pattern id="hatch" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="8" y2="8" stroke="#5a6878" stroke-width="1"/></pattern>
+  <rect x="0" y="100" width="220" height="20" fill="url(#hatch)"/>
+</svg>`}
+function svgFeder(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="0" y="55" width="20" height="50" fill="#5a6878" filter="url(#dropShadow)"/>
+  <path d="M 20 80 L 30 65 L 40 95 L 50 65 L 60 95 L 70 65 L 80 95 L 90 65 L 100 95 L 110 80" stroke="url(#springGrad)" stroke-width="5" fill="none" stroke-linejoin="round" filter="url(#glow)"/>
+  <rect x="110" y="62" width="50" height="36" rx="6" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+  ${vec(160,80,200,80,'#ff6020','F=D·s')}
+</svg>`}
+function svgZentripetal(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <circle cx="110" cy="70" r="50" fill="none" stroke="rgba(180,200,220,.4)" stroke-width="2" stroke-dasharray="3 3"/>
+  <circle cx="110" cy="70" r="6" fill="#5a6878"/>
+  <circle cx="160" cy="70" r="14" fill="url(#ballGrad)" filter="url(#dropShadow)"/>
+  ${vec(150,70,118,70,'#ff6020','F_z')}
+  <path d="M 160 56 Q 165 62 162 70" fill="none" stroke="#5fc878" stroke-width="2.5" marker-end="url(#vh)"/>
+  <defs><marker id="vh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#5fc878"/></marker></defs>
+</svg>`}
+function svgAuftrieb(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="0" y="60" width="220" height="80" fill="url(#waterGrad)"/>
+  <line x1="0" y1="60" x2="220" y2="60" stroke="rgba(255,255,255,.4)" stroke-width="1" stroke-dasharray="3 3"/>
+  <rect x="80" y="68" width="60" height="50" rx="6" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+  <ellipse cx="95" cy="74" rx="18" ry="3" fill="rgba(255,255,255,.4)"/>
+  ${vec(110,68,110,28,'#5fc878','F_A')}
+  ${vec(110,118,110,135,'#ff6020','F_G')}
+</svg>`}
+function svgLorentz(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="20" y="40" width="40" height="60" rx="4" fill="url(#magnetN)" filter="url(#dropShadow)"/>
+  <text x="40" y="76" fill="#fff" font-size="22" font-weight="900" text-anchor="middle">N</text>
+  <rect x="160" y="40" width="40" height="60" rx="4" fill="url(#magnetS)" filter="url(#dropShadow)"/>
+  <text x="180" y="76" fill="#fff" font-size="22" font-weight="900" text-anchor="middle">S</text>
+  <circle cx="110" cy="70" r="9" fill="#f5c542" filter="url(#glow)"/>
+  <text x="110" y="74" fill="#000" font-size="13" font-weight="900" text-anchor="middle">+</text>
+  ${vec(120,70,160,70,'#5fc878','v')}
+  ${vec(110,60,110,28,'#ff6020','F_L')}
+</svg>`}
+function svgCoulomb(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <circle cx="50" cy="70" r="20" fill="#dc4040" filter="url(#dropShadow)"/>
+  <ellipse cx="42" cy="62" rx="6" ry="2" fill="rgba(255,255,255,.5)"/>
+  <text x="50" y="76" fill="#fff" font-size="20" font-weight="900" text-anchor="middle">+</text>
+  <circle cx="170" cy="70" r="20" fill="#4070a8" filter="url(#dropShadow)"/>
+  <ellipse cx="162" cy="62" rx="6" ry="2" fill="rgba(255,255,255,.5)"/>
+  <text x="170" y="78" fill="#fff" font-size="22" font-weight="900" text-anchor="middle">−</text>
+  ${vec(72,70,108,70,'#ff6020','F')}
+  ${vec(148,70,112,70,'#ff6020','')}
+</svg>`}
+function svgGravitation(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <circle cx="50" cy="70" r="28" fill="url(#planetGrad)" filter="url(#dropShadow)"/>
+  <ellipse cx="40" cy="58" rx="9" ry="3" fill="rgba(255,255,255,.45)"/>
+  <circle cx="170" cy="70" r="14" fill="url(#planetGrad)" opacity="0.85" filter="url(#dropShadow)"/>
+  <ellipse cx="165" cy="62" rx="5" ry="2" fill="rgba(255,255,255,.45)"/>
+  ${vec(78,70,114,70,'#ff6020','F')}
+  ${vec(156,70,120,70,'#ff6020','')}
+  <circle cx="110" cy="70" r="56" fill="none" stroke="rgba(180,200,220,.18)" stroke-dasharray="3 3"/>
+</svg>`}
+function svgTraegheit(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="60" y="55" width="80" height="50" rx="8" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+  <ellipse cx="80" cy="63" rx="22" ry="4" fill="rgba(255,255,255,.4)"/>
+  <line x1="0" y1="105" x2="220" y2="105" stroke="#3a4858" stroke-width="3"/>
+  ${vec(140,80,200,80,'#5fc878','v')}
+  ${vec(60,80,10,80,'#ff6020','F_T')}
+  <text x="110" y="36" fill="#a0b0c0" font-size="11" font-weight="700" text-anchor="middle">Bremsen</text>
+</svg>`}
+function svgHangabtrieb(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <path d="M 10 120 L 210 120 L 210 90 Z" fill="url(#floorGrad)" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+  <g transform="rotate(-8.5 145 95)"><rect x="120" y="68" width="50" height="36" rx="6" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+  <ellipse cx="135" cy="74" rx="14" ry="3" fill="rgba(255,255,255,.4)"/></g>
+  ${vec(150,90,150,128,'#ff6020','F_G')}
+  ${vec(150,90,200,98,'#5fc878','F_H')}
+  ${vec(150,90,118,72,'#9b7fc4','F_N')}
+</svg>`}
+function svgDruck(){return `<svg viewBox="0 0 220 140">${SVG_DEFS}
+  <rect x="60" y="40" width="100" height="60" rx="6" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+  <ellipse cx="80" cy="48" rx="22" ry="4" fill="rgba(255,255,255,.4)"/>
+  ${vec(80,40,80,16,'#ff6020','F')}
+  ${vec(110,40,110,16,'#ff6020','')}
+  ${vec(140,40,140,16,'#ff6020','')}
+  <text x="110" y="125" fill="#a0b0c0" font-size="11" font-weight="700" text-anchor="middle">Fläche A</text>
+</svg>`}
+
+/* ===== FORCES DATA — Lehrbuch-Steckbriefe ===== */
+const FORCES=[
+  {key:'gewicht',name:'Gewichtskraft',formula:'F_G = m · g',svg:svgGewicht,
+    short:'Anziehungskraft der Erde auf jeden Körper.',
+    definition:'Kraft, mit der die Erde einen Körper anzieht. Wirkt immer <b>senkrecht nach unten</b>, zum Erdmittelpunkt. Bei der Erdoberfläche praktisch parallel.',
+    formula_full:'<b>F<sub>G</sub> = m · g</b><br>m = Masse [kg] · g = Ortsfaktor [m/s²]',
+    konstanten:'g ≈ <b>9,81 m/s²</b> auf der Erdoberfläche · auf dem Mond 1,62 m/s² · 0 in Schwerelosigkeit. Korrekt heißt es nicht „Schwerkraft" sondern „Gewichtskraft" (auch Erdanziehungskraft).',
+    beispiele:['Apfel, der vom Baum fällt','Mensch auf der Waage (Anzeige in kg, gemessen wird F<sub>G</sub>)','Wasser, das durch das Rohr fließt (h-Druck)'],
+    klinik:'<b>Schwerelosigkeit:</b> Astronauten verlieren Knochenmasse (Wolff: weniger Belastung → Knochen-Abbau). <b>Orthostatische Hypotonie</b>: Blut sackt durch Gewichtskraft beim Aufstehen in die Beine.',
+    medat:'Auf der Erde gilt fast immer g = 9,81 m/s² (oft auf 10 gerundet). 1 kg → ca. 10 N Gewichtskraft. Masse ist invariant, Gewicht ist ortsabhängig!'},
+
+  {key:'normal',name:'Normalkraft',formula:'F_N',svg:svgNormal,
+    short:'Stützkraft, die eine Unterlage senkrecht nach oben ausübt.',
+    definition:'Reaktionskraft der Unterlage senkrecht zur Oberfläche. Verhindert, dass Körper durch die Unterlage hindurchfallen.',
+    formula_full:'<b>F<sub>N</sub> = m · g · cos(α)</b> (auf schiefer Ebene, α = Neigungswinkel)<br>Auf horizontaler Fläche: F<sub>N</sub> = F<sub>G</sub> = m · g',
+    konstanten:'Bei α = 0° (horizontal): F<sub>N</sub> = m · g.<br>Bei α = 90°: F<sub>N</sub> = 0 (kein Kontakt).',
+    beispiele:['Buch auf dem Tisch','Mensch auf dem Boden','Auto auf der Straße'],
+    klinik:'<b>Druckgeschwüre (Dekubitus):</b> bei langer Bettlägerigkeit drückt das Körpergewicht auf wenige Hautstellen → Mangelernährung des Gewebes. <b>Bandscheibenkompression</b> entsteht durch axiale F<sub>N</sub>.',
+    medat:'Wirkt immer <b>senkrecht zur Berührungsfläche</b>. Auf schiefer Ebene <b>nicht</b> nach oben, sondern senkrecht zur geneigten Fläche.'},
+
+  {key:'reibung',name:'Reibungskraft',formula:'F_R = μ · F_N',svg:svgReibung,
+    short:'Wirkt der Bewegung entgegen, parallel zur Berührungsfläche.',
+    definition:'Kraft, die zwischen zwei Berührungsflächen tangential zur Bewegung wirkt. Drei Arten: <b>Haft</b>-, <b>Gleit</b>- und <b>Roll</b>reibung.',
+    formula_full:'<b>F<sub>R</sub> = μ · F<sub>N</sub></b><br>μ = Reibungskoeffizient (dimensionslos)',
+    konstanten:'μ<sub>Haft</sub> > μ<sub>Gleit</sub> > μ<sub>Roll</sub><br>μ<sub>Gleit</sub> Reifen-Asphalt ≈ 0,7 · Eis-Stahl ≈ 0,03 · Holz-Holz ≈ 0,3',
+    beispiele:['Auto auf der Straße (Bremsen, Beschleunigung)','Schreiben mit dem Bleistift','ABS-Bremsen nutzen Haftreibung statt Gleitreibung'],
+    klinik:'<b>Synovialflüssigkeit</b> in Gelenken senkt die Reibung extrem (μ ≈ 0,003 — kleiner als Eis!). <b>Arthrose</b>: Knorpel-Verschleiß → höhere Reibung → Schmerz.',
+    medat:'<b>Haftreibung > Gleitreibung</b> (deshalb ABS bei Auto-Bremsen!). Reibung hängt nur von F<sub>N</sub> und μ ab — <b>nicht</b> von der Auflagefläche!'},
+
+  {key:'feder',name:'Federkraft',formula:'F = D · s (Hooke)',svg:svgFeder,
+    short:'Rückstellkraft einer gedehnten oder gestauchten Feder.',
+    definition:'Kraft, mit der eine elastische Feder ihrer Verformung entgegenwirkt. Linear proportional zur Auslenkung — solange die Elastizitätsgrenze nicht überschritten wird (Hooke\'sches Gesetz).',
+    formula_full:'<b>F = D · s</b><br>D = Federkonstante [N/m] · s = Auslenkung [m]',
+    konstanten:'Steife Feder → großes D · weiche Feder → kleines D. Energie der gespannten Feder: E = ½ · D · s².',
+    beispiele:['Federwaage','Stoßdämpfer im Auto','Trampolin','Sehne von Bogen'],
+    klinik:'<b>Lunge</b> wirkt wie Feder: bei Inspiration wird sie gedehnt, bei Exspiration zieht sie sich passiv zurück. <b>Arterien</b> haben elastische Wand (Windkesseleffekt).',
+    medat:'<b>Hooke\'sches Gesetz</b> gilt nur im elastischen Bereich. Negative Vorzeichen-Konvention: F = −D·s (Rückstellkraft entgegen Auslenkung).'},
+
+  {key:'zentripetal',name:'Zentripetalkraft',formula:'F_z = m · v² / r',svg:svgZentripetal,
+    short:'Kraft, die zum Kreismittelpunkt zieht und Kreisbahn ermöglicht.',
+    definition:'Kraft, die einen Körper auf einer Kreisbahn hält, gerichtet zum <b>Mittelpunkt</b> der Bahn. Senkrecht zur momentanen Geschwindigkeit.',
+    formula_full:'<b>F<sub>z</sub> = m · v² / r = m · ω² · r</b><br>v = Bahngeschwindigkeit · ω = Winkelgeschwindigkeit · r = Radius',
+    konstanten:'F<sub>z</sub> ist <b>Resultierende</b>, keine eigenständige Naturkraft. Wird je nach Situation durch Reibung, Spannkraft oder Gravitation realisiert.',
+    beispiele:['Auto in Kurve (Reibung als Zentripetalkraft)','Mond auf Umlaufbahn (Gravitation)','Stein an Schnur kreist (Spannkraft)','Zentrifuge im Labor'],
+    klinik:'<b>Zentrifuge in der Labormedizin:</b> trennt Blutbestandteile durch Massendichte (Erys schwerer → außen, Plasma leichter → innen). <b>g-Kräfte</b> bei Achterbahn beeinflussen Kreislauf.',
+    medat:'Zentripetal- (echt, nach innen) ≠ Zentrifugal- (Schein-/Trägheitskraft im rotierenden Bezugssystem, nach außen). Ohne Zentripetalkraft → Geradeausflug (Tangente)!'},
+
+  {key:'auftrieb',name:'Auftriebskraft',formula:'F_A = ρ · V · g',svg:svgAuftrieb,
+    short:'Kraft nach oben in Flüssigkeiten und Gasen (Archimedes).',
+    definition:'<b>Archimedisches Prinzip</b>: Auf einen Körper in einer Flüssigkeit wirkt eine Auftriebskraft, die so groß ist wie die Gewichtskraft der von ihm verdrängten Flüssigkeit.',
+    formula_full:'<b>F<sub>A</sub> = ρ<sub>Fluid</sub> · V<sub>verdrängt</sub> · g</b><br>ρ = Dichte des Fluids [kg/m³] · V = verdrängtes Volumen',
+    konstanten:'ρ<sub>Wasser</sub> = 1000 kg/m³ · ρ<sub>Quecksilber</sub> = 13.600 · ρ<sub>Luft</sub> = 1,2.<br>Schwimmen: F<sub>A</sub> = F<sub>G</sub> · Sinken: F<sub>A</sub> < F<sub>G</sub> · Steigen: F<sub>A</sub> > F<sub>G</sub>.',
+    beispiele:['Schiff auf Wasser','Heißluftballon','Luftballons mit Helium'],
+    klinik:'<b>Heliox</b> (He+O₂) für Patienten mit Atemnot: weniger dicht → leichter zu atmen. <b>Auftrieb in Fettgewebe</b> macht Übergewichtige schwimmfähiger. <b>Wasser-Therapie</b> entlastet Gelenke.',
+    medat:'Auftrieb hängt nur von <b>verdrängtem Volumen × Fluiddichte</b>. Schwimmen wenn ρ<sub>Körper</sub> < ρ<sub>Fluid</sub>. Mensch hat ρ ≈ 985 kg/m³ → schwimmt knapp.'},
+
+  {key:'lorentz',name:'Lorentzkraft',formula:'F_L = q · v × B',svg:svgLorentz,
+    short:'Kraft auf bewegte Ladung im Magnetfeld.',
+    definition:'Kraft, die auf eine geladene Teilchen wirkt, das sich durch ein Magnetfeld bewegt. Senkrecht zur Geschwindigkeit und zum Feld (Drei-Finger-Regel der rechten Hand).',
+    formula_full:'<b>F<sub>L</sub> = q · v · B · sin(α)</b><br>q = Ladung [C] · v = Geschwindigkeit · B = magn. Flussdichte [T] · α = Winkel zwischen v und B',
+    konstanten:'Maximal bei v ⊥ B (sin 90° = 1). Null bei v ∥ B (sin 0° = 0). Negative Ladungen → Kraft in entgegengesetzte Richtung.',
+    beispiele:['Elektronen in Bildröhre / Oszilloskop','Massenspektrometer','Teilchenbeschleuniger','Polarlichter (geladene Sonnenwind-Teilchen → Magnetfeld der Erde)'],
+    klinik:'<b>MRT</b> nutzt starke Magnetfelder (1,5–7 Tesla) — keine Bewegung der Patienten-Atome, aber Kernspin-Manipulation. <b>EKG-Magnetokardiographie</b> misst Magnetfelder von Herzströmen.',
+    medat:'Wirkung: Kreisbahn (Lorentzkraft = Zentripetalkraft → r = mv/(qB)). Drei-Finger-Regel rechts: Daumen=v, Zeigefinger=B, Mittelfinger=F (für positive Ladungen).'},
+
+  {key:'coulomb',name:'Coulomb-Kraft',formula:'F = k · q₁·q₂/r²',svg:svgCoulomb,
+    short:'Kraft zwischen elektrischen Ladungen.',
+    definition:'Anziehende oder abstoßende Kraft zwischen zwei elektrisch geladenen Objekten. Gleichnamige Ladungen stoßen sich ab, ungleichnamige ziehen sich an.',
+    formula_full:'<b>F = k · |q<sub>1</sub>·q<sub>2</sub>| / r²</b><br>q = Ladung [C] · r = Abstand · k = Coulomb-Konstante',
+    konstanten:'k = 1/(4πε<sub>0</sub>) ≈ <b>8,99 × 10⁹ N·m²/C²</b><br>Elementarladung e = 1,602 × 10⁻¹⁹ C',
+    beispiele:['Elektron-Proton-Bindung im Atom','Ionenbindung NaCl','Elektrostatische Aufladung (statisches Haar)'],
+    klinik:'<b>EKG, EEG</b> messen elektrische Potentialdifferenzen, die letztlich auf Coulomb-Kräften beruhen. <b>Membranpotential</b> der Zellen (−70 mV) durch ungleiche Ionenverteilung.',
+    medat:'1/r²-Gesetz wie bei Gravitation, aber unterschiedliche Konstante. Coulomb-Kraft ist <b>~10⁴⁰× stärker</b> als Gravitation auf atomarer Ebene.'},
+
+  {key:'gravitation',name:'Gravitationskraft',formula:'F = G · m₁·m₂/r²',svg:svgGravitation,
+    short:'Universelle Anziehungskraft zwischen Massen.',
+    definition:'<b>Newton\'s Gravitationsgesetz</b>: Jede zwei Massen ziehen sich gegenseitig an. Die Kraft ist proportional zum Produkt der Massen und umgekehrt proportional zum Quadrat ihres Abstands.',
+    formula_full:'<b>F = G · m<sub>1</sub>·m<sub>2</sub> / r²</b><br>G = Gravitationskonstante · r = Abstand der Massenmittelpunkte',
+    konstanten:'G = <b>6,674 × 10⁻¹¹ N·m²/kg²</b><br>An der Erdoberfläche: F<sub>G</sub> = m·g mit g = G·M<sub>Erde</sub>/R<sub>Erde</sub>² ≈ 9,81 m/s².',
+    beispiele:['Erde zieht Mond an (Mondumlaufbahn)','Sonne zieht Erde an (Erdumlaufbahn)','Gezeiten durch Mond + Sonne'],
+    klinik:'<b>Schwerelosigkeit-Effekte</b>: Knochenabbau, Muskelschwund, Flüssigkeitsverteilung verändert. <b>Hochgebirge</b>: weniger g (vernachlässigbar), aber dünnere Luft (entscheidend für Höhenkrankheit).',
+    medat:'Gravitations-Konstante G ≠ Ortsfaktor g. F<sub>G</sub> = m·g ist ein Spezialfall an der Erdoberfläche. Universalkraft, wirkt zwischen <b>allen</b> Massen.'},
+
+  {key:'traegheit',name:'Trägheitskraft',formula:'F_T = m · a (Schein)',svg:svgTraegheit,
+    short:'Scheinkraft im beschleunigten Bezugssystem.',
+    definition:'Im beschleunigten (= nicht-inertialen) Bezugssystem auftretende <b>Scheinkraft</b>, die Beschleunigung des Bezugssystems entgegengesetzt. Folge der Trägheit.',
+    formula_full:'<b>F<sub>T</sub> = − m · a</b><br>a = Beschleunigung des Bezugssystems',
+    konstanten:'Beispiele: Zentrifugalkraft (rotierende Bezugssysteme), Bremsen im Auto (Insasse spürt Vorwärtskraft).',
+    beispiele:['Bremsen im Auto: Körper drückt nach vorne','Zentrifuge → Zentrifugalkraft nach außen','Fliehkraft in Achterbahn-Looping'],
+    klinik:'<b>Schleudertrauma</b>: HWS bewegt sich durch Trägheit nach hinten, dann vor — Verletzung der Bänder/Bandscheiben. Sicherheitsgurt verhindert dass Körper nach vorne fliegt.',
+    medat:'Im <b>Inertialsystem</b> existiert keine Trägheitskraft — was wir spüren ist die fehlende „Mitnahme". Streng: keine Newton\'sche Kraft, sondern Konsequenz des 1. Gesetzes.'},
+
+  {key:'hangabtrieb',name:'Hangabtriebskraft',formula:'F_H = m · g · sin α',svg:svgHangabtrieb,
+    short:'Komponente der Gewichtskraft parallel zur schiefen Ebene.',
+    definition:'Komponente der Gewichtskraft, die einen Körper die schiefe Ebene hinab beschleunigt. Senkrechte Komponente ist die Normalkraft.',
+    formula_full:'<b>F<sub>H</sub> = m · g · sin(α)</b><br>F<sub>N</sub> = m · g · cos(α)',
+    konstanten:'Bei α = 0°: F<sub>H</sub> = 0 (horizontal).<br>Bei α = 90°: F<sub>H</sub> = m·g (vertikal, freier Fall).<br>Bei α = 30°: F<sub>H</sub> = ½ · m · g.',
+    beispiele:['Skifahrer auf Piste','Auto rollt von Berg','Wasser fließt bergab','Block auf Rampe'],
+    klinik:'<b>Bandscheiben-Belastung</b> bei vorgebeugter Haltung: Wirbelsäule wirkt wie schiefe Ebene → Hangabtriebskraft auf Bandscheibe ↑. <b>Sportverletzungen</b> abhängig vom Hangwinkel.',
+    medat:'Zerlegung der Gewichtskraft in <b>F<sub>H</sub> (parallel)</b> und <b>F<sub>N</sub> (senkrecht zur Ebene)</b>. F<sub>G</sub>² = F<sub>H</sub>² + F<sub>N</sub>².'},
+
+  {key:'druck',name:'Druckkraft',formula:'F = p · A',svg:svgDruck,
+    short:'Kraft pro Fläche — Druck × Fläche.',
+    definition:'Kraft, die auf eine Fläche wirkt. <b>Druck p</b> ist Kraft pro Fläche.',
+    formula_full:'<b>p = F / A</b> bzw. <b>F = p · A</b><br>p = Druck [Pa = N/m²] · A = Fläche [m²]',
+    konstanten:'1 Pa = 1 N/m². Atmosphärendruck: 1013 hPa = 1,013 bar. 1 mmHg = 133 Pa.',
+    beispiele:['Reifen-Druck (Auto: ~2,5 bar)','Hydrostatischer Druck im Wasser','Atmosphärendruck'],
+    klinik:'<b>Blutdruck</b> in mmHg gemessen (120/80). <b>Augeninnendruck</b> (Glaukom-Diagnostik). <b>Beatmung</b>: Beatmungsgerät erzeugt positiven Druck. <b>Stethoskop</b> nutzt Druckwellen.',
+    medat:'Hydrostatischer Druck: p = ρ · g · h. Im Blutkreislauf: arterieller Druck > venöser Druck > Lymphdruck. Saug-Druck-Pumpe = Atmung.'}
+];
+
+/* ===== TAB 1: ÜBERSICHT ===== */
+const grid=document.getElementById('forceGrid');
+FORCES.forEach(f=>{
+  const card=document.createElement('div');
+  card.className='force-card';
+  card.dataset.key=f.key;
+  card.innerHTML=`<div class="force-img">${f.svg()}</div>
+    <div class="force-info">
+      <h4>${f.name}</h4>
+      <span class="formula">${f.formula}</span>
+      <p>${f.short}</p>
+    </div>`;
+  card.onclick=()=>showForce(f.key);
+  grid.appendChild(card);
+});
+
+function showForce(key){
+  const f=FORCES.find(x=>x.key===key); if(!f) return;
+  document.getElementById('mImg').innerHTML=f.svg();
+  document.getElementById('mName').textContent=f.name;
+  document.getElementById('mFormula').textContent=f.formula;
+  let html='<div class="steckbrief">';
+  html+=`<div class="sb-section"><h4><i data-lucide="info"></i>Definition</h4><p>${f.definition}</p></div>`;
+  html+=`<div class="sb-section"><h4><i data-lucide="function-square"></i>Formel</h4><p>${f.formula_full}</p></div>`;
+  if(f.konstanten) html+=`<div class="sb-section"><h4><i data-lucide="ruler"></i>Werte / Konstanten</h4><p>${f.konstanten}</p></div>`;
+  if(f.beispiele && f.beispiele.length) html+=`<div class="sb-section"><h4><i data-lucide="lightbulb"></i>Beispiele</h4><ul class="sb-list">${f.beispiele.map(b=>`<li>${b}</li>`).join('')}</ul></div>`;
+  if(f.klinik) html+=`<div class="sb-section klinik"><h4><i data-lucide="heart-pulse"></i>Klinik / Anwendung</h4><p>${f.klinik}</p></div>`;
+  if(f.medat) html+=`<div class="sb-section medat"><h4><i data-lucide="brain"></i>MedAT-Merksatz</h4><p>${f.medat}</p></div>`;
+  html+='</div>';
+  document.getElementById('mBody').innerHTML=html;
+  document.getElementById('forceModal').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeF(){document.getElementById('forceModal').classList.remove('show')}
+window.closeF=closeF;
+
+/* ===== TAB 2: WIRKUNGS-VISUALISIERUNG ===== */
+const SCENES={
+  hang:{label:'Schiefe Ebene',sub:'Hangabtrieb / Normal',sliderLabel:'Neigungswinkel',min:0,max:60,def:30,unit:'°',
+    render:v=>{
+      const W=600,H=360;
+      const m=10, g=9.81;
+      const Fg=m*g;
+      const Fh=Fg*Math.sin(v*Math.PI/180);
+      const Fn=Fg*Math.cos(v*Math.PI/180);
+      const angle=-v;
+      let html=SVG_DEFS;
+      // Floor
+      html+=`<line x1="0" y1="320" x2="600" y2="320" stroke="rgba(180,200,220,.3)" stroke-width="1.5"/>`;
+      // Schiefe Ebene (Triangle)
+      const baseLen=380, hangH=baseLen*Math.tan(v*Math.PI/180);
+      html+=`<path d="M 110 320 L ${110+baseLen} 320 L ${110+baseLen} ${320-hangH} Z" fill="url(#floorGrad)" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>`;
+      // Block on hang (rotated)
+      const bx=300, by=320-(bx-110)*Math.tan(v*Math.PI/180);
+      html+=`<g transform="translate(${bx} ${by}) rotate(${angle})"><rect x="-30" y="-50" width="60" height="50" rx="6" fill="url(#blockGrad)" filter="url(#dropShadow)"/>
+        <ellipse cx="-12" cy="-42" rx="14" ry="3" fill="rgba(255,255,255,.4)"/></g>`;
+      // Vectors from block center
+      const cx=bx, cy=by-25*Math.cos(v*Math.PI/180);
+      // Gewichtskraft (down)
+      const fgL=80;
+      html+=vec(cx,cy,cx,cy+fgL,'#ff6020','F_G');
+      // Hangabtrieb (parallel to slope, downhill)
+      const fhL=fgL*Math.sin(v*Math.PI/180);
+      const hx=cx+fhL*Math.cos(v*Math.PI/180), hy=cy+fhL*Math.sin(v*Math.PI/180);
+      html+=vec(cx,cy,hx,hy,'#ffaa30','F_H');
+      // Normalkraft (perpendicular to slope, into slope from block — but draw away from slope from block center)
+      const fnL=fgL*Math.cos(v*Math.PI/180);
+      const nx=cx-fnL*Math.sin(v*Math.PI/180), ny=cy-fnL*Math.cos(v*Math.PI/180);
+      html+=vec(cx,cy,nx,ny,'#5fc878','F_N');
+      // Angle label
+      html+=`<path d="M ${110+50} 320 A 50 50 0 0 0 ${110+50*Math.cos(v*Math.PI/180)} ${320-50*Math.sin(v*Math.PI/180)}" stroke="rgba(255,255,255,.5)" stroke-width="1.5" fill="none"/>
+        <text x="${110+62}" y="312" fill="rgba(255,255,255,.85)" font-size="14" font-weight="800">${v}°</text>`;
+      return {html,vals:{Fg:Fg.toFixed(1),Fh:Fh.toFixed(1),Fn:Fn.toFixed(1),angle:v}};
+    },
+    result:vals=>`<b>Bei α = ${vals.angle}°</b> (m = 10 kg, g = 9,81 m/s²):<br>
+      F<sub>G</sub> = m·g = <b>${vals.Fg} N</b><br>
+      F<sub>H</sub> = m·g·sin α = <span class="val-big">${vals.Fh} N</span> (Hangabtrieb)<br>
+      F<sub>N</sub> = m·g·cos α = <span class="val-big">${vals.Fn} N</span> (Normalkraft)`,
+    fact:'Bei 0° liegt der Block flach: F<sub>H</sub> = 0, F<sub>N</sub> = F<sub>G</sub>. Bei 90° (senkrechte Wand): F<sub>H</sub> = F<sub>G</sub> (freier Fall), F<sub>N</sub> = 0.'
+  },
+
+  kreis:{label:'Kreisbahn',sub:'Zentripetalkraft',sliderLabel:'Geschwindigkeit',min:5,max:30,def:15,unit:'m/s',
+    render:v=>{
+      const W=600,H=360;
+      const m=2, r=2;
+      const Fz=m*v*v/r;
+      let html=SVG_DEFS;
+      // Circle (orbit)
+      const cx=300, cy=180, R=120;
+      html+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="rgba(180,200,220,.4)" stroke-width="2" stroke-dasharray="4 4"/>`;
+      html+=`<circle cx="${cx}" cy="${cy}" r="8" fill="#5a6878" filter="url(#dropShadow)"/>`;
+      // Ball at angle
+      const angle=Date.now()/500%(2*Math.PI);
+      const bx=cx+R*Math.cos(angle), by=cy+R*Math.sin(angle);
+      html+=`<circle cx="${bx}" cy="${by}" r="20" fill="url(#ballGrad)" filter="url(#dropShadow)"/>`;
+      html+=`<ellipse cx="${bx-6}" cy="${by-7}" rx="7" ry="3" fill="rgba(255,255,255,.45)"/>`;
+      // Velocity vector (tangential)
+      const vL=v*3;
+      const vAngle=angle+Math.PI/2;
+      const vx2=bx+vL*Math.cos(vAngle), vy2=by+vL*Math.sin(vAngle);
+      html+=vec(bx,by,vx2,vy2,'#5fc878','v');
+      // Centripetal (toward center)
+      const fL=Math.min(Fz*1.2,80);
+      const dx=cx-bx, dy=cy-by, dn=Math.sqrt(dx*dx+dy*dy);
+      const fx=bx+(dx/dn)*fL, fy=by+(dy/dn)*fL;
+      html+=vec(bx,by,fx,fy,'#ff6020','F_z');
+      // r label
+      const mx=(bx+cx)/2, my=(by+cy)/2;
+      html+=`<text x="${mx+10}" y="${my-8}" fill="rgba(255,255,255,.75)" font-size="13" font-weight="700">r = ${r} m</text>`;
+      return {html,vals:{v,r,m,Fz:Fz.toFixed(1)}};
+    },
+    result:vals=>`<b>Bei v = ${vals.v} m/s, r = ${vals.r} m, m = ${vals.m} kg:</b><br>
+      F<sub>z</sub> = m · v² / r = ${vals.m} · ${vals.v}² / ${vals.r} = <span class="val-big">${vals.Fz} N</span><br>
+      ohne diese Kraft → der Körper fliegt tangential geradeaus weiter (1. Newton-Gesetz).`,
+    fact:'F<sub>z</sub> ist <b>Resultierende</b>, keine eigenständige Naturkraft. Wird durch Reibung (Auto-Kurve), Spannkraft (Stein an Schnur), Gravitation (Mond) realisiert.'
+  },
+
+  feder:{label:'Federpendel',sub:'Hooke\'sches Gesetz',sliderLabel:'Auslenkung',min:0,max:50,def:20,unit:'cm',
+    render:v=>{
+      const D=20;
+      const F=D*v/100;
+      let html=SVG_DEFS;
+      // Wall
+      html+=`<rect x="40" y="100" width="20" height="200" fill="#5a6878" filter="url(#dropShadow)"/>`;
+      html+=`<line x1="60" y1="100" x2="60" y2="300" stroke="rgba(255,255,255,.18)"/>`;
+      // Spring (compressed/extended)
+      const len=200+v*4;
+      const sx=60, sy=200;
+      let path=`M ${sx} ${sy} `;
+      const turns=10;
+      const segLen=len/turns;
+      for(let i=0;i<turns;i++){
+        path+=`L ${sx+segLen*(i+0.5)} ${sy-15} L ${sx+segLen*(i+1)} ${sy+15} `;
+      }
+      path+=`L ${sx+len} ${sy}`;
+      html+=`<path d="${path}" stroke="url(#springGrad)" stroke-width="6" fill="none" stroke-linejoin="round" filter="url(#glow)"/>`;
+      // Block
+      const bx=sx+len, by=sy;
+      html+=`<rect x="${bx}" y="${by-30}" width="80" height="60" rx="8" fill="url(#blockGrad)" filter="url(#dropShadow)"/>`;
+      html+=`<ellipse cx="${bx+20}" cy="${by-22}" rx="22" ry="4" fill="rgba(255,255,255,.4)"/>`;
+      // Force vector
+      const fL=Math.min(F*8,90);
+      html+=vec(bx+40,by,bx+40+fL,by,'#ff6020','F');
+      // Reference line
+      html+=`<line x1="${sx+200}" y1="80" x2="${sx+200}" y2="320" stroke="rgba(180,200,220,.3)" stroke-dasharray="3 3"/>
+        <text x="${sx+200}" y="76" fill="rgba(255,255,255,.6)" font-size="11" text-anchor="middle">Ruhelage</text>
+      <text x="${bx+40}" y="${by-50}" fill="rgba(255,255,255,.85)" font-size="13" font-weight="700" text-anchor="middle">s = ${v} cm</text>`;
+      return {html,vals:{D,s:v,F:F.toFixed(2)}};
+    },
+    result:vals=>`<b>Bei D = ${vals.D} N/m, s = ${vals.s} cm:</b><br>
+      F = D · s = ${vals.D} · ${(vals.s/100).toFixed(2)} m = <span class="val-big">${vals.F} N</span><br>
+      Energie der gespannten Feder: E = ½ · D · s² = ${(0.5*vals.D*Math.pow(vals.s/100,2)).toFixed(3)} J`,
+    fact:'Hooke\'sches Gesetz gilt nur im <b>elastischen Bereich</b> — bei zu großer Auslenkung wird die Feder plastisch verformt oder bricht.'
+  },
+
+  auftrieb:{label:'Tauchen',sub:'Auftriebskraft',sliderLabel:'Eintauchtiefe',min:0,max:100,def:50,unit:'%',
+    render:v=>{
+      const m=8, g=9.81;
+      const Fg=m*g;
+      const V=0.008;  // Volumen des Blocks in m³
+      const rhoW=1000;
+      const eingetaucht=V*v/100;
+      const Fa=rhoW*eingetaucht*g;
+      const result=Fa-Fg;
+      let html=SVG_DEFS;
+      // Water
+      html+=`<rect x="0" y="180" width="600" height="180" fill="url(#waterGrad)"/>`;
+      html+=`<line x1="0" y1="180" x2="600" y2="180" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>`;
+      // Wave
+      let wave='M 0 180 ';
+      for(let x=0;x<=600;x+=20){
+        wave+=`Q ${x+10} ${175} ${x+20} 180 `;
+      }
+      html+=`<path d="${wave}" stroke="rgba(255,255,255,.3)" stroke-width="1.5" fill="none"/>`;
+      // Block
+      const bw=80, bh=80;
+      const yTop=180-bh*(100-v)/100;
+      const bx=300-bw/2;
+      html+=`<rect x="${bx}" y="${yTop}" width="${bw}" height="${bh}" rx="6" fill="url(#blockGrad)" filter="url(#dropShadow)"/>`;
+      html+=`<ellipse cx="${bx+24}" cy="${yTop+8}" rx="22" ry="4" fill="rgba(255,255,255,.4)"/>`;
+      // Vectors
+      const cx=bx+bw/2, cy=yTop+bh/2;
+      const fgL=Math.min(Fg*0.7,90);
+      html+=vec(cx-15,cy,cx-15,cy+fgL,'#ff6020','F_G');
+      const faL=Math.min(Fa*0.7,90);
+      if(Fa>0) html+=vec(cx+15,cy,cx+15,cy-faL,'#5fc878','F_A');
+      return {html,vals:{m,Fg:Fg.toFixed(1),Fa:Fa.toFixed(1),v,result:result.toFixed(1)}};
+    },
+    result:vals=>{
+      const balance=parseFloat(vals.result);
+      const status=balance>0.5?'<b>Schwimmt auf</b> (F<sub>A</sub> > F<sub>G</sub>)':balance<-0.5?'<b>Sinkt</b> (F<sub>A</sub> < F<sub>G</sub>)':'<b>Schwebt</b> (Gleichgewicht)';
+      return `<b>Block (m=${vals.m} kg, V=8 L), zu ${vals.v}% eingetaucht:</b><br>
+      F<sub>G</sub> = m·g = <b>${vals.Fg} N</b> · F<sub>A</sub> = ρ·V<sub>verdr</sub>·g = <span class="val-big">${vals.Fa} N</span><br>
+      Resultierend: ${status}`;
+    },
+    fact:'<b>Archimedes</b>: Auftrieb = Gewicht der verdrängten Flüssigkeit. Schwimmt wenn ρ<sub>Körper</sub> < ρ<sub>Fluid</sub>. Mensch ρ ≈ 985 kg/m³ → schwimmt knapp.'
+  },
+
+  reibung:{label:'Block ziehen',sub:'Reibungskraft',sliderLabel:'Zugkraft',min:0,max:100,def:30,unit:'N',
+    render:v=>{
+      const m=10, g=9.81, mu=0.4;
+      const Fn=m*g;
+      const Fr_max=mu*Fn;
+      const isMoving=v>Fr_max;
+      const Fr=isMoving?Fr_max:v;
+      const Fres=isMoving?v-Fr:0;
+      let html=SVG_DEFS;
+      // Floor
+      html+=`<line x1="0" y1="240" x2="600" y2="240" stroke="rgba(180,200,220,.4)" stroke-width="2"/>`;
+      html+=`<defs><pattern id="hatch2" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="10" y2="10" stroke="#5a6878" stroke-width="1"/></pattern></defs>`;
+      html+=`<rect x="0" y="240" width="600" height="20" fill="url(#hatch2)"/>`;
+      // Block
+      const bx=240, by=180;
+      html+=`<rect x="${bx}" y="${by}" width="100" height="60" rx="8" fill="url(#blockGrad)" filter="url(#dropShadow)"/>`;
+      html+=`<ellipse cx="${bx+30}" cy="${by+10}" rx="28" ry="4" fill="rgba(255,255,255,.4)"/>`;
+      // Vectors
+      const fzL=Math.min(v*2,150);
+      if(v>0) html+=vec(bx+100,by+30,bx+100+fzL,by+30,'#5fc878','F_Zug');
+      const frL=Math.min(Fr*2,150);
+      if(Fr>0) html+=vec(bx,by+30,bx-frL,by+30,'#ff6020','F_R');
+      // Status
+      html+=`<text x="300" y="60" fill="${isMoving?'#5fc878':'#ffaa30'}" font-size="16" font-weight="800" text-anchor="middle">${isMoving?'BLOCK BEWEGT SICH':'BLOCK STEHT (Haftreibung hält)'}</text>`;
+      return {html,vals:{m,Fn:Fn.toFixed(1),mu,Fr_max:Fr_max.toFixed(1),v,Fr:Fr.toFixed(1),Fres:Fres.toFixed(1),isMoving}};
+    },
+    result:vals=>`<b>Block (m=${vals.m} kg) auf Boden mit μ = ${vals.mu}:</b><br>
+      F<sub>N</sub> = m·g = ${vals.Fn} N · max. Haftreibung = μ·F<sub>N</sub> = <b>${vals.Fr_max} N</b><br>
+      Zugkraft <b>${vals.v} N</b> ${vals.isMoving?'> Haftreibung → Block beschleunigt mit a = '+(parseFloat(vals.Fres)/vals.m).toFixed(2)+' m/s²':'≤ Haftreibung → bleibt in Ruhe (Reibung hält genau dagegen).'}`,
+    fact:'<b>Haftreibung > Gleitreibung</b>: ist die Zugkraft kleiner als die maximale Haftreibung, hält der Block — sobald sie überwunden ist, ruckelt der Block los und die kleinere Gleitreibung wirkt.'
+  },
+
+  pendel:{label:'Pendel',sub:'Gravitations-/Spannkraft',sliderLabel:'Pendelwinkel',min:-45,max:45,def:30,unit:'°',
+    render:v=>{
+      const m=1, g=9.81, L=2;
+      const a=g*Math.sin(v*Math.PI/180);
+      let html=SVG_DEFS;
+      // Anchor
+      const ax=300, ay=60;
+      html+=`<rect x="${ax-30}" y="40" width="60" height="20" fill="#5a6878" filter="url(#dropShadow)"/>`;
+      // Pendel-Position
+      const px=ax+180*Math.sin(v*Math.PI/180);
+      const py=ay+180*Math.cos(v*Math.PI/180);
+      // String
+      html+=`<line x1="${ax}" y1="${ay}" x2="${px}" y2="${py}" stroke="rgba(255,255,255,.5)" stroke-width="2"/>`;
+      // Ball
+      html+=`<circle cx="${px}" cy="${py}" r="22" fill="url(#ballGrad)" filter="url(#dropShadow)"/>`;
+      html+=`<ellipse cx="${px-7}" cy="${py-8}" rx="8" ry="3" fill="rgba(255,255,255,.45)"/>`;
+      // Forces from ball
+      const fgL=70;
+      html+=vec(px,py,px,py+fgL,'#ff6020','F_G');
+      // Spannkraft (along string)
+      const dx=ax-px, dy=ay-py, dn=Math.sqrt(dx*dx+dy*dy);
+      const fsL=fgL*Math.cos(v*Math.PI/180);
+      html+=vec(px,py,px+(dx/dn)*fsL,py+(dy/dn)*fsL,'#5fc878','F_Sp');
+      // Tangential restoring force
+      const ftL=fgL*Math.sin(v*Math.PI/180);
+      const tAngle=v*Math.PI/180-Math.PI/2;
+      html+=vec(px,py,px-Math.cos(tAngle)*ftL,py-Math.sin(tAngle)*ftL,'#ffaa30','F_t');
+      return {html,vals:{m,L,v,a:a.toFixed(2)}};
+    },
+    result:vals=>`<b>Pendel (m=${vals.m} kg, L=${vals.L} m) bei Winkel α = ${vals.v}°:</b><br>
+      Tangentialbeschleunigung: a = g·sin α = <span class="val-big">${vals.a} m/s²</span><br>
+      Periode (kleine Auslenkung): T = 2π·√(L/g) ≈ ${(2*Math.PI*Math.sqrt(2/9.81)).toFixed(2)} s`,
+    fact:'Bei kleinen Winkeln (<10°) ist sin α ≈ α — die Schwingung ist <b>harmonisch</b>. Periode hängt nur von L und g ab, <b>nicht</b> von der Masse!'
+  }
+};
+
+let sceneCurrent='hang';
+let sceneAnimFrame=null;
+function buildSceneControls(){
+  const row=document.getElementById('sceneControls');
+  row.innerHTML='';
+  Object.entries(SCENES).forEach(([k,s])=>{
+    const btn=document.createElement('button');
+    btn.className='scene-btn'+(k===sceneCurrent?' active':'');
+    btn.dataset.key=k;
+    btn.innerHTML=`${s.label}<small>${s.sub}</small>`;
+    btn.onclick=()=>{
+      sceneCurrent=k;
+      document.querySelectorAll('.scene-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      switchScene();
+    };
+    row.appendChild(btn);
+  });
+}
+buildSceneControls();
+function switchScene(){
+  const s=SCENES[sceneCurrent];
+  const slider=document.getElementById('sceneSlider');
+  slider.min=s.min; slider.max=s.max; slider.value=s.def;
+  document.getElementById('sceneSliderLabel').textContent=s.sliderLabel;
+  document.getElementById('sceneSliderVal').textContent=s.def+' '+s.unit;
+  updateScene();
+  // Animation for kreis
+  if(sceneAnimFrame) cancelAnimationFrame(sceneAnimFrame);
+  if(sceneCurrent==='kreis'){
+    function animate(){
+      updateScene();
+      sceneAnimFrame=requestAnimationFrame(animate);
+    }
+    animate();
+  }
+}
+function updateScene(){
+  const s=SCENES[sceneCurrent];
+  const v=parseFloat(document.getElementById('sceneSlider').value);
+  document.getElementById('sceneSliderVal').textContent=v+' '+s.unit;
+  const r=s.render(v);
+  document.getElementById('sceneSvg').innerHTML=r.html;
+  document.getElementById('sceneResult').innerHTML=s.result(r.vals);
+  document.getElementById('sceneFact').querySelector('div').innerHTML=s.fact;
+}
+document.getElementById('sceneSlider').addEventListener('input',updateScene);
+let sceneInited=false;
+function ensureScene(){if(!sceneInited){switchScene();sceneInited=true}}
+
+/* ===== TAB 4: ZUORDNUNG ===== */
+const MATCH_MODES={
+  formel:{label:'Formel',sub:'Kraft → Formel',leftLabel:'Kraft',rightLabel:'Formel',
+    pairs:[
+      {a:'Gewichtskraft',b:'F = m · g'},
+      {a:'Reibungskraft',b:'F = μ · F_N'},
+      {a:'Federkraft',b:'F = D · s'},
+      {a:'Zentripetalkraft',b:'F = m · v² / r'},
+      {a:'Auftriebskraft',b:'F = ρ · V · g'},
+      {a:'Lorentzkraft',b:'F = q · v · B · sin α'},
+      {a:'Coulomb-Kraft',b:'F = k · q₁·q₂ / r²'},
+      {a:'Gravitationskraft',b:'F = G · m₁·m₂ / r²'},
+      {a:'Hangabtriebskraft',b:'F = m · g · sin α'},
+      {a:'Druckkraft',b:'F = p · A'}
+    ]},
+  beispiel:{label:'Beispiel',sub:'Kraft → Anwendung',leftLabel:'Beispiel',rightLabel:'Wirkende Kraft',
+    pairs:[
+      {a:'Apfel fällt vom Baum',b:'Gewichtskraft'},
+      {a:'Auto in Kurve',b:'Zentripetalkraft (durch Reibung)'},
+      {a:'Schiff schwimmt',b:'Auftriebskraft'},
+      {a:'Trampolin schleudert hoch',b:'Federkraft'},
+      {a:'Ski auf Piste',b:'Hangabtriebskraft'},
+      {a:'Massenspektrometer',b:'Lorentzkraft'},
+      {a:'Mond umkreist Erde',b:'Gravitationskraft'},
+      {a:'NaCl-Ionenbindung',b:'Coulomb-Kraft'},
+      {a:'Reifen-Innendruck',b:'Druckkraft'},
+      {a:'ABS-Bremsen',b:'Reibungskraft'}
+    ]},
+  einheit:{label:'Einheit',sub:'Größe → Einheit',leftLabel:'Größe',rightLabel:'SI-Einheit',
+    pairs:[
+      {a:'Kraft F',b:'Newton (N) = kg·m/s²'},
+      {a:'Druck p',b:'Pascal (Pa) = N/m²'},
+      {a:'Energie / Arbeit E',b:'Joule (J) = N·m'},
+      {a:'Leistung P',b:'Watt (W) = J/s'},
+      {a:'Federkonstante D',b:'N/m'},
+      {a:'Magnetische Flussdichte B',b:'Tesla (T)'},
+      {a:'Elektrische Ladung q',b:'Coulomb (C)'},
+      {a:'Geschwindigkeit v',b:'m/s'},
+      {a:'Beschleunigung a',b:'m/s²'},
+      {a:'Masse m',b:'Kilogramm (kg)'}
+    ]}
+};
+let matchCurrent='formel';
+let matchOk=0,matchBad=0,matchSelected=null,matchTotal=0;
+function buildMatchModes(){
+  const row=document.getElementById('matchModeRow');
+  row.innerHTML='';
+  Object.entries(MATCH_MODES).forEach(([k,m])=>{
+    const btn=document.createElement('button');
+    btn.className='match-mode-btn'+(k===matchCurrent?' active':'');
+    btn.dataset.mode=k;
+    btn.innerHTML=`${m.label}<small>${m.sub}</small>`;
+    btn.onclick=()=>{
+      matchCurrent=k;
+      document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      initMatch();
+    };
+    row.appendChild(btn);
+  });
+}
+buildMatchModes();
+function initMatch(){
+  const m=MATCH_MODES[matchCurrent];
+  matchOk=0; matchBad=0; matchSelected=null; matchTotal=m.pairs.length;
+  document.getElementById('matchOk').textContent=0;
+  document.getElementById('matchBad').textContent=0;
+  document.getElementById('matchLeft').textContent=matchTotal;
+  document.getElementById('matchStatus').classList.remove('show');
+  document.getElementById('matchLeftLabel').textContent=m.leftLabel;
+  document.getElementById('matchRightLabel').textContent=m.rightLabel;
+  const left=document.getElementById('matchLeft1'); const right=document.getElementById('matchRight');
+  left.innerHTML=''; right.innerHTML='';
+  const indexed=m.pairs.map((p,i)=>({...p,key:'p'+i}));
+  [...indexed].sort(()=>Math.random()-.5).forEach(p=>{
+    const div=document.createElement('div'); div.className='match-item'; div.dataset.key=p.key;
+    div.textContent=p.a; div.onclick=()=>matchTapLeft(div); left.appendChild(div);
+  });
+  [...indexed].sort(()=>Math.random()-.5).forEach(p=>{
+    const div=document.createElement('div'); div.className='match-item'; div.dataset.key=p.key;
+    if(matchCurrent==='formel') div.classList.add('formula');
+    div.textContent=p.b; div.onclick=()=>matchTapRight(div); right.appendChild(div);
+  });
+}
+function matchTapLeft(el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#matchLeft1 .match-item.selected').forEach(x=>x.classList.remove('selected'));
+  if(matchSelected===el){matchSelected=null;return}
+  el.classList.add('selected'); matchSelected=el;
+}
+function matchTapRight(el){
+  if(el.classList.contains('matched')) return;
+  if(!matchSelected){el.classList.add('wrong');setTimeout(()=>el.classList.remove('wrong'),350);return}
+  if(el.dataset.key===matchSelected.dataset.key){
+    el.classList.add('matched'); matchSelected.classList.add('matched');
+    matchSelected.classList.remove('selected'); matchSelected=null;
+    matchOk++;
+    document.getElementById('matchOk').textContent=matchOk;
+    document.getElementById('matchLeft').textContent=matchTotal-matchOk;
+    if(matchOk===matchTotal){
+      const s=document.getElementById('matchStatus');
+      s.className='match-status show success';
+      s.innerHTML=`<b>Geschafft!</b> ${matchOk} richtig, ${matchBad} Fehler.`;
+    }
+  } else {
+    el.classList.add('wrong'); matchSelected.classList.add('wrong');
+    setTimeout(()=>{el.classList.remove('wrong');if(matchSelected)matchSelected.classList.remove('wrong')},400);
+    matchBad++; document.getElementById('matchBad').textContent=matchBad;
+  }
+}
+document.getElementById('matchReset').onclick=initMatch;
+document.getElementById('matchNext').onclick=()=>{
+  const keys=Object.keys(MATCH_MODES);
+  matchCurrent=keys[(keys.indexOf(matchCurrent)+1)%keys.length];
+  document.querySelectorAll('.match-mode-btn').forEach(b=>b.classList.toggle('active',b.dataset.mode===matchCurrent));
+  initMatch();
+};
+
+/* ===== QUIZ ===== */
+const QUIZ=[
+  {q:'Welche Einheit hat die <b>Kraft</b> im SI-System?',o:['kg','m/s²','Newton (N)','Joule (J)'],c:2,e:'1 N = 1 kg · m/s². Joule ist die Einheit der Energie/Arbeit.'},
+  {q:'Was besagt das <b>2. Newton-Gesetz</b>?',o:['Trägheit ohne Kraft','F = m · a','actio = reactio','Energie-Erhaltung'],c:1,e:'F = m · a (Aktionsprinzip). Beschleunigung ist proportional zur Kraft, umgekehrt proportional zur Masse.'},
+  {q:'Wie groß ist die Gewichtskraft eines 70 kg schweren Menschen auf der Erde?',o:['~70 N','~700 N','~7000 N','~70.000 N'],c:1,e:'F<sub>G</sub> = m·g = 70 · 9,81 ≈ 687 N ≈ 700 N. Auf 10 m/s² gerundet → genau 700 N.'},
+  {q:'Welche Kraft hält den <b>Mond auf seiner Umlaufbahn</b>?',o:['Magnetkraft','Reibung','Gravitationskraft','Lorentzkraft'],c:2,e:'Die Gravitationskraft der Erde wirkt als Zentripetalkraft. Ohne sie würde der Mond geradlinig wegfliegen.'},
+  {q:'Welche der folgenden Größen ist ein <b>Vektor</b>?',o:['Masse','Temperatur','Kraft','Energie'],c:2,e:'Kraft hat Betrag <b>und</b> Richtung — ist also vektoriell. Masse, Temperatur und Energie sind Skalare.'},
+  {q:'Was bedeutet <b>F<sub>R</sub> = μ · F<sub>N</sub></b>?',o:['Reibung = Gleitreibungszahl × Normalkraft','Reibung = Masse × Beschleunigung','Reibung = Druck × Fläche','Reibung = Federkonstante × Auslenkung'],c:0,e:'Reibungskraft hängt nur von μ und Normalkraft ab — nicht von der Auflagefläche!'},
+  {q:'Auf einer <b>schiefen Ebene</b> (Winkel α): F<sub>H</sub> = ?',o:['m·g','m·g·cos α','m·g·sin α','m·g·tan α'],c:2,e:'Hangabtrieb: F<sub>H</sub> = m·g·sin α. Normalkraft: F<sub>N</sub> = m·g·cos α.'},
+  {q:'Ein Körper schwimmt im Wasser. Welche Aussage stimmt?',o:['F_A < F_G','F_A = F_G','F_A > F_G','F_A = 0'],c:1,e:'Schwimmen = Gleichgewicht: Auftriebskraft = Gewichtskraft. Sinken: F_A < F_G. Aufschwimmen: F_A > F_G.'},
+  {q:'Welche Kraft wirkt auf einen Körper auf einer <b>Kreisbahn</b> in Richtung Mittelpunkt?',o:['Zentrifugal','Zentripetal','Tangential','Coriolis'],c:1,e:'Zentripetalkraft (zum Mittelpunkt). Zentrifugalkraft ist eine <b>Schein</b>kraft im rotierenden Bezugssystem.'},
+  {q:'Verdoppele den Abstand zweier Massen — wie ändert sich F<sub>Grav</sub>?',o:['halbiert','viertelt','verdoppelt','vervierfacht'],c:1,e:'F ~ 1/r². Bei doppeltem Abstand → ¼ der Kraft. Gleiches Gesetz wie Coulomb-Kraft.'},
+  {q:'Welche Kraft wirkt auf eine <b>bewegte Ladung</b> im Magnetfeld?',o:['Coulomb','Lorentz','Gravitation','Federkraft'],c:1,e:'F<sub>L</sub> = q·v×B. Senkrecht zu v und B (Drei-Finger-Regel rechts).'},
+  {q:'Federkonstante D = 50 N/m, Auslenkung s = 4 cm. Wie groß ist F?',o:['0,2 N','2 N','20 N','200 N'],c:1,e:'F = D·s = 50 · 0,04 m = 2 N. Vorsicht: cm in m umrechnen!'},
+  {q:'<b>Haftreibung</b> ist im Vergleich zu <b>Gleitreibung</b>:',o:['immer kleiner','immer gleich','immer größer','abhängig vom Material'],c:2,e:'μ<sub>Haft</sub> > μ<sub>Gleit</sub>. Deshalb ABS-Bremssysteme: Räder dürfen nicht blockieren (sonst Gleit- statt Haftreibung).'},
+  {q:'Was ist die <b>Einheit des Drucks</b> im SI-System?',o:['N','Pa = N/m²','J','bar'],c:1,e:'1 Pa = 1 N/m². Atmosphärendruck ≈ 101.325 Pa = 1013 hPa = 1,013 bar.'},
+  {q:'Eine Kraft von 10 N beschleunigt eine Masse mit 5 m/s². Wie schwer ist die Masse?',o:['0,5 kg','2 kg','5 kg','50 kg'],c:1,e:'F = m·a → m = F/a = 10/5 = 2 kg. Klassische Anwendung des 2. Newton-Gesetzes.'}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUIZ[qi];
+  document.getElementById('qText').innerHTML=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUIZ.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.innerHTML=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('#qOpts .q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUIZ.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

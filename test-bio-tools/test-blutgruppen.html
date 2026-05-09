@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AB0 / Rhesus – Blutgruppen-Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--mint:#c8e6d0;
+    --blue:#6db8e0;--purple:#9b7fc4;--lavender:#e4daf0;
+    --pink:#e07b8b;--pink-deep:#c8505f;--coral:#f5a68e;--coral-soft:#fde8e0;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
+    --shadow-md:0 8px 32px rgba(26,26,46,.08);
+    --shadow-lg:0 16px 48px rgba(26,26,46,.12);
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  /* ===== HEADER ===== */
+  .header{background:var(--surface);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px);background:rgba(255,255,255,.92)}
+  .header-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--coral-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--pink-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;margin-top:1px;font-weight:500;text-align:left}
+
+  /* ===== TABS ===== */
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(224,123,139,.35);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--pink);color:var(--pink-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== CARDS ===== */
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card.hero{background:linear-gradient(135deg,#fff 0%,var(--coral-soft) 100%);border:none}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.92rem;margin-bottom:10px;color:var(--pink-deep);font-weight:700}
+
+  /* ===== INTRO STRIP ===== */
+  .intro-strip{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--coral-soft),var(--yellow-soft));border-radius:var(--radius);padding:16px 18px;margin:14px 0;border:1px solid rgba(245,166,142,.3)}
+  .intro-strip .ico{width:44px;height:44px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;box-shadow:var(--shadow-sm)}
+  .intro-strip .txt{font-size:.85rem;line-height:1.5;color:var(--text)}
+  .intro-strip .txt b{color:var(--pink-deep)}
+
+  /* ===== ELTERN-PICKER ===== */
+  .parents{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .parent{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border:1px solid var(--border-light);border-radius:18px;padding:16px;text-align:center}
+  .parent-label{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);font-weight:700;margin-bottom:10px}
+  .geno-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+  .geno-btn{padding:8px 12px;border-radius:11px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .2s;color:var(--text);min-width:46px}
+  .geno-btn:hover{border-color:var(--pink);transform:translateY(-1px)}
+  .geno-btn.active{background:var(--pink);color:#fff;border-color:var(--pink);box-shadow:0 3px 10px rgba(224,123,139,.3)}
+  .rh-row .geno-btn.active{background:var(--purple);border-color:var(--purple);box-shadow:0 3px 10px rgba(155,127,196,.3)}
+
+  /* ===== PUNNETT ===== */
+  .punnett{display:grid;grid-template-columns:60px repeat(2,1fr);gap:6px;max-width:340px;margin:14px auto}
+  .pn{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:12px;font-weight:700;min-height:60px;font-size:1rem;transition:all .2s}
+  .pn.h{background:var(--mint);color:#2d6a45;font-size:.95rem}
+  .pn.corner{background:transparent}
+  .pn.r{background:var(--bg-warm);border:2px solid var(--border)}
+  .pn.r:hover{transform:scale(1.03);box-shadow:var(--shadow-sm)}
+  .pn.r .geno{font-size:.78rem;color:var(--muted);font-weight:500;margin-top:2px}
+
+  .bg-A{background:rgba(245,166,142,.25);border-color:var(--coral);color:#a8552d}
+  .bg-B{background:rgba(109,184,224,.22);border-color:var(--blue);color:#2d6a8e}
+  .bg-AB{background:var(--lavender);border-color:var(--purple);color:#5c3d8a}
+  .bg-O{background:var(--yellow-soft);border-color:var(--gold);color:var(--gold-deep)}
+
+  /* ===== RESULTS ===== */
+  .results{margin-top:14px}
+  .res-row{display:flex;align-items:center;gap:12px;margin:8px 0}
+  .res-label{width:42px;font-weight:800;font-size:.95rem;color:var(--text)}
+  .res-bar{flex:1;height:28px;background:var(--bg-warm);border-radius:14px;overflow:hidden;border:1px solid var(--border-light)}
+  .res-fill{height:100%;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;color:#fff;font-size:.78rem;font-weight:700;transition:width .8s cubic-bezier(.4,0,.2,1)}
+  .res-fill.A{background:linear-gradient(90deg,var(--coral),#e07a55)}
+  .res-fill.B{background:linear-gradient(90deg,var(--blue),#4a99c4)}
+  .res-fill.AB{background:linear-gradient(90deg,var(--purple),#7a60a8)}
+  .res-fill.O{background:linear-gradient(90deg,var(--gold),var(--gold-deep));color:var(--dark)}
+  .res-fill.zero{background:var(--border);color:var(--muted)}
+
+  /* ===== STECKBRIEF-SECTIONS (ergänzend zum Popup) ===== */
+  .sb-section{background:var(--bg-light);border-radius:14px;padding:13px 16px;border-left:3px solid var(--pink-deep);margin:10px 0}
+  .sb-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.7px;color:var(--pink-deep);font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .sb-section h4 [data-lucide]{width:14px;height:14px;color:var(--pink-deep)}
+  .sb-section p{font-size:.85rem;color:var(--text);line-height:1.6;margin:0}
+  .sb-section p b{color:var(--pink-deep);font-weight:700}
+  .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--pink-deep)}
+  .sb-section.medat{background:var(--mint);border-left-color:var(--green)}
+  .sb-section.medat h4{color:var(--success)}
+  .sb-section.medat h4 [data-lucide]{color:var(--success)}
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;margin:14px 0;font-size:.86rem;line-height:1.6;color:var(--text);display:flex;gap:10px;align-items:flex-start}
+  .warn-fact{background:var(--coral-soft);border-left:3px solid var(--coral);padding:12px 16px;border-radius:0 12px 12px 0;margin:12px 0;font-size:.85rem;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+  .info-fact{background:var(--lavender);border-left:3px solid var(--purple);padding:12px 16px;border-radius:0 12px 12px 0;margin:12px 0;font-size:.85rem;line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+
+  /* ===== ANTIGENE ===== */
+  .ag-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+  .ag-cell{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;padding:14px 8px;text-align:center;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+  .ag-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:60px;opacity:.12;border-radius:18px 18px 0 0}
+  .ag-cell.A::before{background:var(--coral)}
+  .ag-cell.B::before{background:var(--blue)}
+  .ag-cell.AB::before{background:var(--purple)}
+  .ag-cell.O::before{background:var(--gold)}
+  .ag-cell:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:transparent}
+  .ag-cell .bg-name{font-size:1.6rem;font-weight:900;margin-bottom:8px;letter-spacing:-1px;position:relative}
+  .ag-cell.A .bg-name{color:#a8552d}
+  .ag-cell.B .bg-name{color:#2d6a8e}
+  .ag-cell.AB .bg-name{color:#5c3d8a}
+  .ag-cell.O .bg-name{color:var(--gold-deep)}
+  .ag-cell .row{font-size:.7rem;color:var(--text-secondary);margin:4px 0;position:relative}
+  .ag-cell .row b{color:var(--text);font-weight:700}
+  .ag-cell .ery{width:46px;height:46px;margin:8px auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.12);position:relative}
+  .ag-cell.A .ery{background:radial-gradient(circle at 30% 30%,#f0a89a 0%,#e07b8b 50%,#a8552d 100%)}
+  .ag-cell.B .ery{background:radial-gradient(circle at 30% 30%,#9bd3ec 0%,#6db8e0 50%,#2d6a8e 100%)}
+  .ag-cell.AB .ery{background:radial-gradient(circle at 30% 30%,#c5b1da 0%,#9b7fc4 50%,#5c3d8a 100%)}
+  .ag-cell.O .ery{background:radial-gradient(circle at 30% 30%,#fce0a3 0%,#f5c542 50%,#bf8c0a 100%);color:var(--dark)}
+  .ag-cell .tap-hint{font-size:.65rem;color:var(--muted);margin-top:8px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;opacity:.6}
+
+  /* ===== MATRIX ===== */
+  .matrix{width:100%;border-collapse:separate;border-spacing:4px;margin-top:10px}
+  .matrix th,.matrix td{padding:10px 6px;text-align:center;font-size:.85rem;border-radius:10px;font-weight:700}
+  .matrix th{background:var(--dark);color:#fff;font-weight:600;font-size:.78rem}
+  .matrix th.row-h{background:var(--bg-warm);color:var(--text)}
+  .matrix td.yes{background:rgba(109,184,138,.18);color:var(--success);cursor:pointer;transition:all .2s}
+  .matrix td.yes:hover{background:rgba(109,184,138,.35);transform:scale(1.05)}
+  .matrix td.no{background:rgba(220,38,38,.1);color:var(--danger);cursor:pointer;transition:all .2s}
+  .matrix td.no:hover{background:rgba(220,38,38,.22);transform:scale(1.05)}
+
+  /* ===== RH ===== */
+  .rh-card{background:linear-gradient(135deg,var(--lavender),var(--yellow-soft));border-radius:var(--radius);padding:18px;margin:14px 0;text-align:center}
+  .rh-card h3{color:#7a60a8;margin-bottom:10px;font-size:.85rem;text-transform:uppercase;letter-spacing:.8px}
+  .rh-result{font-size:1.5rem;font-weight:800;text-align:center;margin:10px 0;color:var(--dark);letter-spacing:-.5px}
+  .rh-result span.pos{color:var(--success)}
+  .rh-result span.neg{color:var(--danger)}
+
+  /* ===== SPENDE-LABOR ===== */
+  .lab-hero{background:linear-gradient(135deg,#fff 0%,#fff5f1 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(245,166,142,.2);box-shadow:var(--shadow)}
+  .lab-hero h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text)}
+  .lab-hero p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  .step-flow{display:flex;align-items:center;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .step{display:flex;align-items:center;gap:8px;background:var(--surface);padding:8px 12px;border-radius:var(--radius-pill);border:1px solid var(--border-light);font-size:.78rem;font-weight:600;color:var(--text-secondary)}
+  .step .num{width:22px;height:22px;border-radius:50%;background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800}
+  .step-arrow{color:var(--muted);font-weight:700}
+
+  .lab{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+  @media(max-width:560px){.lab{grid-template-columns:1fr}}
+
+  .lab-side{background:linear-gradient(180deg,var(--surface),var(--bg-light));border-radius:var(--radius);padding:16px;border:1px solid var(--border-light);box-shadow:var(--shadow-sm)}
+  .lab-side h4{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-secondary);margin-bottom:12px;font-weight:700;display:flex;align-items:center;gap:6px;justify-content:center}
+  .lab-side h4 .dot{width:8px;height:8px;border-radius:50%;background:var(--pink)}
+
+  .blood-bag-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .blood-bag{width:62px;height:84px;border-radius:10px 10px 18px 18px;color:#fff;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:10px;cursor:grab;user-select:none;font-size:1.05rem;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.15);transition:all .2s cubic-bezier(.4,0,.2,1)}
+  .blood-bag:hover{transform:translateY(-3px) rotate(-2deg);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+  .blood-bag:active{cursor:grabbing;transform:scale(.95) rotate(0)}
+  .blood-bag::before{content:'';position:absolute;top:-6px;left:18px;right:18px;height:8px;background:#3a3a4a;border-radius:3px 3px 0 0}
+  .blood-bag::after{content:'';position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:14px;height:5px;background:#5a5a6e;border-radius:2px 2px 0 0}
+  .blood-bag.A{background:linear-gradient(180deg,#f5a68e 0%,#c8505f 100%)}
+  .blood-bag.B{background:linear-gradient(180deg,#6db8e0 0%,#2d6a8e 100%)}
+  .blood-bag.AB{background:linear-gradient(180deg,#b89cd6 0%,#5c3d8a 100%)}
+  .blood-bag.O{background:linear-gradient(180deg,#f5c542 0%,#bf8c0a 100%);color:var(--dark)}
+  .blood-bag.dragging{opacity:.4;transform:scale(.9)}
+  .blood-bag .label{font-size:.64rem;font-weight:700;opacity:.85;margin-top:2px;letter-spacing:.5px}
+
+  .recipient-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .petri{aspect-ratio:1;background:radial-gradient(circle at 30% 30%,#fff 0%,#f0ebe1 100%);border:3px solid #d8d0c0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);overflow:hidden;box-shadow:inset 0 2px 6px rgba(0,0,0,.05),0 2px 8px rgba(0,0,0,.05)}
+  .petri.over{border-color:var(--gold);box-shadow:0 0 0 5px rgba(245,197,66,.3),inset 0 2px 6px rgba(0,0,0,.05);transform:scale(1.04)}
+  .petri.compat{background:radial-gradient(circle at 30% 30%,#dcfce7 0%,#a8e0bd 100%);border-color:var(--success);animation:successPulse .8s ease}
+  .petri.incompat{background:radial-gradient(circle at 30% 30%,#fde2e2 0%,#e07b8b 100%);border-color:var(--danger);animation:errorShake .5s ease}
+  @keyframes successPulse{0%{transform:scale(1)}30%{transform:scale(1.06)}100%{transform:scale(1)}}
+  @keyframes errorShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  .petri .recip-name{font-size:1.6rem;font-weight:900;color:var(--dark);letter-spacing:-1px}
+  .petri .recip-sub{font-size:.66rem;color:var(--text-secondary);margin-top:1px;text-transform:uppercase;letter-spacing:.6px;font-weight:600}
+  .petri .reaction{position:absolute;inset:6px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;opacity:0;transition:opacity .3s;pointer-events:none}
+  .petri.compat .reaction,.petri.incompat .reaction{opacity:1}
+  .clump-dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#a8001f;animation:clumpAppear .5s ease forwards;pointer-events:none}
+  @keyframes clumpAppear{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
+
+  .lab-result{background:var(--bg-warm);border-radius:16px;padding:14px 16px;margin-top:14px;min-height:60px;font-size:.85rem;line-height:1.6;border-left:4px solid var(--border)}
+  .lab-result.compat{background:rgba(109,184,138,.1);border-left-color:var(--success);color:var(--success)}
+  .lab-result.compat b{color:var(--success)}
+  .lab-result.incompat{background:rgba(224,123,139,.1);border-left-color:var(--danger);color:var(--pink-deep)}
+
+  .lab-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .lab-stat{background:var(--surface);padding:14px;border-radius:14px;text-align:center;border:1px solid var(--border-light);box-shadow:var(--shadow-sm)}
+  .lab-stat .num{font-size:1.6rem;font-weight:800;letter-spacing:-.5px}
+  .lab-stat .num.ok{color:var(--success)}
+  .lab-stat .num.bad{color:var(--danger)}
+  .lab-stat .lbl{font-size:.68rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.7px;margin-top:3px;font-weight:600}
+
+  /* ===== VERERBUNG (vorher Detektiv) ===== */
+  .form-block{background:linear-gradient(180deg,var(--bg-light),var(--bg-warm));border-radius:18px;padding:16px;margin-bottom:14px;border:1px solid var(--border-light)}
+  .form-row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:10px 0;flex-wrap:wrap}
+  .form-row label{font-size:.85rem;font-weight:700;flex:0 0 130px;color:var(--text)}
+  .form-row select{padding:10px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.9rem;font-weight:700;flex:1;color:var(--text);cursor:pointer;transition:all .2s}
+  .form-row select:hover{border-color:var(--pink)}
+  .form-row select:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(224,123,139,.15)}
+
+  .candidate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:12px}
+  .candidate{background:var(--surface);border:2px solid var(--border-light);border-radius:14px;padding:14px 10px;text-align:center;transition:all .25s cubic-bezier(.4,0,.2,1);cursor:pointer}
+  .candidate:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+  .candidate.possible{border-color:var(--success);background:rgba(109,184,138,.08)}
+  .candidate.possible .verdict{color:var(--success)}
+  .candidate.impossible{border-color:var(--pink);background:rgba(224,123,139,.05);opacity:.6}
+  .candidate.impossible .verdict{color:var(--pink-deep)}
+  .candidate .name{font-size:1.4rem;font-weight:900;margin-bottom:4px;letter-spacing:-1px}
+  .candidate .verdict{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px}
+
+  .case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px}
+  .case-card{background:linear-gradient(135deg,var(--surface),var(--bg-light));border:1.5px solid var(--border-light);border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:all .2s}
+  .case-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);border-color:var(--pink)}
+  .case-card .case-num{font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;color:var(--text-secondary);font-weight:700;margin-bottom:4px}
+  .case-card .case-desc{font-size:.85rem;font-weight:700;color:var(--text)}
+  .case-card.tricky{background:linear-gradient(135deg,var(--coral-soft),#fff)}
+  .case-card.tricky{border-color:rgba(245,166,142,.5)}
+
+  /* ===== QUIZ ===== */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--pink);background:rgba(224,123,139,.04);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--pink);background:rgba(224,123,139,.1);color:var(--pink-deep);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
+
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--gold-deep));transition:width .4s}
+
+  /* ===== BUTTONS ===== */
+  .btn{padding:11px 20px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--pink),var(--pink-deep));color:#fff;box-shadow:0 4px 14px rgba(224,123,139,.3);display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(224,123,139,.4)}
+  .btn:active{transform:translateY(0)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--pink);color:var(--pink-deep);transform:translateY(-2px)}
+
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  /* ===== POPUP ===== */
+  .info-pop{position:fixed;inset:0;background:rgba(26,26,46,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .info-pop.show{display:flex;animation:fadeUp .3s ease}
+  .info-pop-card{background:var(--surface);border-radius:var(--radius);padding:26px;max-width:430px;width:100%;box-shadow:var(--shadow-lg)}
+  .info-pop-card h3{margin-bottom:12px;color:var(--pink-deep);font-size:1.1rem;font-weight:800}
+  .info-pop-card p{font-size:.88rem;line-height:1.65;color:var(--text-secondary);margin-bottom:8px}
+  .info-pop-card .closeBtn{margin-top:16px;width:100%;justify-content:center}
+
+  @media (max-width:520px){
+    .ag-grid{grid-template-columns:repeat(2,1fr)}
+    .parents{grid-template-columns:1fr}
+    .header h1{font-size:1.2rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="droplet"></i></div>
+    <div>
+      <h1>AB0 / Rhesus</h1>
+      <p>Spende · Vererbung · Antigene · Quiz</p>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="lab"><i data-lucide="test-tube"></i>Spende-Labor</button>
+  <button class="tab" data-tab="vererbung"><i data-lucide="users-round"></i>Vererbung</button>
+  <button class="tab" data-tab="ag"><i data-lucide="microscope"></i>Antigene</button>
+  <button class="tab" data-tab="rechner"><i data-lucide="calculator"></i>Rechner</button>
+  <button class="tab" data-tab="spende"><i data-lucide="table-2"></i>Matrix</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ TAB 1: SPENDE-LABOR ============ -->
+  <div class="section active" id="lab">
+    <div class="lab-hero">
+      <h2 style="display:flex;align-items:center;gap:10px"><i data-lucide="test-tube" style="color:var(--pink-deep);width:22px;height:22px"></i>Virtuelles Spende-Labor</h2>
+      <p>Ziehe einen Spender-Beutel auf eine Empfänger-Schale. Bei Inkompatibilität verklumpen die Erys (Hämagglutination), bei Kompatibilität mischen sie sich friedlich.</p>
+      <div class="step-flow">
+        <div class="step"><span class="num">1</span>Beutel ziehen</div>
+        <div class="step-arrow">→</div>
+        <div class="step"><span class="num">2</span>Schale wählen</div>
+        <div class="step-arrow">→</div>
+        <div class="step"><span class="num">3</span>Reaktion sehen</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="lab">
+        <div class="lab-side">
+          <h4><span class="dot"></span>Spender</h4>
+          <div class="blood-bag-row">
+            <div class="blood-bag A" draggable="true" data-bg="A">A<div class="label">SPENDER</div></div>
+            <div class="blood-bag B" draggable="true" data-bg="B">B<div class="label">SPENDER</div></div>
+            <div class="blood-bag AB" draggable="true" data-bg="AB">AB<div class="label">SPENDER</div></div>
+            <div class="blood-bag O" draggable="true" data-bg="O">0<div class="label">SPENDER</div></div>
+          </div>
+        </div>
+        <div class="lab-side">
+          <h4><span class="dot"></span>Empfänger</h4>
+          <div class="recipient-grid">
+            <div class="petri" data-bg="A"><div class="recip-name">A</div><div class="recip-sub">Empfänger</div><div class="reaction"></div></div>
+            <div class="petri" data-bg="B"><div class="recip-name">B</div><div class="recip-sub">Empfänger</div><div class="reaction"></div></div>
+            <div class="petri" data-bg="AB"><div class="recip-name">AB</div><div class="recip-sub">Empfänger</div><div class="reaction"></div></div>
+            <div class="petri" data-bg="O"><div class="recip-name">0</div><div class="recip-sub">Empfänger</div><div class="reaction"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lab-result" id="labResult">Ziehe einen Spender-Beutel auf eine Empfänger-Schale, um zu testen.</div>
+
+      <div class="lab-stats">
+        <div class="lab-stat"><div class="num ok" id="labOk">0</div><div class="lbl">Kompatibel</div></div>
+        <div class="lab-stat"><div class="num bad" id="labBad">0</div><div class="lbl">Verklumpt</div></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="labReset"><i data-lucide="rotate-ccw"></i>Zurücksetzen</button>
+        <button class="btn ghost" id="labAuto"><i data-lucide="zap"></i>Alle 16 testen</button>
+      </div>
+    </div>
+
+    <div class="key-fact"><i data-lucide="info" style="color:var(--success);width:18px;height:18px;flex-shrink:0;margin-top:2px"></i><div><b>Was passiert?</b> Der Empfänger hat <b>Antikörper</b> gegen Antigene, die er <b>selbst nicht trägt</b>. Treffen Spender-Erys mit fremdem Antigen ein, binden die AK daran und vernetzen die Zellen → sichtbare Klumpen, Hämolyse, Schock.</div></div>
+  </div>
+
+  <!-- ============ TAB 2: VERERBUNG ============ -->
+  <div class="section" id="vererbung">
+    <div class="card">
+      <h2 style="display:flex;align-items:center;gap:10px"><i data-lucide="users-round" style="color:var(--pink-deep);width:22px;height:22px"></i>Vererbung rückwärts gedacht</h2>
+      <p class="lead">Mutter und Kind sind bekannt — welche Blutgruppen kommen für den biologischen Vater <b>in Frage</b>, welche sind <b>ausgeschlossen</b>?</p>
+
+      <div class="form-block">
+        <div class="form-row">
+          <label>Mutter (Phänotyp)</label>
+          <select id="detMother">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="AB">AB</option>
+            <option value="O" selected>0</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Kind (Phänotyp)</label>
+          <select id="detChild">
+            <option value="A">A</option>
+            <option value="B" selected>B</option>
+            <option value="AB">AB</option>
+            <option value="O">0</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="text-align:center;margin:18px 0 10px">Möglicher biologischer Vater?</h3>
+      <div class="candidate-grid" id="candidates"></div>
+
+      <div class="key-fact" id="detExplain"></div>
+
+      <p style="font-size:.78rem;color:var(--muted);margin-top:12px;text-align:center;line-height:1.5">AB0-Befunde können einen Vater <b>ausschließen</b>, aber nicht beweisen — moderne Vaterschaftstests nutzen DNA-Marker (STR-Loci).</p>
+    </div>
+
+    <div class="card">
+      <h2 style="display:flex;align-items:center;gap:10px"><i data-lucide="folder-open" style="color:var(--pink-deep);width:22px;height:22px"></i>Beispielfälle</h2>
+      <p class="lead">Tippe auf einen Fall — er wird oben geladen.</p>
+      <div class="case-grid">
+        <div class="case-card" onclick="loadDet('O','A')"><div class="case-num">Fall 1 · Standard</div><div class="case-desc">Mutter 0, Kind A</div></div>
+        <div class="case-card" onclick="loadDet('A','O')"><div class="case-num">Fall 2 · Standard</div><div class="case-desc">Mutter A, Kind 0</div></div>
+        <div class="case-card tricky" onclick="loadDet('AB','O')"><div class="case-num">Fall 3 · Trick</div><div class="case-desc">Mutter AB, Kind 0</div></div>
+        <div class="case-card tricky" onclick="loadDet('O','AB')"><div class="case-num">Fall 4 · Trick</div><div class="case-desc">Mutter 0, Kind AB</div></div>
+      </div>
+      <div class="warn-fact" style="margin-top:14px"><b>Tipp:</b> Fälle 3 &amp; 4 zeigen <b>biologisch unmögliche</b> Konstellationen — egal welcher Vater. Die Mutter kann das nötige Allel gar nicht weitergeben.</div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: ANTIGENE ============ -->
+  <div class="section" id="ag">
+    <div class="card">
+      <h2 style="display:flex;align-items:center;gap:10px"><i data-lucide="microscope" style="color:var(--pink-deep);width:22px;height:22px"></i>Antigene &amp; Antikörper</h2>
+      <p class="lead">Auf den Erythrozyten sitzen Oberflächen-Antigene. Im Plasma schwimmen Antikörper gegen die Antigene, die die Person <b>selbst nicht trägt</b>.</p>
+
+      <div class="ag-grid">
+        <div class="ag-cell A" onclick="showInfo('A')">
+          <div class="bg-name">A</div>
+          <div class="ery">A</div>
+          <div class="row">Antigen: <b>A</b></div>
+          <div class="row">AK: <b>Anti-B</b></div>
+          <div class="row">≈ 41% AT/DE</div>
+          <div class="tap-hint">Tippen für Details</div>
+        </div>
+        <div class="ag-cell B" onclick="showInfo('B')">
+          <div class="bg-name">B</div>
+          <div class="ery">B</div>
+          <div class="row">Antigen: <b>B</b></div>
+          <div class="row">AK: <b>Anti-A</b></div>
+          <div class="row">≈ 12% AT/DE</div>
+          <div class="tap-hint">Tippen für Details</div>
+        </div>
+        <div class="ag-cell AB" onclick="showInfo('AB')">
+          <div class="bg-name">AB</div>
+          <div class="ery">AB</div>
+          <div class="row">Antigen: <b>A &amp; B</b></div>
+          <div class="row">AK: <b>keine</b></div>
+          <div class="row">≈ 6% AT/DE</div>
+          <div class="tap-hint">Tippen für Details</div>
+        </div>
+        <div class="ag-cell O" onclick="showInfo('O')">
+          <div class="bg-name">0</div>
+          <div class="ery">–</div>
+          <div class="row">Antigen: <b>keine</b></div>
+          <div class="row">AK: <b>Anti-A &amp; -B</b></div>
+          <div class="row">≈ 41% AT/DE</div>
+          <div class="tap-hint">Tippen für Details</div>
+        </div>
+      </div>
+
+      <div class="key-fact"><i data-lucide="brain" style="color:var(--success);width:18px;height:18px;flex-shrink:0;margin-top:2px"></i><div><b>Merksatz:</b> Antikörper passen zu dem Antigen, das man <b>nicht</b> hat. Wer A hat, hat Anti-B. Wer 0 hat, hat beide. Wer AB hat, keinen.</div></div>
+      <div class="warn-fact"><b>Klinik:</b> Anti-A und Anti-B sind <b>IgM</b> (plazentagängig <i>nein</i>). Anti-D (Rhesus) dagegen ist <b>IgG</b> → kann die Plazenta passieren → <b>Morbus haemolyticus neonatorum</b>.</div>
+      <div class="info-fact"><b>Bombay-Phänotyp:</b> Genotyp <b>hh</b> → keine H-Substanz → A/B können nicht aufgesetzt werden. Diese Personen brauchen im Notfall <b>Bombay-Blut</b>, weil sie auch gegen H Antikörper haben!</div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: RECHNER ============ -->
+  <div class="section" id="rechner">
+    <div class="card">
+      <h2 style="display:flex;align-items:center;gap:10px"><i data-lucide="calculator" style="color:var(--pink-deep);width:22px;height:22px"></i>Punnett-Rechner</h2>
+      <p class="lead">Wähle die Genotypen beider Eltern. Tool zeichnet das Punnett-Quadrat und berechnet die Wahrscheinlichkeiten.</p>
+
+      <div class="parents">
+        <div class="parent">
+          <div class="parent-label">Elternteil 1</div>
+          <div class="geno-row" data-parent="0" data-type="abo">
+            <button class="geno-btn active" data-g="AA">AA</button>
+            <button class="geno-btn" data-g="AO">AO</button>
+            <button class="geno-btn" data-g="BB">BB</button>
+            <button class="geno-btn" data-g="BO">BO</button>
+            <button class="geno-btn" data-g="AB">AB</button>
+            <button class="geno-btn" data-g="OO">OO</button>
+          </div>
+          <div class="geno-row rh-row" data-parent="0" data-type="rh">
+            <button class="geno-btn active" data-g="DD">Rh DD</button>
+            <button class="geno-btn" data-g="Dd">Rh Dd</button>
+            <button class="geno-btn" data-g="dd">Rh dd</button>
+          </div>
+        </div>
+        <div class="parent">
+          <div class="parent-label">Elternteil 2</div>
+          <div class="geno-row" data-parent="1" data-type="abo">
+            <button class="geno-btn" data-g="AA">AA</button>
+            <button class="geno-btn active" data-g="BO">BO</button>
+            <button class="geno-btn" data-g="AO">AO</button>
+            <button class="geno-btn" data-g="BB">BB</button>
+            <button class="geno-btn" data-g="AB">AB</button>
+            <button class="geno-btn" data-g="OO">OO</button>
+          </div>
+          <div class="geno-row rh-row" data-parent="1" data-type="rh">
+            <button class="geno-btn" data-g="DD">Rh DD</button>
+            <button class="geno-btn active" data-g="Dd">Rh Dd</button>
+            <button class="geno-btn" data-g="dd">Rh dd</button>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="text-align:center;margin:18px 0 8px">Punnett-Quadrat (AB0)</h3>
+      <div class="punnett" id="punnett"></div>
+      <p style="text-align:center;color:var(--muted);font-size:.74rem;margin-top:8px;text-transform:uppercase;letter-spacing:.6px;font-weight:600">Tippe eine Zelle für Erklärung</p>
+
+      <div style="margin-top:18px">
+        <h3>Wahrscheinlichkeiten</h3>
+        <div class="results" id="results"></div>
+      </div>
+
+      <div class="rh-card">
+        <h3>Rhesus-Faktor</h3>
+        <div class="rh-result" id="rhResult"></div>
+      </div>
+
+      <div class="key-fact" id="explainer"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="randomBtn"><i data-lucide="shuffle"></i>Zufällige Eltern</button>
+        <button class="btn ghost" id="swapBtn"><i data-lucide="arrow-left-right"></i>Vertauschen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 5: MATRIX ============ -->
+  <div class="section" id="spende">
+    <div class="card">
+      <h2 style="display:flex;align-items:center;gap:10px"><i data-lucide="table-2" style="color:var(--pink-deep);width:22px;height:22px"></i>Spender-Matrix</h2>
+      <p class="lead">Zeile = Spender · Spalte = Empfänger. Tippe eine Zelle für Erklärung.</p>
+      <table class="matrix" id="matrixTable">
+        <thead><tr><th class="row-h">↓ Spender / Empfänger →</th><th>0</th><th>A</th><th>B</th><th>AB</th></tr></thead>
+        <tbody>
+          <tr><th class="row-h">0</th><td class="yes" data-pair="O→O">✓</td><td class="yes" data-pair="O→A">✓</td><td class="yes" data-pair="O→B">✓</td><td class="yes" data-pair="O→AB">✓</td></tr>
+          <tr><th class="row-h">A</th><td class="no" data-pair="A→O">✗</td><td class="yes" data-pair="A→A">✓</td><td class="no" data-pair="A→B">✗</td><td class="yes" data-pair="A→AB">✓</td></tr>
+          <tr><th class="row-h">B</th><td class="no" data-pair="B→O">✗</td><td class="no" data-pair="B→A">✗</td><td class="yes" data-pair="B→B">✓</td><td class="yes" data-pair="B→AB">✓</td></tr>
+          <tr><th class="row-h">AB</th><td class="no" data-pair="AB→O">✗</td><td class="no" data-pair="AB→A">✗</td><td class="no" data-pair="AB→B">✗</td><td class="yes" data-pair="AB→AB">✓</td></tr>
+        </tbody>
+      </table>
+      <div class="key-fact" id="matrixExplain"><b>0 = Universalspender</b> (Erys), <b>AB = Universalempfänger</b>. Bei <b>Plasma</b> kehrt sich das genau um (AB-Plasma = universal, weil AK-frei).</div>
+      <div class="warn-fact"><b>Rhesus:</b> Rh-negativ darf nur Rh-negativ bekommen (sonst Sensibilisierung). Rh-positiv darf beides empfangen.</div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 6: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2 style="display:flex;align-items:center;gap:10px"><i data-lucide="circle-help" style="color:var(--pink-deep);width:22px;height:22px"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">15 Fragen</span></h2>
+      <p class="lead">Teste dein Wissen. Klick eine Antwort.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qReset"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNext">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- POPUP -->
+<div class="info-pop" id="infoPop" onclick="if(event.target===this)closeInfo()">
+  <div class="info-pop-card">
+    <h3 id="popTitle">Info</h3>
+    <div id="popBody"></div>
+    <button class="btn closeBtn" onclick="closeInfo()">Schließen</button>
+  </div>
+</div>
+
+<script>
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ===== STATE ===== */
+const state = { abo:['AA','BO'], rh:['DD','Dd'] };
+
+document.querySelectorAll('.geno-row').forEach(row=>{
+  row.addEventListener('click',e=>{
+    const btn=e.target.closest('.geno-btn'); if(!btn) return;
+    row.querySelectorAll('.geno-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const p=+row.dataset.parent, type=row.dataset.type;
+    if(type==='abo') state.abo[p]=btn.dataset.g; else state.rh[p]=btn.dataset.g;
+    render();
+  });
+});
+
+/* ===== AB0 LOGIC ===== */
+function gametes(g){return g.split('')}
+function phenoFromGenotype(g){
+  if(g==='AA'||g==='AO'||g==='OA') return 'A';
+  if(g==='BB'||g==='BO'||g==='OB') return 'B';
+  if(g==='AB'||g==='BA') return 'AB';
+  if(g==='OO') return '0';
+  return '?';
+}
+function normalizeGeno(a,b){
+  const order={A:0,B:1,O:2};
+  return [a,b].sort((x,y)=>order[x]-order[y]).join('');
+}
+function calcAB0(g1,g2){
+  const a=gametes(g1), b=gametes(g2);
+  const counts={A:0,B:0,AB:0,'0':0}, cells=[];
+  a.forEach(x=>b.forEach(y=>{
+    const geno=normalizeGeno(x,y);
+    const ph=phenoFromGenotype(geno);
+    counts[ph]+=25;
+    cells.push({geno,ph,parent1:x,parent2:y});
+  }));
+  return {counts,cells,gA:a,gB:b};
+}
+function renderPunnett(data){
+  const el=document.getElementById('punnett');
+  const {gA,gB,cells}=data;
+  el.innerHTML='';
+  el.appendChild(div('pn corner',''));
+  el.appendChild(div('pn h',gB[0]));
+  el.appendChild(div('pn h',gB[1]));
+  for(let i=0;i<2;i++){
+    el.appendChild(div('pn h',gA[i]));
+    for(let j=0;j<2;j++){
+      const c=cells[i*2+j];
+      const cls=c.ph==='AB'?'AB':c.ph==='0'?'O':c.ph;
+      const node=div(`pn r bg-${cls}`,'');
+      node.innerHTML=`<div>${c.ph}</div><div class="geno">${c.geno}</div>`;
+      node.style.cursor='pointer';
+      node.onclick=()=>showInfoCustom('Zelle erklärt',
+        `Gameten: <b>${c.parent1}</b> + <b>${c.parent2}</b><br>→ Genotyp: <b>${c.geno}</b><br>→ Phänotyp: <b>Blutgruppe ${c.ph}</b><br><br>Wahrscheinlichkeit: <b>25%</b>`);
+      el.appendChild(node);
+    }
+  }
+}
+function div(cls,txt){const d=document.createElement('div');d.className=cls;d.textContent=txt;return d}
+function renderResults(counts){
+  const el=document.getElementById('results'); el.innerHTML='';
+  ['A','B','AB','0'].forEach(k=>{
+    const cls=k==='0'?'O':k, pct=counts[k];
+    const row=document.createElement('div'); row.className='res-row';
+    row.innerHTML=`<div class="res-label">${k}</div>
+      <div class="res-bar"><div class="res-fill ${pct===0?'zero':cls}" style="width:${Math.max(pct,5)}%">${pct}%</div></div>`;
+    el.appendChild(row);
+  });
+}
+function calcRh(r1,r2){
+  const a=r1.split(''),b=r2.split('');
+  let pos=0,neg=0;
+  a.forEach(x=>b.forEach(y=>{
+    if((x+y).includes('D')) pos+=25; else neg+=25;
+  }));
+  return {pos,neg};
+}
+function renderRh(){
+  const {pos,neg}=calcRh(state.rh[0],state.rh[1]);
+  document.getElementById('rhResult').innerHTML=
+    `<span class="pos">Rh⁺ ${pos}%</span> &nbsp;·&nbsp; <span class="neg">Rh⁻ ${neg}%</span>`;
+}
+function explain(d){
+  const main=Object.entries(d.counts).filter(([_,v])=>v>0).map(([k,v])=>`<b>${k}: ${v}%</b>`).join(' · ');
+  return `Aus <b>${state.abo[0]} × ${state.abo[1]}</b>: ${main}.<br>A und B sind <b>kodominant</b>, 0 ist gegenüber beiden rezessiv.`;
+}
+function render(){
+  const data=calcAB0(state.abo[0],state.abo[1]);
+  renderPunnett(data); renderResults(data.counts); renderRh();
+  document.getElementById('explainer').innerHTML=explain(data);
+}
+render();
+
+/* RANDOM/SWAP */
+const ABOPTS=['AA','AO','BB','BO','AB','OO'], RHOPTS=['DD','Dd','dd'];
+document.getElementById('randomBtn').onclick=()=>{
+  state.abo=[ABOPTS[Math.floor(Math.random()*6)],ABOPTS[Math.floor(Math.random()*6)]];
+  state.rh=[RHOPTS[Math.floor(Math.random()*3)],RHOPTS[Math.floor(Math.random()*3)]];
+  syncBtns(); render();
+};
+document.getElementById('swapBtn').onclick=()=>{
+  state.abo.reverse(); state.rh.reverse(); syncBtns(); render();
+};
+function syncBtns(){
+  document.querySelectorAll('.geno-row').forEach(row=>{
+    const p=+row.dataset.parent, type=row.dataset.type;
+    const target=type==='abo'?state.abo[p]:state.rh[p];
+    row.querySelectorAll('.geno-btn').forEach(b=>b.classList.toggle('active',b.dataset.g===target));
+  });
+}
+
+/* ===== SPENDE-LABOR ===== */
+let labOk=0,labBad=0;
+const compatTable={
+  'O→O':true,'O→A':true,'O→B':true,'O→AB':true,
+  'A→O':false,'A→A':true,'A→B':false,'A→AB':true,
+  'B→O':false,'B→A':false,'B→B':true,'B→AB':true,
+  'AB→O':false,'AB→A':false,'AB→B':false,'AB→AB':true
+};
+document.querySelectorAll('.blood-bag').forEach(bag=>{
+  bag.addEventListener('dragstart',e=>{
+    e.dataTransfer.setData('bg',bag.dataset.bg);
+    bag.classList.add('dragging');
+  });
+  bag.addEventListener('dragend',()=>bag.classList.remove('dragging'));
+  // Mobile: tap-then-tap
+  bag.addEventListener('click',()=>{
+    document.querySelectorAll('.blood-bag').forEach(b=>b.style.outline='');
+    bag.style.outline='3px solid var(--gold)';
+    selectedBag=bag.dataset.bg;
+  });
+});
+let selectedBag=null;
+document.querySelectorAll('.petri').forEach(petri=>{
+  petri.addEventListener('dragover',e=>{e.preventDefault();petri.classList.add('over')});
+  petri.addEventListener('dragleave',()=>petri.classList.remove('over'));
+  petri.addEventListener('drop',e=>{
+    e.preventDefault(); petri.classList.remove('over');
+    const sp=e.dataTransfer.getData('bg'), em=petri.dataset.bg;
+    runReaction(petri,sp,em);
+  });
+  petri.addEventListener('click',()=>{
+    if(selectedBag){
+      runReaction(petri,selectedBag,petri.dataset.bg);
+      document.querySelectorAll('.blood-bag').forEach(b=>b.style.outline='');
+      selectedBag=null;
+    }
+  });
+});
+function runReaction(petri,sp,em){
+  const key=sp+'→'+em, ok=compatTable[key];
+  petri.classList.remove('compat','incompat');
+  petri.querySelectorAll('.clump-dot').forEach(d=>d.remove());
+  void petri.offsetWidth;
+  if(ok){
+    petri.classList.add('compat');
+    petri.querySelector('.reaction').textContent='✓';
+    labOk++;
+    document.getElementById('labResult').className='lab-result compat';
+    document.getElementById('labResult').innerHTML=`<b>✓ Kompatibel:</b> Spender <b>${sp}</b> → Empfänger <b>${em}</b>. Erys werden nicht als fremd erkannt.`;
+  } else {
+    petri.classList.add('incompat');
+    petri.querySelector('.reaction').textContent='!';
+    addClumps(petri);
+    labBad++;
+    const akText = em==='O'?'Anti-A und Anti-B':em==='A'?'Anti-B':em==='B'?'Anti-A':'keine AK';
+    const agText = sp==='AB'?'A und B':sp==='O'?'kein':sp;
+    document.getElementById('labResult').className='lab-result incompat';
+    document.getElementById('labResult').innerHTML=`<b>✗ Verklumpung!</b> Spender <b>${sp}</b> trägt Antigen <b>${agText}</b>. Empfänger <b>${em}</b> hat <b>${akText}</b> → Hämagglutination → klinisch: <b>hämolytische Transfusionsreaktion</b>.`;
+  }
+  document.getElementById('labOk').textContent=labOk;
+  document.getElementById('labBad').textContent=labBad;
+}
+function addClumps(petri){
+  for(let i=0;i<14;i++){
+    const d=document.createElement('span'); d.className='clump-dot';
+    d.style.left=(20+Math.random()*60)+'%';
+    d.style.top=(20+Math.random()*60)+'%';
+    d.style.animationDelay=(Math.random()*.3)+'s';
+    petri.appendChild(d);
+  }
+}
+document.getElementById('labReset').onclick=()=>{
+  document.querySelectorAll('.petri').forEach(p=>{
+    p.classList.remove('compat','incompat');
+    p.querySelector('.reaction').textContent='';
+    p.querySelectorAll('.clump-dot').forEach(d=>d.remove());
+  });
+  labOk=0; labBad=0;
+  document.getElementById('labOk').textContent=0;
+  document.getElementById('labBad').textContent=0;
+  document.getElementById('labResult').className='lab-result';
+  document.getElementById('labResult').textContent='Ziehe einen Spender-Beutel auf eine Empfänger-Schale, um zu testen.';
+};
+document.getElementById('labAuto').onclick=async()=>{
+  document.getElementById('labReset').click();
+  const order=['O','A','B','AB'];
+  for(const sp of order){
+    for(const em of order){
+      const petri=document.querySelector(`.petri[data-bg="${em}"]`);
+      runReaction(petri,sp,em);
+      await new Promise(r=>setTimeout(r,160));
+    }
+    document.querySelectorAll('.petri').forEach(p=>{
+      p.classList.remove('compat','incompat');
+      p.querySelector('.reaction').textContent='';
+      p.querySelectorAll('.clump-dot').forEach(d=>d.remove());
+    });
+  }
+  document.getElementById('labResult').className='lab-result compat';
+  document.getElementById('labResult').innerHTML=`<b>Alle 16 Kombinationen getestet.</b> ${labOk} kompatibel, ${labBad} verklumpt.`;
+};
+
+/* ===== VERERBUNG ===== */
+function genoOptionsForPheno(p){
+  if(p==='A') return ['AA','AO'];
+  if(p==='B') return ['BB','BO'];
+  if(p==='AB') return ['AB'];
+  if(p==='O') return ['OO'];
+  return [];
+}
+function gameteSet(geno){return [...new Set(geno.split(''))]}
+function checkPaternity(motherP,childP,fatherP){
+  const motherGenos=genoOptionsForPheno(motherP);
+  const fatherGenos=genoOptionsForPheno(fatherP);
+  for(const m of motherGenos)for(const f of fatherGenos){
+    const mGam=gameteSet(m), fGam=gameteSet(f);
+    for(const x of mGam)for(const y of fGam){
+      const g=normalizeGeno(x,y), ph=phenoFromGenotype(g);
+      if(ph===childP) return true;
+    }
+  }
+  return false;
+}
+function renderDetective(){
+  const m=document.getElementById('detMother').value;
+  const c=document.getElementById('detChild').value;
+  const grid=document.getElementById('candidates'); grid.innerHTML='';
+  const motherChildPossible=['A','B','AB','O'].some(any=>checkPaternity(m,c,any));
+  ['A','B','AB','O'].forEach(f=>{
+    const ok=checkPaternity(m,c,f);
+    const card=document.createElement('div'); card.className='candidate '+(ok?'possible':'impossible');
+    card.innerHTML=`<div class="name">${f==='O'?'0':f}</div>
+      <div class="verdict">${ok?'✓ möglich':'✗ ausgeschlossen'}</div>`;
+    grid.appendChild(card);
+  });
+  let txt;
+  if(!motherChildPossible){
+    txt=`<b>Achtung — biologisch unmöglich!</b><br>Eine Mutter mit Blutgruppe <b>${m}</b> kann <b>kein</b> Kind mit Blutgruppe <b>${c}</b> haben — egal welcher Vater. Das Kind bräuchte ein Allel, das die Mutter gar nicht trägt.`;
+  } else {
+    const possible=['A','B','AB','O'].filter(f=>checkPaternity(m,c,f));
+    const excluded=['A','B','AB','O'].filter(f=>!checkPaternity(m,c,f));
+    txt=`<b>Mutter ${m} + Kind ${c}:</b><br>
+      ✓ Möglich als Vater: <b>${possible.map(p=>p==='O'?'0':p).join(', ')||'—'}</b><br>
+      ✗ Ausgeschlossen: <b>${excluded.map(p=>p==='O'?'0':p).join(', ')||'—'}</b>`;
+  }
+  document.getElementById('detExplain').innerHTML=txt;
+}
+document.getElementById('detMother').addEventListener('change',renderDetective);
+document.getElementById('detChild').addEventListener('change',renderDetective);
+function loadDet(m,c){
+  document.getElementById('detMother').value=m;
+  document.getElementById('detChild').value=c;
+  renderDetective();
+  document.querySelector('#vererbung .card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+window.loadDet=loadDet;
+renderDetective();
+
+/* ===== ANTIGEN POPUP (mit Steckbrief-Sections) ===== */
+function sbBlock(aufbau, funktion, klinik, medat){
+  return `
+    <div class="sb-section">
+      <h4><i data-lucide="layout-grid"></i>Aufbau</h4><p>${aufbau}</p>
+    </div>
+    <div class="sb-section">
+      <h4><i data-lucide="settings"></i>Funktion</h4><p>${funktion}</p>
+    </div>
+    <div class="sb-section klinik">
+      <h4><i data-lucide="stethoscope"></i>Klinik</h4><p>${klinik}</p>
+    </div>
+    <div class="sb-section medat">
+      <h4><i data-lucide="graduation-cap"></i>MedAT-Wissen</h4><p>${medat}</p>
+    </div>`;
+}
+const AG_INFO={
+  A:{title:'Blutgruppe A', body: sbBlock(
+    '<b>Antigen A</b> = N-Acetyl-galactosamin auf der Oberfläche der Erythrozyten. Aufgesetzt auf die H-Substanz.',
+    'Im Plasma zirkuliert <b>Anti-B (IgM)</b>, der Antikörper gegen die fremde B-Eigenschaft.',
+    'Häufigkeit AT/DE: ca. <b>41 %</b>. Genotyp <b>AA</b> oder <b>AO</b>. Spende erlaubt an A und AB; empfangen darf von A und 0.',
+    'Klassiker: „Welche Blutgruppe darf A spenden?" → A und AB. Genotyp aus Phänotyp: A kann <b>AA</b> oder <b>AO</b> sein.'
+  )},
+  B:{title:'Blutgruppe B', body: sbBlock(
+    '<b>Antigen B</b> = D-Galactose auf der Erythrozytenoberfläche, ebenfalls auf H-Substanz aufgesetzt.',
+    'Im Plasma: <b>Anti-A (IgM)</b>. Reagiert sofort gegen A-Erys → Hämagglutination.',
+    'Häufigkeit AT/DE: ca. <b>12 %</b>. Genotyp <b>BB</b> oder <b>BO</b>. Spende an B und AB; empfangen von B und 0.',
+    'Im Punnett-Quadrat häufig zusammen mit A: Eltern AB × 00 → Kinder können nur A oder B sein.'
+  )},
+  AB:{title:'Blutgruppe AB', body: sbBlock(
+    'Erys tragen <b>beide Antigene A und B</b> – klassisches Beispiel für <b>Kodominanz</b>: beide Allele werden phänotypisch ausgeprägt.',
+    '<b>Keine Anti-A oder Anti-B</b> Antikörper im Plasma. Daher kein Angriff auf Spender-Erys.',
+    'Universalempfänger für <b>Erythrozyten-Konzentrate</b>! Aber im Plasma nur AB möglich (keine fremden AK in das Plasma).',
+    '„Universalempfänger für Erys" – aber Achtung: für Plasma genau umgekehrt! Häufigkeit nur ca. <b>6 %</b>.'
+  )},
+  O:{title:'Blutgruppe 0', body: sbBlock(
+    '<b>Keine A/B-Antigene</b> auf Erys – nur die unmodifizierte <b>H-Substanz</b> ist vorhanden.',
+    'Plasma enthält <b>Anti-A und Anti-B (IgM)</b> – beide Antikörper gegen die fehlenden Antigene.',
+    '<b>Universalspender</b> für Erythrozyten-Konzentrate (keine A/B-Antigene → keine Reaktion). Häufigkeit ca. <b>41 %</b>. Genotyp immer <b>00</b> (rezessiv).',
+    'Bombay-Phänotyp (<b>hh</b>): kein H → trotz „0" auch H-Antikörper → braucht im Notfall Bombay-Blut!'
+  )}
+};
+function showInfo(bg){
+  const i=AG_INFO[bg];
+  document.getElementById('popTitle').textContent=i.title;
+  document.getElementById('popBody').innerHTML=i.body;
+  document.getElementById('infoPop').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function showInfoCustom(t,b){
+  document.getElementById('popTitle').textContent=t;
+  document.getElementById('popBody').innerHTML=b;
+  document.getElementById('infoPop').classList.add('show');
+  if(window.lucide) lucide.createIcons();
+}
+function closeInfo(){document.getElementById('infoPop').classList.remove('show')}
+window.showInfo=showInfo; window.closeInfo=closeInfo;
+
+/* ===== MATRIX ===== */
+const MATRIX_EXPLAIN={
+  'O→O':'0 in 0: keine A/B-Antigene → keine AK reagieren. ✓',
+  'O→A':'0 in A: 0-Erys haben kein Antigen, AK des Empfängers (Anti-B) findet nichts. ✓',
+  'O→B':'0 in B: keine Antigene → kein Angriff. ✓',
+  'O→AB':'0 in AB: weder A noch B → AB hat sowieso keine AK. ✓',
+  'A→O':'A in 0: 0-Empfänger hat Anti-A → bindet sofort an Spender-A → Verklumpung!',
+  'A→A':'A in A: gleiche Antigene, keine Anti-A im Empfänger. ✓',
+  'A→B':'A in B: B-Empfänger hat Anti-A → Reaktion gegen Spender-A!',
+  'A→AB':'A in AB: AB hat keine AK. ✓',
+  'B→O':'B in 0: 0 hat Anti-B → Reaktion!',
+  'B→A':'B in A: A hat Anti-B → Reaktion!',
+  'B→B':'B in B: passt. ✓',
+  'B→AB':'B in AB: AB hat keine AK. ✓',
+  'AB→O':'AB hat A und B → 0 hat Anti-A und Anti-B → doppelte Reaktion!',
+  'AB→A':'AB hat B-Antigen → A-Empfänger hat Anti-B → Reaktion!',
+  'AB→B':'AB hat A-Antigen → B-Empfänger hat Anti-A → Reaktion!',
+  'AB→AB':'AB hat A&B, AB-Empfänger hat keine AK. ✓'
+};
+document.querySelectorAll('#matrixTable td').forEach(td=>{
+  td.addEventListener('click',()=>{
+    const k=td.dataset.pair;
+    document.getElementById('matrixExplain').innerHTML=`<b>${k}:</b> ${MATRIX_EXPLAIN[k]}`;
+  });
+});
+
+/* ===== QUIZ ===== */
+const QUESTIONS=[
+  {q:"Welche Blutgruppe ist Universalspender für Erythrozyten?",o:["A","B","AB","0"],c:3,e:"<b>0</b> trägt keine A/B-Antigene → keine Reaktion mit Anti-A oder Anti-B des Empfängers."},
+  {q:"Welche Antikörper hat eine Person mit Blutgruppe AB im Plasma?",o:["Anti-A","Anti-B","Anti-A und Anti-B","Keine"],c:3,e:"AB hat beide Antigene → keine korrespondierenden Antikörper."},
+  {q:"Eltern: AO × BO. Welche Blutgruppen sind möglich?",o:["nur AB","A, B, AB, 0","nur A und B","A und 0"],c:1,e:"Gameten: A,O × B,O → AB (25%), A (25%), B (25%), 0 (25%)."},
+  {q:"Eine Rh-negative Schwangere trägt ein Rh-positives Kind. Welches Risiko in der 2. Schwangerschaft?",o:["AB0-Inkompatibilität","Morbus haemolyticus neonatorum","Hämophilie","Sichelzellanämie"],c:1,e:"Anti-D (IgG, plazentagängig) wird nach Erstkontakt gebildet → greift Erys eines weiteren Rh⁺ Kindes an."},
+  {q:"Welcher Erbgang gilt für das AB0-System?",o:["X-chromosomal rezessiv","Autosomal mit Kodominanz","Autosomal dominant","Mitochondrial"],c:1,e:"A und B sind kodominant zueinander, 0 ist rezessiv. Lokus auf Chromosom 9."},
+  {q:"Vater AB, Mutter 0. Welche Genotypen können die Kinder haben?",o:["nur AO","AO oder BO","AO, BO oder OO","nur AB"],c:1,e:"Vater gibt A oder B, Mutter immer 0 → AO (A) oder BO (B). Niemals AB oder 00."},
+  {q:"Mutter 0, Kind AB. Welche Aussage stimmt?",o:["Vater muss AB sein","Vater muss A sein","Biologisch unmöglich","Vater kann jeden Typ haben"],c:2,e:"Mutter 0 gibt nur 0-Allele. Für AB beim Kind müsste die Mutter A oder B beisteuern → unmöglich."},
+  {q:"Welches Plasma ist für AB-Empfänger sicher?",o:["nur AB","alle","nur 0","A und B"],c:0,e:"AB-Empfänger trägt A und B-Antigen. Spender-Plasma darf weder Anti-A noch Anti-B enthalten → nur AB-Plasma."},
+  {q:"Frau Rh dd × Mann Rh DD. Wie hoch ist die Wahrscheinlichkeit, dass das Kind Rh-positiv ist?",o:["0%","25%","50%","100%"],c:3,e:"DD × dd → alle Kinder Dd → alle Rh-positiv (D ist dominant)."},
+  {q:"Was ist der Bombay-Phänotyp?",o:["AB-Variante","Fehlen der H-Substanz","Rhesus-negativ","Schwache D-Variante"],c:1,e:"hh-Genotyp → keine H-Substanz → A/B können nicht aufgesetzt werden → erscheint als '0', braucht aber Bombay-Blut!"},
+  {q:"Anti-A und Anti-B sind vom Typ:",o:["IgG","IgM","IgE","IgA"],c:1,e:"IgM-Antikörper, nicht plazentagängig. AB0-Inkompatibilität in Schwangerschaft daher selten klinisch relevant."},
+  {q:"Welche Aussage zum Rhesus-System stimmt?",o:["D ist rezessiv","Anti-D ist IgM","Rh-negativ = dd-Genotyp","Rh-Inkompatibilität betrifft nur Männer"],c:2,e:"Rh-negativ = homozygot dd. Anti-D wird nach Erstkontakt gebildet (IgG, plazentagängig)."},
+  {q:"Bei welcher Konstellation kann eine AB0-Erythroblastose auftreten?",o:["Mutter A, Kind 0","Mutter 0, Kind A","Mutter AB, Kind A","Mutter A, Kind A"],c:1,e:"Mutter 0 hat Anti-A/B, einige davon sind IgG → können Plazenta passieren. Klinisch milder als Rh-Inkompatibilität."},
+  {q:"AO × AO. Wahrscheinlichkeit für ein 0-Kind?",o:["0%","25%","50%","75%"],c:1,e:"Jeder gibt A oder O. OO entsteht nur bei O+O → 1 von 4 = 25%."},
+  {q:"Wieso ist 0 Rh-negativ der 'Notfall-Universalspender'?",o:["Kein Antigen + kein Rhesus","Höchste Häufigkeit","Bestes Plasma","Größte Erys"],c:0,e:"0 hat keine A/B-Antigene, Rh-negativ hat kein D-Antigen → wird von keinem Empfänger als fremd erkannt. Daher in Notfall ohne Kreuzprobe einsetzbar."}
+];
+let qi=0,qScore=0,qTotal=0;
+function showQ(){
+  const Q=QUESTIONS[qi];
+  document.getElementById('qText').textContent=Q.q;
+  const opts=document.getElementById('qOpts'); opts.innerHTML='';
+  document.getElementById('qFb').classList.remove('show');
+  document.getElementById('qIdx').textContent=qi+1;
+  document.getElementById('qProg').style.width=((qi+1)/QUESTIONS.length*100)+'%';
+  Q.o.forEach((o,i)=>{
+    const b=document.createElement('button'); b.className='q-opt'; b.textContent=o;
+    b.onclick=()=>answer(i,Q);
+    opts.appendChild(b);
+  });
+}
+function answer(i,Q){
+  qTotal++;
+  const correct=i===Q.c;
+  document.querySelectorAll('.q-opt').forEach((x,idx)=>{
+    x.disabled=true;
+    if(idx===Q.c) x.classList.add('correct');
+    else if(idx===i&&!correct) x.classList.add('wrong');
+  });
+  if(correct) qScore++;
+  const fb=document.getElementById('qFb');
+  fb.className='q-feedback show '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?'<b>✓ Richtig.</b> ':'<b>Nicht ganz.</b> ')+Q.e;
+  document.getElementById('qScore').textContent=`${qScore} / ${qTotal}`;
+}
+document.getElementById('qNext').onclick=()=>{qi=(qi+1)%QUESTIONS.length;showQ()};
+document.getElementById('qReset').onclick=()=>{qi=0;qScore=0;qTotal=0;document.getElementById('qScore').textContent='0 / 0';showQ()};
+showQ();
+
+/* ===== INIT LUCIDE ===== */
+if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>
