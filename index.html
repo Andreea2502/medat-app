@@ -23,7 +23,7 @@
   <meta name="twitter:description" content="Über 1000 Fragen für den kognitiven Teil des MedAT. Kostenlos starten!">
   <meta name="twitter:image" content="https://medat-trainer.vercel.app/icon-512.png">
 
-  <link rel="stylesheet" href="css/style.css?v=20260426a">
+  <link rel="stylesheet" href="css/style.css?v=20260509a">
   <link rel="stylesheet" href="css/goodies.css?v=20260424e">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <!-- PWA -->
@@ -52,29 +52,13 @@
   <!-- ===== STARTSEITE ===== -->
   <div id="screen-home" class="screen active">
 
-    <!-- Hero Card (dark) -->
-    <div class="hero-card fade-up">
-      <div class="hero-greeting" id="hero-greeting" style="font-size:1.1rem;color:var(--yellow);margin-bottom:0.25rem;font-weight:600"></div>
-      <div class="hero-label">MedAT 2026 Vorbereitung</div>
-      <div class="hero-title">MedAT <span>Trainer</span></div>
-      <div class="hero-sub">Dein Übungstool für den Medizinaufnahmetest Österreich</div>
-      <div class="chart-mini">
-        <div class="chart-bar" style="height:40%"></div>
-        <div class="chart-bar" style="height:65%"></div>
-        <div class="chart-bar" style="height:50%"></div>
-        <div class="chart-bar accent" style="height:85%"></div>
-        <div class="chart-bar" style="height:55%"></div>
-        <div class="chart-bar" style="height:70%"></div>
-        <div class="chart-bar accent" style="height:90%"></div>
-        <div class="chart-bar" style="height:60%"></div>
-        <div class="chart-bar" style="height:75%"></div>
-        <div class="chart-bar accent" style="height:95%"></div>
-        <div class="chart-bar" style="height:45%"></div>
-        <div class="chart-bar" style="height:80%"></div>
-      </div>
-      <div class="hero-countdown" id="hero-countdown">
-        <div class="hero-countdown-number" id="hero-countdown-days">–</div>
-        <div class="hero-countdown-label" id="hero-countdown-label">Tage bis zum MedAT</div>
+    <!-- ===== DASHBOARD-HEADER (Skizze: MedAT-Trainer + 55 Tage) ===== -->
+    <div class="dash-header fade-up">
+      <div class="dash-header-greeting" id="hero-greeting"></div>
+      <div class="dash-header-title">MedAT-<span>Trainer</span></div>
+      <div class="dash-header-countdown">
+        <span class="dash-header-countdown-num" id="hero-countdown-days">–</span>
+        <span class="dash-header-countdown-label" id="hero-countdown-label">Tage bis zum MedAT</span>
       </div>
       <button class="hero-upgrade-btn" id="hero-upgrade-btn" style="display:none"
         onclick="App.showScreen('screen-konto');App.renderKonto();">
@@ -82,95 +66,105 @@
       </button>
     </div>
 
-    <!-- Cheat-Sheets-Teaser (wird dynamisch befüllt, wenn ungeholte Cheat Sheets vorhanden sind) -->
+    <!-- Cheat-Sheets-Teaser (dynamisch wenn ungeholte Cheat Sheets vorhanden) -->
     <div id="home-goodies-teaser"></div>
 
-    <!-- ===== HAUPT-AKTIONEN ===== -->
-    <div class="home-main-actions fade-up" style="margin-top:1rem">
-
-      <!-- Hauptkategorie 1: Üben in der App -->
-      <button class="main-action-btn main-action-practice" id="btn-practice">
-        <div class="main-action-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+    <!-- ===== 4 HAUPTKARTEN (2x2 Grid, je Akzentfarbe) ===== -->
+    <div class="dash-main-grid fade-up">
+      <!-- BMS + KFF Fragen — Gelb -->
+      <button class="dash-main dash-main-yellow" id="btn-practice" aria-label="BMS und KFF Fragen üben">
+        <div class="dash-main-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         </div>
-        <div class="main-action-info">
-          <span class="main-action-label" style="font-size:1.05rem;font-weight:700">Üben in der App</span>
-          <span class="main-action-desc">Wähle Thema & Schwierigkeit</span>
-        </div>
-        <span class="main-action-arrow">›</span>
+        <div class="dash-main-label">BMS + KFF Fragen</div>
+        <div class="dash-main-sub">Üben in der App</div>
       </button>
 
-      <!-- Hauptkategorie 2: PDF-Simulator -->
-      <button class="main-action-btn main-action-pdf" id="btn-pdf" onclick="PDFExport.openDialog()">
-        <div class="main-action-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <!-- PDF-Simulator — Coral -->
+      <button class="dash-main dash-main-coral" onclick="PDFExport.openDialog()" aria-label="PDF-Simulator">
+        <div class="dash-main-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
         </div>
-        <div class="main-action-info">
-          <span class="main-action-label" style="font-size:1.05rem;font-weight:700">PDF-Simulator</span>
-          <span class="main-action-desc">Simulationen erstellen & ausdrucken</span>
-        </div>
-        <span class="main-action-arrow">›</span>
-      </button>
-    </div>
-
-    <!-- ===== SCHNELLZUGRIFF ===== -->
-    <div class="fade-up" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;padding:0 1.25rem;margin-top:0.5rem">
-
-      <button onclick="App.startDailyChallenge()" style="background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.9rem 0.5rem;text-align:center;cursor:pointer;color:var(--text);font-size:0.78rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:0.45rem;box-shadow:0 2px 8px rgba(26,26,46,0.05);transition:transform 0.15s,box-shadow 0.15s" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-        <div style="width:40px;height:40px;border-radius:10px;background:var(--yellow-soft);display:flex;align-items:center;justify-content:center">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#b8860b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-        </div>
-        Tägliche Challenge
+        <div class="dash-main-label">PDF-Simulator</div>
+        <div class="dash-main-sub">Simulation drucken</div>
       </button>
 
-      <button onclick="App.openSmartTraining()" style="background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.9rem 0.5rem;text-align:center;cursor:pointer;color:var(--text);font-size:0.78rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:0.45rem;box-shadow:0 2px 8px rgba(26,26,46,0.05);transition:transform 0.15s,box-shadow 0.15s" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-        <div style="width:40px;height:40px;border-radius:10px;background:var(--mint);display:flex;align-items:center;justify-content:center">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2d6b4a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+      <!-- KI-Lern-Studio — Lila -->
+      <button class="dash-main dash-main-purple" onclick="Tutor.openFreeMode()" aria-label="KI-Lern-Studio">
+        <div class="dash-main-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"/></svg>
         </div>
-        Schwächen trainieren
+        <div class="dash-main-label">KI-Lern-Studio</div>
+        <div class="dash-main-sub">Tutoren · Bilder</div>
       </button>
 
-      <button onclick="App.showScreen('screen-stats')" style="background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.9rem 0.5rem;text-align:center;cursor:pointer;color:var(--text);font-size:0.78rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:0.45rem;box-shadow:0 2px 8px rgba(26,26,46,0.05);transition:transform 0.15s,box-shadow 0.15s" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
-        <div style="width:40px;height:40px;border-radius:10px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c0522e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      <!-- Wissens-Lab — Mint -->
+      <button class="dash-main dash-main-mint" onclick="App.showScreen('screen-tools')" aria-label="Wissens-Lab">
+        <div class="dash-main-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6l-5 9a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-5-9V3"/><line x1="9" y1="3" x2="15" y2="3"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
         </div>
-        Statistik
+        <div class="dash-main-label">Wissens-Lab<span class="badge-new" style="margin-left:0.4rem">NEU</span></div>
+        <div class="dash-main-sub">19 interaktive Tools</div>
       </button>
     </div>
 
-    <!-- Wissens-Lab Banner (NEU) -->
-    <button class="home-tools-banner fade-up" onclick="App.showScreen('screen-tools')">
-      <div class="home-tools-banner-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 v6 l-5 9 a2 2 0 0 0 1.7 3 h12.6 a2 2 0 0 0 1.7 -3 l-5 -9 V 3"/><line x1="9" y1="3" x2="15" y2="3"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
-      </div>
-      <div class="home-tools-banner-info">
-        <span class="label">Wissens-Lab<span class="badge-new">NEU</span></span>
-        <span class="desc">19 interaktive Lern-Tools – Bio · Physik · Chemie</span>
-      </div>
-      <span class="home-tools-banner-arrow">›</span>
-    </button>
-
-    <!-- Lern-Studio Banner -->
-    <div class="fade-up" style="margin:0.6rem 1.25rem 0;background:linear-gradient(135deg,#1a1a2e,#2d2d4e);border-radius:14px;padding:0.9rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 4px 16px rgba(26,26,46,0.18);gap:0.75rem" onclick="Tutor.openFreeMode()">
-      <div style="display:flex;align-items:center;gap:0.65rem;flex:1">
-        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f5c542,#e6a817);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0">🎓</div>
-        <div>
-          <div style="font-size:0.9rem;font-weight:800;color:#ffffff">Lern-Studio</div>
-          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6)">Eigenes Thema eingeben • Chat + Bilder generieren</div>
+    <!-- ===== TILE-REIHEN (8 weisse Kacheln, lucide Icons in App-Farben) ===== -->
+    <div class="dash-tiles fade-up">
+      <button class="dash-tile" onclick="App.startDailyChallenge()">
+        <div class="dash-tile-icon" style="--ico:#b8860b;--bg:#fff5d0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
         </div>
-      </div>
-      <span style="font-size:1.1rem;color:rgba(255,255,255,0.5);font-weight:600">›</span>
-    </div>
+        <span>Lernchallenge</span>
+      </button>
 
-    <!-- Freunde einladen -->
-    <div class="fade-up" style="margin:0.6rem 1.25rem 0;background:#fff;border:2px solid var(--border);border-radius:14px;padding:0.8rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 2px 8px rgba(26,26,46,0.04)" onclick="App.shareApp()">
-      <div style="display:flex;align-items:center;gap:0.65rem">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--lavender);display:flex;align-items:center;justify-content:center">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b4d99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <button class="dash-tile" onclick="App.openSmartTraining()">
+        <div class="dash-tile-icon" style="--ico:#2d6b4a;--bg:#c8e6d0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
         </div>
-        <span style="font-size:0.88rem;font-weight:700;color:var(--text)">Freunde einladen</span>
-      </div>
-      <span style="font-size:1.1rem;color:var(--text-muted);font-weight:600">›</span>
+        <span>Schwächen</span>
+      </button>
+
+      <button class="dash-tile" onclick="App.showScreen('screen-stats')">
+        <div class="dash-tile-icon" style="--ico:#c0522e;--bg:#ffe5d9">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <span>Statistik</span>
+      </button>
+
+      <button class="dash-tile" onclick="App.showScreen('screen-gallery'); typeof Gallery !== 'undefined' && Gallery.render && Gallery.render();">
+        <div class="dash-tile-icon" style="--ico:#6b4d99;--bg:#ede4f5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+        </div>
+        <span>Lernarchiv</span>
+      </button>
+
+      <button class="dash-tile" onclick="App.showScreen('screen-goodies')">
+        <div class="dash-tile-icon" style="--ico:#c25a35;--bg:#ffe5d9">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
+        </div>
+        <span>Cheat-Sheets</span>
+      </button>
+
+      <button class="dash-tile" onclick="App.showScreen('screen-lernplan')">
+        <div class="dash-tile-icon" style="--ico:#4338ca;--bg:#ede4f5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        </div>
+        <span>Lernplan</span>
+      </button>
+
+      <button class="dash-tile" onclick="App.showScreen('screen-summaries');App.loadSummaries()">
+        <div class="dash-tile-icon" style="--ico:#2d8a54;--bg:#c8e6d0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+        </div>
+        <span>Zusammenfass.</span>
+      </button>
+
+      <button class="dash-tile" onclick="App.shareApp()">
+        <div class="dash-tile-icon" style="--ico:#a87800;--bg:#fdf3d7">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+        </div>
+        <span>Freunde einladen</span>
+      </button>
     </div>
 
   </div>
