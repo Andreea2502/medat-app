@@ -9,6 +9,8 @@ const Credits = {
   get remaining() { return 999999; },
   get used() { return 0; },
   get total() { return 999999; },
+  get aiImagesRemaining() { return 999999; },
+  get lernplanResets() { return 0; },
 
   isUnlimited() {
     if (!Auth.isLoggedIn) return false;
@@ -23,7 +25,24 @@ const Credits = {
   async load() { /* no-op */ },
   hasEnough() { return true; },
   async use() { return true; },
-  showPaywall() { App.showUpgradeOverlay('limit_reached'); },
+  showPaywall() { App?.showUpgradeOverlay?.('limit_reached'); },
+
+  // ── AI / Tutor Stubs ────────────────────────────────────────────────────
+  // Der KI-Tutor und das Lern-Studio prüfen vor Öffnen `hasAiSession()` und
+  // protokollieren mit `useAiSession()` / `useAiImage()`. Beide haben aktuell
+  // KEIN Limit (Credits-System wurde entfernt) — Stubs erlauben alles.
+  hasAiSession() { return true; },
+  hasAiImage() { return true; },
+  async useAiSession() { return true; },
+  async useAiImage() { return true; },
+  showAiPaywall(_kind) { App?.showUpgradeOverlay?.('ai_limit_reached'); },
+
+  // ── Question Limit Stub ─────────────────────────────────────────────────
+  // App.loadAndStartQuestions ruft das für Free-User auf. Aktuell bremsen wir
+  // hier nichts ein — die 100-Fragen-Logik liegt server-seitig (siehe Auth /
+  // user_profiles.questions_answered_this_period); Stub gibt großzügigen Wert.
+  async getQuestionsRemaining() { return 999999; },
+
   updateUI() {
     const menuItem = document.getElementById('snav-credits');
     if (menuItem) menuItem.style.display = 'none';
