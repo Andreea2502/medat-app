@@ -3288,8 +3288,9 @@ body.hide-nav .slide-menu-overlay { display: none !important; }
   flex-shrink: 0;
 }
 .tools-section-title.bio .tools-section-dot { background: var(--mint-deep, #2d8a54); }
-.tools-section-title.physik .tools-section-dot { background: #e07a55; }
+.tools-section-title.physik .tools-section-dot { background: var(--pink-deep, #c8505f); }
 .tools-section-title.chemie .tools-section-dot { background: #6db8e0; }
+.tools-section-title.mathe .tools-section-dot { background: var(--orange-deep, #ea580c); }
 
 .tools-grid {
   display: grid;
@@ -3317,13 +3318,9 @@ body.hide-nav .slide-menu-overlay { display: none !important; }
   box-shadow: var(--shadow-md);
 }
 .tools-card.bio { border-left-color: var(--mint-deep, #2d8a54); }
-.tools-card.physik-coral { border-left-color: #e07a55; }
-.tools-card.physik-purple { border-left-color: #9b7fc4; }
-.tools-card.physik-amber { border-left-color: #d96540; }
-.tools-card.physik-teal { border-left-color: #3bb5b0; }
-.tools-card.physik-gold { border-left-color: #e6a817; }
-.tools-card.physik-blue { border-left-color: #6db8e0; }
+.tools-card.physik { border-left-color: var(--pink-deep, #c8505f); }
 .tools-card.chemie { border-left-color: #6db8e0; }
+.tools-card.mathe { border-left-color: var(--orange-deep, #ea580c); }
 
 .tools-card-icon {
   flex-shrink: 0;
@@ -3335,13 +3332,9 @@ body.hide-nav .slide-menu-overlay { display: none !important; }
 }
 .tools-card-icon svg { width: 20px; height: 20px; stroke-width: 2; }
 .tools-card.bio .tools-card-icon { background: var(--mint, #c8e6d0); color: var(--mint-deep, #2d8a54); }
-.tools-card.physik-coral .tools-card-icon { background: #fde8e0; color: #c25a35; }
-.tools-card.physik-purple .tools-card-icon { background: #ede4f5; color: #7a60a8; }
-.tools-card.physik-amber .tools-card-icon { background: #fde2d0; color: #a8431f; }
-.tools-card.physik-teal .tools-card-icon { background: #d5f0ee; color: #1a7a78; }
-.tools-card.physik-gold .tools-card-icon { background: #fdf3d7; color: #b8860b; }
-.tools-card.physik-blue .tools-card-icon { background: #dbecf5; color: #2d6a8e; }
+.tools-card.physik .tools-card-icon { background: rgba(224,123,139,0.15); color: var(--pink-deep, #c8505f); }
 .tools-card.chemie .tools-card-icon { background: #dbecf5; color: #2d6a8e; }
+.tools-card.mathe .tools-card-icon { background: rgba(234,88,12,0.15); color: var(--orange-deep, #ea580c); }
 
 .tools-card-body { flex: 1; min-width: 0; }
 .tools-card-body h3 {

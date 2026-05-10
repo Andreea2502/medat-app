@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stochastik – Galton-Brett & Normalverteilung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f8f3ef;--bg-warm:#f3ede8;--bg-light:#fbf8f6;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#eaddd3;--border-light:#f3ede8;
+    --orange:#f97316;--orange-deep:#ea580c;--orange-soft:#ffedd5;
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(234,88,12,.06);
+    --shadow:0 4px 20px rgba(234,88,12,.08);
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  /* BACK BTN */
+  .back-btn{position:absolute;left:20px;top:20px;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;z-index:60;background:var(--surface);padding:6px 12px;border-radius:12px;border:1.5px solid var(--border-light);box-shadow:var(--shadow-sm)}
+  .back-btn:hover{color:var(--orange-deep);border-color:var(--orange);transform:translateY(-1px)}
+  @media(max-width:820px){.back-btn{position:static;margin-bottom:14px;display:inline-flex;width:fit-content}}
+
+  /* HEADER */
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--orange-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--orange-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px}
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--orange-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+
+  /* GALTON BRETT */
+  .galton-arena{background:linear-gradient(180deg,#fff 0%,var(--orange-soft) 100%);border-radius:var(--radius);border:1.5px solid rgba(234,88,12,.2);height:400px;position:relative;overflow:hidden;margin-bottom:14px;box-shadow:inset 0 0 40px rgba(0,0,0,.03)}
+  canvas{width:100%;height:100%;display:block}
+  
+  .controls{display:flex;gap:12px;flex-wrap:wrap;background:var(--bg-light);padding:14px;border-radius:18px;border:1px solid var(--border)}
+  .control-group{flex:1;min-width:140px}
+  .control-group label{display:block;font-size:.75rem;font-weight:700;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+  .control-group input[type=range]{width:100%;accent-color:var(--orange-deep);cursor:pointer}
+  
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;background:linear-gradient(135deg,var(--orange),var(--orange-deep));color:#fff;box-shadow:0 4px 14px rgba(234,88,12,.3);display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(234,88,12,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--orange);color:var(--orange-deep);transform:translateY(-1px)}
+
+  .key-fact{background:var(--orange-soft);border-left:3px solid var(--orange);padding:12px 16px;border-radius:0 12px 12px 0;margin:14px 0;font-size:.85rem;line-height:1.6;color:var(--text);display:flex;gap:10px;align-items:flex-start}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="../index.html" class="back-btn"><i data-lucide="arrow-left"></i>Übersicht</a>
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="bar-chart-3"></i></div>
+    <div>
+      <h1>Stochastik</h1>
+      <p>Binomialverteilung · Galton-Brett · Glockenkurve</p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2><i data-lucide="play-circle"></i>Das Galton-Brett</h2>
+    <p class="lead">Lasse hunderte Kugeln fallen! Jede Kugel trifft auf Stifte und fällt mit einer bestimmten Wahrscheinlichkeit <b>p</b> nach rechts oder links. Unten entsteht die Binomialverteilung (bzw. Normalverteilung für große n).</p>
+
+    <div class="galton-arena">
+      <canvas id="galtonCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Wahrscheinlichkeit p: <span id="pVal">0.5</span></label>
+        <input type="range" id="pSlider" min="0.1" max="0.9" step="0.1" value="0.5">
+      </div>
+      <div class="control-group">
+        <label>Anzahl Reihen (n): <span id="nVal">10</span></label>
+        <input type="range" id="nSlider" min="5" max="15" step="1" value="10">
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn" id="dropBtn"><i data-lucide="chevron-down"></i>100 Kugeln</button>
+        <button class="btn ghost" id="clearBtn"><i data-lucide="trash-2"></i>Reset</button>
+      </div>
+    </div>
+
+    <div class="key-fact">
+      <i data-lucide="info" style="color:var(--orange-deep);width:20px;height:20px;flex-shrink:0;margin-top:2px"></i>
+      <div>
+        <b>MedAT-Wissen:</b> Der Erwartungswert ist $E(X) = n \cdot p$. Je größer $n$ wird, desto mehr nähert sich die diskrete Binomialverteilung der kontinuierlichen <b>Normalverteilung (Gaußsche Glockenkurve)</b> an (Satz von Moivre-Laplace).
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  if(window.lucide) lucide.createIcons();
+
+  // Simple Galton Board Physics/Animation Engine
+  const canvas = document.getElementById('galtonCanvas');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  
+  let p = 0.5;
+  let rows = 10;
+  
+  let pegs = [];
+  let balls = [];
+  let bins = [];
+  
+  const PEG_RADIUS = 3;
+  const BALL_RADIUS = 4;
+  
+  function resize() {
+    width = canvas.parentElement.clientWidth;
+    height = canvas.parentElement.clientHeight;
+    canvas.width = width;
+    canvas.height = height;
+    initBoard();
+  }
+  
+  function initBoard() {
+    pegs = [];
+    bins = new Array(rows + 1).fill(0);
+    balls = [];
+    
+    const startY = 40;
+    const rowHeight = (height - 100) / rows;
+    
+    for (let i = 0; i < rows; i++) {
+      const pegCount = i + 1;
+      const rowWidth = pegCount * 30;
+      const startX = width / 2 - rowWidth / 2 + 15;
+      
+      for (let j = 0; j < pegCount; j++) {
+        pegs.push({
+          x: startX + j * 30,
+          y: startY + i * rowHeight
+        });
+      }
+    }
+  }
+  
+  class Ball {
+    constructor() {
+      this.row = 0;
+      this.col = 0;
+      this.x = width / 2;
+      this.y = -10;
+      this.targetX = width / 2;
+      this.targetY = 40;
+      this.settled = false;
+      this.speed = 2 + Math.random();
+    }
+    
+    update() {
+      if (this.settled) return;
+      
+      const dx = this.targetX - this.x;
+      const dy = this.targetY - this.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      
+      if (dist < this.speed) {
+        this.x = this.targetX;
+        this.y = this.targetY;
+        
+        if (this.row >= rows - 1) {
+          this.settled = true;
+          // Add to bin
+          const binIndex = this.col + (Math.random() < p ? 1 : 0);
+          bins[binIndex]++;
+        } else {
+          // Bounce to next peg
+          const goRight = Math.random() < p;
+          if (goRight) this.col++;
+          this.row++;
+          
+          const rowHeight = (height - 100) / rows;
+          const nextPegCount = this.row + 1;
+          const nextRowWidth = nextPegCount * 30;
+          const nextStartX = width / 2 - nextRowWidth / 2 + 15;
+          
+          this.targetX = nextStartX + this.col * 30;
+          this.targetY = 40 + this.row * rowHeight;
+        }
+      } else {
+        this.x += (dx / dist) * this.speed;
+        this.y += (dy / dist) * this.speed;
+      }
+    }
+    
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, BALL_RADIUS, 0, Math.PI * 2);
+      ctx.fillStyle = this.settled ? 'var(--orange)' : 'var(--orange-deep)';
+      ctx.fill();
+    }
+  }
+  
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Draw Pegs
+    ctx.fillStyle = 'var(--text-secondary)';
+    pegs.forEach(peg => {
+      ctx.beginPath();
+      ctx.arc(peg.x, peg.y, PEG_RADIUS, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    
+    // Draw Bins
+    const binWidth = 26;
+    const maxBinCount = Math.max(...bins, 1);
+    const chartHeight = 80;
+    
+    const totalBinsWidth = (rows + 1) * 30;
+    const startBinX = width / 2 - totalBinsWidth / 2 + 15;
+    
+    for(let i=0; i<=rows; i++) {
+      const bHeight = (bins[i] / maxBinCount) * chartHeight;
+      ctx.fillStyle = 'rgba(234,88,12,0.4)';
+      ctx.fillRect(startBinX + i*30 - binWidth/2, height - bHeight, binWidth, bHeight);
+      
+      if(bins[i] > 0) {
+        ctx.fillStyle = 'var(--orange-deep)';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(bins[i], startBinX + i*30, height - bHeight - 4);
+      }
+    }
+    
+    // Draw Balls
+    balls.forEach(b => {
+      b.update();
+      if(!b.settled) b.draw();
+    });
+    
+    requestAnimationFrame(draw);
+  }
+  
+  window.addEventListener('resize', resize);
+  
+  document.getElementById('pSlider').addEventListener('input', e => {
+    p = parseFloat(e.target.value);
+    document.getElementById('pVal').textContent = p.toFixed(1);
+  });
+  
+  document.getElementById('nSlider').addEventListener('input', e => {
+    rows = parseInt(e.target.value);
+    document.getElementById('nVal').textContent = rows;
+    initBoard();
+  });
+  
+  document.getElementById('dropBtn').addEventListener('click', () => {
+    let dropped = 0;
+    const interval = setInterval(() => {
+      balls.push(new Ball());
+      dropped++;
+      if(dropped >= 100) clearInterval(interval);
+    }, 40);
+  });
+  
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    initBoard();
+  });
+  
+  resize();
+  draw();
+  
+</script>
+</body>
+</html>

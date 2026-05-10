@@ -218,6 +218,10 @@ const Admin = {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           E-Mails
         </button>
+        <button class="adm-tab" data-tab="goodies">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          Cheat Sheets
+        </button>
       </div>
 
       <!-- OVERVIEW TAB -->
@@ -549,6 +553,11 @@ const Admin = {
         </div>
       </div>
 
+      <!-- GOODIES TAB -->
+      <div id="adm-tab-goodies" class="adm-tab-content">
+        <div id="agd-root"></div>
+      </div>
+
       <!-- EMAILS TAB -->
       <div id="adm-tab-emails" class="adm-tab-content">
         <div id="admin-email-container">
@@ -605,6 +614,8 @@ const Admin = {
         document.getElementById('adm-tab-' + tab.dataset.tab)?.classList.add('active');
         // E-Mail Tab: Lade Daten beim ersten Öffnen
         if (tab.dataset.tab === 'emails') { this._renderEmailTab(); }
+        // Goodies Tab: Initialisiere das AdminGoodies Modul
+        if (tab.dataset.tab === 'goodies' && window.AdminGoodies) { window.AdminGoodies.render(); }
       });
     });
 

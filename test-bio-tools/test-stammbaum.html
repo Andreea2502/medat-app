@@ -143,6 +143,18 @@
   .quiz-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
   .quiz-feedback.wrong{background:rgba(224,123,139,.1);color:var(--pink-deep)}
 
+  /* MENDEL PEAS */
+  .pea{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;box-shadow:inset -4px -4px 10px rgba(0,0,0,.15), 0 4px 8px rgba(0,0,0,.1);transition:all .4s cubic-bezier(.4,0,.2,1);color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .pea:hover{transform:scale(1.15) translateY(-4px)}
+  .pea-yellow{background:linear-gradient(135deg, #fce07a, #e6a817)}
+  .pea-green{background:linear-gradient(135deg, #a3dbb7, #4a9a6a)}
+  .pea-het{position:relative}
+  .pea-het::after{content:'';position:absolute;inset:0;border-radius:50%;border:2.5px dashed rgba(255,255,255,.6);animation:spin 12s linear infinite}
+  .pea-wrinkled{border-radius:30% 70% 50% 50% / 50% 40% 60% 50%;box-shadow:inset -3px -3px 8px rgba(0,0,0,.2), inset 3px 3px 5px rgba(255,255,255,.4), 0 4px 8px rgba(0,0,0,.1)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  
+  .mendel-tab-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);box-shadow:0 4px 12px rgba(155,127,196,.3)}
+
   /* CASES */
   .case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px}
   .case-card{background:linear-gradient(135deg,var(--surface),var(--bg-light));border:1.5px solid var(--border-light);border-radius:18px;padding:16px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1)}
@@ -236,11 +248,18 @@
   .sb-tile:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--purple-deep)}
   .sb-tile h5{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:4px}
   .sb-tile .nm{font-size:.7rem;color:var(--text-secondary);font-weight:600;font-family:'JetBrains Mono',monospace}
+
+  /* BACK BTN */
+  .back-btn{position:absolute;left:20px;top:20px;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;z-index:60;background:var(--surface);padding:6px 12px;border-radius:12px;border:1.5px solid var(--border-light);box-shadow:var(--shadow-sm)}
+  .back-btn:hover{color:var(--pink-deep);border-color:var(--pink);transform:translateY(-1px)}
+  @media(max-width:820px){.back-btn{position:static;margin-bottom:14px;display:inline-flex;width:fit-content}}
+
 </style>
 </head>
 <body>
 
 <div class="header">
+  <a href="../index.html" class="back-btn"><i data-lucide="arrow-left"></i>Übersicht</a>
   <div class="header-inner">
     <div class="badge"><i data-lucide="git-fork"></i></div>
     <div>
@@ -256,6 +275,7 @@
   <button class="tab" data-tab="cases"><i data-lucide="book-open-text"></i>Beispielfälle</button>
   <button class="tab" data-tab="steckbriefe"><i data-lucide="book-open"></i>Steckbriefe</button>
   <button class="tab" data-tab="rules"><i data-lucide="list"></i>Regeln</button>
+  <button class="tab" data-tab="mendel"><i data-lucide="leaf"></i>Mendel</button>
   <button class="tab" data-tab="prob"><i data-lucide="calculator"></i>Rechner</button>
   <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
 </div>
@@ -468,6 +488,87 @@
     </div>
   </div>
 
+  <!-- ============ TAB 4.5: MENDELSCHE REGELN ============ -->
+  <div class="section" id="mendel">
+    <div class="hero-strip">
+      <h2><i data-lucide="leaf"></i>Mendelsche Regeln</h2>
+      <p>Die Grundlage der klassischen Genetik. Klicke auf die Buttons, um die drei Regeln anhand von animierten Erbsenkreuzungen zu visualisieren.</p>
+    </div>
+
+    <div class="card">
+      <div class="mendel-controls" style="display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap">
+        <button class="btn mendel-tab-btn active" data-rule="1">1. Uniformitätsregel</button>
+        <button class="btn ghost mendel-tab-btn" data-rule="2">2. Spaltungsregel</button>
+        <button class="btn ghost mendel-tab-btn" data-rule="3">3. Unabhängigkeitsregel</button>
+      </div>
+
+      <div class="mendel-stage" style="background:var(--bg-light);border-radius:14px;padding:20px;text-align:center;min-height:280px;position:relative;border:1px solid var(--border-light);overflow:hidden">
+        
+        <!-- Rule 1 -->
+        <div class="m-rule" id="mRule1">
+          <h3 style="font-size:1.1rem;color:var(--purple-deep);margin-bottom:10px">1. Uniformitätsregel</h3>
+          <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:24px">Kreuzt man zwei reinerbige (homozygote) Individuen, die sich in einem Merkmal unterscheiden, so sind alle Nachkommen in der F1-Generation uniform (gleich).</p>
+          <div class="pea-cross">
+            <div class="pea-parent" style="display:flex;justify-content:center;gap:60px">
+              <div class="pea pea-yellow" title="AA (homozygot dominant)">AA</div>
+              <div class="pea pea-green" title="aa (homozygot rezessiv)">aa</div>
+            </div>
+            <div style="margin:14px 0;color:var(--purple-deep);font-weight:bold;font-size:1.2rem">↓</div>
+            <div class="pea-f1" style="display:flex;justify-content:center;gap:15px">
+              <div class="pea pea-yellow pea-het" title="Aa (heterozygot)">Aa</div>
+              <div class="pea pea-yellow pea-het" title="Aa (heterozygot)">Aa</div>
+              <div class="pea pea-yellow pea-het" title="Aa (heterozygot)">Aa</div>
+              <div class="pea pea-yellow pea-het" title="Aa (heterozygot)">Aa</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rule 2 -->
+        <div class="m-rule" id="mRule2" style="display:none">
+          <h3 style="font-size:1.1rem;color:var(--purple-deep);margin-bottom:10px">2. Spaltungsregel</h3>
+          <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:24px">Kreuzt man die hybriden Individuen der F1-Generation untereinander (Aa x Aa), spalten sich die Merkmale der F2 in einem festen Verhältnis auf (3:1 im Phänotyp).</p>
+          <div class="pea-cross">
+            <div class="pea-parent" style="display:flex;justify-content:center;gap:60px">
+              <div class="pea pea-yellow pea-het" title="Aa">Aa</div>
+              <div class="pea pea-yellow pea-het" title="Aa">Aa</div>
+            </div>
+            <div style="margin:14px 0;color:var(--purple-deep);font-weight:bold;font-size:1.2rem">↓</div>
+            <div class="pea-f2" style="display:flex;justify-content:center;gap:15px">
+              <div class="pea pea-yellow" title="AA">AA</div>
+              <div class="pea pea-yellow pea-het" title="Aa">Aa</div>
+              <div class="pea pea-yellow pea-het" title="Aa">Aa</div>
+              <div class="pea pea-green" title="aa">aa</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rule 3 -->
+        <div class="m-rule" id="mRule3" style="display:none">
+          <h3 style="font-size:1.1rem;color:var(--purple-deep);margin-bottom:10px">3. Unabhängigkeitsregel</h3>
+          <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:24px">Bei der Kreuzung von Individuen, die sich in zwei oder mehr Merkmalen unterscheiden, werden die Erbanlagen unabhängig voneinander vererbt und neu kombiniert.</p>
+          <div class="pea-cross">
+            <div class="pea-parent" style="display:flex;justify-content:center;gap:60px">
+              <div class="pea pea-yellow" title="Gelb & Rund (AABB)" style="font-size:.65rem">AABB</div>
+              <div class="pea pea-green pea-wrinkled" title="Grün & Runzlig (aabb)" style="font-size:.65rem">aabb</div>
+            </div>
+            <div style="margin:10px 0;color:var(--purple-deep);font-weight:bold;font-size:1.2rem">↓</div>
+            <div class="pea-f1" style="display:flex;justify-content:center;gap:15px">
+              <div class="pea pea-yellow pea-het" title="Gelb & Rund (AaBb)" style="font-size:.65rem">AaBb</div>
+            </div>
+            <div style="margin:10px 0;color:var(--purple-deep);font-weight:bold;font-size:1.2rem">↓</div>
+            <div class="pea-f2" style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;max-width:320px;margin:0 auto">
+               <div style="font-size:.75rem;font-weight:bold;color:var(--text);display:flex;gap:5px;align-items:center"><div class="pea pea-yellow" style="width:24px;height:24px;font-size:0"></div>x9</div>
+               <div style="font-size:.75rem;font-weight:bold;color:var(--text);display:flex;gap:5px;align-items:center"><div class="pea pea-yellow pea-wrinkled" style="width:24px;height:24px;font-size:0"></div>x3</div>
+               <div style="font-size:.75rem;font-weight:bold;color:var(--text);display:flex;gap:5px;align-items:center"><div class="pea pea-green" style="width:24px;height:24px;font-size:0"></div>x3</div>
+               <div style="font-size:.75rem;font-weight:bold;color:var(--text);display:flex;gap:5px;align-items:center"><div class="pea pea-green pea-wrinkled" style="width:24px;height:24px;font-size:0"></div>x1</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ============ TAB 5: RECHNER ============ -->
   <div class="section" id="prob">
     <div class="card">
@@ -549,6 +650,29 @@ document.querySelectorAll('.tab').forEach(t=>{
   });
 });
 
+/* ===== MENDEL BUTTONS ===== */
+document.querySelectorAll('.mendel-tab-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.mendel-tab-btn').forEach(x => { x.classList.remove('active'); x.classList.add('ghost'); });
+    b.classList.add('active'); b.classList.remove('ghost');
+    document.querySelectorAll('.m-rule').forEach(x => x.style.display = 'none');
+    const rule = b.dataset.rule;
+    const activeRule = document.getElementById('mRule'+rule);
+    activeRule.style.display = 'block';
+    
+    // Animation trigger
+    const peas = activeRule.querySelectorAll('.pea');
+    peas.forEach(p => {
+      p.style.transform = 'scale(0.5) translateY(-20px)';
+      p.style.opacity = '0';
+      setTimeout(() => {
+        p.style.transform = 'scale(1) translateY(0)';
+        p.style.opacity = '1';
+      }, 50);
+    });
+  });
+});
+
 /* ===== PEDIGREE NODES ===== */
 const NODES = [
   {id:'I-1',sex:'M',gen:1,x:240,y:60,parents:null,partner:'I-2'},
@@ -580,12 +704,12 @@ function drawPed(svgId='ped',status=state.status){
   const families={};
   NODES.forEach(n=>{
     if(n.parents){
-      const k=n.parents.join('-');
+      const k=n.parents.join('|');
       (families[k]=families[k]||[]).push(n);
     }
   });
   Object.entries(families).forEach(([k,kids])=>{
-    const [pa,pb]=k.split('-').map(id=>NODES.find(x=>x.id===id));
+    const [pa,pb]=k.split('|').map(id=>NODES.find(x=>x.id===id));
     const midX=(pa.x+pb.x)/2, midY=pa.y;
     g.appendChild(line(midX,midY,midX,midY+45));
     const xs=kids.map(c=>c.x);
@@ -823,6 +947,11 @@ function loadCase(key){
   const c=CASES[key]; if(!c) return;
   Object.keys(state.status).forEach(id=>state.status[id]=c.status[id]||'healthy');
   drawPed(); diagnoseAll();
+  
+  // Update UI to explain the sketch
+  const diagText = document.getElementById('diagText');
+  diagText.innerHTML = `<b>Beispielfall geladen: ${c.title} (${ERB_LABEL[c.erb]}).</b><br>Die Skizze oben wurde entsprechend eingefärbt. Du kannst nun sehen, wie sich dieses Muster über 3 Generationen verhält.`;
+  
   document.querySelector('.tab[data-tab="diagnose"]').click();
 }
 window.loadCase=loadCase;

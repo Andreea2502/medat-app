@@ -80,17 +80,24 @@
   .modal-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.06);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);z-index:2}
   .modal-close:hover{background:rgba(0,0,0,.12)}
 
-  /* AXIS */
-  .axis-grid{display:grid;grid-template-columns:1fr;gap:12px}
-  .axis-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:18px;padding:16px;box-shadow:var(--shadow-sm)}
-  .axis-card h4{font-size:.92rem;font-weight:800;margin-bottom:10px;color:var(--rose-deep);display:flex;align-items:center;gap:8px}
-  .axis-flow{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:12px 0;padding:14px 8px;background:var(--bg-light);border-radius:14px}
-  .axis-node{background:linear-gradient(135deg,var(--coral-soft),#fff);border:1.5px solid var(--rose);border-radius:12px;padding:8px 12px;text-align:center;min-width:90px}
-  .axis-node .gn{font-size:.82rem;font-weight:800;color:var(--text);line-height:1.2}
-  .axis-node .hg{font-family:monospace;font-size:.72rem;color:var(--rose-deep);margin-top:3px;font-weight:700}
-  .axis-arrow{color:var(--rose-deep);font-weight:800;font-size:1rem}
-  .axis-card p{font-size:.82rem;color:var(--text-secondary);line-height:1.55;margin-top:6px}
-  .axis-card p b{color:var(--text)}
+  /* SVG AXIS FEEDBACK LOOP */
+  .loop-arena { position: relative; width: 100%; max-width: 400px; margin: 0 auto; background: var(--bg-light); border-radius: 16px; border: 1.5px solid var(--border); padding: 20px 0; overflow: hidden; }
+  .loop-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .loop-node-box { fill: var(--surface); stroke: var(--rose-deep); stroke-width: 2; rx: 12; transition: all 0.3s; }
+  .loop-node-text-gland { font-size: 14px; font-weight: 800; fill: var(--text); font-family: system-ui, sans-serif; text-anchor: middle; transition: all 0.3s; pointer-events: none; }
+  .loop-node-text-hormone { font-size: 12px; font-weight: 700; fill: var(--rose-deep); font-family: monospace; text-anchor: middle; transition: all 0.3s; pointer-events: none; }
+  
+  .loop-path-forward { fill: none; stroke: var(--green); stroke-width: 3; stroke-dasharray: 6 6; opacity: 0.3; transition: opacity 0.3s; }
+  .loop-path-feedback { fill: none; stroke: var(--danger); stroke-width: 3; stroke-dasharray: 6 6; opacity: 0.3; transition: opacity 0.3s; }
+  
+  .loop-particle-forward { fill: var(--green-deep); r: 6; opacity: 0; }
+  .loop-particle-feedback { fill: var(--danger); r: 6; opacity: 0; }
+  
+  .axis-selector { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .axis-btn { padding: 8px 14px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface); font-size: .8rem; font-weight: 700; cursor: pointer; color: var(--text); transition: all .2s; }
+  .axis-btn.active { background: var(--rose); color: #fff; border-color: var(--rose-deep); }
+  .axis-play-btn{position:absolute;top:16px;right:16px;padding:6px 12px;border-radius:var(--radius-pill);border:none;background:var(--rose);color:#fff;font-size:.75rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;box-shadow:var(--shadow-sm);transition:all .2s;z-index:2;}
+  .axis-play-btn:hover{background:var(--rose-deep);transform:translateY(-2px);box-shadow:0 4px 12px rgba(217,106,122,.3)}
 
   /* STOFFWECHSEL MODE SELECTOR */
   .sw-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
@@ -192,11 +199,18 @@
   .sb-section.klinik{background:var(--coral-soft);border-left-color:var(--rose-deep)}
   .sb-section.medat{background:var(--mint);border-left-color:var(--green-deep)}
   .sb-section.medat h4, .sb-section.medat h4 [data-lucide]{color:var(--green-deep)}
+
+  /* BACK BTN */
+  .back-btn{position:absolute;left:20px;top:20px;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;z-index:60;background:var(--surface);padding:6px 12px;border-radius:12px;border:1.5px solid var(--border-light);box-shadow:var(--shadow-sm)}
+  .back-btn:hover{color:var(--pink-deep);border-color:var(--pink);transform:translateY(-1px)}
+  @media(max-width:820px){.back-btn{position:static;margin-bottom:14px;display:inline-flex;width:fit-content}}
+
 </style>
 </head>
 <body>
 
 <div class="header">
+  <a href="../index.html" class="back-btn"><i data-lucide="arrow-left"></i>Übersicht</a>
   <div class="header-inner">
     <div class="badge"><i data-lucide="heart-pulse"></i></div>
     <div>
@@ -239,7 +253,52 @@
     </div>
 
     <div class="card">
-      <div class="axis-grid" id="axisGrid"></div>
+      <div class="axis-selector" id="axisSelector"></div>
+
+      <div class="loop-arena">
+        <button class="axis-play-btn" id="loopPlayBtn" onclick="playFeedbackAnimation()"><i data-lucide="play"></i>Animation</button>
+        <svg class="loop-svg" viewBox="0 0 320 380" id="loopSvg">
+          <defs>
+            <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--green)"/>
+            </marker>
+            <marker id="block-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <rect x="7" y="0" width="3" height="10" fill="var(--danger)"/>
+            </marker>
+          </defs>
+
+          <!-- Forward Paths -->
+          <path id="path-f1" class="loop-path-forward" d="M 160 80 L 160 140" marker-end="url(#arrow-green)" />
+          <path id="path-f2" class="loop-path-forward" d="M 160 210 L 160 270" marker-end="url(#arrow-green)" />
+          
+          <!-- Feedback Paths (Red) -->
+          <path id="path-fb" class="loop-path-feedback" d="M 70 305 L 30 305 L 30 45 L 70 45" marker-end="url(#block-red)" />
+          <path id="path-fb-short" class="loop-path-feedback" d="M 30 175 L 70 175" marker-end="url(#block-red)" />
+
+          <!-- Particles -->
+          <circle id="part-f1" class="loop-particle-forward" cx="0" cy="0" />
+          <circle id="part-f2" class="loop-particle-forward" cx="0" cy="0" />
+          <circle id="part-fb1" class="loop-particle-feedback" cx="0" cy="0" />
+          <circle id="part-fb2" class="loop-particle-feedback" cx="0" cy="0" />
+
+          <!-- Node 1 -->
+          <rect id="node1-bg" class="loop-node-box" x="70" y="10" width="180" height="70" />
+          <text id="node1-gland" class="loop-node-text-gland" x="160" y="35">Hypothalamus</text>
+          <text id="node1-hormone" class="loop-node-text-hormone" x="160" y="55">TRH</text>
+
+          <!-- Node 2 -->
+          <rect id="node2-bg" class="loop-node-box" x="70" y="140" width="180" height="70" />
+          <text id="node2-gland" class="loop-node-text-gland" x="160" y="165">Hypophyse</text>
+          <text id="node2-hormone" class="loop-node-text-hormone" x="160" y="185">TSH</text>
+
+          <!-- Node 3 -->
+          <rect id="node3-bg" class="loop-node-box" x="70" y="270" width="180" height="70" />
+          <text id="node3-gland" class="loop-node-text-gland" x="160" y="295">Schilddrüse</text>
+          <text id="node3-hormone" class="loop-node-text-hormone" x="160" y="315">T3 / T4</text>
+        </svg>
+
+        <p id="axisNote" style="text-align:center; font-size:0.85rem; color:var(--text-secondary); margin:10px 20px 0; min-height:40px;"></p>
+      </div>
 
       <div class="key-fact" style="margin-top:14px"><i data-lucide="info"></i><div><b>Negative Rückkopplung:</b> Das Wirkhormon (z. B. Cortisol, T3/T4) hemmt sowohl Hypothalamus als auch Hypophyse → Selbstregulation.</div></div>
       <div class="info-fact"><i data-lucide="lightbulb"></i><div><b>Eselsbrücke HVL-Hormone „FLAT PiG":</b> <b>F</b>SH, <b>L</b>H, <b>A</b>CTH, <b>T</b>SH, <b>P</b>rolactin, <b>i</b>n addition <b>G</b>H. Die HHL hat nur ADH und Oxytocin.</div></div>
@@ -497,99 +556,29 @@ function renderBody(){
 
   // ===== KÖRPER-SILHOUETTE (anatomisch geschwungen) =====
   // Kopf
-  html+=`<ellipse cx="160" cy="48" rx="40" ry="50" fill="url(#headGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
-    <ellipse cx="148" cy="32" rx="14" ry="6" fill="rgba(255,255,255,0.12)"/>`;
-  // Hals (Trapezform)
-  html+=`<path d="M 145 92 L 175 92 L 180 110 L 140 110 Z" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`;
-  // Schultern + Oberkörper geschwungen (mit Arm-Ansätzen)
-  html+=`<path d="M 100 110
-    Q 80 115 75 145
-    Q 70 175 80 220
-    Q 75 260 80 300
-    Q 85 335 95 370
-    L 120 410
-    Q 122 460 118 510
-    L 124 540
-    L 142 540
-    L 145 405
-    L 153 370
-    L 160 280
-    L 167 370
-    L 175 405
-    L 178 540
-    L 196 540
-    L 202 510
-    Q 198 460 200 410
-    L 225 370
-    Q 235 335 240 300
-    Q 245 260 240 220
-    Q 250 175 245 145
-    Q 240 115 220 110
-    L 180 110
-    Q 175 113 175 117
-    L 145 117
-    Q 145 113 140 110
-    Z"
-    fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>`;
-
-  // ===== LINKER ARM =====
-  // Oberarm + Unterarm + Handgelenk
-  html+=`<path d="M 100 112
-    Q 78 118 70 145
-    Q 62 175 60 200
-    Q 56 215 58 230
-    Q 54 260 50 285
-    Q 46 305 50 322
-    L 66 322
-    Q 70 318 70 300
-    Q 74 270 78 240
-    Q 82 220 80 205
-    Q 84 175 88 150
-    Q 92 128 96 115
-    Z"
-    fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>`;
-  // Linke Hand (oval mit Daumen-Andeutung)
-  html+=`<g>
-    <ellipse cx="56" cy="335" rx="13" ry="17" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
-    <!-- Daumen -->
-    <ellipse cx="68" cy="325" rx="5" ry="9" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1" transform="rotate(-25 68 325)"/>
-    <!-- Finger-Andeutung -->
-    <line x1="50" y1="346" x2="51" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-    <line x1="55" y1="348" x2="56" y2="362" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-    <line x1="60" y1="346" x2="61" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-    <ellipse cx="50" cy="328" rx="6" ry="3" fill="rgba(255,255,255,0.12)"/>
-  </g>`;
-
-  // ===== RECHTER ARM =====
-  html+=`<path d="M 220 112
-    Q 242 118 250 145
-    Q 258 175 260 200
-    Q 264 215 262 230
-    Q 266 260 270 285
-    Q 274 305 270 322
-    L 254 322
-    Q 250 318 250 300
-    Q 246 270 242 240
-    Q 238 220 240 205
-    Q 236 175 232 150
-    Q 228 128 224 115
-    Z"
-    fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>`;
-  // Rechte Hand
-  html+=`<g>
-    <ellipse cx="264" cy="335" rx="13" ry="17" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
-    <ellipse cx="252" cy="325" rx="5" ry="9" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.18)" stroke-width="1" transform="rotate(25 252 325)"/>
-    <line x1="270" y1="346" x2="269" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-    <line x1="265" y1="348" x2="264" y2="362" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-    <line x1="260" y1="346" x2="259" y2="358" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
-    <ellipse cx="270" cy="328" rx="6" ry="3" fill="rgba(255,255,255,0.12)"/>
-  </g>`;
-
-  // Subtle Ellbogen-Knick (Highlight)
-  html+=`<ellipse cx="62" cy="218" rx="7" ry="2" fill="rgba(255,255,255,0.12)"/>
-    <ellipse cx="258" cy="218" rx="7" ry="2" fill="rgba(255,255,255,0.12)"/>`;
-  // Body shine overlay
-  html+=`<rect x="0" y="0" width="320" height="540" fill="url(#bodyHL)" pointer-events="none"/>`;
+  html+=`<ellipse cx="160" cy="48" rx="30" ry="38" fill="url(#headGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+    <ellipse cx="152" cy="35" rx="10" ry="4" fill="rgba(255,255,255,0.15)" transform="rotate(-15 152 35)"/>`;
+  // Hals
+  html+=`<path d="M 148 82 L 172 82 L 176 100 L 144 100 Z" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>`;
+  // Schultern + Rumpf + Beine
+  html+=`<path d="M 110 105
+    Q 160 90 210 105
+    Q 240 120 225 180
+    Q 215 250 205 320
+    L 190 540 L 175 540 L 165 380
+    L 155 380 L 145 540 L 130 540
+    L 115 320
+    Q 105 250 95 180
+    Q 80 120 110 105 Z"
+    fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>`;
+    
+  // Linker Arm
+  html+=`<path d="M 110 105 Q 85 115 75 160 Q 65 220 60 280 Q 55 320 60 350 Q 70 355 75 345 Q 80 300 95 180 Z" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>`;
+  // Rechter Arm
+  html+=`<path d="M 210 105 Q 235 115 245 160 Q 255 220 260 280 Q 265 320 260 350 Q 250 355 245 345 Q 240 300 225 180 Z" fill="url(#bodyGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>`;
+  
+  // Body shine overlay (Central light beam)
+  html+=`<path d="M 160 95 L 160 540" stroke="url(#bodyHL)" stroke-width="40" opacity="0.3" pointer-events="none"/>`;
 
   // ===== KÖRPER-SPALTE (mittig, dezent) =====
   html+=`<line x1="160" y1="120" x2="160" y2="380" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
@@ -858,24 +847,119 @@ const AXES=[
     note:'Bei niedrigem BD/Na⁺: Niere setzt Renin frei → Angiotensinogen → Angiotensin I → durch ACE → Angiotensin II → Aldosteron → Na⁺/Wasser-Retention.'}
 ];
 
+let currentAxisIndex = 0;
 function renderAxes(){
-  const grid=document.getElementById('axisGrid');
-  grid.innerHTML='';
-  AXES.forEach(a=>{
-    const card=document.createElement('div');
-    card.className='axis-card';
-    let flowHtml='<div class="axis-flow">';
-    a.flow.forEach((f,i)=>{
-      flowHtml+=`<div class="axis-node"><div class="gn">${f.gland}</div><div class="hg">${f.hormone}</div></div>`;
-      if(i<a.flow.length-1) flowHtml+='<div class="axis-arrow">→</div>';
-    });
-    flowHtml+='</div>';
-    card.innerHTML=`<h4><i data-lucide="git-merge"></i>${a.name}</h4>${flowHtml}<p>${a.note}</p>`;
-    grid.appendChild(card);
+  const selector = document.getElementById('axisSelector');
+  selector.innerHTML = '';
+  AXES.forEach((a, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'axis-btn' + (idx === currentAxisIndex ? ' active' : '');
+    btn.textContent = a.name.split(' (')[0];
+    btn.onclick = () => selectAxis(idx);
+    selector.appendChild(btn);
   });
-  if(window.lucide) lucide.createIcons();
+  updateSVG();
 }
-renderAxes();
+
+function selectAxis(idx){
+  currentAxisIndex = idx;
+  renderAxes();
+}
+
+function updateSVG(){
+  const ax = AXES[currentAxisIndex];
+  
+  document.getElementById('node1-gland').textContent = ax.flow[0].gland;
+  document.getElementById('node1-hormone').textContent = ax.flow[0].hormone;
+  
+  document.getElementById('node2-gland').textContent = ax.flow[1].gland;
+  document.getElementById('node2-hormone').textContent = ax.flow[1].hormone;
+  
+  document.getElementById('node3-gland').textContent = ax.flow[2].gland;
+  document.getElementById('node3-hormone').textContent = ax.flow[2].hormone;
+  
+  document.getElementById('axisNote').innerHTML = ax.note;
+  
+  resetAnimation();
+}
+
+function resetAnimation(){
+  const parts = ['part-f1','part-f2','part-fb1','part-fb2'];
+  parts.forEach(id => {
+    const el = document.getElementById(id);
+    el.style.opacity = '0';
+    el.innerHTML = '';
+  });
+  
+  ['node1-bg','node2-bg','node3-bg'].forEach(id => {
+    document.getElementById(id).style.fill = 'var(--surface)';
+    document.getElementById(id).style.stroke = 'var(--rose-deep)';
+    document.getElementById(id).style.opacity = '1';
+  });
+}
+
+function playFeedbackAnimation(){
+  resetAnimation();
+  
+  const pF1 = document.getElementById('part-f1');
+  const pF2 = document.getElementById('part-f2');
+  const pFb1 = document.getElementById('part-fb1');
+  const pFb2 = document.getElementById('part-fb2');
+  
+  const n1 = document.getElementById('node1-bg');
+  const n2 = document.getElementById('node2-bg');
+  const n3 = document.getElementById('node3-bg');
+  
+  n1.style.fill = 'var(--yellow-soft)';
+  n1.style.stroke = 'var(--gold)';
+  
+  pF1.style.opacity = '1';
+  pF1.innerHTML = `<animateMotion dur="1s" repeatCount="1" fill="freeze"><mpath href="#path-f1"/></animateMotion>`;
+  
+  setTimeout(() => {
+    n1.style.fill = 'var(--surface)';
+    n1.style.stroke = 'var(--rose-deep)';
+    pF1.style.opacity = '0';
+    
+    n2.style.fill = 'var(--yellow-soft)';
+    n2.style.stroke = 'var(--gold)';
+    
+    pF2.style.opacity = '1';
+    pF2.innerHTML = `<animateMotion dur="1s" repeatCount="1" fill="freeze"><mpath href="#path-f2"/></animateMotion>`;
+  }, 1000);
+  
+  setTimeout(() => {
+    n2.style.fill = 'var(--surface)';
+    n2.style.stroke = 'var(--rose-deep)';
+    pF2.style.opacity = '0';
+    
+    n3.style.fill = 'var(--mint)';
+    n3.style.stroke = 'var(--green-deep)';
+    
+    pFb1.style.opacity = '1';
+    pFb1.innerHTML = `<animateMotion dur="1.5s" repeatCount="1" fill="freeze"><mpath href="#path-fb"/></animateMotion>`;
+    
+    pFb2.style.opacity = '1';
+    pFb2.innerHTML = `<animateMotion dur="1.5s" repeatCount="1" fill="freeze"><mpath href="#path-fb-short"/></animateMotion>`;
+  }, 2000);
+  
+  setTimeout(() => {
+    pFb1.style.opacity = '0';
+    pFb2.style.opacity = '0';
+    
+    n1.style.fill = 'var(--coral-soft)';
+    n1.style.stroke = 'var(--danger)';
+    n1.style.opacity = '0.6';
+    
+    n2.style.fill = 'var(--coral-soft)';
+    n2.style.stroke = 'var(--danger)';
+    n2.style.opacity = '0.6';
+  }, 3500);
+  
+  setTimeout(() => {
+    resetAnimation();
+  }, 5000);
+}
 
 /* ===== STOFFWECHSEL — 6 Regelkreise ===== */
 const STOFFWECHSEL={
