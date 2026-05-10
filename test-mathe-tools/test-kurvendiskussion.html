@@ -3,99 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Kurvendiskussion – MedAT Trainer</title>
-<script src="https://unpkg.com/lucide@latest"></script>
+<title>Kurvendiskussion · MedAT Trainer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}]});"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
-  body {
-    background-color: var(--bg);
-    color: var(--text);
-    margin: 0; padding: 0;
-    min-height: 100vh;
-    display: flex; flex-direction: column;
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f0e8;--bg-warm:#f0ebe1;--bg-light:#faf6ee;--surface:#ffffff;
+    --dark:#1a1a2e;--text:#1a1a2e;--text-secondary:#5c5c6e;--muted:#9e9eae;
+    --border:#e8e2d8;--border-light:#f0ebe1;
+    --gold:#f5c542;--gold-deep:#e6a817;--yellow-soft:#fdf3d7;
+    --green:#6db88a;--green-deep:#4a9a6a;--mint:#c8e6d0;
+    --blue:#6db8e0;--blue-deep:#2d6a8e;
+    /* Math Theme: Orange */
+    --orange:#f97316;--orange-deep:#ea580c;--orange-soft:#ffedd5;
+    --primary:var(--orange);--primary-deep:var(--orange-deep);--primary-soft:var(--orange-soft);
+    
+    --success:#2d8a54;--danger:#dc2626;
+    --radius:22px;--radius-sm:14px;--radius-pill:30px;
+    --shadow-sm:0 2px 10px rgba(26,26,46,.04);
+    --shadow:0 4px 20px rgba(26,26,46,.06);
   }
+  [data-lucide]{width:18px;height:18px;stroke-width:2;flex-shrink:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  .header{background:rgba(255,255,255,.92);padding:20px 20px 14px;text-align:center;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border-light);backdrop-filter:blur(12px)}
+  .header-inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:center}
+  .header .badge{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--primary-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--primary-deep);box-shadow:var(--shadow-sm)}
+  .header .badge [data-lucide]{width:22px;height:22px}
+  .header h1{font-size:1.3rem;color:var(--text);font-weight:800;letter-spacing:-.4px;text-align:left}
+  .header p{color:var(--text-secondary);font-size:.78rem;font-weight:500;text-align:left;margin-top:1px}
+
+  .tabs{display:flex;justify-content:center;gap:6px;padding:14px 12px;flex-wrap:wrap;background:var(--bg);position:sticky;top:80px;z-index:40}
+  .tab{padding:9px 14px;border-radius:var(--radius-pill);border:1.5px solid var(--border);background:var(--surface);color:var(--text-secondary);font-size:.8rem;cursor:pointer;font-weight:600;transition:all .25s cubic-bezier(.4,0,.2,1);font-family:inherit;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .tab [data-lucide]{width:15px;height:15px}
+  .tab.active{background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(234,88,12,.4);transform:translateY(-1px)}
+  .tab:hover:not(.active){border-color:var(--primary);color:var(--primary-deep);transform:translateY(-1px)}
+
+  .wrap{max-width:880px;margin:0 auto;padding:0 16px}
+  .section{display:none}.section.active{display:block;animation:fadeUp .4s cubic-bezier(.4,0,.2,1)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  .card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:22px;margin:14px 0;box-shadow:var(--shadow)}
+  .card h2{font-size:1.1rem;margin-bottom:6px;color:var(--text);font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+  .card h2 [data-lucide]{color:var(--primary-deep);width:20px;height:20px}
+  .card .lead{font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;line-height:1.55}
+  .card h3{font-size:.88rem;margin-bottom:8px;color:var(--primary-deep);font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+  .hero-strip{background:linear-gradient(135deg,#fff 0%,var(--primary-soft) 100%);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;border:1px solid rgba(234,88,12,.2);box-shadow:var(--shadow)}
+  .hero-strip h2{font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--text);display:flex;align-items:center;gap:10px}
+  .hero-strip h2 [data-lucide]{color:var(--primary-deep);width:22px;height:22px}
+  .hero-strip p{font-size:.86rem;color:var(--text-secondary);line-height:1.55}
+
+  /* ARENA */
+  .plot-arena { width: 100%; aspect-ratio: 16/9; position: relative; background: #fff; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
+  @media(max-width: 768px) { .plot-arena { aspect-ratio: 4/3; } }
+  canvas { width: 100%; height: 100%; display: block; cursor: ew-resize; touch-action: none; }
   
-  .header {
-    background: #fff;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .back-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: var(--text-secondary); text-decoration: none;
-    font-weight: 600; font-size: 0.85rem; margin-bottom: 12px;
-  }
-  .back-btn:hover { color: var(--orange-deep); }
-  
-  .header-inner { display: flex; align-items: center; gap: 12px; }
-  .badge {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: rgba(234,88,12,0.15); color: var(--orange-deep);
-    display: flex; align-items: center; justify-content: center;
-  }
-  h1 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
-  .header-inner p { margin: 2px 0 0; font-size: 0.8rem; color: var(--text-secondary); }
-  
-  .wrap { padding: 20px; max-width: 900px; margin: 0 auto; flex: 1; width: 100%; box-sizing: border-box; }
-  
-  .card {
-    background: var(--surface);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    box-shadow: var(--shadow);
-    margin-bottom: 24px;
-  }
-  .card h2 { margin: 0 0 12px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
-  .card h2 svg { color: var(--orange-deep); width: 22px; height: 22px; }
-  .lead { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
-  
-  .plot-arena {
-    width: 100%;
-    aspect-ratio: 16/9;
-    position: relative;
-    background: #fff;
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    overflow: hidden;
-    margin-bottom: 20px;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
-  }
-  @media(max-width: 768px) {
-    .plot-arena { aspect-ratio: 4/3; }
-  }
-  canvas { width: 100%; height: 100%; display: block; cursor: ew-resize; }
-  
-  .stats-row {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .stat-box {
-    flex: 1;
-    min-width: 140px;
-    background: var(--bg-light);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+  .stats-row { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat-box { flex: 1; min-width: 140px; background: var(--bg-light); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 4px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .stat-box:hover { transform: scale(1.02); box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
   .stat-box.primary { border-left: 4px solid var(--orange-deep); }
   .stat-box.secondary { border-left: 4px solid #3b82f6; }
   .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
   .stat-value { font-family: monospace; font-size: 1.2rem; font-weight: bold; color: var(--text); }
-  
+  .val-dynamic { display: inline-block; animation: pulseBlue 2s infinite; }
+  @keyframes pulseBlue { 0%, 100% { text-shadow: 0 0 0 rgba(59, 130, 246, 0); } 50% { text-shadow: 0 0 10px rgba(59, 130, 246, 0.3); } }
+
   .controls { display: flex; gap: 12px; flex-wrap: wrap; background: var(--bg-light); padding: 14px; border-radius: 18px; border: 1px solid var(--border); }
   .control-group { flex: 1; min-width: 200px; }
   .control-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .control-group input[type=range] { width: 100%; accent-color: var(--orange-deep); cursor: pointer; }
+  .control-group input[type=range] { width: 100%; accent-color: var(--primary-deep); cursor: pointer; }
   .control-group select { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 500; color: var(--text); outline: none; cursor: pointer; }
+
+  /* MATCHING */
+  .match-mode-row{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:14px}
+  @media(min-width:640px){.match-mode-row{grid-template-columns:repeat(3,1fr)}}
+  .match-mode-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;line-height:1.2}
+  .match-mode-btn small{font-size:.62rem;color:var(--text-secondary);font-weight:600}
+  .match-mode-btn:hover:not(.active){border-color:var(--primary-deep);transform:translateY(-1px)}
+  .match-mode-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(234,88,12,.3)}
+  .match-mode-btn.active small{color:rgba(255,255,255,.85)}
+
+  .match-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+  .match-stat{background:var(--surface);padding:10px;border-radius:12px;text-align:center;border:1px solid var(--border-light)}
+  .match-stat .num{font-size:1.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+  .match-stat .lbl{font-size:.66rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;font-weight:600}
+
+  .match-pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .match-col h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.7px;color:var(--text-secondary);font-weight:700;margin-bottom:8px;text-align:center}
+  .match-list{display:flex;flex-direction:column;gap:8px}
+  .match-item{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;cursor:pointer;font-size:.84rem;transition:all .15s;font-weight:600;line-height:1.4}
+  .match-item:hover:not(.matched){border-color:var(--primary-deep);transform:translateY(-1px)}
+  .match-item.selected{border-color:var(--gold);background:var(--yellow-soft);box-shadow:0 0 0 3px rgba(245,197,66,.2)}
+  .match-item.matched{background:rgba(109,184,138,.12);border-color:var(--success);color:var(--success);cursor:default;opacity:.85}
+  .match-item.wrong{border-color:var(--danger);background:rgba(220,38,38,.12);animation:wrongShake .35s ease}
+  @keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+  .match-status{margin-top:14px;padding:14px;border-radius:14px;font-size:.86rem;text-align:center;font-weight:600;display:none;line-height:1.55}
+  .match-status.show{display:block;animation:fadeUp .3s ease}
+  .match-status.success{background:rgba(109,184,138,.12);color:var(--success)}
+
+  /* QUIZ */
+  .q-box .q{font-size:.96rem;line-height:1.6;margin-bottom:16px;font-weight:500;padding:14px 16px;background:var(--bg-light);border-radius:14px}
+  .q-opt{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:8px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font-size:.86rem;cursor:pointer;font-family:inherit;transition:all .2s;font-weight:500}
+  .q-opt:hover:not(:disabled){border-color:var(--primary-deep);background:var(--primary-soft);transform:translateX(2px)}
+  .q-opt.correct{border-color:var(--green);background:rgba(109,184,138,.1);color:var(--success);font-weight:700}
+  .q-opt.wrong{border-color:var(--danger);background:rgba(220,38,38,.1);color:var(--danger);font-weight:700}
+  .q-feedback{margin-top:12px;padding:14px;border-radius:14px;font-size:.84rem;line-height:1.6;display:none}
+  .q-feedback.show{display:block;animation:fadeUp .3s ease}
+  .q-feedback.correct{background:rgba(109,184,138,.1);color:var(--success)}
+  .q-feedback.wrong{background:rgba(220,38,38,.1);color:var(--danger)}
+  .quiz-progress{height:6px;background:var(--bg-warm);border-radius:3px;overflow:hidden;margin-top:14px}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--gold));transition:width .4s}
+
+  /* TABLES / WERTETABELLE */
+  .val-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.85rem;text-align:center}
+  .val-table th{background:var(--primary-soft);color:var(--primary-deep);padding:12px 8px;font-weight:800;border:1px solid var(--border)}
+  .val-table td{padding:12px 8px;border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:.9rem}
+  .val-table tr:nth-child(even) td{background:var(--bg-light)}
+
+  .key-fact{background:var(--mint);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .key-fact [data-lucide]{color:var(--green-deep);flex-shrink:0;margin-top:2px}
+  .info-fact{background:var(--blue);border-left:3px solid var(--blue-deep);padding:12px 16px;border-radius:0 12px 12px 0;font-size:.85rem;line-height:1.6;margin:10px 0;display:flex;gap:10px;align-items:flex-start}
+  .info-fact [data-lucide]{color:var(--blue-deep);flex-shrink:0;margin-top:2px}
+
+  .btn{padding:10px 18px;border-radius:var(--radius-pill);border:none;font-family:inherit;font-size:.84rem;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;box-shadow:0 4px 14px rgba(234,88,12,.3);display:inline-flex;align-items:center;gap:7px}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(234,88,12,.4)}
+  .btn.ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border);box-shadow:var(--shadow-sm)}
+  .btn.ghost:hover{border-color:var(--primary-deep);color:var(--primary-deep);transform:translateY(-2px)}
+  .btn-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+  .back-btn{position:absolute;left:20px;top:20px;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:.8rem;font-weight:700;text-decoration:none;transition:all .2s;z-index:60;background:var(--surface);padding:6px 12px;border-radius:12px;border:1.5px solid var(--border-light);box-shadow:var(--shadow-sm)}
+  .back-btn:hover{color:var(--primary-deep);border-color:var(--primary);transform:translateY(-1px)}
+  @media(max-width:820px){.back-btn{position:static;margin-bottom:14px;display:inline-flex;width:fit-content}}
+
+  /* SUB-TABS */
+  .sub-tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 2px solid var(--border-light); padding-bottom: 8px; overflow-x: auto; scrollbar-width: none; }
+  .sub-tabs::-webkit-scrollbar { display: none; }
+  .sub-tab { padding: 6px 12px; background: none; border: none; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
+  .sub-tab:hover { color: var(--primary-deep); background: var(--primary-soft); }
+  .sub-tab.active { background: var(--primary-soft); color: var(--primary-deep); font-weight: 700; }
+  .sub-section { display: none; animation: fadeUp 0.3s ease; }
+  .sub-section.active { display: block; }
   
-  .key-fact { background: var(--orange-soft); border-left: 3px solid var(--orange); padding: 12px 16px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 0.85rem; line-height: 1.6; color: var(--text); display: flex; gap: 10px; align-items: flex-start; }
+  /* STECKBRIEFE (PROFILES) */
+  .profile-card { background: var(--bg-light); border-left: 4px solid var(--primary); padding: 16px; border-radius: 8px 12px 12px 8px; margin-bottom: 16px; }
+  .profile-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .profile-header h4 { font-size: 1.05rem; color: var(--text); margin: 0; }
+  .profile-badge { font-family: monospace; font-size: 0.8rem; background: var(--primary-soft); color: var(--primary-deep); padding: 2px 8px; border-radius: 12px; font-weight: 700; }
+  .profile-body { font-size: 0.86rem; color: var(--text-secondary); line-height: 1.6; }
+  .profile-list { margin-top: 8px; list-style: none; padding-left: 0; }
+  .profile-list li { position: relative; padding-left: 18px; margin-bottom: 4px; }
+  .profile-list li::before { content: '•'; position: absolute; left: 0; color: var(--primary); font-weight: bold; }
 
 </style>
 </head>
@@ -104,248 +168,686 @@
 <div class="header">
   <a href="../index.html" class="back-btn"><i data-lucide="arrow-left"></i>Übersicht</a>
   <div class="header-inner">
-    <div class="badge"><i data-lucide="activity"></i></div>
+    <div class="badge"><i data-lucide="trending-up"></i></div>
     <div>
       <h1>Kurvendiskussion</h1>
-      <p>Differential · Steigung · Hoch-/Tiefpunkte</p>
+      <p>Labor · Theorie · Zuordnung · Quiz</p>
     </div>
   </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="labor"><i data-lucide="flask-conical"></i>Interaktives Labor</button>
+  <button class="tab" data-tab="theorie"><i data-lucide="book-open"></i>Theorie & Regeln</button>
+  <button class="tab" data-tab="match"><i data-lucide="link"></i>Zuordnung</button>
+  <button class="tab" data-tab="quiz"><i data-lucide="circle-help"></i>Quiz</button>
 </div>
 
 <div class="wrap">
-  <div class="card">
-    <h2><i data-lucide="trending-up"></i>Funktions-Scanner</h2>
-    <p class="lead">Wähle eine Funktion aus und bewege den Punkt ($x_0$) auf der Kurve. Die blaue Gerade zeigt dir die <b>Tangente</b>, also die Steigung (Ableitung $f'(x_0)$) an diesem Punkt.</p>
 
-    <div class="stats-row">
-      <div class="stat-box primary">
-        <span class="stat-label">Position $P(x_0 | y_0)$</span>
-        <span class="stat-value" id="valPos">P(0.00 | 0.00)</span>
-      </div>
-      <div class="stat-box secondary">
-        <span class="stat-label">Steigung $f'(x_0)$</span>
-        <span class="stat-value" id="valDeriv">0.00</span>
-      </div>
+  <!-- ============ TAB 1: INTERAKTIVES LABOR ============ -->
+  <div class="section active" id="labor">
+    <div class="hero-strip">
+      <h2><i data-lucide="activity"></i>Funktions-Scanner</h2>
+      <p>Wähle eine Funktion aus und bewege den Punkt (\(x_0\)) auf der Kurve. Die blaue Gerade zeigt dir die <b>Tangente</b>, also die Steigung (Ableitung \(f'(x_0)\)) an diesem Punkt.</p>
     </div>
 
-    <div class="plot-arena">
-      <canvas id="plotCanvas"></canvas>
-    </div>
-
-    <div class="controls">
-      <div class="control-group">
-        <label>Funktion $f(x)$</label>
-        <select id="funcSelect">
-          <option value="poly3">$f(x) = x^3 - 3x$ (Polynom 3. Grades)</option>
-          <option value="poly2">$f(x) = x^2 - 2$ (Parabel)</option>
-          <option value="exp">$f(x) = e^{0.5x}$ (e-Funktion)</option>
-          <option value="sin">$f(x) = 2 \cdot \sin(x)$ (Winkelfunktion)</option>
-        </select>
+    <div class="card">
+      <div class="stats-row">
+        <div class="stat-box primary">
+          <span class="stat-label">Position \(P(x_0 | y_0)\)</span>
+          <span class="stat-value" id="valPos">P(0.00 | 0.00)</span>
+        </div>
+        <div class="stat-box secondary">
+          <span class="stat-label">Steigung \(f'(x_0)\)</span>
+          <span class="stat-value val-dynamic" id="valDeriv">0.00</span>
+        </div>
       </div>
-      <div class="control-group">
-        <label>x-Position: <span id="sliderVal">0.0</span></label>
-        <input type="range" id="xSlider" min="-4" max="4" step="0.1" value="1.0">
-      </div>
-    </div>
 
-    <div class="key-fact">
-      <i data-lucide="info" style="color:var(--orange-deep);width:20px;height:20px;flex-shrink:0;margin-top:2px"></i>
-      <div>
-        <b>MedAT-Wissen:</b> 
-        <br>• Die <b>1. Ableitung</b> $f'(x)$ gibt die Steigung der Tangente an.
-        <br>• Ist $f'(x) = 0$, liegt ein lokales Extremum (Hochpunkt/Tiefpunkt) oder ein Sattelpunkt vor.
-        <br>• Die <b>e-Funktion</b> ($e^x$) ist ihre eigene Ableitung!
+      <div class="plot-arena">
+        <canvas id="plotCanvas"></canvas>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>Funktion \(f(x)\)</label>
+          <select id="funcSelect">
+            <option value="poly3">\(f(x) = x^3 - 3x\) (Polynom 3. Grades)</option>
+            <option value="poly2">\(f(x) = x^2 - 2\) (Parabel)</option>
+            <option value="exp">\(f(x) = e^{0.5x}\) (e-Funktion)</option>
+            <option value="sin">\(f(x) = 2 \cdot \sin(x)\) (Winkelfunktion)</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label>x-Position: <span id="sliderVal">0.0</span></label>
+          <input type="range" id="xSlider" min="-4" max="4" step="0.1" value="1.0">
+        </div>
+      </div>
+
+      <div class="key-fact">
+        <i data-lucide="info"></i>
+        <div>
+          <b>MedAT-Wissen:</b> 
+          <br>• Die <b>1. Ableitung</b> \(f'(x)\) gibt die Steigung der Tangente an.
+          <br>• Ist \(f'(x) = 0\), liegt ein lokales Extremum (Hochpunkt/Tiefpunkt) oder ein Sattelpunkt vor.
+          <br>• Die <b>e-Funktion</b> (\(e^x\)) ist ihre eigene Ableitung!
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- ============ TAB 2: THEORIE & REGELN ============ -->
+  <div class="section" id="theorie">
+    <div class="hero-strip">
+      <h2><i data-lucide="book-open"></i>Theorie & Regeln</h2>
+      <p>Die wichtigsten Begriffe, Ableitungsregeln und das Schema der Kurvendiskussion für den MedAT.</p>
+    </div>
+
+    <div class="card">
+      <div class="sub-tabs">
+        <button class="sub-tab active" data-sub="sub-defs-kd"><i data-lucide="file-text" style="width:14px;height:14px;margin-bottom:-2px;margin-right:4px;"></i>Definitionen</button>
+        <button class="sub-tab" data-sub="sub-regeln-kd"><i data-lucide="table" style="width:14px;height:14px;margin-bottom:-2px;margin-right:4px;"></i>Ableitungsregeln</button>
+      </div>
+
+      <div class="sub-section active" id="sub-defs-kd">
+        <div class="profile-card">
+          <div class="profile-header">
+            <h4>Nullstelle</h4>
+            <span class="profile-badge">\(f(x) = 0\)</span>
+          </div>
+          <div class="profile-body">
+            Ein \(x\)-Wert, an dem der Graph die <b>x-Achse</b> schneidet oder berührt.
+            <ul class="profile-list">
+              <li><b>Berechnung:</b> Setze \(f(x) = 0\) und löse nach \(x\) auf.</li>
+              <li><b>Berührpunkt:</b> Wenn die Nullstelle mit doppelter Vielfachheit vorkommt, berührt der Graph die x-Achse nur (z. B. bei \(x^2\)).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="profile-card" style="border-left-color: #3b82f6">
+          <div class="profile-header">
+            <h4>Extremstelle (Hoch-/Tiefpunkt)</h4>
+            <span class="profile-badge">\(f'(x) = 0\)</span>
+          </div>
+          <div class="profile-body">
+            Ein Punkt, an dem die Funktion von Steigen zu Fallen wechselt (Hochpunkt) oder umgekehrt (Tiefpunkt).
+            <ul class="profile-list">
+              <li><b>Notwendige Bedingung:</b> \(f'(x_0) = 0\) (waagrechte Tangente).</li>
+              <li><b>Hinreichende Bedingung:</b> Wenn \(f''(x_0) < 0\) → Hochpunkt. Wenn \(f''(x_0) > 0\) → Tiefpunkt.</li>
+              <li><b>Sattelpunkt:</b> Wenn auch \(f''(x_0) = 0\) → kein Extremum, sondern Sattelpunkt (Terrassenpunkt).</li>
+            </ul>
+          </div>
+        </div>
+        
+        <div class="profile-card" style="border-left-color: #10b981">
+          <div class="profile-header">
+            <h4>Wendepunkt</h4>
+            <span class="profile-badge">\(f''(x) = 0\)</span>
+          </div>
+          <div class="profile-body">
+            Ein Punkt, an dem die <b>Krümmung</b> des Graphen wechselt (von linksgekrümmt zu rechtsgekrümmt oder umgekehrt).
+            <ul class="profile-list">
+              <li><b>Notwendige Bedingung:</b> \(f''(x_0) = 0\).</li>
+              <li><b>Hinreichende Bedingung:</b> \(f'''(x_0) \neq 0\) (Vorzeichenwechsel der 2. Ableitung).</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="profile-card" style="border-left-color: #8b5cf6">
+          <div class="profile-header">
+            <h4>Monotonie & Krümmung</h4>
+          </div>
+          <div class="profile-body">
+            <ul class="profile-list">
+              <li><b>Monoton steigend:</b> \(f'(x) > 0\) im Intervall.</li>
+              <li><b>Monoton fallend:</b> \(f'(x) < 0\) im Intervall.</li>
+              <li><b>Linksgekrümmt (konvex):</b> \(f''(x) > 0\) → "Schüssel".</li>
+              <li><b>Rechtsgekrümmt (konkav):</b> \(f''(x) < 0\) → "Hügel".</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="key-fact" style="margin-top:16px">
+          <i data-lucide="lightbulb"></i>
+          <div>
+            <b>NEW-Merkregel (Kurvendiskussion):</b>
+            <br><b>N</b>ullstelle → \(f(x) = 0\)
+            <br><b>E</b>xtremstelle → \(f'(x) = 0\)
+            <br><b>W</b>endestelle → \(f''(x) = 0\)
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-section" id="sub-regeln-kd">
+        <h3>Ableitungsregeln</h3>
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th>Regel</th>
+              <th>Funktion \(f(x)\)</th>
+              <th>Ableitung \(f'(x)\)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Potenzregel</b></td>
+              <td>\(x^n\)</td>
+              <td>\(n \cdot x^{n-1}\)</td>
+            </tr>
+            <tr>
+              <td><b>Faktorregel</b></td>
+              <td>\(c \cdot g(x)\)</td>
+              <td>\(c \cdot g'(x)\)</td>
+            </tr>
+            <tr>
+              <td><b>Summenregel</b></td>
+              <td>\(g(x) + h(x)\)</td>
+              <td>\(g'(x) + h'(x)\)</td>
+            </tr>
+            <tr>
+              <td><b>Kettenregel</b></td>
+              <td>\(g(h(x))\)</td>
+              <td>\(g'(h(x)) \cdot h'(x)\)</td>
+            </tr>
+            <tr>
+              <td><b>Produktregel</b></td>
+              <td>\(u(x) \cdot v(x)\)</td>
+              <td>\(u'(x)v(x) + u(x)v'(x)\)</td>
+            </tr>
+            <tr>
+              <td><b>Quotientenregel</b></td>
+              <td>\(\frac{u(x)}{v(x)}\)</td>
+              <td>\(\frac{u'v - uv'}{v^2}\)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="margin-top: 24px;">Wichtige Ableitungen</h3>
+        <table class="val-table">
+          <thead>
+            <tr>
+              <th>Funktion \(f(x)\)</th>
+              <th>Ableitung \(f'(x)\)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>\(e^x\)</td><td>\(e^x\)</td></tr>
+            <tr><td>\(\ln(x)\)</td><td>\(\frac{1}{x}\)</td></tr>
+            <tr><td>\(\sin(x)\)</td><td>\(\cos(x)\)</td></tr>
+            <tr><td>\(\cos(x)\)</td><td>\(-\sin(x)\)</td></tr>
+            <tr><td>\(\sqrt{x} = x^{\frac{1}{2}}\)</td><td>\(\frac{1}{2\sqrt{x}}\)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 3: ZUORDNUNG ============ -->
+  <div class="section" id="match">
+    <div class="hero-strip">
+      <h2><i data-lucide="link"></i>Ableitungen zuordnen</h2>
+      <p>Ordne der Funktion ihre korrekte Ableitung zu.</p>
+    </div>
+
+    <div class="card">
+      <h3>Modus wählen</h3>
+      <div class="match-mode-row" id="matchModeRow"></div>
+
+      <div class="match-stats">
+        <div class="match-stat"><div class="num" id="matchOk" style="color:var(--success)">0</div><div class="lbl">Richtig</div></div>
+        <div class="match-stat"><div class="num" id="matchBad" style="color:var(--danger)">0</div><div class="lbl">Fehler</div></div>
+        <div class="match-stat"><div class="num" id="matchLeft">12</div><div class="lbl">Übrig</div></div>
+      </div>
+
+      <div class="match-pairs">
+        <div class="match-col"><h4 id="matchLeftLabel">Funktion</h4><div class="match-list" id="matchLeftList"></div></div>
+        <div class="match-col"><h4 id="matchRightLabel">Ableitung</h4><div class="match-list" id="matchRightList"></div></div>
+      </div>
+
+      <div class="match-status" id="matchStatus"></div>
+
+      <div class="btn-row">
+        <button class="btn ghost" id="matchReset"><i data-lucide="rotate-ccw"></i>Neu starten</button>
+        <button class="btn ghost" id="matchNext"><i data-lucide="arrow-right"></i>Nächster Modus</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ TAB 4: QUIZ ============ -->
+  <div class="section" id="quiz">
+    <div class="card q-box">
+      <h2><i data-lucide="circle-help"></i>Quiz <span style="font-weight:500;font-size:.78rem;color:var(--muted);margin-left:4px">15 Fragen</span></h2>
+      <p class="lead">Teste dein Wissen zur Differentialrechnung.</p>
+      <div class="q" id="qText"></div>
+      <div id="qOpts"></div>
+      <div class="q-feedback" id="qFb"></div>
+      <div class="quiz-progress"><div class="quiz-progress-fill" id="qProg" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
+        <p style="color:var(--muted);font-size:.78rem">Frage <b id="qIdx">1</b> · Score <b id="qScore">0 / 0</b></p>
+        <div style="display:flex;gap:8px">
+          <button class="btn ghost" id="qResetBtn"><i data-lucide="rotate-ccw"></i>Neu</button>
+          <button class="btn" id="qNextBtn">Weiter<i data-lucide="arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  if(window.lucide) lucide.createIcons();
+/* ===== TABS ===== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(t.dataset.tab==='labor') resize();
+    if(t.dataset.tab==='match' && !matchInitDone) initMatch();
+    if(t.dataset.tab==='quiz' && !quizInitDone) initQuiz();
+  });
+});
 
-  const canvas = document.getElementById('plotCanvas');
-  const ctx = canvas.getContext('2d');
+/* ===== SUB-TABS ===== */
+document.querySelectorAll('.sub-tab').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const parent = t.closest('.section, .card');
+    parent.querySelectorAll('.sub-tab').forEach(x=>x.classList.remove('active'));
+    parent.querySelectorAll('.sub-section').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.sub).classList.add('active');
+  });
+});
+
+/* ===== TAB 1: CANVAS LOGIC ===== */
+const canvas = document.getElementById('plotCanvas');
+const ctx = canvas.getContext('2d');
+
+let width, height;
+let currentX = 1.0;
+let isDragging = false;
+
+// Coordinate system bounds
+const xMin = -5;
+const xMax = 5;
+let yMin = -5;
+let yMax = 5;
+
+// Functions library
+const funcs = {
+  poly3: { f: x => Math.pow(x, 3) - 3*x, df: x => 3 * Math.pow(x, 2) - 3, yMin: -5, yMax: 5 },
+  poly2: { f: x => Math.pow(x, 2) - 2, df: x => 2*x, yMin: -3, yMax: 7 },
+  exp: { f: x => Math.exp(0.5 * x), df: x => 0.5 * Math.exp(0.5 * x), yMin: -1, yMax: 9 },
+  sin: { f: x => 2 * Math.sin(x), df: x => 2 * Math.cos(x), yMin: -4, yMax: 4 }
+};
+
+let currentFunc = funcs['poly3'];
+
+function resize() {
+  width = canvas.parentElement.clientWidth;
+  height = canvas.parentElement.clientHeight;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  ctx.scale(dpr, dpr);
+  draw();
+}
+
+function toPixX(x) { return ((x - xMin) / (xMax - xMin)) * width; }
+function toPixY(y) { return height - ((y - yMin) / (yMax - yMin)) * height; }
+function toCoordX(px) { return xMin + (px / width) * (xMax - xMin); }
+
+function setX(x) {
+  currentX = Math.max(xMin, Math.min(xMax, x));
+  document.getElementById('xSlider').value = currentX;
+  document.getElementById('sliderVal').textContent = currentX.toFixed(1);
   
-  let width, height;
-  let currentX = 1.0;
-  let isDragging = false;
+  const y = currentFunc.f(currentX);
+  const m = currentFunc.df(currentX);
   
-  // Coordinate system bounds
-  const xMin = -5;
-  const xMax = 5;
-  let yMin = -5;
-  let yMax = 5;
+  document.getElementById('valPos').innerHTML = `\\(P(${currentX.toFixed(2)} | ${y.toFixed(2)})\\)`;
+  document.getElementById('valDeriv').innerHTML = `\\(${m.toFixed(2)}\\)`;
   
-  // Functions library
-  const funcs = {
-    poly3: {
-      f: x => Math.pow(x, 3) - 3*x,
-      df: x => 3 * Math.pow(x, 2) - 3,
-      yMin: -5, yMax: 5
-    },
-    poly2: {
-      f: x => Math.pow(x, 2) - 2,
-      df: x => 2*x,
-      yMin: -3, yMax: 7
-    },
-    exp: {
-      f: x => Math.exp(0.5 * x),
-      df: x => 0.5 * Math.exp(0.5 * x),
-      yMin: -1, yMax: 9
-    },
-    sin: {
-      f: x => 2 * Math.sin(x),
-      df: x => 2 * Math.cos(x),
-      yMin: -4, yMax: 4
-    }
-  };
-  
-  let currentFunc = funcs['poly3'];
-  
-  function resize() {
-    width = canvas.parentElement.clientWidth;
-    height = canvas.parentElement.clientHeight;
-    // High DPI Canvas
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    ctx.scale(dpr, dpr);
-    draw();
+  if(window.renderMathInElement) {
+    renderMathInElement(document.getElementById('valPos'), {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+    renderMathInElement(document.getElementById('valDeriv'), {delimiters: [{left: '\\(', right: '\\)', display: false}]});
   }
   
-  // Coordinate transformations
-  function toPixX(x) { return ((x - xMin) / (xMax - xMin)) * width; }
-  function toPixY(y) { return height - ((y - yMin) / (yMax - yMin)) * height; }
-  function toCoordX(px) { return xMin + (px / width) * (xMax - xMin); }
+  draw();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, width, height);
   
-  function setX(x) {
-    currentX = Math.max(xMin, Math.min(xMax, x));
-    document.getElementById('xSlider').value = currentX;
-    document.getElementById('sliderVal').textContent = currentX.toFixed(1);
-    
-    const y = currentFunc.f(currentX);
-    const m = currentFunc.df(currentX);
-    
-    document.getElementById('valPos').textContent = `P(${currentX.toFixed(2)} | ${y.toFixed(2)})`;
-    document.getElementById('valDeriv').textContent = m.toFixed(2);
-    
-    draw();
+  // Grid & Axes
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+    ctx.moveTo(toPixX(x), 0); ctx.lineTo(toPixX(x), height);
+  }
+  for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+    ctx.moveTo(0, toPixY(y)); ctx.lineTo(width, toPixY(y));
+  }
+  ctx.stroke();
+  
+  // Main Axes
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(toPixX(0), 0); ctx.lineTo(toPixX(0), height); // Y Axis
+  ctx.moveTo(0, toPixY(0)); ctx.lineTo(width, toPixY(0)); // X Axis
+  ctx.stroke();
+  
+  // Draw Function
+  ctx.beginPath();
+  ctx.strokeStyle = 'var(--orange-deep)';
+  ctx.lineWidth = 3;
+  let first = true;
+  for (let px = 0; px <= width; px += 2) {
+    const x = toCoordX(px);
+    const y = currentFunc.f(x);
+    const py = toPixY(y);
+    if (first) { ctx.moveTo(px, py); first = false; }
+    else { ctx.lineTo(px, py); }
+  }
+  ctx.stroke();
+  
+  // Tangent
+  const y0 = currentFunc.f(currentX);
+  const m = currentFunc.df(currentX);
+  
+  ctx.beginPath();
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 3;
+  
+  const px1 = 0;
+  const x1 = toCoordX(px1);
+  const py1 = toPixY(m * (x1 - currentX) + y0);
+  
+  const px2 = width;
+  const x2 = toCoordX(px2);
+  const py2 = toPixY(m * (x2 - currentX) + y0);
+  
+  ctx.moveTo(px1, py1);
+  ctx.lineTo(px2, py2);
+  ctx.stroke();
+  
+  // Point on curve
+  const px0 = toPixX(currentX);
+  const py0 = toPixY(y0);
+  
+  ctx.beginPath();
+  ctx.arc(px0, py0, 7, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b82f6';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  // Guide lines
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.moveTo(px0, toPixY(0)); ctx.lineTo(px0, py0);
+  ctx.moveTo(toPixX(0), py0); ctx.lineTo(px0, py0);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function handleInput(e) {
+  if (!isDragging) return;
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const px = clientX - rect.left;
+  setX(toCoordX(px));
+}
+
+canvas.addEventListener('mousedown', (e) => { isDragging = true; handleInput(e); });
+window.addEventListener('mouseup', () => isDragging = false);
+window.addEventListener('mousemove', handleInput);
+canvas.addEventListener('touchstart', (e) => { isDragging = true; handleInput(e); }, {passive: false});
+window.addEventListener('touchend', () => isDragging = false);
+window.addEventListener('touchmove', handleInput, {passive: false});
+
+document.getElementById('xSlider').addEventListener('input', e => setX(parseFloat(e.target.value)));
+document.getElementById('funcSelect').addEventListener('change', e => {
+  currentFunc = funcs[e.target.value];
+  yMin = currentFunc.yMin;
+  yMax = currentFunc.yMax;
+  setX(currentX);
+});
+
+window.addEventListener('resize', resize);
+setTimeout(() => { resize(); setX(1.0); }, 100);
+
+/* ===== TAB 3: ZUORDNUNG (MATCHING) ===== */
+let matchInitDone = false;
+const matchModes = [
+  { id:'basic', name:'Grundfunktionen', desc:'z.B. \\(x^2\\) → \\(2x\\)', leftLabel:'\\(f(x)\\)', rightLabel:'\\(f\'(x)\\)', pairs:[
+    {l:'\\(x^2\\)',r:'\\(2x\\)'},{l:'\\(x^3\\)',r:'\\(3x^2\\)'},{l:'\\(e^x\\)',r:'\\(e^x\\)'},{l:'\\(\\sin(x)\\)',r:'\\(\\cos(x)\\)'},
+    {l:'\\(\\cos(x)\\)',r:'\\(-\\sin(x)\\)'},{l:'\\(\\ln(x)\\)',r:'\\(1/x\\)'},{l:'\\(\\sqrt{x}\\)',r:'\\(1/(2\\sqrt{x})\\)'},{l:'\\(1/x\\)',r:'\\(-1/x^2\\)'}
+  ]},
+  { id:'ketten', name:'Kettenregel', desc:'innere mal äußere', leftLabel:'\\(f(x)\\)', rightLabel:'\\(f\'(x)\\)', pairs:[
+    {l:'\\(e^{2x}\\)',r:'\\(2e^{2x}\\)'},{l:'\\(\\sin(3x)\\)',r:'\\(3\\cos(3x)\\)'},{l:'\\((x+1)^2\\)',r:'\\(2(x+1)\\)'},{l:'\\(\\cos(x^2)\\)',r:'\\(-2x\\sin(x^2)\\)'},
+    {l:'\\(e^{-x}\\)',r:'\\(-e^{-x}\\)'},{l:'\\(\\sqrt{2x}\\)',r:'\\(1/\\sqrt{2x}\\)'},{l:'\\(\\ln(2x)\\)',r:'\\(1/x\\)'},{l:'\\(\\sin(-x)\\)',r:'\\(-\\cos(-x)\\)'}
+  ]}
+];
+
+let mMode = 0, mLeftSel = null, mRightSel = null;
+let mPairs = [], mMatched = 0, mErr = 0;
+
+function initMatch() {
+  matchInitDone = true;
+  const row = document.getElementById('matchModeRow');
+  row.innerHTML = '';
+  matchModes.forEach((m, i) => {
+    const btn = document.createElement('button');
+    btn.className = `match-mode-btn ${i === mMode ? 'active' : ''}`;
+    btn.innerHTML = `${m.name}<br><small>${m.desc}</small>`;
+    btn.onclick = () => { mMode = i; buildMatch(); };
+    row.appendChild(btn);
+  });
+  if(window.renderMathInElement) renderMathInElement(row, {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+  buildMatch();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function buildMatch() {
+  document.querySelectorAll('.match-mode-btn').forEach((b, i) => b.classList.toggle('active', i === mMode));
+  const md = matchModes[mMode];
+  document.getElementById('matchLeftLabel').innerHTML = md.leftLabel;
+  document.getElementById('matchRightLabel').innerHTML = md.rightLabel;
+  
+  if(window.renderMathInElement) {
+    renderMathInElement(document.getElementById('matchLeftLabel'), {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+    renderMathInElement(document.getElementById('matchRightLabel'), {delimiters: [{left: '\\(', right: '\\)', display: false}]});
   }
   
-  function draw() {
-    ctx.clearRect(0, 0, width, height);
-    
-    // Grid & Axes
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
-      ctx.moveTo(toPixX(x), 0); ctx.lineTo(toPixX(x), height);
-    }
-    for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
-      ctx.moveTo(0, toPixY(y)); ctx.lineTo(width, toPixY(y));
-    }
-    ctx.stroke();
-    
-    // Main Axes
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(toPixX(0), 0); ctx.lineTo(toPixX(0), height); // Y Axis
-    ctx.moveTo(0, toPixY(0)); ctx.lineTo(width, toPixY(0)); // X Axis
-    ctx.stroke();
-    
-    // Draw Function
-    ctx.beginPath();
-    ctx.strokeStyle = 'var(--orange-deep)';
-    ctx.lineWidth = 3;
-    let first = true;
-    for (let px = 0; px <= width; px += 2) {
-      const x = toCoordX(px);
-      const y = currentFunc.f(x);
-      const py = toPixY(y);
-      if (first) { ctx.moveTo(px, py); first = false; }
-      else { ctx.lineTo(px, py); }
-    }
-    ctx.stroke();
-    
-    // Tangent
-    const y0 = currentFunc.f(currentX);
-    const m = currentFunc.df(currentX);
-    
-    // Tangent function: y = m(x - x0) + y0
-    ctx.beginPath();
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 6]);
-    
-    const px1 = 0;
-    const x1 = toCoordX(px1);
-    const py1 = toPixY(m * (x1 - currentX) + y0);
-    
-    const px2 = width;
-    const x2 = toCoordX(px2);
-    const py2 = toPixY(m * (x2 - currentX) + y0);
-    
-    ctx.moveTo(px1, py1);
-    ctx.lineTo(px2, py2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    
-    // Point on curve
-    const px0 = toPixX(currentX);
-    const py0 = toPixY(y0);
-    
-    ctx.beginPath();
-    ctx.arc(px0, py0, 6, 0, Math.PI * 2);
-    ctx.fillStyle = '#3b82f6';
-    ctx.fill();
-    ctx.strokeStyle = '#fff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    
-    // Guide lines
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
-    ctx.lineWidth = 1;
-    ctx.moveTo(px0, toPixY(0)); ctx.lineTo(px0, py0);
-    ctx.moveTo(toPixX(0), py0); ctx.lineTo(px0, py0);
-    ctx.stroke();
-  }
+  mMatched = 0; mErr = 0;
+  document.getElementById('matchOk').textContent = '0';
+  document.getElementById('matchBad').textContent = '0';
+  document.getElementById('matchLeft').textContent = md.pairs.length;
+  document.getElementById('matchStatus').classList.remove('show');
   
-  // Interactions
-  function handleInput(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const px = clientX - rect.left;
-    setX(toCoordX(px));
-  }
+  // Max 6 pairs for UI
+  const subset = shuffle([...md.pairs]).slice(0, 6);
+  mPairs = subset;
   
-  canvas.addEventListener('mousedown', (e) => { isDragging = true; handleInput(e); });
-  window.addEventListener('mouseup', () => isDragging = false);
-  window.addEventListener('mousemove', handleInput);
+  const lefts = shuffle(subset.map((p, i) => ({ text: p.l, id: i })));
+  const rights = shuffle(subset.map((p, i) => ({ text: p.r, id: i })));
   
-  canvas.addEventListener('touchstart', (e) => { isDragging = true; handleInput(e); }, {passive: false});
-  window.addEventListener('touchend', () => isDragging = false);
-  window.addEventListener('touchmove', handleInput, {passive: false});
+  const lList = document.getElementById('matchLeftList');
+  const rList = document.getElementById('matchRightList');
+  lList.innerHTML = ''; rList.innerHTML = '';
   
-  document.getElementById('xSlider').addEventListener('input', e => setX(parseFloat(e.target.value)));
-  
-  document.getElementById('funcSelect').addEventListener('change', e => {
-    currentFunc = funcs[e.target.value];
-    yMin = currentFunc.yMin;
-    yMax = currentFunc.yMax;
-    setX(currentX);
+  lefts.forEach(it => {
+    const d = document.createElement('div'); d.className = 'match-item left'; d.innerHTML = it.text; d.dataset.id = it.id;
+    d.onclick = () => handleMatchClick(d, 'left');
+    lList.appendChild(d);
+  });
+  rights.forEach(it => {
+    const d = document.createElement('div'); d.className = 'match-item right'; d.innerHTML = it.text; d.dataset.id = it.id;
+    d.onclick = () => handleMatchClick(d, 'right');
+    rList.appendChild(d);
   });
   
-  window.addEventListener('resize', resize);
+  if(window.renderMathInElement) {
+    renderMathInElement(lList, {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+    renderMathInElement(rList, {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+  }
+}
+
+function handleMatchClick(el, side) {
+  if (el.classList.contains('matched')) return;
   
-  // Init
-  resize();
-  setX(1.0);
+  if (side === 'left') {
+    if (mLeftSel) mLeftSel.classList.remove('selected', 'wrong');
+    mLeftSel = el;
+    mLeftSel.classList.add('selected');
+  } else {
+    if (mRightSel) mRightSel.classList.remove('selected', 'wrong');
+    mRightSel = el;
+    mRightSel.classList.add('selected');
+  }
   
+  if (mLeftSel && mRightSel) {
+    if (mLeftSel.dataset.id === mRightSel.dataset.id) {
+      mLeftSel.classList.replace('selected', 'matched');
+      mRightSel.classList.replace('selected', 'matched');
+      mMatched++;
+      document.getElementById('matchOk').textContent = mMatched;
+      document.getElementById('matchLeft').textContent = mPairs.length - mMatched;
+      mLeftSel = null; mRightSel = null;
+      
+      if (mMatched === mPairs.length) {
+        const st = document.getElementById('matchStatus');
+        st.textContent = `🎉 Perfekt! Alle Paare mit ${mErr} Fehler(n) gefunden.`;
+        st.className = 'match-status show success';
+      }
+    } else {
+      mErr++;
+      document.getElementById('matchBad').textContent = mErr;
+      mLeftSel.classList.remove('selected'); mLeftSel.classList.add('wrong');
+      mRightSel.classList.remove('selected'); mRightSel.classList.add('wrong');
+      const l = mLeftSel, r = mRightSel;
+      setTimeout(() => {
+        l.classList.remove('wrong'); r.classList.remove('wrong');
+      }, 400);
+      mLeftSel = null; mRightSel = null;
+    }
+  }
+}
+
+document.getElementById('matchReset').onclick = buildMatch;
+document.getElementById('matchNext').onclick = () => { mMode = (mMode + 1) % matchModes.length; buildMatch(); };
+
+
+/* ===== TAB 4: QUIZ ===== */
+let quizInitDone = false;
+const quizData = [
+  { q: 'Was berechnet man mit der 1. Ableitung \\(f\'(x)\\)?', o: ['Die Fläche unter der Kurve', 'Die Steigung der Tangente', 'Die Nullstellen', 'Den Wendepunkt'], a: 1, fb: 'Die erste Ableitung beschreibt die Steigung (Änderungsrate) der Funktion an einer bestimmten Stelle.' },
+  { q: 'Welche Bedingung muss für ein lokales Extremum (Hoch/Tiefpunkt) erfüllt sein?', o: ['\\(f(x) = 0\\)', '\\(f\'\'(x) = 0\\)', '\\(f\'(x) = 0\\)', '\\(f\'(x) > 0\\)'], a: 2, fb: 'An einem Extrempunkt ist die Tangente waagrecht, also ist die Steigung (und damit die 1. Ableitung) gleich Null: \\(f\'(x) = 0\\).' },
+  { q: 'Wie lautet die Ableitung von \\(f(x) = x^4\\)?', o: ['\\(4x^3\\)', '\\(3x^4\\)', '\\(4x\\)', '\\(x^3\\)'], a: 0, fb: 'Nach der Potenzregel: Exponent nach vorne ziehen, Exponent um 1 verringern. \\(4 \\cdot x^{4-1} = 4x^3\\).' },
+  { q: 'Was ist die Ableitung von \\(f(x) = e^x\\)?', o: ['\\(x \\cdot e^{x-1}\\)', '\\(e^x\\)', '\\(\\ln(x)\\)', '\\(0\\)'], a: 1, fb: 'Die natürliche Exponentialfunktion ist ihre eigene Ableitung.' },
+  { q: 'Welche Regel wendest du bei \\(f(x) = (2x+1)^3\\) an?', o: ['Quotientenregel', 'Produktregel', 'Kettenregel', 'Summenregel'], a: 2, fb: 'Es ist eine verschachtelte Funktion. Kettenregel (äußere mal innere Ableitung): \\(3(2x+1)^2 \\cdot 2\\).' },
+  { q: 'Wie lautet die innere Ableitung von \\(f(x) = \\sin(4x)\\)?', o: ['\\(\\cos(4x)\\)', '\\(4\\)', '\\(x\\)', '\\(-\\sin(4x)\\)'], a: 1, fb: 'Die innere Funktion ist \\(4x\\). Deren Ableitung ist 4.' },
+  { q: 'Was bedeutet es, wenn \\(f\'\'(x) = 0\\) und \\(f\'\'\'(x) \\neq 0\\) ist?', o: ['Es ist ein Hochpunkt', 'Es ist ein Tiefpunkt', 'Es ist ein Wendepunkt', 'Es ist eine Nullstelle'], a: 2, fb: 'Die 2. Ableitung gleich Null (mit Vorzeichenwechsel) zeigt einen Wendepunkt an, dort ändert sich die Krümmung.' },
+  { q: 'Wie leitet man \\(f(x) = u(x) \\cdot v(x)\\) ab?', o: ['\\(u\'(x) \\cdot v\'(x)\\)', '\\(u\'v + uv\'\\)', '\\(u\'v - uv\'\\)', '\\(u/v\\)'], a: 1, fb: 'Das ist die Produktregel.' },
+  { q: 'Was ist die Ableitung einer Konstanten, z.B. \\(f(x) = 5\\)?', o: ['5', 'x', '0', '1'], a: 2, fb: 'Eine konstante Funktion hat keine Steigung (sie verläuft waagrecht), daher ist die Ableitung 0.' },
+  { q: 'Die Funktion \\(f(x)\\) steigt streng monoton. Was gilt für \\(f\'(x)\\)?', o: ['\\(f\'(x) < 0\\)', '\\(f\'(x) = 0\\)', '\\(f\'(x) > 0\\)', 'nichts davon'], a: 2, fb: 'Streng monoton steigend bedeutet, dass die Steigung überall positiv ist.' },
+  { q: 'Was ist ein Sattelpunkt?', o: ['Ein Hochpunkt', 'Ein Wendepunkt mit waagrechter Tangente', 'Ein Tiefpunkt', 'Ein Punkt ohne Ableitung'], a: 1, fb: 'Bei einem Sattelpunkt ist \\(f\'(x) = 0\\) UND \\(f\'\'(x) = 0\\) (Terrassenpunkt).' },
+  { q: 'Wie lautet die Ableitung von \\(\\ln(x)\\)?', o: ['\\(e^x\\)', '\\(1/x\\)', '\\(x\\)', '\\(\\ln(x)\\)'], a: 1, fb: 'Die Ableitung des natürlichen Logarithmus ist \\(1/x\\).' },
+  { q: 'Eine Funktion ist linksgekrümmt (konvex). Was gilt?', o: ['\\(f\'(x) > 0\\)', '\\(f\'\'(x) > 0\\)', '\\(f\'\'(x) < 0\\)', '\\(f(x) > 0\\)'], a: 1, fb: 'Linksgekrümmt bedeutet, dass die Steigung zunimmt, also muss die Ableitung der Steigung (die 2. Ableitung) positiv sein.' },
+  { q: 'Leite ab: \\(f(x) = \\frac{1}{x}\\)', o: ['\\(\\ln(x)\\)', '\\(-1/x^2\\)', '\\(x^{-1}\\)', '\\(1\\)'], a: 1, fb: '\\(1/x\\) ist \\(x^{-1}\\). Potenzregel: \\(-1 \\cdot x^{-2} = -1/x^2\\).' },
+  { q: 'Was ist die Ableitung von \\(f(x) = 3x^2 + 2x - 5\\)?', o: ['\\(6x + 2\\)', '\\(6x\\)', '\\(3x + 2\\)', '\\(x^3 + x^2 - 5x\\)'], a: 0, fb: 'Jeden Summanden einzeln ableiten: \\(2 \\cdot 3x^1 + 2 - 0 = 6x + 2\\).' }
+];
+let qIndex = 0, qScore = 0;
+
+function initQuiz() {
+  quizInitDone = true;
+  qIndex = 0; qScore = 0;
+  shuffle(quizData);
+  showQ();
+}
+
+function showQ() {
+  if (qIndex >= quizData.length) {
+    document.getElementById('qText').innerHTML = `<b>Quiz beendet!</b> Du hast ${qScore} von ${quizData.length} Punkten.`;
+    document.getElementById('qOpts').innerHTML = '';
+    document.getElementById('qFb').className = 'q-feedback';
+    document.getElementById('qProg').style.width = '100%';
+    document.getElementById('qNextBtn').style.display = 'none';
+    return;
+  }
+  document.getElementById('qNextBtn').style.display = 'none';
+  document.getElementById('qFb').className = 'q-feedback';
+  const q = quizData[qIndex];
+  document.getElementById('qText').innerHTML = q.q;
+  document.getElementById('qIdx').textContent = qIndex + 1;
+  document.getElementById('qScore').textContent = `${qScore} / ${quizData.length}`;
+  document.getElementById('qProg').style.width = `${(qIndex / quizData.length) * 100}%`;
+  
+  const opts = document.getElementById('qOpts');
+  opts.innerHTML = '';
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-opt'; btn.innerHTML = opt;
+    btn.onclick = () => answerQ(btn, i, q.a, q.fb);
+    opts.appendChild(btn);
+  });
+  if(window.lucide) lucide.createIcons();
+  
+  if(window.renderMathInElement) {
+    renderMathInElement(document.getElementById('qText'), {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+    renderMathInElement(document.getElementById('qOpts'), {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+  }
+}
+
+function answerQ(btn, sel, ans, fbText) {
+  const isCorrect = (sel === ans);
+  const opts = document.querySelectorAll('.q-opt');
+  opts.forEach(o => o.disabled = true);
+  
+  if (isCorrect) {
+    btn.classList.add('correct');
+    qScore++;
+  } else {
+    btn.classList.add('wrong');
+    opts[ans].classList.add('correct');
+  }
+  
+  document.getElementById('qScore').textContent = `${qScore} / ${quizData.length}`;
+  
+  const fb = document.getElementById('qFb');
+  fb.innerHTML = `<b>${isCorrect ? 'Richtig!' : 'Leider falsch!'}</b> ${fbText}`;
+  fb.className = `q-feedback show ${isCorrect ? 'correct' : 'wrong'}`;
+  
+  if(window.renderMathInElement) renderMathInElement(fb, {delimiters: [{left: '\\(', right: '\\)', display: false}]});
+  
+  document.getElementById('qNextBtn').style.display = 'inline-flex';
+}
+
+document.getElementById('qNextBtn').onclick = () => { qIndex++; showQ(); };
+document.getElementById('qResetBtn').onclick = initQuiz;
+
+if(window.lucide) lucide.createIcons();
+if(window.renderMathInElement) {
+  renderMathInElement(document.getElementById('labor'), {delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '$$', right: '$$', display: true}]});
+  renderMathInElement(document.getElementById('theorie'), {delimiters: [{left: '\\(', right: '\\)', display: false}, {left: '$$', right: '$$', display: true}]});
+}
 </script>
 </body>
 </html>
