@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Integralrechnung – MedAT Trainer</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  
+  .header {
+    background: #fff;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--text-secondary); text-decoration: none;
+    font-weight: 600; font-size: 0.85rem; margin-bottom: 12px;
+  }
+  .back-btn:hover { color: var(--orange-deep); }
+  
+  .header-inner { display: flex; align-items: center; gap: 12px; }
+  .badge {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(234,88,12,0.15); color: var(--orange-deep);
+    display: flex; align-items: center; justify-content: center;
+  }
+  h1 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+  .header-inner p { margin: 2px 0 0; font-size: 0.8rem; color: var(--text-secondary); }
+  
+  .wrap { padding: 20px; max-width: 900px; margin: 0 auto; flex: 1; width: 100%; box-sizing: border-box; }
+  
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+  .card h2 svg { color: var(--orange-deep); width: 22px; height: 22px; }
+  .lead { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+  
+  .integral-arena {
+    width: 100%;
+    aspect-ratio: 16/9;
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+  }
+  @media(max-width: 768px) {
+    .integral-arena { aspect-ratio: 4/3; }
+  }
+  canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+  
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 4px solid var(--orange-deep);
+  }
+  .stat-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-family: monospace; font-size: 1.3rem; font-weight: bold; color: var(--text); }
+  
+  .controls { display: flex; gap: 12px; flex-wrap: wrap; background: var(--bg-light); padding: 14px; border-radius: 18px; border: 1px solid var(--border); }
+  .control-group { flex: 1; min-width: 140px; }
+  .control-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .control-group input[type=range] { width: 100%; accent-color: var(--orange-deep); cursor: pointer; }
+  .control-group select { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 500; color: var(--text); outline: none; cursor: pointer; }
+  
+  .key-fact { background: var(--orange-soft); border-left: 3px solid var(--orange); padding: 12px 16px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 0.85rem; line-height: 1.6; color: var(--text); display: flex; gap: 10px; align-items: flex-start; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="../index.html" class="back-btn"><i data-lucide="arrow-left"></i>Übersicht</a>
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="scan-line"></i></div>
+    <div>
+      <h1>Integralrechnung</h1>
+      <p>Flächeninhalte · Bestimmtes Integral · Grenzen</p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2><i data-lucide="scan"></i>Flächen-Scanner</h2>
+    <p class="lead">Ziehe die farbigen Linien für die untere Grenze ($a$) und obere Grenze ($b$). Das Programm berechnet live den orientierten Flächeninhalt (das bestimmte Integral) zwischen der Funktion und der x-Achse.</p>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <span class="stat-label">Bestimmtes Integral $\int_a^b f(x) dx$</span>
+        <span class="stat-value" id="valIntegral">0.00</span>
+      </div>
+    </div>
+
+    <div class="integral-arena">
+      <canvas id="intCanvas"></canvas>
+    </div>
+
+    <div class="controls">
+      <div class="control-group" style="min-width:100%">
+        <label>Funktion $f(x)$</label>
+        <select id="funcSelect">
+          <option value="sin">$f(x) = \sin(x)$ (Winkelfunktion)</option>
+          <option value="poly2">$f(x) = -x^2 + 4$ (Nach unten geöffnete Parabel)</option>
+          <option value="poly3">$f(x) = x^3 - 3x$ (Polynom 3. Grades)</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label>Untere Grenze (a): <span id="valA">-2.0</span></label>
+        <input type="range" id="sliderA" min="-4" max="4" step="0.1" value="-2.0">
+      </div>
+      <div class="control-group">
+        <label>Obere Grenze (b): <span id="valB">2.0</span></label>
+        <input type="range" id="sliderB" min="-4" max="4" step="0.1" value="2.0">
+      </div>
+    </div>
+
+    <div class="key-fact">
+      <i data-lucide="info" style="color:var(--orange-deep);width:20px;height:20px;flex-shrink:0;margin-top:2px"></i>
+      <div>
+        <b>MedAT-Wissen:</b> 
+        <br>• Das <b>bestimmte Integral</b> berechnet den "orientierten Flächeninhalt". Flächen unterhalb der x-Achse fließen negativ in die Summe ein!
+        <br>• Vertauschst du die Grenzen $a$ und $b$, ändert sich das Vorzeichen des Integrals: $\int_a^b f(x)dx = -\int_b^a f(x)dx$.
+        <br>• Sind beide Grenzen gleich ($a=b$), ist das Integral immer $0$.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  if(window.lucide) lucide.createIcons();
+
+  const canvas = document.getElementById('intCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  let width, height;
+  let boundA = -2.0;
+  let boundB = 2.0;
+  
+  let dragging = null; // 'a' or 'b'
+  
+  // Coordinate bounds
+  const xMin = -5;
+  const xMax = 5;
+  let yMin = -5;
+  let yMax = 5;
+  
+  const funcs = {
+    sin: { f: x => Math.sin(x), F: x => -Math.cos(x), yMin: -2, yMax: 2 },
+    poly2: { f: x => -x*x + 4, F: x => -Math.pow(x,3)/3 + 4*x, yMin: -5, yMax: 5 },
+    poly3: { f: x => Math.pow(x,3) - 3*x, F: x => Math.pow(x,4)/4 - 1.5*x*x, yMin: -5, yMax: 5 }
+  };
+  
+  let currentFunc = funcs['sin'];
+  
+  function resize() {
+    width = canvas.parentElement.clientWidth;
+    height = canvas.parentElement.clientHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
+    draw();
+  }
+  
+  function toPixX(x) { return ((x - xMin) / (xMax - xMin)) * width; }
+  function toPixY(y) { return height - ((y - yMin) / (yMax - yMin)) * height; }
+  function toCoordX(px) { return xMin + (px / width) * (xMax - xMin); }
+  
+  function updateValues() {
+    document.getElementById('sliderA').value = boundA;
+    document.getElementById('sliderB').value = boundB;
+    document.getElementById('valA').textContent = boundA.toFixed(1);
+    document.getElementById('valB').textContent = boundB.toFixed(1);
+    
+    const integral = currentFunc.F(boundB) - currentFunc.F(boundA);
+    document.getElementById('valIntegral').textContent = integral.toFixed(2);
+    
+    draw();
+  }
+  
+  function setBounds(a, b) {
+    boundA = Math.max(xMin, Math.min(xMax, a));
+    boundB = Math.max(xMin, Math.min(xMax, b));
+    updateValues();
+  }
+  
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Grid
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = Math.ceil(xMin); x <= Math.floor(xMax); x++) {
+      ctx.moveTo(toPixX(x), 0); ctx.lineTo(toPixX(x), height);
+    }
+    for (let y = Math.ceil(yMin); y <= Math.floor(yMax); y++) {
+      ctx.moveTo(0, toPixY(y)); ctx.lineTo(width, toPixY(y));
+    }
+    ctx.stroke();
+    
+    // Axes
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(toPixX(0), 0); ctx.lineTo(toPixX(0), height); // y-axis
+    ctx.moveTo(0, toPixY(0)); ctx.lineTo(width, toPixY(0)); // x-axis
+    ctx.stroke();
+    
+    // Draw Area (Integral)
+    ctx.beginPath();
+    const startX = Math.min(boundA, boundB);
+    const endX = Math.max(boundA, boundB);
+    let isReversed = boundA > boundB;
+    
+    const pStartY = toPixY(0);
+    ctx.moveTo(toPixX(startX), pStartY);
+    
+    const step = (xMax - xMin) / width;
+    for (let x = startX; x <= endX; x += step) {
+      ctx.lineTo(toPixX(x), toPixY(currentFunc.f(x)));
+    }
+    ctx.lineTo(toPixX(endX), toPixY(currentFunc.f(endX)));
+    ctx.lineTo(toPixX(endX), pStartY);
+    
+    ctx.fillStyle = isReversed ? 'rgba(239, 68, 68, 0.2)' : 'rgba(234, 88, 12, 0.2)'; // Red if reversed, Orange if normal
+    ctx.fill();
+    
+    // Draw Function Curve
+    ctx.beginPath();
+    ctx.strokeStyle = 'var(--orange-deep)';
+    ctx.lineWidth = 3;
+    let first = true;
+    for (let px = 0; px <= width; px += 2) {
+      const x = toCoordX(px);
+      const y = currentFunc.f(x);
+      const py = toPixY(y);
+      if (first) { ctx.moveTo(px, py); first = false; }
+      else { ctx.lineTo(px, py); }
+    }
+    ctx.stroke();
+    
+    // Draw Bounds Lines
+    function drawBound(val, color, label) {
+      const px = toPixX(val);
+      ctx.beginPath();
+      ctx.moveTo(px, 0); ctx.lineTo(px, height);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Handle
+      ctx.beginPath();
+      ctx.arc(px, toPixY(0), 8, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // Label
+      ctx.fillStyle = color;
+      ctx.font = 'bold 14px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, px, toPixY(0) + 24);
+    }
+    
+    drawBound(boundA, '#3b82f6', 'a');
+    drawBound(boundB, '#ef4444', 'b');
+  }
+  
+  // Interactions
+  function handleDown(e) {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const px = clientX - rect.left;
+    const x = toCoordX(px);
+    
+    if (Math.abs(x - boundA) < 0.3) dragging = 'a';
+    else if (Math.abs(x - boundB) < 0.3) dragging = 'b';
+  }
+  
+  function handleMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const px = clientX - rect.left;
+    const x = Math.round(toCoordX(px) * 10) / 10;
+    
+    if (dragging === 'a') setBounds(x, boundB);
+    else if (dragging === 'b') setBounds(boundA, x);
+  }
+  
+  function handleUp() { dragging = null; }
+  
+  canvas.addEventListener('mousedown', handleDown);
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleUp);
+  
+  canvas.addEventListener('touchstart', handleDown, {passive: false});
+  window.addEventListener('touchmove', handleMove, {passive: false});
+  window.addEventListener('touchend', handleUp);
+  
+  document.getElementById('sliderA').addEventListener('input', e => setBounds(parseFloat(e.target.value), boundB));
+  document.getElementById('sliderB').addEventListener('input', e => setBounds(boundA, parseFloat(e.target.value)));
+  
+  document.getElementById('funcSelect').addEventListener('change', e => {
+    currentFunc = funcs[e.target.value];
+    yMin = currentFunc.yMin;
+    yMax = currentFunc.yMax;
+    updateValues();
+  });
+  
+  window.addEventListener('resize', resize);
+  
+  // Init
+  resize();
+  updateValues();
+  
+</script>
+</body>
+</html>

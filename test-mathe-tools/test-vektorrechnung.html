@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Vektorgeometrie – MedAT Trainer</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0; padding: 0;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  
+  .header {
+    background: #fff;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--text-secondary); text-decoration: none;
+    font-weight: 600; font-size: 0.85rem; margin-bottom: 12px;
+  }
+  .back-btn:hover { color: var(--orange-deep); }
+  
+  .header-inner { display: flex; align-items: center; gap: 12px; }
+  .badge {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(234,88,12,0.15); color: var(--orange-deep);
+    display: flex; align-items: center; justify-content: center;
+  }
+  h1 { margin: 0; font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
+  .header-inner p { margin: 2px 0 0; font-size: 0.8rem; color: var(--text-secondary); }
+  
+  .wrap { padding: 20px; max-width: 900px; margin: 0 auto; flex: 1; width: 100%; box-sizing: border-box; }
+  
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .card h2 { margin: 0 0 12px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+  .card h2 svg { color: var(--orange-deep); width: 22px; height: 22px; }
+  .lead { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
+  
+  .vector-arena {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 20px;
+    margin-bottom: 20px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 20px;
+  }
+  @media(max-width: 768px) {
+    .vector-arena { grid-template-columns: 1fr; }
+  }
+  
+  .canvas-container {
+    width: 100%;
+    aspect-ratio: 1/1;
+    position: relative;
+    background: var(--bg-light);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+  
+  .stats-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .stat-box {
+    background: var(--bg-light);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border-left: 4px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat-box.va { border-left-color: #3b82f6; }
+  .stat-box.vb { border-left-color: #ef4444; }
+  .stat-box.vsum { border-left-color: #8b5cf6; }
+  .stat-box.vdot { border-left-color: var(--orange-deep); }
+  
+  .stat-header { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-val { font-family: monospace; font-size: 1.1rem; color: var(--text); font-weight: bold; }
+  .stat-sub { font-size: 0.8rem; color: var(--text-secondary); font-family: monospace; }
+  
+  .key-fact { background: var(--orange-soft); border-left: 3px solid var(--orange); padding: 12px 16px; border-radius: 0 12px 12px 0; margin: 14px 0; font-size: 0.85rem; line-height: 1.6; color: var(--text); display: flex; gap: 10px; align-items: flex-start; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="../index.html" class="back-btn"><i data-lucide="arrow-left"></i>Übersicht</a>
+  <div class="header-inner">
+    <div class="badge"><i data-lucide="move-up-right"></i></div>
+    <div>
+      <h1>Vektorgeometrie</h1>
+      <p>Addition · Skalarprodukt · Winkel</p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2><i data-lucide="mouse-pointer-click"></i>Vektor-Labor (2D)</h2>
+    <p class="lead">Ziehe die Spitzen der Vektoren $\vec{a}$ (blau) und $\vec{b}$ (rot), um zu sehen, wie sich Addition, Winkel und das Skalarprodukt verändern.</p>
+
+    <div class="vector-arena">
+      <div class="canvas-container">
+        <canvas id="vecCanvas"></canvas>
+      </div>
+      <div class="stats-panel">
+        <div class="stat-box va">
+          <span class="stat-header">Vektor $\vec{a}$</span>
+          <span class="stat-val" id="valA">a = (3 | 2)</span>
+          <span class="stat-sub" id="magA">|a| = 3.61</span>
+        </div>
+        <div class="stat-box vb">
+          <span class="stat-header">Vektor $\vec{b}$</span>
+          <span class="stat-val" id="valB">b = (1 | -3)</span>
+          <span class="stat-sub" id="magB">|b| = 3.16</span>
+        </div>
+        <div class="stat-box vsum">
+          <span class="stat-header">Addition $\vec{a} + \vec{b}$</span>
+          <span class="stat-val" id="valSum">s = (4 | -1)</span>
+          <span class="stat-sub" id="magSum">|s| = 4.12</span>
+        </div>
+        <div class="stat-box vdot">
+          <span class="stat-header">Skalarprodukt $\vec{a} \cdot \vec{b}$</span>
+          <span class="stat-val" id="valDot">a · b = -3</span>
+          <span class="stat-sub" id="valAng">Winkel $\alpha$ = 105.3°</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="key-fact">
+      <i data-lucide="info" style="color:var(--orange-deep);width:20px;height:20px;flex-shrink:0;margin-top:2px"></i>
+      <div>
+        <b>MedAT-Wissen:</b> 
+        <br>• <b>Skalarprodukt:</b> $\vec{a} \cdot \vec{b} = a_x \cdot b_x + a_y \cdot b_y$
+        <br>• Wenn das Skalarprodukt $0$ ist, stehen die Vektoren im rechten Winkel ($90^\circ$, orthogonal).
+        <br>• Der <b>Betrag</b> (die Länge) berechnet sich nach dem Satz des Pythagoras: $|\vec{a}| = \sqrt{a_x^2 + a_y^2}$
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  if(window.lucide) lucide.createIcons();
+
+  const canvas = document.getElementById('vecCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  let width, height;
+  const gridSize = 10;
+  
+  let a = { x: 3, y: 2 };
+  let b = { x: 1, y: -3 };
+  
+  let dragging = null; // 'a' or 'b'
+  
+  function resize() {
+    width = canvas.parentElement.clientWidth;
+    height = canvas.parentElement.clientHeight;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
+    draw();
+  }
+  
+  function toPixX(x) { return width / 2 + (x / gridSize) * (width / 2); }
+  function toPixY(y) { return height / 2 - (y / gridSize) * (height / 2); }
+  function toCoordX(px) { return (px - width / 2) / (width / 2) * gridSize; }
+  function toCoordY(py) { return -(py - height / 2) / (height / 2) * gridSize; }
+  
+  function drawArrow(x1, y1, x2, y2, color, lineWidth = 3) {
+    ctx.beginPath();
+    ctx.moveTo(toPixX(x1), toPixY(y1));
+    ctx.lineTo(toPixX(x2), toPixY(y2));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+    
+    // Arrow head
+    const angle = Math.atan2(toPixY(y2) - toPixY(y1), toPixX(x2) - toPixX(x1));
+    ctx.beginPath();
+    ctx.moveTo(toPixX(x2), toPixY(y2));
+    ctx.lineTo(toPixX(x2) - 10 * Math.cos(angle - Math.PI / 6), toPixY(y2) - 10 * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(toPixX(x2) - 10 * Math.cos(angle + Math.PI / 6), toPixY(y2) - 10 * Math.sin(angle + Math.PI / 6));
+    ctx.lineTo(toPixX(x2), toPixY(y2));
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+  
+  function updateStats() {
+    const ax = Math.round(a.x); const ay = Math.round(a.y);
+    const bx = Math.round(b.x); const by = Math.round(b.y);
+    
+    // Snapped values for display
+    const maga = Math.sqrt(ax*ax + ay*ay);
+    const magb = Math.sqrt(bx*bx + by*by);
+    
+    const sumx = ax + bx; const sumy = ay + by;
+    const magsum = Math.sqrt(sumx*sumx + sumy*sumy);
+    
+    const dot = ax*bx + ay*by;
+    
+    let ang = 0;
+    if (maga > 0 && magb > 0) {
+      const cosAng = Math.max(-1, Math.min(1, dot / (maga * magb)));
+      ang = Math.acos(cosAng) * 180 / Math.PI;
+    }
+    
+    document.getElementById('valA').innerHTML = `$\vec{a}$ = (${ax} | ${ay})`;
+    document.getElementById('magA').innerHTML = `|$\vec{a}$| = ${maga.toFixed(2)}`;
+    
+    document.getElementById('valB').innerHTML = `$\vec{b}$ = (${bx} | ${by})`;
+    document.getElementById('magB').innerHTML = `|$\vec{b}$| = ${magb.toFixed(2)}`;
+    
+    document.getElementById('valSum').innerHTML = `$\vec{s}$ = (${sumx} | ${sumy})`;
+    document.getElementById('magSum').innerHTML = `|$\vec{s}$| = ${magsum.toFixed(2)}`;
+    
+    document.getElementById('valDot').innerHTML = `$\vec{a} \cdot \vec{b}$ = ${dot}`;
+    document.getElementById('valAng').innerHTML = `Winkel $\alpha$ = ${ang.toFixed(1)}°`;
+    
+    if (dot === 0 && maga > 0 && magb > 0) {
+      document.getElementById('valDot').style.color = '#10b981'; // Green if orthogonal
+      document.getElementById('valDot').innerHTML += ' (Orthogonal!)';
+    } else {
+      document.getElementById('valDot').style.color = 'var(--text)';
+    }
+  }
+  
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+    
+    // Grid
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let i = -gridSize; i <= gridSize; i++) {
+      ctx.moveTo(toPixX(i), 0); ctx.lineTo(toPixX(i), height);
+      ctx.moveTo(0, toPixY(i)); ctx.lineTo(width, toPixY(i));
+    }
+    ctx.stroke();
+    
+    // Main Axes
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(toPixX(0), 0); ctx.lineTo(toPixX(0), height);
+    ctx.moveTo(0, toPixY(0)); ctx.lineTo(width, toPixY(0));
+    ctx.stroke();
+    
+    // Draw Parallelogram (Addition)
+    ctx.beginPath();
+    ctx.moveTo(toPixX(a.x), toPixY(a.y));
+    ctx.lineTo(toPixX(a.x + b.x), toPixY(a.y + b.y));
+    ctx.lineTo(toPixX(b.x), toPixY(b.y));
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Draw Sum Vector
+    drawArrow(0, 0, a.x + b.x, a.y + b.y, '#8b5cf6', 3);
+    
+    // Draw Vectors a and b
+    drawArrow(0, 0, a.x, a.y, '#3b82f6', 4);
+    drawArrow(0, 0, b.x, b.y, '#ef4444', 4);
+    
+    // Draw Drag Points
+    ctx.beginPath(); ctx.arc(toPixX(a.x), toPixY(a.y), 12, 0, Math.PI*2); ctx.fillStyle = 'rgba(59, 130, 246, 0.2)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(toPixX(b.x), toPixY(b.y), 12, 0, Math.PI*2); ctx.fillStyle = 'rgba(239, 68, 68, 0.2)'; ctx.fill();
+  }
+  
+  function handleDown(e) {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const px = clientX - rect.left;
+    const py = clientY - rect.top;
+    
+    const distA = Math.hypot(toPixX(a.x) - px, toPixY(a.y) - py);
+    const distB = Math.hypot(toPixX(b.x) - px, toPixY(b.y) - py);
+    
+    if (distA < 20) dragging = 'a';
+    else if (distB < 20) dragging = 'b';
+  }
+  
+  function handleMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const px = clientX - rect.left;
+    const py = clientY - rect.top;
+    
+    // Snap to grid
+    const x = Math.round(toCoordX(px));
+    const y = Math.round(toCoordY(py));
+    
+    if (dragging === 'a') { a.x = x; a.y = y; }
+    else if (dragging === 'b') { b.x = x; b.y = y; }
+    
+    updateStats();
+    draw();
+  }
+  
+  function handleUp() { dragging = null; }
+  
+  canvas.addEventListener('mousedown', handleDown);
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleUp);
+  
+  canvas.addEventListener('touchstart', handleDown, {passive: false});
+  window.addEventListener('touchmove', handleMove, {passive: false});
+  window.addEventListener('touchend', handleUp);
+  
+  window.addEventListener('resize', resize);
+  
+  // Init
+  resize();
+  updateStats();
+  
+</script>
+</body>
+</html>
