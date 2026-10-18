@@ -218,3 +218,5 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
 .lb-wa { font-family: var(--lb-hand); font-size: 30px; color: #2a9d4b; }
 .lb-wq-btns { justify-content: center; }
 @media (prefers-reduced-motion: reduce) { .lb-dots span { animation: none; } }
+/* Atombeschriftungen in Molekülen ohne Rand (sonst unleserlich) */
+#lernblick-root .board svg g[transform] text { stroke: none; }

@@ -9742,3 +9742,7 @@ body.hide-nav .slide-menu-overlay { display: none !important; }
   .trap-hero, .trap-detail-hero { box-shadow: none !important; }
   .screen { display: block !important; }
 }
+
+/* Aufgeräumt (Okt 2026): ausgeblendete Funktionen bleiben im Code, sind aber nicht mehr sichtbar */
+.app-retired { display: none !important; }
+.home-quick-grid--3 { grid-template-columns: repeat(3, 1fr) !important; }

@@ -251,7 +251,7 @@ function compAxes(A) {
     ln(xAx, y + h + 8, xAx, y - 26, C.ink, 3, "y-achse achsen"), ln(xAx, y - 26, xAx - 9, y - 12, C.ink, 3, "y-achse achsen"), ln(xAx, y - 26, xAx + 9, y - 12, C.ink, 3, "y-achse achsen"),
     tx(x + w + 30, yAx + 30, A("x-name") || "x", { size: 28, teil: "x-achse" }), tx(xAx - 22, y - 18, A("y-name") || "y", { size: 28, teil: "y-achse" })
   ];
-  const sx = niceStep(xmax - xmin), sy = niceStep(ymax - ymin);
+  const sx = niceStep(((xmax - xmin) * 10) / Math.max(3, w / 95)), sy = niceStep(((ymax - ymin) * 10) / Math.max(3, h / 70));
   for (let v = Math.ceil(xmin / sx) * sx; v <= xmax + 1e-9; v += sx) if (Math.abs(v) > 1e-9) { out.push(ln(X(v), yAx - 7, X(v), yAx + 7, C.ink, 2, "x-achse", true)); out.push(tx(X(v), yAx + 30, fmt(v), { size: 20, fill: C.grey, teil: "x-achse" })); }
   for (let v = Math.ceil(ymin / sy) * sy; v <= ymax + 1e-9; v += sy) if (Math.abs(v) > 1e-9) { out.push(ln(xAx - 7, Y(v), xAx + 7, Y(v), C.ink, 2, "y-achse", true)); out.push(tx(xAx - 14, Y(v) + 7, fmt(v), { size: 20, fill: C.grey, anchor: "end", teil: "y-achse" })); }
   const fns = String(A("funktion") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 4);
@@ -1046,6 +1046,63 @@ function compPolygon(A) {
 }
 Object.assign(COMPONENTS, { "analyse": compAnalysis, "prozent": compPercent, "einheiten": compUnits, "potenzen": compPowers, "baum": compTree, "normalverteilung": compNormal, "auswahl": compChoose, "einheitskreis": compUnitCircle, "vektoren": compVectors, "kreis": compCircle, "vieleck": compPolygon });
 
+
+// 31. Kreislauf (Citratzyklus, Calvin-Zyklus, Harnstoffzyklus, Herzzyklus …): Stationen im Kreis, Enzyme an den Pfeilen, Nebenprodukte außen
+function compCycle(A) {
+  const st = String(A("schritte") || "").split(";").map((t) => t.trim()).filter(Boolean).slice(0, 12);
+  if (st.length < 2) return [];
+  const enz = String(A("enzyme") || "").split(";").map((t) => t.trim());
+  const extra = {}; String(A("extras") || "").split(";").forEach((e) => { const m = e.match(/^\s*(\d+)\s*:\s*(.+)$/); if (m) extra[+m[1] - 1] = m[2].trim(); });
+  const cx = N(A("cx"), 500), cy = N(A("cy"), 345), rx = N(A("rx"), 300), ry = N(A("ry"), 190), n = st.length, out = [];
+  const ang = (t) => -Math.PI / 2 + (2 * Math.PI * t) / n, E = (t, d = 0) => [cx + (rx + d) * Math.cos(ang(t)), cy + (ry + d * 0.7) * Math.sin(ang(t))];
+  const slugT = (t) => slug(t).slice(0, 30) || "station";
+  if (A("mitte")) out.push(tx(cx, cy + 12, A("mitte"), { size: 34, fill: C.red, teil: "zyklus kreislauf" }));
+  const bw = (t) => Math.min(170, Math.max(84, t.length * 11 + 22));
+  for (let i = 0; i < n; i++) {
+    // Bogen zwischen den Kästchen (Start/Ende um die halbe Kästchenbreite eingerückt)
+    const pts = []; for (let k = 0; k <= 24; k++) pts.push(E(i + k / 24));
+    const [ax, ay] = E(i), [bx, by] = E(i + 1), wa = bw(st[i]) / 2 + 6, wb = bw(st[(i + 1) % n]) / 2 + 6;
+    const inBox = (p, c, w) => Math.abs(p[0] - c[0]) < w && Math.abs(p[1] - c[1]) < 28;
+    const seg = pts.filter((p) => !inBox(p, [ax, ay], wa) && !inBox(p, [bx, by], wb));
+    if (seg.length < 2) continue;
+    const tE = `schritt-${i + 1} reaktion-${i + 1}${enz[i] ? " " + slugT(enz[i]) : ""}`;
+    out.push(S("polyline", { points: seg.map((p) => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" "), stroke: C.ink, "stroke-width": 3, fill: "none", teil: tE, "data-p": 1 }));
+    const [ex, ey] = seg[seg.length - 1], [px, py] = seg[seg.length - 2], ta = Math.atan2(ey - py, ex - px), L = 14;
+    out.push(S("path", { d: `M${(ex - L * Math.cos(ta - 0.5)).toFixed(1)} ${(ey - L * Math.sin(ta - 0.5)).toFixed(1)} L${ex.toFixed(1)} ${ey.toFixed(1)} L${(ex - L * Math.cos(ta + 0.5)).toFixed(1)} ${(ey - L * Math.sin(ta + 0.5)).toFixed(1)}`, stroke: C.ink, "stroke-width": 3, fill: "none", teil: tE, "data-p": 1 }));
+    const am = ang(i + 0.5), right = Math.cos(am) >= 0.15, left = Math.cos(am) <= -0.15, anchor = right ? "start" : left ? "end" : "middle";
+    if (enz[i]) { const [lx, ly] = E(i + 0.5, -34 - 26 * Math.abs(Math.sin(am))); out.push(tx(lx, ly + 6, enz[i], { size: 19, fill: "#7b3fc4", anchor: right ? "end" : left ? "start" : "middle", teil: tE + " enzym" })); }
+    if (extra[i]) { const [lx, ly] = E(i + 0.5, 22); out.push(tx(lx, ly + 6, "→ " + extra[i], { size: 20, fill: C.green, anchor, teil: tE + " produkt" })); }
+  }
+  for (let i = 0; i < n; i++) {
+    const [px, py] = E(i), t = `station-${i + 1} ${slugT(st[i])}`, w = bw(st[i]);
+    out.push(S("rect", { x: px - w / 2, y: py - 22, width: w, height: 44, stroke: C.blue, "stroke-width": 3, fill: "#ffffff", teil: t, "data-p": 1 }));
+    out.push(tx(px, py + 8, st[i], { size: Math.min(22, (w - 12) / (st[i].length * 0.52)), fill: C.blue, teil: t }));
+  }
+  return out;
+}
+// 32. Kette / Signalweg / Kaskade: Stationen nacheinander (Glykolyse, Gerinnung, Reizleitung, Proteinbiosynthese …)
+function compChain(A) {
+  const st = String(A("schritte") || "").split(";").map((t) => t.trim()).filter(Boolean).slice(0, 10);
+  if (st.length < 2) return [];
+  const lab = String(A("pfeile") || A("enzyme") || "").split(";").map((t) => t.trim());
+  const n = st.length, cols = Math.min(n, N(A("spalten"), n > 5 ? Math.ceil(n / 2) : n)), rows = Math.ceil(n / cols);
+  const x0 = 60, w = 880, cw = w / cols, rh = Math.min(200, 420 / rows), y0 = 120, out = [];
+  const pos = st.map((_, i) => { const r = Math.floor(i / cols), c = r % 2 ? cols - 1 - (i % cols) : i % cols; return [x0 + cw * c + cw / 2, y0 + rh * r + 40]; });
+  st.forEach((t, i) => {
+    const [px, py] = pos[i], bw = Math.min(cw - 30, Math.max(110, t.length * 12 + 26)), tl = `station-${i + 1} ${slug(t).slice(0, 30)}`;
+    out.push(S("rect", { x: px - bw / 2, y: py - 26, width: bw, height: 52, stroke: C.blue, "stroke-width": 3, fill: "#ffffff", teil: tl, "data-p": 1 }));
+    out.push(tx(px, py + 8, t, { size: 22, fill: C.blue, teil: tl }));
+    if (i < n - 1) {
+      const [qx, qy] = pos[i + 1], te = `schritt-${i + 1}${lab[i] ? " " + slug(lab[i]).slice(0, 30) : ""}`;
+      const same = Math.abs(qy - py) < 1, dir = Math.sign(qx - px);
+      const ax = same ? px + dir * (bw / 2 + 4) : px, ay = same ? py : py + 28, bx = same ? qx - dir * (Math.min(cw - 30, Math.max(110, st[i + 1].length * 12 + 26)) / 2 + 4) : qx, by = same ? qy : qy - 28;
+      out.push(...arrowLine(ax, ay, bx, by, C.ink, 3, te));
+      if (lab[i]) out.push(tx((ax + bx) / 2 + (same ? 0 : 14), (ay + by) / 2 + (same ? -12 : 6), lab[i], { size: 18, fill: "#7b3fc4", anchor: same ? "middle" : "start", teil: te + " enzym" }));
+    }
+  });
+  return out;
+}
+Object.assign(COMPONENTS, { "kreislauf": compCycle, "kette": compChain });
 // Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen (schematisch)
 function compForgetting(A) {
   const x = N(A("x"), 70), y = N(A("y"), 60), w = N(A("breite"), 860), h = N(A("hoehe"), 440), days = clampN(N(A("tage"), 30), 5, 120);
@@ -1450,7 +1507,7 @@ function rules() {
   const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
   const f = lb.ctx && lb.ctx.frage;
   const wrong = f && f.gewaehlt ? `\n\nFALSCH BEANTWORTETE AUFGABE – so erklärst du:\n1. Erst auf dem Bildschirm zeigen (BILDZEICHNUNG mit markiere): die gewählte Antwort rot einkreisen (text 'deine Wahl', teil 'deine-wahl'), die richtige grün einkreisen (text 'richtig', teil 'richtig'), ein entscheidendes Schlüsselwort der Frage (z. B. NICHT) orange unterstreichen. Achte genau darauf, welcher Buchstabe welche Antwort ist (KONTEXT und ANKER).\n2. Dann 1 bis 3 Tafeln, die das Fachwissen SICHTBAR machen – genau das, was man im Kopf haben muss, um die Frage zu lösen: Teilchen, Moleküle, Elektronen, Kräfte, Abläufe, Kurven. Bei Abläufen eine Tafel pro Schritt. Die Frage, die Antwortmöglichkeiten oder die Erklärung der App schreibst du NICHT an die Tafel – das steht schon auf dem Bildschirm.\n3. Im Text (vorgelesen) benennst du den Denkfehler in einem Satz, ohne Vorwurf, und gibst am Ende einen kurzen Prüfungstipp.` : "";
-  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\nMATHE-BAUSTEINE (für alle Mathe-Fragen zuerst diese benutzen, sie rechnen alles exakt; jeder braucht die ganze Tafel unter dem <titel>):\n20. <analyse funktion='x^3-3x' bereich='-3;3' nullstellen='ja' extrema='ja' wendepunkte='ja' tangente='1' steigungsdreieck='0' flaeche='0;2'/> Graph mit berechneten Punkten (N, H, T, W), Tangente an x=1, Steigungsdreieck ab x=0, Fläche/Integral von 0 bis 2. Nur angeben, was gebraucht wird. Zwei Funktionen: funktion='2x+1; x^2' schnittpunkt='ja' (Gleichungssysteme, Schnittpunkte). Für Geraden, Parabeln, Exponentialfunktionen, Ableitung (Tangente), Integral.\n   Teile: graph-1, graph-2, nullstelle, nullstelle-1, hochpunkt, tiefpunkt, extremum-1, scheitel, wendepunkt-1, tangente, steigungsdreieck, delta-x, delta-y, flaeche, ergebnis, schnittpunkt\n21. <prozent start='100 €' schritte='-20%; -10%'/> Balken nach jeder Änderung, Rechnung pro Schritt, Gesamtänderung und die Falle (nicht −30 %). Ohne schritte: <prozent start='80 €' anteil='25'/> zeigt Grundwert, Prozentwert, Prozentsatz.\n   Teile: grundwert, schritt-1, schritt-2, gesamt, falle, prozentwert, prozentsatz, ergebnis\n22. <einheiten von='mL' nach='µL' wert='0.025'/> Vorsilben-Treppe mit Faktoren, Weg von → nach, Ergebnis. Flächen/Volumen: von='m²' nach='cm²' bzw. 'cm³'. Für alle Umrechnungen und Vorsilben (k, M, m, µ, n …).\n   Teile: stufe, von, nach, weg, faktor, regel, ergebnis\n23. <potenzen basis='2' oben='5;3' unten='4'/> Faktoren als Kreise, Kürzen, Exponenten addieren/subtrahieren, Ergebnis.\n   Teile: zaehler, nenner, kuerzen, exponenten, regel, ergebnis\n24. <baum stufen='1/6:Sechs; 5/6:keine Sechs | 1/6:Sechs; 5/6:keine Sechs' pfad='1-1'/> Baumdiagramm, Stufen mit | getrennt, Äste mit ;. pfad='1-1' (mehrere: '1-2, 2-1') markiert Pfade rot, rechnet Produkt- und Summenregel mit Brüchen.\n   Teile: ast-1, ast-1-1, pfad, stufe-1, blatt-1-1, produkt, summe, ergebnis\n25. <normalverteilung mu='100' sigma='15' band='2'/> Glockenkurve, μ, ±σ-Werte, schattiertes Band mit 68 / 95 / 99,7 %.\n   Teile: kurve, mittelwert, sigma-1, sigma-2, band, prozent, ergebnis\n26. <auswahl n='5' k='3' reihenfolge='nein' zuruecklegen='nein'/> Plätze füllen (5 · 4 · 3), bei 'Reihenfolge egal' durch k! teilen = Binomialkoeffizient.\n   Teile: platz-1, platz-2, produkt, ordnung, fakultaet, ergebnis\n27. <einheitskreis winkel='30'/> Einheitskreis, Winkel, sin als Höhe (rot), cos als Breite (blau), exakte Werte, tan = sin/cos.\n   Teile: kreis, winkel, radius, punkt, sinus, cosinus, tangens, pythagoras\n28. <vektoren vektoren='a=3,1; b=1,2' summe='ja' differenz='nein' betrag='a'/> Vektoren im Gitter, Addition Spitze an Fuß, Betrag mit Pythagoras.\n   Teile: vektor-a, vektor-b, summe, differenz, betrag-a, gitter, ergebnis\n29. <kreis r='5' einheit='cm'/> Kreis mit r, d, Fläche und Umfang berechnet.   Teile: radius, durchmesser, flaeche, umfang, formel, ergebnis\n30. <vieleck n='6'/> regelmäßiges Vieleck mit allen Diagonalen, von einer Ecke rot, n·(n−3)/2.   Teile: ecke, von-einer-ecke, diagonalen, ergebnis\nFür Pythagoras <dreieck-rw>, für Rechenwege <gleichung>, für Brüche <bruch-kreis>/<bruch-balken>, für Zahlenfolgen <zahlenfolge>.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
+  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\nLEHRKRAFT-REGELN (das Wichtigste, so entsteht echtes Verständnis):\n- Alles, was du nennst, wird in genau diesem Moment GEZEIGT: jedes Fachwort, jede Größe, jede Fläche, Kurve, Grenze, jedes Enzym oder Molekül, jeder Rechenschritt steht an der Tafel oder ist auf dem Bildschirm markiert, und du zeigst mit [[teil|…]] darauf. Was nicht zu sehen ist, sagst du nicht.\n- Rechne immer ein konkretes Beispiel komplett vor, Zeile für Zeile mit <gleichung> (notizen = was du in dieser Zeile tust), mit echten Zahlen bis zum Ergebnis. Nie nur die Formel nennen.\n- Formeln dröselst du auf: jedes Symbol einzeln, farbig mit dem Bild verbunden (z. B. ∫ von a bis b f(x) dx: a und b = Grenzen auf der x-Achse, f(x) = die Kurve, dx = schmale Streifen, das Integral = die gelbe Fläche).\n- Mathe-Aufbau: Tafel 1 das Bild (z. B. <analyse> mit Fläche), Tafel 2 die Formel aufgedröselt, Tafel 3 Beispiel vorgerechnet: links <analyse x='40' breite='500'>, rechts <gleichung x='600'>.\n- Ist die Person in einem Lern-Tool (Grafik, Animation, Regler), beginne auf IHREM Bildschirm: markiere mit markiere ziel='bild-…' stelle='…' genau die Kurve, Fläche oder den Regler, über den du sprichst.\n- Abläufe (Zyklen, Kaskaden, Signalwege): zuerst der Überblick als <kreislauf> oder <kette>, dann einzelne Schritte auf eigenen Tafeln mit <molekuel> und <bogenpfeil>.\n31. <kreislauf schritte='Citrat; Isocitrat; α-Ketoglutarat; Succinyl-CoA; Succinat; Fumarat; Malat; Oxalacetat' enzyme='Aconitase; Isocitrat-DH; α-KG-DH; Succinyl-CoA-Synthetase; Succinat-DH; Fumarase; Malat-DH; Citrat-Synthase' extras='2: NADH + CO₂; 3: NADH + CO₂; 4: GTP; 5: FADH₂; 7: NADH' mitte='Citratzyklus'/> Kreislauf: Stationen im Kreis, Enzym n steht am Pfeil von Station n zu n+1, extras n = was bei Schritt n entsteht. Jede Station und jeder Schritt ist antippbar.\n   Teile: station-1 …, schritt-1 …, reaktion-1 …, enzym, produkt, zyklus, außerdem die Namen in Kleinbuchstaben (z. B. citrat, aconitase)\n32. <kette schritte='Glucose; Glucose-6-phosphat; Fructose-6-phosphat; …' pfeile='Hexokinase; Isomerase; …'/> Ablauf als Kette (bei mehr als 5 Stationen in Schlangenlinien).   Teile: station-1 …, schritt-1 …, enzym, Namen in Kleinbuchstaben\nMATHE-BAUSTEINE (für alle Mathe-Fragen zuerst diese benutzen, sie rechnen alles exakt; jeder braucht die ganze Tafel unter dem <titel>):\n20. <analyse funktion='x^3-3x' bereich='-3;3' nullstellen='ja' extrema='ja' wendepunkte='ja' tangente='1' steigungsdreieck='0' flaeche='0;2'/> Graph mit berechneten Punkten (N, H, T, W), Tangente an x=1, Steigungsdreieck ab x=0, Fläche/Integral von 0 bis 2. Nur angeben, was gebraucht wird. Zwei Funktionen: funktion='2x+1; x^2' schnittpunkt='ja' (Gleichungssysteme, Schnittpunkte). Für Geraden, Parabeln, Exponentialfunktionen, Ableitung (Tangente), Integral.\n   Teile: graph-1, graph-2, nullstelle, nullstelle-1, hochpunkt, tiefpunkt, extremum-1, scheitel, wendepunkt-1, tangente, steigungsdreieck, delta-x, delta-y, flaeche, ergebnis, schnittpunkt\n21. <prozent start='100 €' schritte='-20%; -10%'/> Balken nach jeder Änderung, Rechnung pro Schritt, Gesamtänderung und die Falle (nicht −30 %). Ohne schritte: <prozent start='80 €' anteil='25'/> zeigt Grundwert, Prozentwert, Prozentsatz.\n   Teile: grundwert, schritt-1, schritt-2, gesamt, falle, prozentwert, prozentsatz, ergebnis\n22. <einheiten von='mL' nach='µL' wert='0.025'/> Vorsilben-Treppe mit Faktoren, Weg von → nach, Ergebnis. Flächen/Volumen: von='m²' nach='cm²' bzw. 'cm³'. Für alle Umrechnungen und Vorsilben (k, M, m, µ, n …).\n   Teile: stufe, von, nach, weg, faktor, regel, ergebnis\n23. <potenzen basis='2' oben='5;3' unten='4'/> Faktoren als Kreise, Kürzen, Exponenten addieren/subtrahieren, Ergebnis.\n   Teile: zaehler, nenner, kuerzen, exponenten, regel, ergebnis\n24. <baum stufen='1/6:Sechs; 5/6:keine Sechs | 1/6:Sechs; 5/6:keine Sechs' pfad='1-1'/> Baumdiagramm, Stufen mit | getrennt, Äste mit ;. pfad='1-1' (mehrere: '1-2, 2-1') markiert Pfade rot, rechnet Produkt- und Summenregel mit Brüchen.\n   Teile: ast-1, ast-1-1, pfad, stufe-1, blatt-1-1, produkt, summe, ergebnis\n25. <normalverteilung mu='100' sigma='15' band='2'/> Glockenkurve, μ, ±σ-Werte, schattiertes Band mit 68 / 95 / 99,7 %.\n   Teile: kurve, mittelwert, sigma-1, sigma-2, band, prozent, ergebnis\n26. <auswahl n='5' k='3' reihenfolge='nein' zuruecklegen='nein'/> Plätze füllen (5 · 4 · 3), bei 'Reihenfolge egal' durch k! teilen = Binomialkoeffizient.\n   Teile: platz-1, platz-2, produkt, ordnung, fakultaet, ergebnis\n27. <einheitskreis winkel='30'/> Einheitskreis, Winkel, sin als Höhe (rot), cos als Breite (blau), exakte Werte, tan = sin/cos.\n   Teile: kreis, winkel, radius, punkt, sinus, cosinus, tangens, pythagoras\n28. <vektoren vektoren='a=3,1; b=1,2' summe='ja' differenz='nein' betrag='a'/> Vektoren im Gitter, Addition Spitze an Fuß, Betrag mit Pythagoras.\n   Teile: vektor-a, vektor-b, summe, differenz, betrag-a, gitter, ergebnis\n29. <kreis r='5' einheit='cm'/> Kreis mit r, d, Fläche und Umfang berechnet.   Teile: radius, durchmesser, flaeche, umfang, formel, ergebnis\n30. <vieleck n='6'/> regelmäßiges Vieleck mit allen Diagonalen, von einer Ecke rot, n·(n−3)/2.   Teile: ecke, von-einer-ecke, diagonalen, ergebnis\nFür Pythagoras <dreieck-rw>, für Rechenwege <gleichung>, für Brüche <bruch-kreis>/<bruch-balken>, für Zahlenfolgen <zahlenfolge>.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
   return `${LB_ROLE}${EXTRAS}${board}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
 }
 
@@ -1523,6 +1580,7 @@ function buildUI() {
         <span id="lb-count" class="lb-count"></span>
         <button class="lb-navbtn" id="lb-next" type="button" aria-label="Nächste Tafel">›</button>
         <button class="lb-ghost lb-peekback" id="lb-peekback" type="button">Zur Tafel</button>
+        <button class="lb-ghost lb-backbtn" id="lb-back" type="button" hidden>↩ Zurück</button>
       </div>
       <div id="lb-sub" class="lb-sub" dir="auto" aria-live="polite"></div>
       <div id="lb-stage-status" class="lb-status"></div>
@@ -1558,6 +1616,7 @@ function buildUI() {
   if (window.ResizeObserver) new ResizeObserver(follow).observe(document.body);
   $("stage-close").onclick = closeStage;
   $("sdone").onclick = closeStage;
+  $("back").onclick = () => backToParent(false);
   setupBoardQuestions();
   $("wa-btn").onclick = () => { $("wa").hidden = false; $("wa-btn").hidden = true; };
   $("wnext").onclick = showWarmup;
@@ -1628,10 +1687,27 @@ async function openPanel(opts = {}) {
   $("seen-title").textContent = lb.ctx.frage ? `Eine ${lb.ctx.frage.bereich.split(" /")[0]}-Aufgabe${lb.ctx.frage.gewaehlt ? " – deine Antwort war leider falsch" : ""}` : (lb.ctx.ueberschrift || lb.ctx.seite);
   $("chat").replaceChildren(el("p", "lb-empty", lb.ctx.frage && lb.ctx.frage.gewaehlt ? "Ich sehe deine Aufgabe. Soll ich dir zeigen, wo der Denkfehler lag?" : "Ich sehe, woran du gerade arbeitest. Frag mich einfach – oder tipp auf einen Vorschlag."));
   $("tips").hidden = false;
+  if (opts.starters) showStarters();
   clearBoard(); $("boardwrap").hidden = true;
   ensureLibs().catch(() => setStatus("Zeichen-Bibliotheken konnten nicht geladen werden."));
   if (opts.ask) ask(opts.ask);
   else setTimeout(() => $("q").focus(), 50);
+}
+// Gesprächsstarter (ersetzt das frühere KI-Lern-Studio): sofort fragen oder Satzanfang vorgeben
+const STARTERS = [
+  ["📐 Rechne mir etwas vor", "Rechne mir Schritt für Schritt vor: "], ["🧪 Zeig mir einen Ablauf", "Zeig mir den Ablauf von "],
+  ["🔍 Erklär mir ein Thema", "Erklär mir einfach und mit Zeichnung: "], ["🧩 Ich hänge an einer Formel", "Drösel mir diese Formel auf: "],
+  ["🧠 Eselsbrücke", "Gib mir eine gute Eselsbrücke für "], ["✅ Prüf mich ab", "Stell mir 3 kurze Fragen zu "],
+  ["🔁 Wie lerne ich mit Wiederholung?", "Wie funktioniert Spaced Repetition und wie lerne ich damit für den MedAT? Zeig es mir an der Tafel."],
+  ["🏰 Gedächtnispalast für Allergieausweise", "Wie baue ich einen Gedächtnispalast für den Untertest Allergieausweise? Zeig es mir an einem Beispiel."]
+];
+function showStarters() {
+  $("tips").replaceChildren(...STARTERS.map(([label, text]) => {
+    const b = el("button", "lb-tip", label); b.type = "button";
+    b.onclick = () => { if (/[:\s]$/.test(text) || / (von|für|zu)\s*$/.test(text)) { $("q").value = text; $("q").focus(); } else ask(text); };
+    return b;
+  }));
+  $("chat").replaceChildren(el("p", "lb-empty", "Worum geht's? Tipp auf einen Vorschlag und ergänze das Thema – oder frag einfach drauflos."));
 }
 function closePanel() {
   closeStage();
@@ -1678,7 +1754,7 @@ async function ask(preset) {
       okSvgs.forEach((sv, k) => cur.boards.push({ svg: sv, mols: k === 0 ? mols : [], q, titel: titleOf(sv), teile: teileOf(sv) }));
       answerBoards = [firstIdx, cur.boards.length - 1];
       const allRefs = [...new Set(refsIn(body))];
-      for (let i = firstIdx; i < cur.boards.length; i++) Object.assign(cur.boards[i], { defer: allRefs, shown: new Set(), full: false });
+      for (let i = firstIdx; i < cur.boards.length; i++) Object.assign(cur.boards[i], { defer: allRefs, shown: new Set(), full: false, parent: pendingDrill || null });
       $("boardwrap").hidden = false;
       renderStrip();
       pendingBoard = firstIdx;
@@ -1690,6 +1766,7 @@ async function ask(preset) {
       pendingMode = !answerBoards || onScreen ? "peek" : "tafel";
     }
     if (tricks.length) addMsg("trick", tricks.map((t) => `<b>Eselsbrücke:</b> ${esc(t.merksatz)}${t.wofuer ? ` <span class="lb-muted">(${esc(t.wofuer)})</span>` : ""}`).join("<br>"));
+    pendingDrill = null;
     lastBody = body;
     explain(body, boardDur);
   } catch (e) {
@@ -1856,7 +1933,7 @@ function describeHit(el) {
   const isFormula = /=|²|√|·|\/|\^/.test(own + " " + sameTexts.join(" ")) || teile.some((t) => /^(zeile|ergebnis|gleichung)/.test(t));
   return { teile, label, texts: [...new Set([own, ...sameTexts].filter(Boolean))].slice(0, 4), isFormula };
 }
-let popHit = null;
+let popHit = null, pendingDrill = null;
 function openPop(hit, x, y) {
   popHit = hit;
   $("pop-title").textContent = `„${hit.label}“`;
@@ -1879,7 +1956,8 @@ function askAbout(q) {
   const what = hit.texts.length ? ` (dort steht: ${hit.texts.map((t) => "„" + t + "“").join(", ")})` : "";
   const teil = hit.teile.length ? ` [Teil: ${hit.teile.join(", ")}]` : "";
   closePop();
-  ask(`Ich tippe${where} auf ${hit.label}${what}${teil}. ${q} Zeig beim Erklären mit [[…]] genau auf diesen Teil.`);
+  pendingDrill = { board: curBoard, teile: hit.teile, label: hit.label, title: b.titel || "Überblick" };
+  ask(`Ich tippe${where} auf ${hit.label}${what}${teil}. ${q} VERTIEFUNG: Erklär genau diesen Teil einfach und gründlich mit einer EIGENEN neuen Tafel (z. B. die Reaktion, das Enzym, die Formel oder der Rechenschritt im Detail, Schritt für Schritt gezeichnet). Am Ende ein Satz, wie dieser Teil ins große Bild passt – danach geht es automatisch zurück zum Überblick.`);
 }
 function setupBoardQuestions() {
   const onTap = (e) => {
@@ -1979,7 +2057,9 @@ function updateStageNav() {
   $("prev").disabled = curBoard <= 0; $("next").disabled = curBoard >= n - 1;
   $("prev").hidden = $("next").hidden = n < 2;
   const b = cur.boards[curBoard];
-  $("stage-title").textContent = b ? (b.titel || "") : "";
+  $("stage-title").textContent = b ? ((b.parent ? b.parent.title + " › " : "") + (b.titel || (b.parent ? b.parent.label : ""))) : "";
+  $("back").hidden = !(b && b.parent);
+  if (b && b.parent) $("back").textContent = `↩ Zurück zu „${b.parent.title}“`;
 }
 function setSub(s) {
   const e = $("sub"); if (e) e.innerHTML = s ? md(s) : "";
@@ -2133,6 +2213,24 @@ function showRefs(refs) {
   if (moved) walkTimers.push(setTimeout(() => { highlight(refs); keepBoardInView(refs); }, 900));
   else { highlight(refs); keepBoardInView(refs); }
 }
+// Ende einer Erklärung: alles zeigen; war es eine Vertiefung, zurück zum großen Bild
+function onNarrationEnd() {
+  highlight([]); revealAll();
+  const b = cur.boards[curBoard];
+  if (b && b.parent && !$("stage").hidden) walkTimers.push(setTimeout(() => backToParent(true), 2200));
+}
+function backToParent(auto) {
+  const b = cur.boards[curBoard];
+  if (!b || !b.parent) return;
+  const p = b.parent, pb = cur.boards[p.board];
+  if (!pb) return;
+  stopWalk();
+  pb.full = true; showBoard(p.board, true, 2500); setStageMode("tafel");
+  setSub(`${auto ? "Zurück im Überblick" : "Wieder im Überblick"}: Hier gehört [[${p.teile[0] || "titel"}|${p.label}]] hin.`);
+  walkTimers.push(setTimeout(() => highlight(p.teile.slice(0, 2)), 700));
+  walkTimers.push(setTimeout(() => highlight([]), 5200));
+}
+
 // ---------- Erzählung: Sätze, zugehörige Tafeln, Tonspur ----------
 let narr = null;
 function boardOfSentences(sents) {
@@ -2164,7 +2262,7 @@ function playFrom(i, delay = 0) {
     walkTimers.push(setTimeout(() => { setSub(s); if (refs.length) showRefs(refs); }, t));
     t += Math.max(2200, plain(s).length * 60) + (refs.some(visibleHas) ? 0 : 1500);
   }
-  walkTimers.push(setTimeout(() => { highlight([]); revealAll(); }, t + 400));
+  walkTimers.push(setTimeout(() => onNarrationEnd(), t + 400));
 }
 function langVoices() {
   const codes = (LB_LANGS[$("lang").value] || LB_LANGS.de).tts;
@@ -2178,7 +2276,7 @@ function speakBrowser(sents) {
     u.voice = v; if (v) u.lang = v.lang;
     const refs = refsIn(s);
     u.onstart = () => { setSub(s); showRefs(refs); };
-    if (i === sents.length - 1) u.onend = () => walkTimers.push(setTimeout(() => { highlight([]); revealAll(); }, 1500));
+    if (i === sents.length - 1) u.onend = () => walkTimers.push(setTimeout(() => onNarrationEnd(), 1500));
     speechSynthesis.speak(u);
   });
 }
@@ -2209,7 +2307,7 @@ function speakNatural(from) {
       let k = n.shown; while (k + 1 < n.jobs.length && f >= n.starts[k + 1] - 0.01) k++;
       if (k !== n.shown) { n.shown = k; setSub(n.jobs[k].s); showRefs(n.jobs[k].refs); }
     };
-    a.onended = () => { walkTimers.push(setTimeout(() => { highlight([]); revealAll(); }, 1500)); };
+    a.onended = () => { walkTimers.push(setTimeout(() => onNarrationEnd(), 1500)); };
     if (!n.stopped) startAudio(n, n.from);
     else endWait();
   }).catch(() => {
@@ -2269,11 +2367,19 @@ function watchWrongAnswers() {
 function init() {
   if (document.getElementById("lernblick-root")) return;
   buildUI();
+  // Die früheren KI-Tutoren führen jetzt zu LernBlick
+  if (typeof Tutor !== "undefined" && Tutor) {
+    try {
+      Tutor.open = (q) => { const c = q && (q.content || q); const t = c && (c.question || c.text) ? `Erklär mir diese Aufgabe Schritt für Schritt an der Tafel: ${c.question || c.text}` : null; openPanel(t ? { ask: t } : { starters: true }); };
+      Tutor.openFreeMode = () => openPanel({ starters: true });
+      Tutor.selectTutor = () => {};
+    } catch (e) {}
+  }
   watchWrongAnswers();
   // Auf dem Anmelde-/Registrierungsbildschirm der App keinen Knopf zeigen
   setInterval(() => { const a = document.getElementById("screen-auth"); $("fab").style.display = a && visible(a) ? "none" : ""; }, 700);
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
-window.LernBlick = { open: openPanel, close: closePanel, ask: (q) => openPanel({ ask: q }) };
+window.LernBlick = { open: (o) => openPanel(o || {}), close: closePanel, ask: (q) => openPanel({ ask: q }) };
 
 })();

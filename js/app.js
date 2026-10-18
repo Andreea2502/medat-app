@@ -997,7 +997,7 @@ const App = {
 
     // ===== FREUNDE EINLADEN =====
     html += `
-      <div onclick="App.shareApp()" style="background:#fff;border:2px solid #e8e2d8;border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(26,26,46,0.04)">
+      <div class="app-retired" onclick="App.shareApp()" style="background:#fff;border:2px solid #e8e2d8;border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(26,26,46,0.04)">
         <div style="display:flex;align-items:center;gap:0.6rem">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5c5c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           <div>
@@ -4569,12 +4569,8 @@ const App = {
     // Auto-generate personalized KI-Zusammenfassung if there are wrong answers
     const resumeSection = document.getElementById('result-resume');
     if (resumeSection) {
-      if (this.wrongAnswers && this.wrongAnswers.length > 0 && this.mode !== 'simulation') {
-        resumeSection.classList.remove('hidden');
-        document.getElementById('resume-loading').classList.remove('hidden');
-        document.getElementById('resume-content').classList.add('hidden');
-        document.getElementById('resume-content').innerHTML = '';
-        // Auto-trigger — no click needed
+      // Die automatische KI-Zusammenfassung ist abgeschaltet – Fehler werden jetzt mit LernBlick besprochen.
+      if (false && this.wrongAnswers && this.wrongAnswers.length > 0 && this.mode !== 'simulation') {
         this._generateResume();
       } else {
         resumeSection.classList.add('hidden');
