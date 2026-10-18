@@ -324,6 +324,12 @@ const Gallery = {
         convWrap.style.display = 'block';
         try {
           const msgs = JSON.parse(item.conversation_data || '[]');
+          const lbSum = msgs[0] && msgs[0].lernblick;
+          if (lbSum && window.LernBlick && LernBlick.showSummary) {
+            // LernBlick-Lernzusammenfassung: Tafeln + Text, druckbar
+            convWrap.innerHTML = `<div style="padding:1rem;display:grid;gap:0.6rem"><p style="margin:0;font-size:0.9rem">${this._escapeHtml((lbSum.teile || []).length + ' Abschnitt(e) mit ' + (lbSum.teile || []).reduce((n, t) => n + (t.tafeln || []).length, 0) + ' Tafel(n)')}</p><button type="button" class="btn-cta" id="gm-open-lb-summary" style="justify-self:start">📄 Zusammenfassung öffnen / drucken</button></div>`;
+            document.getElementById('gm-open-lb-summary').onclick = () => LernBlick.showSummary(lbSum);
+          } else
           convWrap.innerHTML = `
             <div class="gm-conv-scroll">
               ${msgs.map(m => `

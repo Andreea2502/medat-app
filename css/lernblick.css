@@ -264,3 +264,37 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
 #lernblick-root .lb-upboard { position: relative; display: block; width: fit-content; margin: 0 auto; }
 #lernblick-root .lb-upboard img { display: block; max-width: 100%; max-height: calc(100vh - 250px); border-radius: 12px; }
 #lernblick-root .lb-upboard .lb-upov { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Lernzusammenfassung */
+.lb-summary { position: fixed; inset: 0; z-index: 9600; background: #ece8e1; overflow: auto; }
+.lb-sum-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px; background: #fff; border-bottom: 1px solid var(--lb-line); }
+.lb-sum-btns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lb-sum-page { max-width: 860px; margin: 18px auto 40px; background: #fff; border-radius: 16px; padding: 34px 40px; box-shadow: 0 10px 40px rgba(0,0,0,.08); font-family: "LB Inter", Inter, system-ui, sans-serif; color: #1a1a2e; }
+.lb-sum-head { border-bottom: 3px solid #f2b84b; padding-bottom: 12px; margin-bottom: 18px; }
+.lb-sum-brand { font-size: 13px; font-weight: 700; letter-spacing: .02em; color: #6b6b7b; }
+.lb-sum-brand span { color: #c99a12; }
+.lb-sum-head h1 { font-size: 24px; line-height: 1.25; margin: 6px 0 4px; }
+.lb-sum-date { font-size: 13px; color: #6b6b7b; }
+.lb-sum-body h2 { font-size: 17px; margin: 0 0 8px; }
+.lb-sum-body section { margin: 0 0 22px; }
+.lb-sum-task, .lb-sum-mistake, .lb-sum-tricks { break-inside: avoid; }
+.lb-sum-task, .lb-sum-mistake { background: #faf8f4; border: 1px solid #ebe5da; border-radius: 12px; padding: 14px 16px; }
+.lb-sum-task p, .lb-sum-mistake p { margin: 0 0 6px; font-size: 14px; line-height: 1.5; }
+.lb-sum-text p { margin: 0 0 6px; font-size: 14.5px; line-height: 1.55; }
+.lb-sum-board { margin: 12px 0 16px; border: 1px solid #ebe5da; border-radius: 12px; padding: 6px; break-inside: avoid; }
+.lb-sum-board svg, .lb-sum-board img { width: 100%; height: auto; display: block; }
+.lb-sum-board.neben { width: 62%; margin-left: auto; border-color: #f2b84b; }
+.lb-sum-board figcaption { font-size: 12px; color: #8a5a00; padding: 4px 6px 2px; }
+.lb-sum-tricks { background: #fff6c8; border-radius: 12px; padding: 14px 16px; }
+.lb-sum-tricks p { margin: 0 0 6px; font-size: 14.5px; }
+#lernblick-root .lb-sum-board text { font-family: var(--lb-hand); }
+@media (max-width: 640px) { .lb-sum-page { padding: 20px 16px; border-radius: 0; margin: 0; } .lb-sum-board.neben { width: 100%; } }
+@media print {
+  html.lb-summary-open, html.lb-summary-open body { overflow: visible !important; height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  html.lb-summary-open body > *:not(#lernblick-root) { display: none !important; }
+  html.lb-summary-open #lernblick-root > *:not(#lb-summary) { display: none !important; }
+  html.lb-summary-open .lb-summary { position: static; overflow: visible; background: #fff; }
+  html.lb-summary-open .lb-sum-bar { display: none; }
+  html.lb-summary-open .lb-sum-page { box-shadow: none; margin: 0; padding: 0; max-width: none; }
+  .lb-sum-board { page-break-inside: avoid; }
+}

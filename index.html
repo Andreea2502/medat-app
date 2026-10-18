@@ -24,7 +24,7 @@
   <meta name="twitter:image" content="https://medat-trainer.vercel.app/icon-512.png">
 
   <link rel="stylesheet" href="css/style.css?v=20261018a">
-  <link rel="stylesheet" href="css/goodies.css?v=20260424e">
+  <link rel="stylesheet" href="css/goodies.css?v=20261018p">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
@@ -37,7 +37,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <!-- jsPDF für PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link rel="stylesheet" href="css/lernblick.css?v=20261018n">
+<link rel="stylesheet" href="css/lernblick.css?v=20261018p">
 </head>
 <body>
 
@@ -135,7 +135,7 @@
     </div>
 
     <!-- ===== SCHNELLZUGRIFF Reihe 1 (4 Tiles, weiß, Lucide-Icons farbig) ===== -->
-    <div class="home-quick-grid home-quick-grid--3 fade-up">
+    <div class="home-quick-grid fade-up">
       <button class="home-quick app-retired" onclick="App.startDailyChallenge()">
         <div class="home-quick-icon home-quick-icon--yellow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
@@ -159,6 +159,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         </div>
         <span>Lernarchiv</span>
+      </button>
+      <button class="home-quick" onclick="App.showScreen('screen-goodies')">
+        <div class="home-quick-icon home-quick-icon--yellow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2 H 6 a 2 2 0 0 0 -2 2 v 16 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 V 7.5 L 14.5 2 z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <span>Cheat-Sheets</span>
       </button>
     </div>
 
@@ -233,7 +239,7 @@
         <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L 4 9 v 9 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 v -9 z"/><path d="M8 14 l 4 -4 l 4 4"/><circle cx="12" cy="16" r="1"/></svg></span>
         Prüfungsfallen-Lab
       </a>
-      <a class="slide-menu-item app-retired" id="snav-goodies" data-retired="1">
+      <a class="slide-menu-item" id="snav-goodies">
         <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
         Cheat Sheets
       </a>
@@ -1483,12 +1489,12 @@
   <script src="js/figuren.js?v=20260327f"></script>
   <script src="js/stats.js?v=20260327f"></script>
   <script src="js/admin.js?v=20260416a"></script>
-  <script src="js/admin-goodies.js?v=20260424e"></script>
+  <script src="js/admin-goodies.js?v=20261018p"></script>
   <script src="js/goodies-mailer.js?v=20260424e"></script>
   <script src="js/goodies-analytics.js?v=20260424e"></script>
   <script src="js/credits.js?v=20260416a"></script>
   <script src="js/app.js?v=20261018a"></script>
-  <script src="js/goodies.js?v=20260424e"></script>
+  <script src="js/goodies.js?v=20261018p"></script>
   <script src="js/lernplan.js?v=20260402d"></script>
   <script src="js/pdf.js?v=20260404f"></script>
   <script src="js/leadmagnet_pdf.js?v=20260328b"></script>
@@ -1496,7 +1502,7 @@
   <script src="js/trap-lab.js?v=20260527b"></script>
   <script src="js/mascot.js?v=20260405a"></script>
   <script src="js/nudge.js?v=20260404a"></script>
-  <script src="js/gallery.js?v=20260416a"></script>
+  <script src="js/gallery.js?v=20261018p"></script>
 
   <!-- ===== TUTOR SYSTEM ===== -->
 
@@ -1629,6 +1635,6 @@
       }
     }
   </script>
-<script src="js/lernblick.js?v=20261018n" defer></script>
+<script src="js/lernblick.js?v=20261018p" defer></script>
 </body>
 </html>
