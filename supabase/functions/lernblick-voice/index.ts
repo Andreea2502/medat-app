@@ -1,13 +1,14 @@
 // lernblick-voice
 // ===============
-// Natürliche Stimme für LernBlick: wandelt einen Satz in Sprache um (ElevenLabs).
-// Nutzt den vorhandenen Secret ELEVENLABS_API_KEY. Nur für angemeldete Nutzer.
-// Günstiges, schnelles Modell (eleven_flash_v2_5) und kurze Texte, damit die Kosten klein bleiben.
+// Natürliche Stimme für LernBlick: wandelt einen Satz in Sprache um.
+// Standard: Gemini-Sprachausgabe über den vorhandenen Secret GEMINI_API_KEY (günstig, kein eigener Schlüssel nötig).
+// Ersatz: ElevenLabs (ELEVENLABS_API_KEY), falls Gemini nicht antwortet oder LERNBLICK_VOICE_PROVIDER=elevenlabs.
+// Nur für angemeldete Nutzer.
 //
 // POST .../functions/v1/lernblick-voice
 // Authorization: Bearer <access_token des Nutzers>
-// Body: { text: string (max. 600 Zeichen), lang?: "de" | "en" | "ro" | "tr" | "bks" | "uk" | "ar", voice_id?: string }
-// Antwort: audio/mpeg
+// Body: { text: string (max. 600 Zeichen), lang?: "de" | "en" | "ro" | "tr" | "bks" | "uk" | "ar" }
+// Antwort: audio/wav (Gemini) oder audio/mpeg (ElevenLabs)
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -20,47 +21,92 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
-const DEFAULT_VOICE = Deno.env.get("LERNBLICK_VOICE_ID") || "TGvCjJzuyubkDwINImMA";
-const MODEL_ID = Deno.env.get("LERNBLICK_VOICE_MODEL") || "eleven_flash_v2_5";
+const PROVIDER = (Deno.env.get("LERNBLICK_VOICE_PROVIDER") || "gemini").toLowerCase();
+const GEMINI_VOICE = Deno.env.get("LERNBLICK_GEMINI_VOICE") || "Kore";
+const GEMINI_STYLE = Deno.env.get("LERNBLICK_GEMINI_STYLE") || "Read aloud in a warm, calm and clear voice, like a friendly teacher explaining something:";
+const EL_VOICE = Deno.env.get("LERNBLICK_VOICE_ID") || "TGvCjJzuyubkDwINImMA";
+const EL_MODEL = Deno.env.get("LERNBLICK_VOICE_MODEL") || "eleven_flash_v2_5";
 const LANG_CODES: Record<string, string> = { de: "de", en: "en", ro: "ro", tr: "tr", bks: "hr", uk: "uk", ar: "ar" };
+
+// ---- Gemini: passendes Sprach-Modell einmal suchen und merken ----
+let ttsModels: string[] | null = null;
+async function geminiTtsModels(key: string): Promise<string[]> {
+  if (ttsModels) return ttsModels;
+  const preset = Deno.env.get("LERNBLICK_TTS_MODELS");
+  if (preset) return (ttsModels = preset.split(",").map((s) => s.trim()).filter(Boolean));
+  try {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": key } });
+    const d = await r.json();
+    const names: string[] = (d.models || [])
+      .filter((m: { name: string; supportedGenerationMethods?: string[] }) => /tts/i.test(m.name) && (m.supportedGenerationMethods || []).includes("generateContent"))
+      .map((m: { name: string }) => m.name.replace(/^models\//, ""));
+    // günstigste zuerst: flash-lite, dann flash, pro zuletzt
+    const rank = (n: string) => (/lite/.test(n) ? 0 : /flash/.test(n) ? 1 : 2) + (/preview/.test(n) ? 0.5 : 0);
+    names.sort((a, b) => rank(a) - rank(b));
+    if (names.length) return (ttsModels = names.slice(0, 4));
+  } catch (_) { /* weiter mit Standard */ }
+  return (ttsModels = ["gemini-2.5-flash-preview-tts"]);
+}
+function wav(pcm: Uint8Array, rate = 24000): Uint8Array {
+  const h = new DataView(new ArrayBuffer(44));
+  const w = (o: number, s: string) => { for (let i = 0; i < s.length; i++) h.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, "RIFF"); h.setUint32(4, 36 + pcm.length, true); w(8, "WAVE"); w(12, "fmt ");
+  h.setUint32(16, 16, true); h.setUint16(20, 1, true); h.setUint16(22, 1, true); h.setUint32(24, rate, true);
+  h.setUint32(28, rate * 2, true); h.setUint16(32, 2, true); h.setUint16(34, 16, true); w(36, "data"); h.setUint32(40, pcm.length, true);
+  const out = new Uint8Array(44 + pcm.length); out.set(new Uint8Array(h.buffer), 0); out.set(pcm, 44); return out;
+}
+async function geminiSpeak(text: string): Promise<Response | null> {
+  const key = Deno.env.get("GEMINI_API_KEY");
+  if (!key) return null;
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: `${GEMINI_STYLE} ${text}` }] }],
+    generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: GEMINI_VOICE } } } },
+  });
+  for (const model of await geminiTtsModels(key)) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body,
+    });
+    if (!r.ok) { console.error("lernblick-voice Gemini-Fehler", model, r.status, (await r.text()).slice(0, 300)); continue; }
+    const d = await r.json();
+    const part = (d?.candidates?.[0]?.content?.parts || []).find((p: { inlineData?: { data: string } }) => p.inlineData?.data);
+    if (!part) { console.error("lernblick-voice: Gemini ohne Audio", model); continue; }
+    const mime: string = part.inlineData.mimeType || "";
+    const rate = Number((mime.match(/rate=(\d+)/) || [])[1]) || 24000;
+    const pcm = Uint8Array.from(atob(part.inlineData.data), (c) => c.charCodeAt(0));
+    return new Response(wav(pcm, rate), { status: 200, headers: { ...cors, "Content-Type": "audio/wav", "Cache-Control": "no-store", "X-Voice": model } });
+  }
+  return null;
+}
+async function elevenSpeak(text: string, lang: string): Promise<Response | null> {
+  const apiKey = Deno.env.get("ELEVENLABS_API_KEY");
+  if (!apiKey) return null;
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${EL_VOICE}?output_format=mp3_44100_64`, {
+    method: "POST",
+    headers: { Accept: "audio/mpeg", "Content-Type": "application/json", "xi-api-key": apiKey },
+    body: JSON.stringify({ text, model_id: EL_MODEL, language_code: LANG_CODES[lang] || "de", voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.25, use_speaker_boost: true } }),
+  });
+  if (!res.ok) { console.error("lernblick-voice ElevenLabs-Fehler", res.status, (await res.text()).slice(0, 300)); return null; }
+  return new Response(res.body, { status: 200, headers: { ...cors, "Content-Type": "audio/mpeg", "Cache-Control": "no-store", "X-Voice": "elevenlabs" } });
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "Nur POST erlaubt" }, 405);
-
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) return json({ error: "Bitte melde dich an." }, 401);
-    const userClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
-      global: { headers: { Authorization: authHeader } },
-    });
+    const userClient = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: authHeader } } });
     const { data: { user }, error: userError } = await userClient.auth.getUser();
     if (userError || !user) return json({ error: "Bitte melde dich an." }, 401);
 
-    const apiKey = Deno.env.get("ELEVENLABS_API_KEY");
-    if (!apiKey) return json({ error: "Stimme nicht konfiguriert (ELEVENLABS_API_KEY fehlt)" }, 500);
-
-    const { text, lang, voice_id } = await req.json();
+    const { text, lang } = await req.json();
     const clean = String(text || "").replace(/\s+/g, " ").trim();
     if (!clean) return json({ error: "Kein Text" }, 400);
     if (clean.length > 600) return json({ error: "Text zu lang (max. 600 Zeichen pro Satz)" }, 400);
 
-    const voice = typeof voice_id === "string" && /^[A-Za-z0-9]{10,40}$/.test(voice_id) ? voice_id : DEFAULT_VOICE;
-    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_64`, {
-      method: "POST",
-      headers: { Accept: "audio/mpeg", "Content-Type": "application/json", "xi-api-key": apiKey },
-      body: JSON.stringify({
-        text: clean,
-        model_id: MODEL_ID,
-        language_code: LANG_CODES[lang] || "de",
-        voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.25, use_speaker_boost: true },
-      }),
-    });
-    if (!res.ok) {
-      console.error("lernblick-voice ElevenLabs-Fehler", res.status, (await res.text()).slice(0, 300));
-      return json({ error: "Die Stimme ist gerade nicht erreichbar." }, 502);
-    }
-    return new Response(res.body, { status: 200, headers: { ...cors, "Content-Type": "audio/mpeg", "Cache-Control": "no-store" } });
+    const order = PROVIDER === "elevenlabs" ? [() => elevenSpeak(clean, lang), () => geminiSpeak(clean)] : [() => geminiSpeak(clean), () => elevenSpeak(clean, lang)];
+    for (const speak of order) { const r = await speak(); if (r) return r; }
+    return json({ error: "Die Stimme ist gerade nicht erreichbar." }, 502);
   } catch (err) {
     console.error("lernblick-voice Fehler:", err);
     return json({ error: "Interner Fehler" }, 500);
