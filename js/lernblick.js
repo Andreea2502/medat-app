@@ -1144,6 +1144,11 @@ function buildUI() {
       </div>
     </footer>
   </aside>
+  <div id="lb-pop" class="lb-pop" hidden role="dialog" aria-label="Frage zu diesem Teil">
+    <div class="lb-pop-head"><span id="lb-pop-title"></span><button type="button" class="lb-pop-x" id="lb-pop-x" aria-label="Schließen">✕</button></div>
+    <div class="lb-pop-btns" id="lb-pop-btns"></div>
+    <div class="lb-pop-own"><input id="lb-pop-q" type="text" placeholder="Eigene Frage dazu …" dir="auto"><button type="button" class="lb-send" id="lb-pop-send">Fragen</button></div>
+  </div>
   <section id="lb-stage" class="lb-stage" hidden aria-label="LernBlick Tafel">
     <div class="lb-stage-top">
       <div class="lb-brand">Lern<span>Blick</span></div>
@@ -1153,7 +1158,7 @@ function buildUI() {
         <button class="lb-icon" id="lb-stage-close" type="button" aria-label="Tafel schließen">✕</button>
       </div>
     </div>
-    <div id="lb-stage-main" class="lb-stage-main"><div class="lb-turn">Tipp: Handy quer halten – dann wird die Tafel groß.</div></div>
+    <div id="lb-stage-main" class="lb-stage-main"><div class="lb-turn">Tipp: Handy quer halten – dann wird die Tafel groß.</div><div class="lb-taphint">Tipp auf etwas an der Tafel, um genau dazu zu fragen.</div></div>
     <div class="lb-stage-bottom">
       <div class="lb-stage-nav">
         <button class="lb-navbtn" id="lb-prev" type="button" aria-label="Vorherige Tafel">‹</button>
@@ -1195,6 +1200,7 @@ function buildUI() {
   if (window.ResizeObserver) new ResizeObserver(follow).observe(document.body);
   $("stage-close").onclick = closeStage;
   $("sdone").onclick = closeStage;
+  setupBoardQuestions();
   $("stage-mode").onclick = () => setStageMode(stageMode === "tafel" ? "peek" : "tafel");
   $("peekback").onclick = () => setStageMode("tafel");
   $("prev").onclick = () => { if (curBoard > 0) { stopWalk(); showBoard(curBoard - 1, true, 3000); } };
@@ -1206,7 +1212,7 @@ function buildUI() {
   $("sq").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); stageAsk(); } });
   document.addEventListener("keydown", (e) => {
     if ($("stage").hidden || e.target.closest?.("input, textarea, select")) return;
-    if (e.key === "Escape") closeStage();
+    if (e.key === "Escape") { if (!$("pop").hidden) closePop(); else closeStage(); }
     if (e.key === "ArrowRight") $("next").click();
     if (e.key === "ArrowLeft") $("prev").click();
   });
@@ -1475,6 +1481,59 @@ function renderImgDraw(svgText, animate = true) {
   if (animate) animateSvg(box);
   else if (curHL.length) highlight(curHL);
   return true;
+}
+
+// ---------- In die Zeichnung tippen und dazu fragen ----------
+const NICE = (n) => n.replace(/-(\d+)$/, " $1").replace(/-/g, " ").replace(/ae/g, "ä").replace(/oe/g, "ö").replace(/ue/g, "ü");
+function describeHit(el) {
+  const teile = (el.getAttribute("data-teil") || "").split(/\s+/).filter((t) => t && !/^(molekuel|welle|teilchen-\d+|atom-\d+)$/.test(t));
+  const svg = el.closest("svg");
+  const sameTexts = teile.length && svg ? [...svg.querySelectorAll("text")].filter((t) => (t.getAttribute("data-teil") || "").split(/\s+/).some((x) => teile.includes(x))).map((t) => t.textContent.trim()).filter(Boolean) : [];
+  const own = el.localName === "text" ? el.textContent.trim() : "";
+  const label = clean(own || sameTexts[0] || (teile[0] ? NICE(teile[0]) : "diese Stelle"), 50);
+  const isFormula = /=|²|√|·|\/|\^/.test(own + " " + sameTexts.join(" ")) || teile.some((t) => /^(zeile|ergebnis|gleichung)/.test(t));
+  return { teile, label, texts: [...new Set([own, ...sameTexts].filter(Boolean))].slice(0, 4), isFormula };
+}
+let popHit = null;
+function openPop(hit, x, y) {
+  popHit = hit;
+  $("pop-title").textContent = `„${hit.label}“`;
+  const qs = [["Was ist das?", "Was ist das genau, und wozu brauche ich es?"], ["Warum so gezeichnet?", "Warum hast du das so gezeichnet? Was soll mir das zeigen?"]];
+  if (hit.isFormula) qs.push(["Erklär die Formel", "Warum ist die Formel so geschrieben? Erklär mir jeden Teil und jeden Rechenschritt."]);
+  qs.push(["Noch einfacher", "Erklär mir genau diesen Teil noch einfacher, mit einem Vergleich aus dem Alltag."]);
+  $("pop-btns").replaceChildren(...qs.map(([l, q]) => { const b = el("button", "lb-tip", l); b.type = "button"; b.onclick = () => askAbout(q); return b; }));
+  const pop = $("pop"); pop.hidden = false;
+  const w = pop.offsetWidth, h = pop.offsetHeight;
+  pop.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2)) + "px";
+  pop.style.top = (y + 18 + h < window.innerHeight - 8 ? y + 18 : Math.max(8, y - h - 18)) + "px";
+  $("pop-q").value = "";
+}
+function closePop() { $("pop").hidden = true; popHit = null; }
+function askAbout(q) {
+  const hit = popHit;
+  if (!hit) return;
+  const b = cur.boards[curBoard] || {};
+  const where = b.titel ? ` an der Tafel „${b.titel}“` : " an der Tafel";
+  const what = hit.texts.length ? ` (dort steht: ${hit.texts.map((t) => "„" + t + "“").join(", ")})` : "";
+  const teil = hit.teile.length ? ` [Teil: ${hit.teile.join(", ")}]` : "";
+  closePop();
+  ask(`Ich tippe${where} auf ${hit.label}${what}${teil}. ${q} Zeig beim Erklären mit [[…]] genau auf diesen Teil.`);
+}
+function setupBoardQuestions() {
+  const onTap = (e) => {
+    const hitEl = e.target.closest && e.target.closest("#lb-board [data-teil], #lb-mols [data-teil]");
+    if (!hitEl || e.target.closest(".ref")) return;
+    e.stopPropagation();
+    const hit = describeHit(hitEl);
+    stopWalk(); highlight(hit.teile.slice(0, 2));
+    openPop(hit, e.clientX, e.clientY);
+  };
+  $("board").addEventListener("click", onTap);
+  $("mols").addEventListener("click", onTap);
+  $("pop-x").onclick = closePop;
+  $("pop-send").onclick = () => { const v = $("pop-q").value.trim(); if (v) askAbout(v); };
+  $("pop-q").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $("pop-send").click(); } if (e.key === "Escape") closePop(); });
+  document.addEventListener("pointerdown", (e) => { if (!$("pop").hidden && !e.target.closest("#lb-pop") && !e.target.closest("#lb-board, #lb-mols")) closePop(); });
 }
 
 // ---------- Vollbild-Tafel ----------

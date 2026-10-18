@@ -180,3 +180,19 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
 }
 .lb-turn { display: none; }
 @media (max-width: 700px) and (orientation: portrait) { .lb-turn { display: block; order: 9; font-size: 13px; color: var(--lb-muted); text-align: center; } }
+
+/* In die Zeichnung tippen */
+#lernblick-root .board svg [data-teil], #lernblick-root .board svg [data-teil] * { cursor: pointer; }
+#lernblick-root .board svg g[data-teil] path, #lernblick-root .board svg [data-teil] circle { pointer-events: all; }
+#lernblick-root .board svg text[data-teil] { pointer-events: all; }
+#lernblick-root .mol[data-teil] { cursor: pointer; }
+.lb-pop { position: fixed; z-index: 9400; width: min(360px, calc(100vw - 16px)); background: var(--lb-card); border: 1px solid var(--lb-line); border-radius: 14px; box-shadow: 0 14px 40px rgba(26, 26, 46, .28); padding: 10px 12px 12px; display: grid; gap: 8px; animation: lb-fade .15s ease-out; }
+.lb-pop-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 700; font-size: 15px; }
+.lb-pop-head span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-pop-x { border: none; background: none; font-size: 15px; cursor: pointer; color: var(--lb-muted); }
+.lb-pop-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.lb-pop-own { display: flex; gap: 6px; }
+#lb-pop-q { flex: 1; min-width: 0; height: 38px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--lb-line); font: inherit; font-size: 14px; }
+.lb-pop-own .lb-send { height: 38px; padding: 0 12px; }
+.lb-taphint { font-size: 12.5px; color: var(--lb-muted); text-align: center; order: 8; }
+.lb-stage-main .board { order: 1; } .lb-stage-main .lb-mols { order: 0; }
