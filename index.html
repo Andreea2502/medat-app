@@ -23,7 +23,7 @@
   <meta name="twitter:description" content="Über 1000 Fragen für den kognitiven Teil des MedAT. Kostenlos starten!">
   <meta name="twitter:image" content="https://medat-trainer.vercel.app/icon-512.png">
 
-  <link rel="stylesheet" href="css/style.css?v=20260509b">
+  <link rel="stylesheet" href="css/style.css?v=20260527c">
   <link rel="stylesheet" href="css/goodies.css?v=20260424e">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
   <!-- PWA -->
@@ -52,13 +52,29 @@
   <!-- ===== STARTSEITE ===== -->
   <div id="screen-home" class="screen active">
 
-    <!-- ===== DASHBOARD-HEADER (Skizze: MedAT-Trainer + 55 Tage) ===== -->
-    <div class="dash-header fade-up">
-      <div class="dash-header-greeting" id="hero-greeting"></div>
-      <div class="dash-header-title">MedAT-<span>Trainer</span></div>
-      <div class="dash-header-countdown">
-        <span class="dash-header-countdown-num" id="hero-countdown-days">–</span>
-        <span class="dash-header-countdown-label" id="hero-countdown-label">Tage bis zum MedAT</span>
+    <!-- Hero Card (dark) -->
+    <div class="hero-card fade-up">
+      <div class="hero-greeting" id="hero-greeting" style="font-size:1.1rem;color:var(--yellow);margin-bottom:0.25rem;font-weight:600"></div>
+      <div class="hero-label">MedAT 2026 Vorbereitung</div>
+      <div class="hero-title">MedAT <span>Trainer</span></div>
+      <div class="hero-sub">Dein Übungstool für den Medizinaufnahmetest Österreich</div>
+      <div class="chart-mini">
+        <div class="chart-bar" style="height:40%"></div>
+        <div class="chart-bar" style="height:65%"></div>
+        <div class="chart-bar" style="height:50%"></div>
+        <div class="chart-bar accent" style="height:85%"></div>
+        <div class="chart-bar" style="height:55%"></div>
+        <div class="chart-bar" style="height:70%"></div>
+        <div class="chart-bar accent" style="height:90%"></div>
+        <div class="chart-bar" style="height:60%"></div>
+        <div class="chart-bar" style="height:75%"></div>
+        <div class="chart-bar accent" style="height:95%"></div>
+        <div class="chart-bar" style="height:45%"></div>
+        <div class="chart-bar" style="height:80%"></div>
+      </div>
+      <div class="hero-countdown" id="hero-countdown">
+        <div class="hero-countdown-number" id="hero-countdown-days">–</div>
+        <div class="hero-countdown-label" id="hero-countdown-label">Tage bis zum MedAT</div>
       </div>
       <button class="hero-upgrade-btn" id="hero-upgrade-btn" style="display:none"
         onclick="App.showScreen('screen-konto');App.renderKonto();">
@@ -66,102 +82,108 @@
       </button>
     </div>
 
-    <!-- Cheat-Sheets-Teaser (dynamisch wenn ungeholte Cheat Sheets vorhanden) -->
+    <!-- Cheat-Sheets-Teaser (wird dynamisch befüllt, wenn ungeholte Cheat Sheets vorhanden sind) -->
     <div id="home-goodies-teaser"></div>
 
-    <!-- ===== 4 HAUPTKARTEN (2x2 Grid, je Akzentfarbe) ===== -->
-    <div class="dash-main-grid fade-up">
-      <!-- BMS + KFF Fragen — Gelb -->
-      <button class="dash-main dash-main-yellow" id="btn-practice" aria-label="BMS und KFF Fragen üben">
-        <div class="dash-main-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    <!-- ===== PRÜFUNGSFALLEN-LAB HERO-BANNER (NEUES HAUPTFEATURE) ===== -->
+    <button class="trap-hero-banner fade-up" onclick="TrapLab.open()">
+      <div class="trap-hero-banner-glow"></div>
+      <div class="trap-hero-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+      </div>
+      <div class="trap-hero-banner-info">
+        <span class="trap-hero-banner-label">Prüfungsfallen-Lab<span class="trap-hero-banner-new">NEU</span></span>
+        <span class="trap-hero-banner-desc">Trainiere die Denkfehler, die dich im MedAT Punkte kosten</span>
+      </div>
+      <span class="trap-hero-banner-arrow">›</span>
+    </button>
+
+    <!-- ===== HAUPT-TILES (2x2 Grid) ===== -->
+    <div class="home-tile-grid fade-up">
+      <button class="home-tile home-tile--yellow" id="btn-practice">
+        <div class="home-tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 A 2.5 2.5 0 0 1 6.5 17 H 20"/><path d="M6.5 2 H 20 v 20 H 6.5 a 2.5 2.5 0 0 1 0 -5 H 20"/></svg>
         </div>
-        <div class="dash-main-label">BMS + KFF Fragen</div>
-        <div class="dash-main-sub">Üben in der App</div>
+        <div class="home-tile-label">BMS + KFF Fragen</div>
+        <div class="home-tile-sub">Üben in der App</div>
       </button>
 
-      <!-- PDF-Simulator — Coral -->
-      <button class="dash-main dash-main-coral" onclick="PDFExport.openDialog()" aria-label="PDF-Simulator">
-        <div class="dash-main-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+      <button class="home-tile home-tile--coral" id="btn-pdf" onclick="PDFExport.openDialog()">
+        <div class="home-tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2 H 6 a 2 2 0 0 0 -2 2 v 16 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 V 8 z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </div>
-        <div class="dash-main-label">PDF-Simulator</div>
-        <div class="dash-main-sub">Simulation drucken</div>
+        <div class="home-tile-label">PDF-Simulator</div>
+        <div class="home-tile-sub">Simulation drucken</div>
       </button>
 
-      <!-- KI-Lern-Studio — Lila -->
-      <button class="dash-main dash-main-purple" onclick="Tutor.openFreeMode()" aria-label="KI-Lern-Studio">
-        <div class="dash-main-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"/></svg>
+      <button class="home-tile home-tile--purple" onclick="Tutor.openFreeMode()">
+        <div class="home-tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 v6 M 2 10 l10 -5 l10 5 l-10 5 z"/><path d="M6 12 v5 c3 3 9 3 12 0 v-5"/></svg>
         </div>
-        <div class="dash-main-label">KI-Lern-Studio</div>
-        <div class="dash-main-sub">Tutoren · Bilder</div>
+        <div class="home-tile-label">KI-Lern-Studio</div>
+        <div class="home-tile-sub">Tutoren · Bilder</div>
       </button>
 
-      <!-- Wissens-Lab — Mint -->
-      <button class="dash-main dash-main-mint" onclick="App.showScreen('screen-tools')" aria-label="Wissens-Lab">
-        <div class="dash-main-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6l-5 9a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3l-5-9V3"/><line x1="9" y1="3" x2="15" y2="3"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
+      <button class="home-tile home-tile--mint" onclick="App.showScreen('screen-tools')">
+        <div class="home-tile-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 v6 l-5 9 a2 2 0 0 0 1.7 3 h12.6 a2 2 0 0 0 1.7 -3 l-5 -9 V 3"/><line x1="9" y1="3" x2="15" y2="3"/><line x1="6" y1="14" x2="18" y2="14"/></svg>
         </div>
-        <div class="dash-main-label">Wissens-Lab<span class="badge-new" style="margin-left:0.4rem">NEU</span></div>
-        <div class="dash-main-sub">19 interaktive Tools</div>
+        <div class="home-tile-label">Wissens-Lab</div>
+        <div class="home-tile-sub">24 interaktive Tools</div>
       </button>
     </div>
 
-    <!-- ===== TILE-REIHEN (8 weisse Kacheln, lucide Icons in App-Farben) ===== -->
-    <div class="dash-tiles fade-up">
-      <button class="dash-tile" onclick="App.startDailyChallenge()">
-        <div class="dash-tile-icon" style="--ico:#b8860b;--bg:#fff5d0">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+    <!-- ===== SCHNELLZUGRIFF Reihe 1 (4 Tiles, weiß, Lucide-Icons farbig) ===== -->
+    <div class="home-quick-grid fade-up">
+      <button class="home-quick" onclick="App.startDailyChallenge()">
+        <div class="home-quick-icon home-quick-icon--yellow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
         </div>
         <span>Lernchallenge</span>
       </button>
-
-      <button class="dash-tile" onclick="App.openSmartTraining()">
-        <div class="dash-tile-icon" style="--ico:#2d6b4a;--bg:#c8e6d0">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <button class="home-quick" onclick="App.openSmartTraining()">
+        <div class="home-quick-icon home-quick-icon--mint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
         </div>
         <span>Schwächen</span>
       </button>
-
-      <button class="dash-tile" onclick="App.showScreen('screen-stats')">
-        <div class="dash-tile-icon" style="--ico:#c0522e;--bg:#ffe5d9">
+      <button class="home-quick" onclick="App.showScreen('screen-stats')">
+        <div class="home-quick-icon home-quick-icon--coral">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         </div>
         <span>Statistik</span>
       </button>
-
-      <button class="dash-tile" onclick="App.showScreen('screen-gallery'); typeof Gallery !== 'undefined' && Gallery.load && Gallery.load();">
-        <div class="dash-tile-icon" style="--ico:#6b4d99;--bg:#ede4f5">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+      <button class="home-quick" onclick="Gallery.open()">
+        <div class="home-quick-icon home-quick-icon--purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         </div>
         <span>Lernarchiv</span>
       </button>
+    </div>
 
-      <button class="dash-tile" onclick="App.showScreen('screen-goodies')">
-        <div class="dash-tile-icon" style="--ico:#c25a35;--bg:#ffe5d9">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
+    <!-- ===== SCHNELLZUGRIFF Reihe 2 ===== -->
+    <div class="home-quick-grid fade-up" style="margin-top:0.5rem">
+      <button class="home-quick" onclick="App.showScreen('screen-goodies')">
+        <div class="home-quick-icon home-quick-icon--coral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2 H 6 a 2 2 0 0 0 -2 2 v 16 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 V 7.5 L 14.5 2 z"/><polyline points="14 2 14 8 20 8"/></svg>
         </div>
         <span>Cheat-Sheets</span>
       </button>
-
-      <button class="dash-tile" onclick="App.showScreen('screen-lernplan')">
-        <div class="dash-tile-icon" style="--ico:#4338ca;--bg:#ede4f5">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+      <button class="home-quick" onclick="App.showScreen('screen-lernplan')">
+        <div class="home-quick-icon home-quick-icon--purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/></svg>
         </div>
         <span>Lernplan</span>
       </button>
-
-      <button class="dash-tile" onclick="App.showScreen('screen-summaries');App.loadSummaries()">
-        <div class="dash-tile-icon" style="--ico:#2d8a54;--bg:#c8e6d0">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/></svg>
+      <button class="home-quick" onclick="App.showScreen('screen-summaries');App.loadSummaries();">
+        <div class="home-quick-icon home-quick-icon--mint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21 l -7 -5 l -7 5 V 5 a 2 2 0 0 1 2 -2 h 10 a 2 2 0 0 1 2 2 z"/></svg>
         </div>
         <span>Zusammenfass.</span>
       </button>
-
-      <button class="dash-tile" onclick="App.shareApp()">
-        <div class="dash-tile-icon" style="--ico:#a87800;--bg:#fdf3d7">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+      <button class="home-quick" onclick="App.shareApp()">
+        <div class="home-quick-icon home-quick-icon--yellow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21 v-2 a 4 4 0 0 0 -4 -4 H 5 a 4 4 0 0 0 -4 4 v 2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
         </div>
         <span>Freunde einladen</span>
       </button>
@@ -205,6 +227,10 @@
       <a class="slide-menu-item" id="snav-gallery" onclick="Gallery.open()">
         <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
         Lernarchiv
+      </a>
+      <a class="slide-menu-item" id="snav-trap-lab" onclick="App._closeMenu();TrapLab.open();">
+        <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 L 4 9 v 9 a 2 2 0 0 0 2 2 h 12 a 2 2 0 0 0 2 -2 v -9 z"/><path d="M8 14 l 4 -4 l 4 4"/><circle cx="12" cy="16" r="1"/></svg></span>
+        Prüfungsfallen-Lab
       </a>
       <a class="slide-menu-item" id="snav-goodies">
         <span class="slide-menu-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></span>
@@ -334,15 +360,16 @@
     </header>
 
     <div class="tools-intro fade-up">
-      <p>19 interaktive Lern-Tools nach einheitlichem 6-Modul-Schema: <b>Studio</b> · <b>Steckbriefe</b> · <b>Phänomene/Anwendungen</b> · <b>Rechner</b> · <b>Zuordnung</b> · <b>Quiz</b>. Pro Fach gibt's ein Tool gratis – mit <b>Premium</b> schaltest du alle frei.</p>
+      <p>24 interaktive Lern-Tools nach einheitlichem 6-Modul-Schema: <b>Studio</b> · <b>Steckbriefe</b> · <b>Phänomene/Anwendungen</b> · <b>Rechner</b> · <b>Zuordnung</b> · <b>Quiz</b>. Bio · Physik · Chemie · Mathe. Pro Fach gibt's ein Tool gratis – mit <b>Premium</b> schaltest du alle frei.</p>
     </div>
 
     <!-- BIOLOGIE -->
     <div class="tools-section-title bio fade-up"><span class="tools-section-dot"></span>Biologie</div>
     <div class="tools-grid fade-up">
-      <a href="test-bio-tools/test-mitose-meiose.html" class="tools-card bio" data-tool-locked="1">
+      <a href="test-bio-tools/test-mitose-meiose.html" class="tools-card bio" data-free="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="12" r="3"/><line x1="9" y1="12" x2="15" y2="12"/><circle cx="6" cy="6" r="1.5"/><circle cx="18" cy="18" r="1.5"/></svg></div>
         <div class="tools-card-body"><h3>Mitose &amp; Meiose</h3><p>Phasen-Visualizer, Phasen-Steckbriefe</p></div>
+        <span class="tools-card-free-badge">Frei</span>
       </a>
       <a href="test-bio-tools/test-zellbiologie.html" class="tools-card bio" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="6" r="1"/><circle cx="17" cy="14" r="1"/><circle cx="8" cy="16" r="1"/></svg></div>
@@ -352,19 +379,17 @@
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2"/><rect x="14" y="4" width="4" height="4"/><line x1="8" y1="6" x2="14" y2="6"/><circle cx="8" cy="18" r="2"/><rect x="14" y="16" width="4" height="4"/><line x1="12" y1="8" x2="12" y2="14"/></svg></div>
         <div class="tools-card-body"><h3>Stammbaum</h3><p>Erbgänge diagnostizieren, 5 Steckbriefe</p></div>
       </a>
-      <a href="test-bio-tools/test-blutgruppen.html" class="tools-card bio" data-free="1">
+      <a href="test-bio-tools/test-blutgruppen.html" class="tools-card bio" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 C 8 8, 5 12, 5 16 a7 7 0 0 0 14 0 c0-4-3-8-7-14z"/></svg></div>
         <div class="tools-card-body"><h3>Blutgruppen</h3><p>AB0/Rh, Spende-Labor, Steckbriefe</p></div>
-        <span class="tools-card-free-badge">Frei</span>
       </a>
       <a href="test-bio-tools/test-dna-translator.html" class="tools-card bio" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4 c5 4 11 4 16 0"/><path d="M4 20 c5-4 11-4 16 0"/><line x1="6" y1="7" x2="6" y2="17"/><line x1="10" y1="9" x2="10" y2="15"/><line x1="14" y1="9" x2="14" y2="15"/><line x1="18" y1="7" x2="18" y2="17"/></svg></div>
         <div class="tools-card-body"><h3>DNA &amp; Translation</h3><p>Codon-Sonne, Mutationen, Steckbriefe</p></div>
       </a>
-      <a href="test-bio-tools/test-aminosaeuren.html" class="tools-card bio" data-free="1">
+      <a href="test-bio-tools/test-aminosaeuren.html" class="tools-card bio" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/><line x1="12" y1="15" x2="12" y2="21"/></svg></div>
         <div class="tools-card-body"><h3>Aminosäuren</h3><p>20 AS, Eigenschaften, Code-Tabelle</p></div>
-        <span class="tools-card-free-badge">Frei</span>
       </a>
       <a href="test-bio-tools/test-hormonsystem.html" class="tools-card bio" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="19" r="2"/><line x1="12" y1="7" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="17"/></svg></div>
@@ -409,18 +434,18 @@
     <!-- CHEMIE -->
     <div class="tools-section-title chemie fade-up"><span class="tools-section-dot"></span>Chemie</div>
     <div class="tools-grid fade-up">
-      <a href="test-chemie-tools/test-ph-rechner.html" class="tools-card chemie" data-tool-locked="1">
+      <a href="test-chemie-tools/test-ph-rechner.html" class="tools-card chemie" data-free="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 v8 a4 4 0 0 0 -2 3 a4 4 0 0 0 4 4 a4 4 0 0 0 4 -4 a4 4 0 0 0 -2 -3 v-8"/><line x1="9" y1="3" x2="15" y2="3"/></svg></div>
         <div class="tools-card-body"><h3>pH-Rechner</h3><p>Säure-Base, Puffer, Henderson-Hasselbalch</p></div>
+        <span class="tools-card-free-badge">Frei</span>
       </a>
       <a href="test-chemie-tools/test-pse.html" class="tools-card chemie" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg></div>
         <div class="tools-card-body"><h3>Periodensystem</h3><p>Elemente, Gruppen, Trends</p></div>
       </a>
-      <a href="test-chemie-tools/test-redox.html" class="tools-card chemie" data-free="1">
+      <a href="test-chemie-tools/test-redox.html" class="tools-card chemie" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 7 9 7 9 17 15 17 15 7 21 7"/><polyline points="6 4 6 10"/><polyline points="18 14 18 20"/></svg></div>
         <div class="tools-card-body"><h3>Redox</h3><p>Oxidation, Reduktion, Halbzellen</p></div>
-        <span class="tools-card-free-badge">Frei</span>
       </a>
       <a href="test-chemie-tools/test-stoechiometrie.html" class="tools-card chemie" data-tool-locked="1">
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="6 7 12 3 18 7"/><polyline points="6 17 12 21 18 17"/></svg></div>
@@ -451,10 +476,14 @@
         <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19c0 1.66 1.34 3 3 3h4c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3h-4c-1.66 0-3 1.34-3 3v14z"/><path d="M7 5h10v14H7z" opacity="0.3"/></svg></div>
         <div class="tools-card-body"><h3>Integralrechnung</h3><p>Flächeninhalte, Stammfunktionen, Scanner</p></div>
       </a>
+      <a href="test-mathe-tools/test-stochastik.html" class="tools-card mathe" data-tool-locked="1">
+        <div class="tools-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><circle cx="8.5" cy="8.5" r="1"/><circle cx="15.5" cy="8.5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="8.5" cy="15.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/></svg></div>
+        <div class="tools-card-body"><h3>Stochastik</h3><p>Wahrscheinlichkeiten, Erwartungswert, Kombinatorik</p></div>
+      </a>
     </div>
 
     <div class="eli5-coming-soon">
-      <p>Pro Fach ist <b>1 Tool gratis</b>. Mit <b>Ultimate</b> schaltest du alle Tools frei.</p>
+      <p>Pro Fach ist <b>1 Tool gratis</b>. Mit <b>Premium</b> schaltest du alle Tools frei.</p>
     </div>
   </div>
 
@@ -466,9 +495,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11 V 7 a4 4 0 0 1 8 0 v 4"/></svg>
       </div>
       <h3 id="tools-upgrade-modal-title">Dieses Tool ist Teil von Premium</h3>
-      <p id="tools-upgrade-modal-desc">Eine Auswahl an Tools ist gratis zum Reinschnuppern. Mit <b>Premium</b> schaltest du alle 19 Wissens-Lab-Tools frei – Bio, Physik und Chemie komplett.</p>
+      <p id="tools-upgrade-modal-desc">Pro Fach ist ein Tool gratis. Mit <b>Premium</b> schaltest du alle 24 Wissens-Lab-Tools frei – Bio, Physik, Chemie und Mathe komplett.</p>
       <div class="tools-upgrade-modal-price">
-        <div class="price" id="tools-upgrade-modal-price">€39,90</div>
+        <div class="price" id="tools-upgrade-modal-price">€29,90</div>
+        <div class="pricedesc" id="tools-upgrade-modal-pricedesc">Vollzugang · einmalig</div>
         <div class="desc" id="tools-upgrade-modal-pricedesc">einmalig · alle Tools für immer</div>
       </div>
       <div class="tools-upgrade-modal-actions">
@@ -1307,6 +1337,24 @@
   <!-- ===== GOODIES-SCREEN (Cheat Sheets) ===== -->
   <div id="screen-goodies" class="screen"></div>
 
+  <!-- ===== PRÜFUNGSFALLEN-LAB: ÜBERSICHT ===== -->
+  <div id="screen-trap-lab" class="screen">
+    <header class="app-header">
+      <button class="back-btn" data-target="screen-home">← Zurück</button>
+      <h1>🪤 Prüfungsfallen-Lab</h1>
+    </header>
+    <div id="trap-lab-content"></div>
+  </div>
+
+  <!-- ===== PRÜFUNGSFALLEN-LAB: THEMEN-DETAIL ===== -->
+  <div id="screen-trap-detail" class="screen">
+    <header class="app-header">
+      <button class="back-btn" id="trap-detail-back" data-target="screen-trap-lab">← Zurück</button>
+      <h1>🪤 Prüfungsfallen</h1>
+    </header>
+    <div id="trap-detail-content"></div>
+  </div>
+
   <!-- ===== ADMIN-SCREEN ===== -->
   <div id="screen-admin" class="screen">
     <header class="app-header">
@@ -1378,7 +1426,7 @@
         Für die Nutzung ist eine Registrierung mit gültiger E-Mail-Adresse erforderlich. Du bist für die Geheimhaltung deiner Zugangsdaten verantwortlich. Pro Person darf nur ein Account erstellt werden. Der Anbieter behält sich das Recht vor, Accounts bei Missbrauch zu sperren.</p>
 
         <p><strong>4. Kostenlose und kostenpflichtige Nutzung</strong><br>
-        Die App bietet eine kostenlose Basisversion mit eingeschränktem Funktionsumfang (150 Übungsfragen, 1 vollständige Prüfungssimulation, 10 KI-Tutor-Sessions sowie 3 KI-generierte Lernbilder). Der „Vollzugang" ist als Einmalzahlung erhältlich und schaltet alle Funktionen bis zum MedAT-Prüfungstermin frei. Die aktuellen Preise werden auf der Konto-Seite der App angezeigt.</p>
+        Die App bietet eine kostenlose Basisversion mit eingeschränktem Funktionsumfang (300 Credits). Der „Vollzugang" ist als Einmalzahlung erhältlich und schaltet alle Funktionen bis zum MedAT-Prüfungstermin frei. Die aktuellen Preise werden auf der Konto-Seite der App angezeigt.</p>
 
         <p><strong>5. Zahlungsbedingungen</strong><br>
         Die Bezahlung des Vollzugangs erfolgt über den Zahlungsdienstleister Stripe. Mit dem Kauf wird der Gesamtbetrag sofort fällig. Alle Preise verstehen sich inklusive der gesetzlichen Umsatzsteuer (sofern anwendbar). Die Bezahlung ist eine Einmalzahlung — es entsteht kein Abonnement.</p>
@@ -1421,22 +1469,23 @@
     </div>
   </div>
 
-  <script src="js/config.js?v=20260327f"></script>
+  <script src="js/config.js?v=20260527a"></script>
   <script src="js/auth.js?v=20260327f"></script>
   <script src="js/api.js?v=20260416a"></script>
   <script src="js/figuren.js?v=20260327f"></script>
   <script src="js/stats.js?v=20260327f"></script>
-  <script src="js/admin.js?v=20260509b"></script>
+  <script src="js/admin.js?v=20260416a"></script>
   <script src="js/admin-goodies.js?v=20260424e"></script>
   <script src="js/goodies-mailer.js?v=20260424e"></script>
   <script src="js/goodies-analytics.js?v=20260424e"></script>
-  <script src="js/credits.js?v=20260509c"></script>
-  <script src="js/app.js?v=20260509a"></script>
+  <script src="js/credits.js?v=20260416a"></script>
+  <script src="js/app.js?v=20260530a"></script>
   <script src="js/goodies.js?v=20260424e"></script>
   <script src="js/lernplan.js?v=20260402d"></script>
-  <script src="js/pdf.js?v=20260509a"></script>
+  <script src="js/pdf.js?v=20260404f"></script>
   <script src="js/leadmagnet_pdf.js?v=20260328b"></script>
   <script src="js/tutor.js?v=20260416a"></script>
+  <script src="js/trap-lab.js?v=20260527b"></script>
   <script src="js/mascot.js?v=20260405a"></script>
   <script src="js/nudge.js?v=20260404a"></script>
   <script src="js/gallery.js?v=20260416a"></script>
