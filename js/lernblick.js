@@ -1092,7 +1092,7 @@ function rules() {
   const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
   const f = lb.ctx && lb.ctx.frage;
   const wrong = f && f.gewaehlt ? `\n\nFALSCH BEANTWORTETE AUFGABE – so erklärst du:\n1. Erst auf dem Bildschirm zeigen (BILDZEICHNUNG mit markiere): die gewählte Antwort rot einkreisen (text 'deine Wahl', teil 'deine-wahl'), die richtige grün einkreisen (text 'richtig', teil 'richtig'), ein entscheidendes Schlüsselwort der Frage (z. B. NICHT) orange unterstreichen. Achte genau darauf, welcher Buchstabe welche Antwort ist (KONTEXT und ANKER).\n2. Dann 1 bis 3 Tafeln, die das Fachwissen SICHTBAR machen – genau das, was man im Kopf haben muss, um die Frage zu lösen: Teilchen, Moleküle, Elektronen, Kräfte, Abläufe, Kurven. Bei Abläufen eine Tafel pro Schritt. Die Frage, die Antwortmöglichkeiten oder die Erklärung der App schreibst du NICHT an die Tafel – das steht schon auf dem Bildschirm.\n3. Im Text (vorgelesen) benennst du den Denkfehler in einem Satz, ohne Vorwurf, und gibst am Ende einen kurzen Prüfungstipp.` : "";
-  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
+  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
   return `${LB_ROLE}${EXTRAS}${board}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
 }
 
@@ -1515,7 +1515,14 @@ function updateStageNav() {
   const b = cur.boards[curBoard];
   $("stage-title").textContent = b ? (b.titel || "") : "";
 }
-function setSub(s) { const e = $("sub"); if (e) e.innerHTML = s ? md(s) : ""; }
+function setSub(s) {
+  const e = $("sub"); if (e) e.innerHTML = s ? md(s) : "";
+  // Spricht die Erklärung von der Tafel bzw. vom Bildschirm, dorthin wechseln (Verweise mit [[…]] entscheiden danach genauer)
+  if (!s || $("stage").hidden) return;
+  const t = plain(s).toLowerCase();
+  if (cur.boards.length && /tafel|skizze|zeichnung|hier siehst du|schau dir (das|die|den) (bild|modell)/.test(t)) setStageMode("tafel");
+  else if (lastImg && /bildschirm|in der app|oben auf|auf der seite|in der animation|markiert|eingekreist/.test(t)) setStageMode("peek");
+}
 // Text an der Tafel, der über den Rand ragt, verkleinern bzw. hereinschieben
 function fitTexts(svg) {
   const vb = svg.viewBox && svg.viewBox.baseVal;
@@ -1606,6 +1613,7 @@ function stopWalk() {
   walkTimers.forEach(clearTimeout); walkTimers = [];
   try { speechSynthesis.cancel(); } catch (e) {}
   audioQueue.forEach((a) => a.abort && a.abort()); audioQueue = [];
+  speakToken = null;
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   highlight([]);
 }
@@ -1622,7 +1630,7 @@ function showRefs(refs) {
   if (!$("stage").hidden && refs.length) {
     const onScreen = refs.some((n) => document.querySelector(`${SCOPE} #lb-imgdraw [data-teil~="${n}"]`));
     const onBoard = refs.some((n) => cur.boards.some((b) => (b.teile || []).includes(n) || (b.mols || []).some((m) => slug(m.name) === n)));
-    if (onScreen && !onBoard) setStageMode("peek"); else if (onBoard) setStageMode("tafel");
+    if (onScreen && !onBoard) setStageMode("peek"); else if (onBoard || cur.boards.length) setStageMode("tafel");
   }
   const moved = goToRefs(refs);
   if (moved) walkTimers.push(setTimeout(() => { highlight(refs); keepBoardInView(refs); }, 900));
@@ -1657,37 +1665,41 @@ function speakBrowser(sents) {
     speechSynthesis.speak(u);
   });
 }
-// Natürliche Stimme: Satz für Satz holen (immer zwei im Voraus), abspielen und dabei zeigen
+// Natürliche Stimme: die ganze Antwort in EINEM Stück (gleiche Stimme, keine Brüche);
+// Untertitel und Zeigen laufen anteilig zur Abspielzeit mit.
 function speakNatural(sents) {
   const lang = $("lang").value;
-  const jobs = sents.map((s) => ({ s, refs: refsIn(s), text: plain(s).trim(), audio: null }));
-  let fetched = 0, playing = 0, failed = false;
-  const fetchNext = () => {
-    while (fetched < jobs.length && fetched < playing + 2) {
-      const j = jobs[fetched++];
-      if (!j.text) { j.audio = Promise.resolve(null); continue; }
-      const ctl = new AbortController(); audioQueue.push(ctl);
-      j.audio = callFn("lernblick-voice", { text: j.text, lang }, true).then((blob) => URL.createObjectURL(blob)).catch(() => { failed = true; return null; });
-    }
-  };
-  const playNext = async () => {
-    if (playing >= jobs.length) { walkTimers.push(setTimeout(() => highlight([]), 1500)); return; }
-    fetchNext();
-    const j = jobs[playing];
-    const url = await j.audio;
-    if (failed && !url) { lb.natural = false; $("natural").checked = false; setStatus("Die natürliche Stimme ist gerade nicht erreichbar – ich lese mit der Browser-Stimme vor."); return speakBrowser(sents.slice(playing)); }
-    playing++;
-    setSub(j.s);
-    showRefs(j.refs);
-    if (!url) return playNext();
-    currentAudio = new Audio(url);
-    currentAudio.onended = () => { URL.revokeObjectURL(url); playNext(); };
-    currentAudio.onerror = () => playNext();
-    currentAudio.play().catch(() => { setStatus("Tippe auf ▶ Nochmal zeigen, um das Vorlesen zu starten."); });
-  };
-  fetchNext();
-  playNext();
+  const jobs = sents.map((s) => ({ s, refs: refsIn(s), text: plain(s).trim() })).filter((j) => j.text || j.refs.length);
+  const full = jobs.map((j) => j.text).filter(Boolean).join(" ").slice(0, 3000);
+  if (!full) return;
+  const total = jobs.reduce((a, j) => a + Math.max(1, j.text.length), 0);
+  let acc = 0; const starts = jobs.map((j) => { const st = acc / total; acc += Math.max(1, j.text.length); return st; });
+  const token = {}; speakToken = token;
+  setSub(jobs[0].s); showRefs(jobs[0].refs);
+  setStatus("");
+  if (!$("stage").hidden) $("stage-status").textContent = "Stimme wird vorbereitet …";
+  callFn("lernblick-voice", { text: full, lang }, true).then((blob) => {
+    if (speakToken !== token) return;
+    $("stage-status").textContent = "";
+    const url = URL.createObjectURL(blob);
+    const a = new Audio(url); currentAudio = a;
+    let shown = 0;
+    a.ontimeupdate = () => {
+      if (!a.duration || !isFinite(a.duration)) return;
+      const f = a.currentTime / a.duration;
+      let k = shown; while (k + 1 < jobs.length && f >= starts[k + 1] - 0.01) k++;
+      if (k !== shown) { shown = k; setSub(jobs[k].s); showRefs(jobs[k].refs); }
+    };
+    a.onended = () => { URL.revokeObjectURL(url); walkTimers.push(setTimeout(() => highlight([]), 1500)); };
+    a.play().catch(() => setStatus("Tippe auf ▶ Nochmal, um das Vorlesen zu starten."));
+  }).catch(() => {
+    if (speakToken !== token) return;
+    $("stage-status").textContent = "";
+    setStatus("Die natürliche Stimme ist gerade nicht erreichbar – ich lese mit der Browser-Stimme vor.");
+    speakBrowser(sents);
+  });
 }
+let speakToken = null;
 function replayExplain() {
   if (!lastBody) { setStatus("Stell zuerst eine Frage."); return; }
   document.querySelectorAll(`${SCOPE} [data-flown]`).forEach((g) => { g.getAnimations().forEach((a) => a.cancel()); delete g.dataset.flown; });

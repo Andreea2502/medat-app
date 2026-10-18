@@ -7,7 +7,7 @@
 //
 // POST .../functions/v1/lernblick-voice
 // Authorization: Bearer <access_token des Nutzers>
-// Body: { text: string (max. 600 Zeichen), lang?: "de" | "en" | "ro" | "tr" | "bks" | "uk" | "ar" }
+// Body: { text: string (max. 3000 Zeichen, die ganze Antwort), lang?: "de" | "en" | "ro" | "tr" | "bks" | "uk" | "ar" }
 // Antwort: audio/wav (Gemini) oder audio/mpeg (ElevenLabs)
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -55,7 +55,31 @@ function wav(pcm: Uint8Array, rate = 24000): Uint8Array {
   h.setUint32(28, rate * 2, true); h.setUint16(32, 2, true); h.setUint16(34, 16, true); w(36, "data"); h.setUint32(40, pcm.length, true);
   const out = new Uint8Array(44 + pcm.length); out.set(new Uint8Array(h.buffer), 0); out.set(pcm, 44); return out;
 }
-let langCodeOk = true;
+// Störgeräusche am Ende entfernen: kurzen Ausreißer nach einer Pause abschneiden, Stille kürzen, sanft ein- und ausblenden
+function cleanPcm(bytes: Uint8Array, rate: number): Uint8Array {
+  const n = Math.floor(bytes.length / 2);
+  if (n < rate / 10) return bytes.subarray(0, n * 2);
+  const s = new Int16Array(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + n * 2));
+  const win = Math.round(rate * 0.02), wins = Math.floor(n / win), rms: number[] = [];
+  let max = 0;
+  for (let i = 0; i < wins; i++) { let e = 0; for (let j = i * win; j < (i + 1) * win; j++) e += s[j] * s[j]; const v = Math.sqrt(e / win); rms.push(v); if (v > max) max = v; }
+  const thr = Math.max(250, max * 0.06), loud = rms.map((v) => v > thr);
+  let end = wins - 1;
+  while (end > 0 && !loud[end]) end--;
+  // letztes lautes Stück: wenn kurz (< 0,4 s) und davor ≥ 0,2 s Pause → Ausreißer, weg damit (höchstens zweimal)
+  for (let pass = 0; pass < 2; pass++) {
+    let st = end; while (st > 0 && loud[st - 1]) st--;
+    let gap = 0, g = st - 1; while (g > 0 && !loud[g]) { gap++; g--; }
+    if ((end - st + 1) * 20 < 400 && gap * 20 >= 200 && g > 0) end = g; else break;
+  }
+  const cut = Math.min(n, (end + 1) * win + Math.round(rate * 0.15));
+  const out = s.slice(0, cut);
+  const fo = Math.min(cut, Math.round(rate * 0.06)), fi = Math.min(cut, Math.round(rate * 0.01));
+  for (let i = 0; i < fo; i++) out[cut - 1 - i] = Math.round(out[cut - 1 - i] * (i / fo));
+  for (let i = 0; i < fi; i++) out[i] = Math.round(out[i] * (i / fi));
+  return new Uint8Array(out.buffer);
+}
+let langCodeOk = true, loggedMime = false;
 async function geminiSpeak(text: string, lang: string): Promise<Response | null> {
   const key = Deno.env.get("GEMINI_API_KEY");
   if (!key) return null;
@@ -85,7 +109,8 @@ async function geminiSpeak(text: string, lang: string): Promise<Response | null>
     if (!part) { console.error("lernblick-voice: Gemini ohne Audio", model); continue; }
     const mime: string = part.inlineData.mimeType || "";
     const rate = Number((mime.match(/rate=(\d+)/) || [])[1]) || 24000;
-    const pcm = Uint8Array.from(atob(part.inlineData.data), (c) => c.charCodeAt(0));
+    if (!loggedMime) { console.log("lernblick-voice Format", model, mime); loggedMime = true; }
+    const pcm = cleanPcm(Uint8Array.from(atob(part.inlineData.data), (c) => c.charCodeAt(0)), rate);
     return new Response(wav(pcm, rate), { status: 200, headers: { ...cors, "Content-Type": "audio/wav", "Cache-Control": "no-store", "X-Voice": model } });
   }
   return null;
@@ -115,7 +140,7 @@ Deno.serve(async (req: Request) => {
     const { text, lang } = await req.json();
     const clean = String(text || "").replace(/\s+/g, " ").trim();
     if (!clean) return json({ error: "Kein Text" }, 400);
-    if (clean.length > 600) return json({ error: "Text zu lang (max. 600 Zeichen pro Satz)" }, 400);
+    if (clean.length > 3000) return json({ error: "Text zu lang (max. 3000 Zeichen)" }, 400);
 
     const order = PROVIDER === "elevenlabs" ? [() => elevenSpeak(clean, lang), () => geminiSpeak(clean, lang)] : [() => geminiSpeak(clean, lang), () => elevenSpeak(clean, lang)];
     for (const speak of order) { const r = await speak(); if (r) return r; }
