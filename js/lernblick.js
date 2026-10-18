@@ -34,17 +34,30 @@ function fmtDate(ms) { try { return new Date(ms).toLocaleDateString("de-AT", { d
 
 // ================= Antwort zerlegen =================
 function splitAnswer(text) {
-  const idx = [
-    text.search(/(?<!BILD)ZEICHNUNG\s*:/i), text.search(/BILDZEICHNUNG\s*:/i),
-    text.search(/MOLEK(UE|Ü)L\s*:/i), text.search(/ESELSBR(UE|Ü)CKE\s*:/i), text.search(/MARKIERUNGEN\s*:/i)
-  ].filter((i) => i >= 0);
-  const body = (idx.length ? text.slice(0, Math.min(...idx)) : text).replace(/```\w*\s*$/, "").trim();
-  const grab = (re) => { const i = text.search(re); if (i < 0) return null; const s = text.slice(i).match(/<svg[\s\S]*?<\/svg>/i); return s ? s[0] : null; };
   const mols = [...text.matchAll(/MOLEK(?:UE|Ü)L\s*:\s*([^|\n]+)\|\s*`?([^\s`\n]+)/gi)].map((m) => ({ name: m[1].replace(/[*`]/g, "").trim(), smiles: m[2].trim() }));
   const tricks = [...text.matchAll(/ESELSBR(?:UE|Ü)CKE\s*:\s*([^|\n]+)(?:\|\s*([^\n]*))?/gi)].map((m) => ({ merksatz: m[1].replace(/[*`"]/g, "").trim(), wofuer: (m[2] || "").replace(/[*`]/g, "").trim() })).filter((t) => t.merksatz);
-  const svgs = [];
-  for (const m of text.matchAll(/(?<!BILD)ZEICHNUNG\s*:/gi)) { const sv = text.slice(m.index).match(/<svg[\s\S]*?<\/svg>/i); if (sv && !svgs.includes(sv[0])) svgs.push(sv[0]); }
-  return { body, svg: svgs[0] || null, svgs: svgs.slice(0, 6), imgSvg: grab(/BILDZEICHNUNG\s*:/i), mols, tricks };
+  // Text und Tafeln dürfen sich abwechseln: Text zu Tafel 1, Tafel 1, Text zu Tafel 2, Tafel 2 …
+  // Alles außerhalb der Zeichen-Blöcke ist gesprochener Text; segs merkt sich, welcher Textabschnitt zu welcher Tafel gehört.
+  const svgs = [], segs = [];
+  let imgSvg = null, body = "", last = 0;
+  const re = /(BILDZEICHNUNG|ZEICHNUNG)\s*:\s*(?:```[a-z]*\s*)?(<svg[\s\S]*?<\/svg>)\s*(?:```)?/gi;
+  let m;
+  const addText = (t, board) => {
+    const clean = t.replace(/^\s*(MOLEK(UE|Ü)L|ESELSBR(UE|Ü)CKE|MARKIERUNGEN)\s*:.*$/gim, "").replace(/```\w*/g, "").replace(/\n{3,}/g, "\n\n").trim();
+    if (!clean) return;
+    segs.push({ start: body.length + (body ? 1 : 0), board });
+    body += (body ? "\n" : "") + clean;
+  };
+  while ((m = re.exec(text))) {
+    const before = text.slice(last, m.index);
+    if (/^BILD/i.test(m[1])) { addText(before, svgs.length); imgSvg = imgSvg || m[2]; }
+    else { addText(before, svgs.length); if (!svgs.includes(m[2])) svgs.push(m[2]); }
+    last = re.lastIndex;
+  }
+  addText(text.slice(last), Math.max(0, svgs.length - 1));
+  // Text vor der ersten Tafel gehört zur ersten Tafel, Text nach der letzten Tafel zur letzten
+  segs.forEach((g) => { g.board = Math.min(g.board, Math.max(0, svgs.length - 1)); });
+  return { body, svg: svgs[0] || null, svgs: svgs.slice(0, 6), imgSvg, mols, tricks, segs };
 }
 
 // ================= Tafel-Baukasten: exakt berechnete Bausteine =================
@@ -1103,6 +1116,351 @@ function compChain(A) {
   return out;
 }
 Object.assign(COMPONENTS, { "kreislauf": compCycle, "kette": compChain });
+// ================= Layout-Bausteine für alle Fächer: die KI liefert Inhalte, das Programm ordnet an =================
+const tw = (t, size) => String(t).length * size * 0.5;            // grobe Textbreite
+function wrapWords(t, maxChars) {                                   // Zeilenumbruch nach Wörtern
+  const words = String(t).split(/\s+/), lines = []; let cur = "";
+  for (const w of words) { if ((cur + " " + w).trim().length > maxChars && cur) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim(); }
+  if (cur) lines.push(cur); return lines.slice(0, 3);
+}
+function boxText(cx, cy, t, o) {                                    // Kästchen mit (umbrochenem) Text
+  const size = o.size || 24, lines = wrapWords(t, o.chars || 18), lh = size * 1.15;
+  const w = o.w || Math.max(90, Math.max(...lines.map((l) => tw(l, size))) + 28), h = o.h || lines.length * lh + 22, out = [];
+  out.push(S("rect", { x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: 10, stroke: o.color || C.blue, "stroke-width": o.sw || 3, fill: o.fill || "#ffffff", teil: o.teil, "data-p": 1 }));
+  lines.forEach((l, i) => out.push(tx(cx, cy - ((lines.length - 1) * lh) / 2 + i * lh + size * 0.35, l, { size, fill: o.textColor || o.color || C.blue, teil: o.teil })));
+  return { out, w, h };
+}
+const keyOf = (t) => slug(t).slice(0, 30) || "punkt";
+const PALE = ["#1f6fd1", "#2a9d4b", "#f07c1a", "#7b3fc4", "#d62828", "#8b5a2b"];
+
+// 33. Begriffsnetz / Flussdiagramm / Regelkreis – automatische Anordnung in Ebenen
+function compNet(A) {
+  const nodes = {}, order = [];
+  String(A("knoten") || "").split(";").forEach((p) => { const m = p.match(/^\s*([a-z0-9_]+)\s*:\s*(.+?)\s*$/i); if (m && order.length < 14) { nodes[m[1]] = { id: m[1], label: m[2], out: [], inn: [] }; order.push(m[1]); } });
+  const edges = [];
+  String(A("kanten") || "").split(";").forEach((p) => { const m = p.match(/^\s*([a-z0-9_]+)\s*(-|>|<>)\s*([a-z0-9_]+)\s*(?::\s*(.+?))?\s*$/i); if (m && nodes[m[1]] && nodes[m[3]]) { edges.push({ a: m[1], b: m[3], type: m[2], label: m[4] || "" }); nodes[m[1]].out.push(m[3]); nodes[m[3]].inn.push(m[1]); } });
+  if (!order.length) return [];
+  // Ebenen: längster Weg von den Wurzeln (Kanten, die zurückführen, zählen nicht)
+  const level = {}; order.forEach((k) => (level[k] = 0));
+  const fwd = (e) => order.indexOf(e.a) < order.indexOf(e.b);
+  for (let it = 0; it < order.length; it++) edges.forEach((e) => { if (fwd(e) && level[e.b] < level[e.a] + 1) level[e.b] = level[e.a] + 1; });
+  const horiz = /rechts|horizontal/i.test(String(A("richtung") || ""));
+  const layers = []; order.forEach((k) => { (layers[level[k]] = layers[level[k]] || []).push(k); });
+  const L = layers.length, x0 = 50, y0 = 100, W = 900, H = 470, out = [], pos = {};
+  layers.forEach((ly, li) => ly.forEach((k, j) => {
+    const a = (li + 0.5) / L, b = (j + 0.5) / ly.length;
+    pos[k] = horiz ? [x0 + a * W, y0 + b * H] : [x0 + b * W, y0 + a * H];
+  }));
+  const maxPer = Math.max(...layers.map((l) => l.length)), boxW = horiz ? Math.min(200, W / L - 40) : Math.min(220, W / maxPer - 24);
+  const sizes = {};
+  order.forEach((k, i) => { const col = level[k] === 0 ? C.red : PALE[(i + level[k]) % PALE.length]; const r = boxText(pos[k][0], pos[k][1], nodes[k].label, { w: boxW, size: 22, chars: Math.max(8, Math.round(boxW / 12)), color: col, teil: `knoten ${k} ${keyOf(nodes[k].label)}` }); sizes[k] = r; });
+  const boxes = []; order.forEach((k) => boxes.push(...sizes[k].out));
+  edges.forEach((e, i) => {
+    const [ax, ay] = pos[e.a], [bx, by] = pos[e.b], ha = sizes[e.a].h / 2 + 4, hb = sizes[e.b].h / 2 + 4, wa = sizes[e.a].w / 2 + 4, wb = sizes[e.b].w / 2 + 4;
+    const back = !fwd(e);
+    const te = `kante kante-${i + 1} ${e.a}-${e.b}${e.label ? " " + keyOf(e.label) : ""}`;
+    const clip = (px, py, qx, qy, w, h) => { const dx = qx - px, dy = qy - py, t = Math.min(Math.abs(w / (dx || 1e-9)), Math.abs(h / (dy || 1e-9))); return [px + dx * Math.min(t, 1), py + dy * Math.min(t, 1)]; };
+    if (back) {
+      // Rückkopplung als Bogen außen herum
+      const [sx, sy] = clip(ax, ay, bx, by, wa, ha), [ex, ey] = clip(bx, by, ax, ay, wb, hb), off = horiz ? [0, -140] : [170, 0];
+      const cx = (sx + ex) / 2 + off[0], cy = (sy + ey) / 2 + off[1];
+      out.push(S("path", { d: `M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}`, stroke: C.red, "stroke-width": 3, "stroke-dasharray": "10 7", fill: "none", teil: te + " rueckkopplung", "data-p": 1 }));
+      const ang = Math.atan2(ey - cy, ex - cx);
+      out.push(S("path", { d: `M${ex - 16 * Math.cos(ang - 0.45)} ${ey - 16 * Math.sin(ang - 0.45)} L${ex} ${ey} L${ex - 16 * Math.cos(ang + 0.45)} ${ey - 16 * Math.sin(ang + 0.45)}`, stroke: C.red, "stroke-width": 3, fill: "none", teil: te, "data-p": 1 }));
+      if (e.label) out.push(tx(cx, cy + (horiz ? -8 : 6), e.label, { size: 20, fill: C.red, anchor: horiz ? "middle" : "start", teil: te }));
+      return;
+    }
+    const [sx, sy] = clip(ax, ay, bx, by, wa, ha), [ex, ey] = clip(bx, by, ax, ay, wb, hb);
+    if (e.type === "-") out.push(ln(sx, sy, ex, ey, C.ink, 3, te, true)); else out.push(...arrowLine(sx, sy, ex, ey, C.ink, 3, te, e.type === "<>"));
+    if (e.label) { const flat = Math.abs(ey - sy) < 30; out.push(tx((sx + ex) / 2 + (flat ? 0 : 10), (sy + ey) / 2 + (flat ? -16 : 6), e.label, { size: 19, fill: "#7b3fc4", anchor: flat ? "middle" : "start", teil: te })); }
+  });
+  return [...out, ...boxes];
+}
+
+// 34. Vergleich nebeneinander (2–3 Spalten), Zeilen mit Merkmal und Werten, ✓/✗ farbig
+function compCompare(A) {
+  const cols = String(A("spalten") || "").split(";").map((t) => t.trim()).filter(Boolean).slice(0, 3);
+  const rows = String(A("zeilen") || "").split(";").map((r) => { const [k, v] = r.split(":"); return { k: (k || "").trim(), v: (v || "").split("|").map((t) => t.trim()) }; }).filter((r) => r.k).slice(0, 7);
+  if (!cols.length) return [];
+  const x0 = 40, keyW = rows.length ? 250 : 0, colW = (920 - keyW) / cols.length, y0 = 100, rh = Math.min(66, 440 / Math.max(1, rows.length + 1)), out = [];
+  cols.forEach((c, i) => { const cx = x0 + keyW + colW * (i + 0.5); out.push(...boxText(cx, y0 + rh / 2, c, { w: colW - 20, h: rh - 10, size: 26, color: PALE[i], fill: PALE[i], textColor: C.ink, teil: `spalte-${i + 1} ${keyOf(c)}` }).out); });
+  rows.forEach((r, j) => {
+    const cy = y0 + rh * (j + 1.5);
+    out.push(ln(x0, cy - rh / 2, x0 + 920, cy - rh / 2, "#e3ded3", 2, "linie", true));
+    out.push(tx(x0 + 8, cy + 8, r.k, { size: 22, anchor: "start", fill: C.grey, teil: `zeile-${j + 1} ${keyOf(r.k)}` }));
+    cols.forEach((c, i) => {
+      const v = r.v[i] || "", cx = x0 + keyW + colW * (i + 0.5), yes = /^(ja|✓|\+)$/i.test(v), no = /^(nein|✗|−|-)$/i.test(v);
+      out.push(tx(cx, cy + 9, yes ? "✓" : no ? "✗" : v, { size: yes || no ? 36 : 24, fill: yes ? C.green : no ? C.red : C.ink, teil: `zeile-${j + 1} spalte-${i + 1} ${keyOf(r.k)}` }));
+    });
+  });
+  return out;
+}
+
+// 35. Phasen / Zeitstrahl: nummerierte Stationen mit kurzer Beschreibung
+function compPhases(A) {
+  const ph = String(A("phasen") || "").split(";").map((p) => { const i = p.indexOf(":"); return i < 0 ? { n: p.trim(), d: "" } : { n: p.slice(0, i).trim(), d: p.slice(i + 1).trim() }; }).filter((p) => p.n).slice(0, 7);
+  if (!ph.length) return [];
+  const n = ph.length, x0 = 70, x1 = 930, y = 210, step = (x1 - x0) / Math.max(1, n - 1), out = [];
+  out.push(...arrowLine(x0 - 30, y, x1 + 40, y, C.grey, 4, "zeitstrahl"));
+  ph.forEach((p, i) => {
+    const cx = n === 1 ? 500 : x0 + step * i, col = PALE[i % PALE.length], t = `phase-${i + 1} ${keyOf(p.n)}`;
+    out.push(S("circle", { cx, cy: y, r: 22, stroke: col, "stroke-width": 4, fill: col, teil: t, "data-p": 1 }));
+    out.push(tx(cx, y + 9, String(i + 1), { size: 24, teil: t }));
+    out.push(tx(cx, y - 44, p.n, { size: Math.min(26, (step - 10) / (p.n.length * 0.5)), fill: col, teil: t }));
+    wrapWords(p.d, Math.max(10, Math.round(step / 13))).forEach((l, k) => out.push(tx(cx, y + 64 + k * 28, l, { size: 21, fill: C.ink, teil: t })));
+  });
+  return out;
+}
+
+// 36. Verschachtelte Räume (Zelle › Organell › Membran …) mit Inhalten
+function compRooms(A) {
+  const rooms = String(A("bereiche") || "").split(">").map((t) => t.trim()).filter(Boolean).slice(0, 5);
+  if (!rooms.length) return [];
+  const items = {}; String(A("inhalt") || "").split(";").forEach((p) => { const i = p.indexOf(":"); if (i > 0) { const k = keyOf(p.slice(0, i)); (items[k] = items[k] || []).push(...p.slice(i + 1).split(",").map((t) => t.trim()).filter(Boolean)); } });
+  const out = [], n = rooms.length;
+  rooms.forEach((r, i) => {
+    const pad = i * 52, x = 60 + pad, y = 95 + pad * 0.78, w = 880 - 2 * pad, h = 470 - 2 * pad * 0.78, col = PALE[i % PALE.length], t = `bereich-${i + 1} ${keyOf(r)}`;
+    out.push(S("rect", { x, y, width: w, height: h, rx: 60 - i * 8, stroke: col, "stroke-width": 4, fill: i === n - 1 ? col : "#ffffff", teil: t, "data-p": 1 }));
+    out.push(tx(x + 22, y + 34, r, { size: 24, fill: col, anchor: "start", teil: t }));
+    const its = (items[keyOf(r)] || []).slice(0, 4), inner = i === n - 1;
+    its.forEach((it, k) => {
+      const ix = inner ? x + w / 2 + (k - (its.length - 1) / 2) * Math.min(200, w / its.length) : x + w - 24, iy = inner ? y + h / 2 + 10 : y + 34 + k * 30;
+      out.push(tx(ix, iy, "• " + it, { size: 21, fill: C.ink, anchor: inner ? "middle" : "end", teil: `${t} ${keyOf(it)}` }));
+    });
+  });
+  return out;
+}
+
+// 37. Kurven-Diagramm (Bio/Physik/Chemie): typische Kurvenformen exakt gezeichnet, Hilfslinien beschriftet
+const CURVES = {
+  saettigung: (x) => x / (0.25 + x), sigmoid: (x) => 1 / (1 + Math.exp(-12 * (x - 0.45))), exponentiell: (x) => (Math.exp(3 * x) - 1) / (Math.exp(3) - 1),
+  abfall: (x) => Math.exp(-3.5 * x), glocke: (x) => Math.exp(-((x - 0.5) ** 2) / 0.03), linear: (x) => x, optimum: (x) => Math.exp(-((x - 0.62) ** 2) / 0.02) * (x < 0.62 ? 1 : 1),
+  logistisch: (x) => 1 / (1 + Math.exp(-10 * (x - 0.5))), saegezahn: (x) => (x * 4) % 1, schwingung: (x) => 0.5 + 0.4 * Math.sin(x * Math.PI * 4)
+};
+function compCurve(A) {
+  const x = 110, y = 100, w = 780, h = 400, out = [], X = (v) => x + v * w, Y = (v) => y + h - v * h * 0.9;
+  out.push(...arrowLine(x, y + h, x + w + 30, y + h, C.ink, 3, "x-achse"), ...arrowLine(x, y + h, x, y - 20, C.ink, 3, "y-achse"));
+  out.push(tx(x + w + 30, y + h + 40, A("x-name") || "x", { size: 24, anchor: "end", teil: "x-achse" }), tx(x - 14, y - 26, A("y-name") || "y", { size: 24, anchor: "start", teil: "y-achse" }));
+  const ks = String(A("kurven") || "saettigung").split(";").map((k) => { const [typ, name] = k.split(":").map((t) => (t || "").trim()); return { typ: typ.toLowerCase(), name: name || "" }; }).filter((k) => CURVES[k.typ]).slice(0, 3);
+  ks.forEach((k, i) => {
+    let d = ""; for (let s = 0; s <= 120; s++) { const v = s / 120; d += (s ? " L" : "M") + X(v).toFixed(1) + " " + Y(CURVES[k.typ](v)).toFixed(1); }
+    const col = [C.red, C.blue, C.green][i], t = `kurve kurve-${i + 1}${k.name ? " " + keyOf(k.name) : ""}`;
+    out.push(S("path", { d, stroke: col, "stroke-width": 4, fill: "none", teil: t, "data-p": 1 }));
+    if (k.name) { const v = k.typ === "abfall" ? 0.12 : 0.92; out.push(tx(X(v), Y(CURVES[k.typ](v)) - 16, k.name, { size: 24, fill: col, anchor: k.typ === "abfall" ? "start" : "end", teil: t })); }
+  });
+  String(A("hlinien") || "").split(";").forEach((p, i) => { const m = p.match(/^\s*([\d.,]+)\s*:\s*(.+)$/); if (!m) return; const v = N(m[1], 0), t = `hlinie-${i + 1} ${keyOf(m[2])}`; out.push(S("line", { x1: x, y1: Y(v), x2: x + w, y2: Y(v), stroke: C.grey, "stroke-width": 2, "stroke-dasharray": "10 8", teil: t, "data-p": 1 })); out.push(tx(x - 10, Y(v) + 8, m[2], { size: 21, fill: C.grey, anchor: "end", teil: t })); });
+  String(A("vlinien") || "").split(";").forEach((p, i) => { const m = p.match(/^\s*([\d.,]+)\s*:\s*(.+)$/); if (!m) return; const v = N(m[1], 0), t = `vlinie-${i + 1} ${keyOf(m[2])}`; out.push(S("line", { x1: X(v), y1: y + h, x2: X(v), y2: y, stroke: C.grey, "stroke-width": 2, "stroke-dasharray": "10 8", teil: t, "data-p": 1 })); out.push(tx(X(v), y + h + 34, m[2], { size: 21, fill: C.grey, teil: t })); });
+  String(A("punkte") || "").split(";").forEach((p, i) => { const m = p.match(/^\s*([\d.,]+)\s*:\s*(.+)$/); if (!m || !ks[0]) return; const v = N(m[1], 0), yy = CURVES[ks[0].typ](v), t = `punkt-${i + 1} ${keyOf(m[2])}`; out.push(dot(X(v), Y(yy), C.ink, t, 9)); out.push(tx(X(v) + 14, Y(yy) - 12, m[2], { size: 22, anchor: "start", teil: t })); });
+  return out;
+}
+
+// 38. Beschriftung: die KI zeichnet eine Form, das Programm setzt die Beschriftung sauber daneben (mit Hinweislinie)
+function compLabel(A) {
+  const t = (A("teil") || "").toLowerCase(), z = (A("ziel") || "").toLowerCase().trim();
+  if (!z || !A("text")) return [];
+  const e = document.createElementNS(SVGNS, "text");
+  e.setAttribute("data-callout", z); e.setAttribute("font-size", A("groesse") || "24"); e.setAttribute("fill", A("farbe") || C.ink);
+  e.setAttribute("x", "0"); e.setAttribute("y", "0"); if (TEIL_OK.test(t || z)) e.setAttribute("teil", (t || z) + " beschriftung");
+  e.textContent = String(A("text")).slice(0, 40);
+  return [{ raw: e }];
+}
+// nach dem Zeichnen: Beschriftungen links/rechts in Spalten verteilen, Linie zur Stelle
+function placeCallouts(svg) {
+  const cs = [...svg.querySelectorAll("text[data-callout]")];
+  if (!cs.length) return;
+  const vb = svg.viewBox.baseVal, mid = vb.x + vb.width / 2, items = [];
+  cs.forEach((c) => {
+    if (c.hasAttribute("data-ax")) { const ax = +c.getAttribute("data-ax"), ay = +c.getAttribute("data-ay"); items.push({ c, ax, ay, side: ax < mid ? "l" : "r", ex: ax }); return; }
+    const tg = [...svg.querySelectorAll(`[data-teil~="${c.getAttribute("data-callout")}"]`)].filter((e) => !e.hasAttribute("data-callout") && !e.closest("text[data-callout]"));
+    if (!tg.length) { c.remove(); return; }
+    let bx = Infinity, by = Infinity, bx2 = -Infinity, by2 = -Infinity;
+    tg.forEach((e) => { try { const b = e.getBBox(); if (!b.width && !b.height) return; bx = Math.min(bx, b.x); by = Math.min(by, b.y); bx2 = Math.max(bx2, b.x + b.width); by2 = Math.max(by2, b.y + b.height); } catch (err) {} });
+    if (!isFinite(bx)) { c.remove(); return; }
+    const ax = (bx + bx2) / 2, ay = (by + by2) / 2;
+    items.push({ c, ax, ay, side: ax < mid ? "l" : "r", ex: ax < mid ? bx : bx2 });
+  });
+  for (const side of ["l", "r"]) {
+    const col = items.filter((i) => i.side === side).sort((a, b) => a.ay - b.ay);
+    let lastY = vb.y + 40;
+    col.forEach((i) => { i.ly = Math.max(i.ay, lastY); lastY = i.ly + 38; });
+    const over = lastY - (vb.y + vb.height - 10);
+    if (over > 0) col.forEach((i) => (i.ly -= over));
+    const minX = Math.min(...col.map((i) => i.ex), 1e9), maxX = Math.max(...col.map((i) => i.ex), -1e9);
+    col.forEach((i) => {
+      const lx = side === "l" ? Math.max(vb.x + 20, Math.min(minX - 34, vb.x + 250)) : Math.min(vb.x + vb.width - 20, Math.max(maxX + 34, vb.x + vb.width - 250));
+      i.c.setAttribute("x", lx); i.c.setAttribute("y", i.ly + 8); i.c.setAttribute("text-anchor", side === "l" ? "end" : "start");
+      try { const b = i.c.getBBox(), room = side === "l" ? lx - (vb.x + 8) : vb.x + vb.width - 8 - lx; if (b.width > room && room > 40) i.c.setAttribute("font-size", (parseFloat(i.c.getAttribute("font-size")) * room / b.width).toFixed(1)); i.c.setAttribute("data-placed", "1"); } catch (e) {}
+      const l = document.createElementNS(SVGNS, "path");
+      const tx0 = side === "l" ? lx + 8 : lx - 8;
+      l.setAttribute("d", `M${tx0} ${i.ly} L${(tx0 + i.ex) / 2} ${i.ly} L${i.ex} ${i.ay}`);
+      for (const [k, v] of [["stroke", "#7a756c"], ["stroke-width", "2"], ["fill", "none"]]) l.setAttribute(k, v);
+      if (i.c.getAttribute("data-teil")) l.setAttribute("data-teil", i.c.getAttribute("data-teil"));
+      const d = document.createElementNS(SVGNS, "circle");
+      for (const [k, v] of [["cx", i.ex], ["cy", i.ay], ["r", "4"], ["fill", "#7a756c"]]) d.setAttribute(k, v);
+      i.c.parentNode.insertBefore(l, i.c); i.c.parentNode.insertBefore(d, i.c);
+    });
+  }
+}
+Object.assign(COMPONENTS, { "netz": compNet, "vergleich": compCompare, "phasen": compPhases, "raeume": compRooms, "kurve": compCurve, "beschriftung": compLabel });
+
+// ================= Schablonen: fertige Schemata mit benannten Teilen (Anatomie, Zellbiologie) =================
+// Die KI zeichnet diese nie selbst – sie wählt die Schablone, lässt Teile aufleuchten und beschriften.
+const sE = (cx, cy, rx, ry, c, o = {}) => S("ellipse", { cx, cy, rx, ry, stroke: c, "stroke-width": o.sw || 3, fill: o.fill === undefined ? c : o.fill, "fill-style": o.fs, transform: o.tr, "data-p": 1 });
+const sC = (cx, cy, r, c, o = {}) => S("circle", { cx, cy, r, stroke: c, "stroke-width": o.sw || 3, fill: o.fill === undefined ? c : o.fill, "data-p": 1 });
+const sP = (d, c, o = {}) => S("path", { d, stroke: c, "stroke-width": o.sw || 3, fill: o.fill || "none", "stroke-linecap": "round", "stroke-dasharray": o.dash, "data-p": 1 });
+const sR = (x, y, w, h, c, o = {}) => S("rect", { x, y, width: w, height: h, rx: o.rx || 0, stroke: c, "stroke-width": o.sw || 3, fill: o.fill === undefined ? c : o.fill, transform: o.tr, "data-p": 1 });
+const sA = (x1, y1, x2, y2, c, w = 4) => arrowLine(x1, y1, x2, y2, c, w, "");
+const RED = "#d62828", BLUE = "#1f6fd1", GREEN = "#2a9d4b", ORANGE = "#f07c1a", PURPLE = "#7b3fc4", BROWN = "#8b5a2b", INK = "#1A1A1A", YEL = "#f2b705";
+// Teil: [id, Beschriftung, Ankerpunkt, Formen]
+const SCHEMAS = {
+  zelle: { titel: "Tierische Zelle", parts: [
+    ["zellmembran", "Zellmembran", [705, 300], [sE(500, 330, 215, 195, GREEN, { sw: 5 })]],
+    ["zytoplasma", "Zytoplasma", [350, 400], []],
+    ["zellkern", "Zellkern", [470, 262], [sC(470, 330, 74, PURPLE, { sw: 2 }), sC(470, 330, 68, PURPLE)]],
+    ["kernkoerperchen", "Kernkörperchen", [488, 322], [sC(488, 322, 18, PURPLE, { fill: PURPLE, sw: 2 })]],
+    ["raues-er", "raues ER", [568, 330], [sP("M552 262 q22 14 0 28 q-22 14 0 28 q22 14 0 28 q-22 14 0 28 q22 14 0 28", BLUE), ...[270, 298, 326, 354, 382].map((y) => sC(566, y, 3.5, INK, { sw: 1 }))]],
+    ["golgi-apparat", "Golgi-Apparat", [625, 235], [0, 1, 2, 3].map((k) => sP(`M${588 + k * 3} ${222 + k * 13} q38 -16 76 0`, ORANGE, { sw: 4 }))],
+    ["mitochondrium", "Mitochondrium", [380, 205], [sE(380, 205, 48, 24, RED), sP("M340 205 l8 -11 l8 22 l8 -22 l8 22 l8 -22 l8 22 l8 -22 l8 22 l8 -11", RED, { sw: 2 }), sE(612, 445, 42, 21, RED), sP("M577 445 l7 -10 l7 20 l7 -20 l7 20 l7 -20 l7 20 l7 -20 l7 10", RED, { sw: 2 })]],
+    ["ribosomen", "Ribosomen", [420, 470], [[420, 470], [440, 480], [520, 505], [330, 300], [345, 315], [640, 330]].map(([x, y]) => sC(x, y, 4, INK, { sw: 1 }))],
+    ["lysosom", "Lysosom", [395, 450], [sC(395, 450, 19, BROWN)]],
+    ["zentriolen", "Zentriolen", [540, 470], [sR(522, 462, 26, 12, INK, { fill: "#ffffff" }), sR(548, 452, 12, 26, INK, { fill: "#ffffff" })]],
+  ]},
+  mitochondrium: { titel: "Mitochondrium", parts: [
+    ["aeussere-membran", "äußere Membran", [500, 190], [sE(500, 330, 255, 142, RED, { sw: 4 })]],
+    ["intermembranraum", "Intermembranraum", [690, 300], []],
+    ["innere-membran", "innere Membran", [710, 330], [sE(500, 330, 230, 120, ORANGE, { fill: YEL, sw: 3 })]],
+    ["cristae", "Cristae", [445, 260], [-3, -2, -1, 0, 1, 2, 3].map((k) => { const x = 500 + k * 58, top = k % 2 === 0; const ye = 330 + (top ? -1 : 1) * 120 * Math.sqrt(Math.max(0, 1 - ((x - 500) / 230) ** 2)); const yi = top ? 360 : 300; return sP(`M${x - 13} ${ye.toFixed(1)} L${x - 13} ${yi} Q${x} ${top ? yi + 22 : yi - 22} ${x + 13} ${yi} L${x + 13} ${ye.toFixed(1)}`, ORANGE, { sw: 3 }); })],
+    ["matrix", "Matrix", [530, 330], []],
+    ["atp-synthase", "ATP-Synthase", [455, 300], [[442, 290], [442, 315], [558, 345], [558, 370]].map(([x, y]) => sC(x, y, 6, PURPLE, { sw: 2 }))],
+    ["mtdna", "mtDNA (Ring)", [615, 300], [sC(615, 300, 14, PURPLE, { fill: "none", sw: 3 })]],
+    ["ribosomen", "Ribosomen", [585, 370], [[580, 368], [592, 378], [372, 300]].map(([x, y]) => sC(x, y, 4, INK, { sw: 1 }))],
+  ]},
+  dna: { titel: "DNA-Doppelhelix", build: (A) => {
+    const seq = String(A("basen") || "ATGCGTACGA").toUpperCase().replace(/[^ATGC]/g, "").slice(0, 12) || "ATGC";
+    const comp = { A: "T", T: "A", G: "C", C: "G" }, col = { A: RED, T: BLUE, G: GREEN, C: ORANGE }, parts = [];
+    const n = seq.length, y0 = 110, y1 = 550, dy = (y1 - y0) / n, xs = (y, s) => 500 + s * 120 * Math.sin(((y - y0) / (y1 - y0)) * Math.PI * 2.2);
+    let d1 = "", d2 = ""; for (let y = y0 - 10; y <= y1 + 10; y += 6) { d1 += (d1 ? " L" : "M") + xs(y, 1).toFixed(1) + " " + y; d2 += (d2 ? " L" : "M") + xs(y, -1).toFixed(1) + " " + y; }
+    parts.push(["rueckgrat", "Zucker-Phosphat-Rückgrat", [xs(y0 + 10, 1), y0 + 10], [sP(d1, INK, { sw: 6 }), sP(d2, INK, { sw: 6 })]]);
+    const seen = {}, rung = [], hb = [];
+    for (let i = 0; i < n; i++) {
+      const y = y0 + dy * (i + 0.5), a = xs(y, 1), b = xs(y, -1); if (Math.abs(a - b) < 50) continue;
+      const m = (a + b) / 2, B = seq[i], Bc = comp[B];
+      rung.push(ln(a, y, m - 3, y, col[B], 8, "", true), ln(m + 3, y, b, y, col[Bc], 8, "", true));
+      hb.push(ln(m - 3, y - 6, m - 3, y + 6, C.grey, 2, "", true), ln(m + 3, y - 6, m + 3, y + 6, C.grey, 2, "", true));
+      for (const [L, x] of [[B, (a + m) / 2], [Bc, (m + b) / 2]]) { rung.push(tx(x, y - 10, L, { size: 18, fill: col[L] })); if (!seen[L]) seen[L] = [x, y]; }
+    }
+    parts.push(["basenpaar", "Basenpaar", null, rung], ["wasserstoffbruecken", "Wasserstoffbrücken", null, hb]);
+    const nm = { A: ["adenin", "Adenin (A)"], T: ["thymin", "Thymin (T)"], G: ["guanin", "Guanin (G)"], C: ["cytosin", "Cytosin (C)"] };
+    for (const L of "ATGC") if (seen[L]) parts.push([nm[L][0], nm[L][1], seen[L], []]);
+    parts.push(["5-ende", "5'-Ende", [xs(y0 - 10, 1), y0 - 10], [tx(xs(y0 - 10, 1), y0 - 22, "5'", { size: 22, fill: INK })]], ["3-ende", "3'-Ende", [xs(y0 - 10, -1), y0 - 10], [tx(xs(y0 - 10, -1), y0 - 22, "3'", { size: 22, fill: INK })]]);
+    return parts;
+  }},
+  chromosom: { titel: "Chromosom (2 Chromatiden)", parts: [
+    ["chromatid-1", "Chromatid", [452, 470], [sR(442, 168, 44, 150, BLUE, { rx: 22, tr: "rotate(-10 464 243)" }), sR(442, 340, 44, 210, BLUE, { rx: 22, tr: "rotate(10 464 445)" })]],
+    ["chromatid-2", "Schwesterchromatid", [548, 470], [sR(514, 168, 44, 150, GREEN, { rx: 22, tr: "rotate(10 536 243)" }), sR(514, 340, 44, 210, GREEN, { rx: 22, tr: "rotate(-10 536 445)" })]],
+    ["zentromer", "Zentromer", [500, 330], [sE(500, 330, 34, 16, INK)]],
+    ["kinetochor", "Kinetochor", [462, 330], [sR(456, 322, 10, 16, PURPLE), sR(534, 322, 10, 16, PURPLE)]],
+    ["p-arm", "p-Arm (kurz)", [452, 240], []],
+    ["q-arm", "q-Arm (lang)", [545, 430], []],
+    ["telomer", "Telomere", [478, 168], [[478, 172], [522, 172], [432, 545], [568, 545]].map(([x, y]) => sC(x, y, 9, RED))],
+  ]},
+  neuron: { titel: "Nervenzelle", parts: [
+    ["dendriten", "Dendriten", [262, 248], [sP("M300 290 L260 240 L232 232 M260 240 L250 205", PURPLE, { sw: 4 }), sP("M275 315 L225 300 L200 280 M225 300 L205 318", PURPLE, { sw: 4 }), sP("M285 370 L245 410 L215 415 M245 410 L240 440", PURPLE, { sw: 4 }), sP("M320 280 L330 225 L320 200", PURPLE, { sw: 4 })]],
+    ["soma", "Zellkörper (Soma)", [300, 380], [sC(310, 330, 52, PURPLE)]],
+    ["zellkern", "Zellkern", [310, 330], [sC(310, 330, 18, INK, { fill: "#ffffff" })]],
+    ["axonhuegel", "Axonhügel", [375, 330], [sP("M360 312 L398 324 L398 336 L360 348 Z", PURPLE, { fill: PURPLE })]],
+    ["axon", "Axon", [410, 330], [ln(398, 330, 712, 330, INK, 4, "", true)]],
+    ["myelinscheide", "Myelinscheide", [500, 312], [0, 1, 2, 3].map((k) => sR(418 + k * 72, 314, 58, 32, ORANGE, { rx: 14 }))],
+    ["ranvier-schnuerring", "Ranvier-Schnürring", [483, 330], []],
+    ["endknoepfchen", "synaptische Endknöpfchen", [748, 330], [sP("M712 330 L742 288 M712 330 L748 330 M712 330 L742 372", INK, { sw: 4 }), sC(746, 284, 10, RED), sC(752, 330, 10, RED), sC(746, 376, 10, RED)]],
+    ["erregung", "Erregungsleitung", [600, 270], [...sA(420, 272, 700, 272, RED, 3)]],
+  ]},
+  synapse: { titel: "Chemische Synapse", parts: [
+    ["aktionspotenzial", "ankommendes Aktionspotenzial", [500, 90], [...sA(500, 60, 500, 118, RED, 4)]],
+    ["praesynapse", "Präsynapse (Endknöpfchen)", [380, 170], [sP("M400 95 L400 175 Q330 185 330 255 L330 300 L670 300 L670 255 Q670 185 600 175 L600 95", BLUE, { fill: BLUE, sw: 4 })]],
+    ["vesikel", "Vesikel", [470, 245], [[420, 235], [470, 250], [560, 238], [515, 205]].map(([x, y]) => sC(x, y, 20, PURPLE, { fill: "#ffffff" }))],
+    ["transmitter", "Neurotransmitter", [508, 322], [[414, 230], [424, 240], [466, 246], [476, 256], [556, 234], [566, 244], [510, 200], [520, 210], [490, 318], [508, 324], [526, 316]].map(([x, y]) => sC(x, y, 3.5, PURPLE, { sw: 1 }))],
+    ["calciumkanal", "Ca²⁺-Kanal", [336, 270], [sR(326, 258, 16, 26, RED), ...sA(285, 272, 322, 272, RED, 3)]],
+    ["synaptischer-spalt", "synaptischer Spalt", [640, 320], []],
+    ["postsynapse", "Postsynapse", [620, 420], [sP("M330 340 L670 340 L670 500 L330 500 Z", GREEN, { fill: GREEN, sw: 4 })]],
+    ["rezeptoren", "Rezeptoren (Ionenkanäle)", [580, 348], [420, 500, 580].map((x) => sR(x - 9, 338, 18, 20, ORANGE))],
+  ]},
+  herz: { titel: "Herz (Blick von vorne)", parts: [
+    ["obere-hohlvene", "obere Hohlvene", [398, 120], [sR(382, 110, 34, 95, BLUE)]],
+    ["untere-hohlvene", "untere Hohlvene", [300, 280], [sR(288, 266, 70, 30, BLUE)]],
+    ["rechter-vorhof", "rechter Vorhof", [400, 250], [sE(415, 252, 70, 52, BLUE)]],
+    ["rechte-kammer", "rechte Kammer", [430, 420], [sP("M352 302 Q336 420 462 520 L498 545 L498 302 Z", BLUE, { fill: BLUE, sw: 4 })]],
+    ["linker-vorhof", "linker Vorhof", [590, 240], [sE(585, 245, 64, 48, RED)]],
+    ["linke-kammer", "linke Kammer", [575, 420], [sP("M502 302 L502 545 Q570 520 640 420 Q668 345 650 302 Z", RED, { fill: RED, sw: 4 })]],
+    ["septum", "Septum", [500, 440], [ln(500, 302, 500, 545, INK, 6, "", true)]],
+    ["lungenarterie", "Lungenarterie", [360, 150], [sP("M462 300 L462 200 Q462 150 410 150 L350 150", BLUE, { sw: 18 })]],
+    ["aorta", "Aorta", [610, 110], [sP("M528 300 L528 165 Q528 105 585 105 Q640 105 640 160 L640 200", RED, { sw: 22 })]],
+    ["lungenvenen", "Lungenvenen", [690, 240], [ln(646, 228, 700, 218, RED, 10, "", true), ln(646, 258, 700, 268, RED, 10, "", true)]],
+    ["trikuspidalklappe", "Trikuspidalklappe", [420, 303], [ln(400, 296, 418, 312, INK, 4, "", true), ln(440, 296, 422, 312, INK, 4, "", true)]],
+    ["mitralklappe", "Mitralklappe", [580, 303], [ln(560, 296, 578, 312, INK, 4, "", true), ln(600, 296, 582, 312, INK, 4, "", true)]],
+    ["pulmonalklappe", "Pulmonalklappe", [462, 286], [sP("M450 290 Q462 278 474 290", INK, { sw: 4 })]],
+    ["aortenklappe", "Aortenklappe", [528, 286], [sP("M516 290 Q528 278 540 290", INK, { sw: 4 })]],
+    ["blutfluss", "Weg des Blutes", null, [...sA(399, 160, 405, 228, INK, 3), ...sA(420, 285, 430, 360, INK, 3), ...sA(470, 400, 466, 230, INK, 3), ...sA(700, 243, 640, 243, INK, 3), ...sA(580, 280, 585, 360, INK, 3), ...sA(540, 400, 534, 230, INK, 3)]],
+  ]},
+  nephron: { titel: "Nephron", parts: [
+    ["rinde", "Nierenrinde", [690, 125], [ln(250, 300, 760, 300, C.grey, 2, "", true)]],
+    ["mark", "Nierenmark", [690, 330], []],
+    ["vas-afferens", "zuführende Arteriole", [260, 165], [ln(240, 168, 292, 172, RED, 7, "", true)]],
+    ["vas-efferens", "wegführende Arteriole", [260, 205], [ln(292, 196, 240, 202, RED, 5, "", true)]],
+    ["glomerulus", "Glomerulus", [330, 185], [[318, 175], [338, 172], [328, 192], [345, 192], [315, 195]].map(([x, y]) => sC(x, y, 11, RED, { sw: 2 }))],
+    ["bowman-kapsel", "Bowman-Kapsel", [330, 120], [sC(330, 185, 54, BLUE, { fill: "none", sw: 4 }), sC(330, 185, 46, BLUE, { fill: "none", sw: 2 })]],
+    ["proximaler-tubulus", "proximaler Tubulus", [440, 160], [sP("M380 190 q30 -34 60 0 q30 34 60 0 q30 -34 60 0", ORANGE, { sw: 9 })]],
+    ["henle-schleife", "Henle-Schleife", [585, 520], [sP("M560 190 L560 500 Q585 545 610 500 L610 235", PURPLE, { sw: 9 })]],
+    ["distaler-tubulus", "distaler Tubulus", [660, 200], [sP("M610 235 q25 -34 50 0 q25 34 50 0", GREEN, { sw: 9 })]],
+    ["sammelrohr", "Sammelrohr", [720, 450], [ln(720, 150, 720, 565, BROWN, 14, "", true)]],
+    ["harnfluss", "Weg des Harns", null, [...sA(560, 300, 560, 420, INK, 3), ...sA(610, 450, 610, 320, INK, 3), ...sA(720, 300, 720, 460, INK, 3)]],
+  ]},
+  alveole: { titel: "Lungenbläschen und Gasaustausch", parts: [
+    ["bronchiole", "Bronchiole", [430, 120], [sR(408, 85, 44, 110, BLUE, { rx: 10 })]],
+    ["alveole", "Lungenbläschen (Alveole)", [400, 320], [sC(430, 310, 125, BLUE, { sw: 4 })]],
+    ["alveolarwand", "Alveolarwand", [550, 260], []],
+    ["kapillare", "Kapillare", [640, 470], [sP("M575 150 Q690 310 575 480", RED, { sw: 34 })]],
+    ["erythrozyt", "rote Blutkörperchen", [615, 300], [[598, 220], [622, 300], [600, 390]].map(([x, y]) => sE(x, y, 13, 8, RED, { fill: "#ffffff", sw: 3 }))],
+    ["sauerstoff", "O₂ ins Blut", [520, 280], [...sA(470, 282, 575, 300, BLUE, 4), tx(500, 270, "O₂", { size: 24, fill: BLUE })]],
+    ["kohlendioxid", "CO₂ in die Luft", [520, 360], [...sA(578, 350, 470, 362, C.grey, 4), tx(500, 388, "CO₂", { size: 24, fill: C.grey })]],
+  ]},
+  auge: { titel: "Auge (Querschnitt)", parts: [
+    ["lederhaut", "Lederhaut", [580, 165], [sC(480, 330, 170, INK, { fill: "#ffffff", sw: 4 })]],
+    ["hornhaut", "Hornhaut", [318, 255], [sP("M330 245 Q282 330 330 415", BLUE, { sw: 5 })]],
+    ["iris", "Iris (Regenbogenhaut)", [348, 268], [ln(348, 262, 348, 300, BROWN, 7, "", true), ln(348, 360, 348, 398, BROWN, 7, "", true)]],
+    ["pupille", "Pupille", [345, 330], []],
+    ["linse", "Linse", [372, 330], [sE(372, 330, 22, 52, BLUE)]],
+    ["ziliarkoerper", "Ziliarmuskel", [360, 405], [sR(352, 384, 16, 22, RED), sR(352, 254, 16, 22, RED)]],
+    ["glaskoerper", "Glaskörper", [490, 400], []],
+    ["netzhaut", "Netzhaut", [620, 230], [sP("M560 182 A160 160 0 0 1 560 478", RED, { sw: 5 })]],
+    ["gelber-fleck", "gelber Fleck (schärfstes Sehen)", [640, 318], [sC(640, 318, 9, YEL)]],
+    ["blinder-fleck", "blinder Fleck", [632, 365], [sC(632, 365, 8, INK)]],
+    ["sehnerv", "Sehnerv", [700, 380], [sR(630, 352, 110, 26, YEL, { rx: 8, tr: "rotate(8 630 365)" })]],
+    ["lichtstrahlen", "Lichtstrahlen", [220, 290], [sP("M200 285 L330 300 L640 318", ORANGE, { sw: 2, dash: "8 6" }), sP("M200 380 L330 360 L640 318", ORANGE, { sw: 2, dash: "8 6" })]],
+  ]},
+};
+function compSchema(A) {
+  const name = String(A("name") || "").toLowerCase().trim(), sc = SCHEMAS[name];
+  if (!sc) return [tx(500, 300, `Schablone „${name}“ gibt es nicht`, { size: 26, fill: C.grey })];
+  const parts = sc.build ? sc.build(A) : sc.parts, out = [];
+  const zeige = String(A("zeige") || "alle").toLowerCase().split(/[;,]/).map((t) => t.trim()).filter(Boolean);
+  const all = zeige.includes("alle"), flussAus = /^(nein|false|0)$/i.test(String(A("fluss") || "ja"));
+  parts.forEach(([id, label, anchor, shapes]) => {
+    if (flussAus && /fluss/.test(id)) return;
+    const teil = `${id} ${keyOf(label)}`;
+    shapes.forEach((sp) => { if (!sp) return; if (sp.raw) { out.push(sp); return; } sp.attrs.teil = ((sp.attrs.teil ? sp.attrs.teil + " " : "") + teil).trim(); out.push(sp); });
+    if (anchor && (all || zeige.includes(id) || zeige.includes(keyOf(label)))) {
+      out.push(S("circle", { cx: anchor[0], cy: anchor[1], r: 2, stroke: "none", fill: "none", teil: `anker-${id} ${teil}` }));
+      const e = document.createElementNS(SVGNS, "text");
+      e.setAttribute("data-callout", `anker-${id}`); e.setAttribute("data-ax", anchor[0]); e.setAttribute("data-ay", anchor[1]); e.setAttribute("font-size", "22"); e.setAttribute("fill", INK); e.setAttribute("x", "0"); e.setAttribute("y", "0");
+      e.setAttribute("teil", teil + " beschriftung"); e.textContent = label;
+      out.push({ raw: e });
+    }
+  });
+  return out;
+}
+COMPONENTS["schema"] = compSchema;
+
 // Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen (schematisch)
 function compForgetting(A) {
   const x = N(A("x"), 70), y = N(A("y"), 60), w = N(A("breite"), 860), h = N(A("hoehe"), 440), days = clampN(N(A("tage"), 30), 5, 120);
@@ -1507,7 +1865,7 @@ function rules() {
   const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
   const f = lb.ctx && lb.ctx.frage;
   const wrong = f && f.gewaehlt ? `\n\nFALSCH BEANTWORTETE AUFGABE – so erklärst du:\n1. Erst auf dem Bildschirm zeigen (BILDZEICHNUNG mit markiere): die gewählte Antwort rot einkreisen (text 'deine Wahl', teil 'deine-wahl'), die richtige grün einkreisen (text 'richtig', teil 'richtig'), ein entscheidendes Schlüsselwort der Frage (z. B. NICHT) orange unterstreichen. Achte genau darauf, welcher Buchstabe welche Antwort ist (KONTEXT und ANKER).\n2. Dann 1 bis 3 Tafeln, die das Fachwissen SICHTBAR machen – genau das, was man im Kopf haben muss, um die Frage zu lösen: Teilchen, Moleküle, Elektronen, Kräfte, Abläufe, Kurven. Bei Abläufen eine Tafel pro Schritt. Die Frage, die Antwortmöglichkeiten oder die Erklärung der App schreibst du NICHT an die Tafel – das steht schon auf dem Bildschirm.\n3. Im Text (vorgelesen) benennst du den Denkfehler in einem Satz, ohne Vorwurf, und gibst am Ende einen kurzen Prüfungstipp.` : "";
-  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\nLEHRKRAFT-REGELN (das Wichtigste, so entsteht echtes Verständnis):\n- Alles, was du nennst, wird in genau diesem Moment GEZEIGT: jedes Fachwort, jede Größe, jede Fläche, Kurve, Grenze, jedes Enzym oder Molekül, jeder Rechenschritt steht an der Tafel oder ist auf dem Bildschirm markiert, und du zeigst mit [[teil|…]] darauf. Was nicht zu sehen ist, sagst du nicht.\n- Rechne immer ein konkretes Beispiel komplett vor, Zeile für Zeile mit <gleichung> (notizen = was du in dieser Zeile tust), mit echten Zahlen bis zum Ergebnis. Nie nur die Formel nennen.\n- Formeln dröselst du auf: jedes Symbol einzeln, farbig mit dem Bild verbunden (z. B. ∫ von a bis b f(x) dx: a und b = Grenzen auf der x-Achse, f(x) = die Kurve, dx = schmale Streifen, das Integral = die gelbe Fläche).\n- Mathe-Aufbau: Tafel 1 das Bild (z. B. <analyse> mit Fläche), Tafel 2 die Formel aufgedröselt, Tafel 3 Beispiel vorgerechnet: links <analyse x='40' breite='500'>, rechts <gleichung x='600'>.\n- Ist die Person in einem Lern-Tool (Grafik, Animation, Regler), beginne auf IHREM Bildschirm: markiere mit markiere ziel='bild-…' stelle='…' genau die Kurve, Fläche oder den Regler, über den du sprichst.\n- Abläufe (Zyklen, Kaskaden, Signalwege): zuerst der Überblick als <kreislauf> oder <kette>, dann einzelne Schritte auf eigenen Tafeln mit <molekuel> und <bogenpfeil>.\n31. <kreislauf schritte='Citrat; Isocitrat; α-Ketoglutarat; Succinyl-CoA; Succinat; Fumarat; Malat; Oxalacetat' enzyme='Aconitase; Isocitrat-DH; α-KG-DH; Succinyl-CoA-Synthetase; Succinat-DH; Fumarase; Malat-DH; Citrat-Synthase' extras='2: NADH + CO₂; 3: NADH + CO₂; 4: GTP; 5: FADH₂; 7: NADH' mitte='Citratzyklus'/> Kreislauf: Stationen im Kreis, Enzym n steht am Pfeil von Station n zu n+1, extras n = was bei Schritt n entsteht. Jede Station und jeder Schritt ist antippbar.\n   Teile: station-1 …, schritt-1 …, reaktion-1 …, enzym, produkt, zyklus, außerdem die Namen in Kleinbuchstaben (z. B. citrat, aconitase)\n32. <kette schritte='Glucose; Glucose-6-phosphat; Fructose-6-phosphat; …' pfeile='Hexokinase; Isomerase; …'/> Ablauf als Kette (bei mehr als 5 Stationen in Schlangenlinien).   Teile: station-1 …, schritt-1 …, enzym, Namen in Kleinbuchstaben\nMATHE-BAUSTEINE (für alle Mathe-Fragen zuerst diese benutzen, sie rechnen alles exakt; jeder braucht die ganze Tafel unter dem <titel>):\n20. <analyse funktion='x^3-3x' bereich='-3;3' nullstellen='ja' extrema='ja' wendepunkte='ja' tangente='1' steigungsdreieck='0' flaeche='0;2'/> Graph mit berechneten Punkten (N, H, T, W), Tangente an x=1, Steigungsdreieck ab x=0, Fläche/Integral von 0 bis 2. Nur angeben, was gebraucht wird. Zwei Funktionen: funktion='2x+1; x^2' schnittpunkt='ja' (Gleichungssysteme, Schnittpunkte). Für Geraden, Parabeln, Exponentialfunktionen, Ableitung (Tangente), Integral.\n   Teile: graph-1, graph-2, nullstelle, nullstelle-1, hochpunkt, tiefpunkt, extremum-1, scheitel, wendepunkt-1, tangente, steigungsdreieck, delta-x, delta-y, flaeche, ergebnis, schnittpunkt\n21. <prozent start='100 €' schritte='-20%; -10%'/> Balken nach jeder Änderung, Rechnung pro Schritt, Gesamtänderung und die Falle (nicht −30 %). Ohne schritte: <prozent start='80 €' anteil='25'/> zeigt Grundwert, Prozentwert, Prozentsatz.\n   Teile: grundwert, schritt-1, schritt-2, gesamt, falle, prozentwert, prozentsatz, ergebnis\n22. <einheiten von='mL' nach='µL' wert='0.025'/> Vorsilben-Treppe mit Faktoren, Weg von → nach, Ergebnis. Flächen/Volumen: von='m²' nach='cm²' bzw. 'cm³'. Für alle Umrechnungen und Vorsilben (k, M, m, µ, n …).\n   Teile: stufe, von, nach, weg, faktor, regel, ergebnis\n23. <potenzen basis='2' oben='5;3' unten='4'/> Faktoren als Kreise, Kürzen, Exponenten addieren/subtrahieren, Ergebnis.\n   Teile: zaehler, nenner, kuerzen, exponenten, regel, ergebnis\n24. <baum stufen='1/6:Sechs; 5/6:keine Sechs | 1/6:Sechs; 5/6:keine Sechs' pfad='1-1'/> Baumdiagramm, Stufen mit | getrennt, Äste mit ;. pfad='1-1' (mehrere: '1-2, 2-1') markiert Pfade rot, rechnet Produkt- und Summenregel mit Brüchen.\n   Teile: ast-1, ast-1-1, pfad, stufe-1, blatt-1-1, produkt, summe, ergebnis\n25. <normalverteilung mu='100' sigma='15' band='2'/> Glockenkurve, μ, ±σ-Werte, schattiertes Band mit 68 / 95 / 99,7 %.\n   Teile: kurve, mittelwert, sigma-1, sigma-2, band, prozent, ergebnis\n26. <auswahl n='5' k='3' reihenfolge='nein' zuruecklegen='nein'/> Plätze füllen (5 · 4 · 3), bei 'Reihenfolge egal' durch k! teilen = Binomialkoeffizient.\n   Teile: platz-1, platz-2, produkt, ordnung, fakultaet, ergebnis\n27. <einheitskreis winkel='30'/> Einheitskreis, Winkel, sin als Höhe (rot), cos als Breite (blau), exakte Werte, tan = sin/cos.\n   Teile: kreis, winkel, radius, punkt, sinus, cosinus, tangens, pythagoras\n28. <vektoren vektoren='a=3,1; b=1,2' summe='ja' differenz='nein' betrag='a'/> Vektoren im Gitter, Addition Spitze an Fuß, Betrag mit Pythagoras.\n   Teile: vektor-a, vektor-b, summe, differenz, betrag-a, gitter, ergebnis\n29. <kreis r='5' einheit='cm'/> Kreis mit r, d, Fläche und Umfang berechnet.   Teile: radius, durchmesser, flaeche, umfang, formel, ergebnis\n30. <vieleck n='6'/> regelmäßiges Vieleck mit allen Diagonalen, von einer Ecke rot, n·(n−3)/2.   Teile: ecke, von-einer-ecke, diagonalen, ergebnis\nFür Pythagoras <dreieck-rw>, für Rechenwege <gleichung>, für Brüche <bruch-kreis>/<bruch-balken>, für Zahlenfolgen <zahlenfolge>.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
+  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Aufbau der Antwort: Schreibe den gesprochenen Text zu jeder Tafel direkt VOR ihren ZEICHNUNG-Block (Text 1, ZEICHNUNG 1, Text 2, ZEICHNUNG 2 …). Jede Tafel bekommt ihren eigenen Text – keine Tafel bleibt ohne Erklärung, und kein Satz endet mit einem Doppelpunkt ohne Fortsetzung.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\nLEHRKRAFT-REGELN (das Wichtigste, so entsteht echtes Verständnis):\n- Alles, was du nennst, wird in genau diesem Moment GEZEIGT: jedes Fachwort, jede Größe, jede Fläche, Kurve, Grenze, jedes Enzym oder Molekül, jeder Rechenschritt steht an der Tafel oder ist auf dem Bildschirm markiert, und du zeigst mit [[teil|…]] darauf. Was nicht zu sehen ist, sagst du nicht.\n- Rechne immer ein konkretes Beispiel komplett vor, Zeile für Zeile mit <gleichung> (notizen = was du in dieser Zeile tust), mit echten Zahlen bis zum Ergebnis. Nie nur die Formel nennen.\n- Formeln dröselst du auf: jedes Symbol einzeln, farbig mit dem Bild verbunden (z. B. ∫ von a bis b f(x) dx: a und b = Grenzen auf der x-Achse, f(x) = die Kurve, dx = schmale Streifen, das Integral = die gelbe Fläche).\n- Mathe-Aufbau: Tafel 1 das Bild (z. B. <analyse> mit Fläche), Tafel 2 die Formel aufgedröselt, Tafel 3 Beispiel vorgerechnet: links <analyse x='40' breite='500'>, rechts <gleichung x='600'>.\n- Ist die Person in einem Lern-Tool (Grafik, Animation, Regler), beginne auf IHREM Bildschirm: markiere mit markiere ziel='bild-…' stelle='…' genau die Kurve, Fläche oder den Regler, über den du sprichst.\n- Abläufe (Zyklen, Kaskaden, Signalwege): zuerst der Überblick als <kreislauf> oder <kette>, dann einzelne Schritte auf eigenen Tafeln mit <molekuel> und <bogenpfeil>.\n31. <kreislauf schritte='Citrat; Isocitrat; α-Ketoglutarat; Succinyl-CoA; Succinat; Fumarat; Malat; Oxalacetat' enzyme='Aconitase; Isocitrat-DH; α-KG-DH; Succinyl-CoA-Synthetase; Succinat-DH; Fumarase; Malat-DH; Citrat-Synthase' extras='2: NADH + CO₂; 3: NADH + CO₂; 4: GTP; 5: FADH₂; 7: NADH' mitte='Citratzyklus'/> Kreislauf: Stationen im Kreis, Enzym n steht am Pfeil von Station n zu n+1, extras n = was bei Schritt n entsteht. Jede Station und jeder Schritt ist antippbar.\n   Teile: station-1 …, schritt-1 …, reaktion-1 …, enzym, produkt, zyklus, außerdem die Namen in Kleinbuchstaben (z. B. citrat, aconitase)\n32. <kette schritte='Glucose; Glucose-6-phosphat; Fructose-6-phosphat; …' pfeile='Hexokinase; Isomerase; …'/> Ablauf als Kette (bei mehr als 5 Stationen in Schlangenlinien).   Teile: station-1 …, schritt-1 …, enzym, Namen in Kleinbuchstaben\nBAUSTEINE FÜR ALLE FÄCHER (das Programm ordnet an – du lieferst nur die Inhalte; benutze sie statt frei zu zeichnen):\n33. <netz knoten='a: Isomere; b: Konstitutionsisomere; c: Stereoisomere' kanten='a>b; a>c: gleiche Summenformel' richtung='unten'/> Begriffsnetz, Übersicht, Flussdiagramm, Hormonachse, Regelkreis. kanten: a>b Pfeil, a-b Linie, a<>b Doppelpfeil, Text nach Doppelpunkt. Eine Kante zurück zu einem früheren Knoten wird als Rückkopplung gezeichnet (negative Rückkopplung!). richtung='rechts' für waagrecht. Höchstens 14 Knoten, kurze Begriffe.\n   Teile: knoten, a, b, … (die Kürzel), kante-1 …, a-b, rueckkopplung, außerdem die Begriffe in Kleinbuchstaben\n34. <vergleich spalten='Mitose; Meiose' zeilen='Teilungen: 1 | 2; Tochterzellen: 2 | 4; Crossing-over: nein | ja'/> Gegenüberstellung (ja/nein werden ✓/✗).   Teile: spalte-1, zeile-1 …\n35. <phasen phasen='Prophase: Chromosomen kondensieren; Metaphase: in der Mitte; Anaphase: Chromatiden getrennt; Telophase: zwei Kerne'/> Ablauf in Phasen auf einem Zeitstrahl (max. 7).   Teile: phase-1 …, Phasennamen in Kleinbuchstaben\n36. <raeume bereiche='Zelle > Mitochondrium > Matrix' inhalt='Matrix: Citratzyklus, β-Oxidation; Mitochondrium: Atmungskette'/> verschachtelte Räume (wo passiert was).   Teile: bereich-1 …, Namen in Kleinbuchstaben\n37. <kurve kurven='saettigung: Enzymaktivität' x-name='Substratkonzentration' y-name='v' hlinien='1: Vmax; 0.5: ½ Vmax' vlinien='0.25: Km' punkte='0.25: Km'/> typische Kurve exakt gezeichnet. Formen: saettigung, sigmoid (z. B. O₂-Bindung Hämoglobin), exponentiell, abfall (Zerfall), glocke, optimum (Temperatur/pH), logistisch, linear, schwingung. Werte von 0 bis 1.   Teile: kurve-1, hlinie-1, vlinie-1, punkt-1, x-achse, y-achse\n38. <beschriftung ziel='teilname' text='…'/> wenn du doch frei zeichnest: Beschriftung NICHT selbst platzieren, sondern so – das Programm setzt sie mit Hinweislinie sauber daneben.\nSCHABLONEN (fertig gezeichnete Schemata – Anatomie und Zellen zeichnest du NIE selbst):\n39. <schema name='herz' zeige='alle'/> Namen: zelle, mitochondrium, dna (basen='ATGCGT'), chromosom, neuron, synapse, herz, nephron, alveole, auge. zeige='alle' oder nur bestimmte Teile (z. B. zeige='linke-kammer; aorta'), fluss='nein' blendet Flusspfeile aus. Die Schablone braucht die ganze Tafel; zeige mit [[teil|…]] auf die Teile:\n   zelle: zellmembran, zytoplasma, zellkern, kernkoerperchen, raues-er, golgi-apparat, mitochondrium, ribosomen, lysosom, zentriolen\n   mitochondrium: aeussere-membran, intermembranraum, innere-membran, cristae, matrix, atp-synthase, mtdna, ribosomen\n   dna: rueckgrat, basenpaar, wasserstoffbruecken, adenin, thymin, guanin, cytosin, 5-ende, 3-ende\n   chromosom: chromatid-1, chromatid-2, zentromer, kinetochor, p-arm, q-arm, telomer\n   neuron: dendriten, soma, zellkern, axonhuegel, axon, myelinscheide, ranvier-schnuerring, endknoepfchen, erregung\n   synapse: aktionspotenzial, praesynapse, vesikel, transmitter, calciumkanal, synaptischer-spalt, postsynapse, rezeptoren\n   herz: rechter-vorhof, rechte-kammer, linker-vorhof, linke-kammer, septum, trikuspidalklappe, mitralklappe, pulmonalklappe, aortenklappe, aorta, lungenarterie, obere-hohlvene, untere-hohlvene, lungenvenen, blutfluss\n   nephron: glomerulus, bowman-kapsel, vas-afferens, vas-efferens, proximaler-tubulus, henle-schleife, distaler-tubulus, sammelrohr, rinde, mark, harnfluss\n   alveole: bronchiole, alveole, alveolarwand, kapillare, erythrozyt, sauerstoff, kohlendioxid\n   auge: lederhaut, hornhaut, iris, pupille, linse, ziliarkoerper, glaskoerper, netzhaut, gelber-fleck, blinder-fleck, sehnerv, lichtstrahlen\n   Für Details (z. B. was in der Henle-Schleife passiert) eine zweite Tafel mit <netz>, <kette> oder <kurve>.\nMATHE-BAUSTEINE (für alle Mathe-Fragen zuerst diese benutzen, sie rechnen alles exakt; jeder braucht die ganze Tafel unter dem <titel>):\n20. <analyse funktion='x^3-3x' bereich='-3;3' nullstellen='ja' extrema='ja' wendepunkte='ja' tangente='1' steigungsdreieck='0' flaeche='0;2'/> Graph mit berechneten Punkten (N, H, T, W), Tangente an x=1, Steigungsdreieck ab x=0, Fläche/Integral von 0 bis 2. Nur angeben, was gebraucht wird. Zwei Funktionen: funktion='2x+1; x^2' schnittpunkt='ja' (Gleichungssysteme, Schnittpunkte). Für Geraden, Parabeln, Exponentialfunktionen, Ableitung (Tangente), Integral.\n   Teile: graph-1, graph-2, nullstelle, nullstelle-1, hochpunkt, tiefpunkt, extremum-1, scheitel, wendepunkt-1, tangente, steigungsdreieck, delta-x, delta-y, flaeche, ergebnis, schnittpunkt\n21. <prozent start='100 €' schritte='-20%; -10%'/> Balken nach jeder Änderung, Rechnung pro Schritt, Gesamtänderung und die Falle (nicht −30 %). Ohne schritte: <prozent start='80 €' anteil='25'/> zeigt Grundwert, Prozentwert, Prozentsatz.\n   Teile: grundwert, schritt-1, schritt-2, gesamt, falle, prozentwert, prozentsatz, ergebnis\n22. <einheiten von='mL' nach='µL' wert='0.025'/> Vorsilben-Treppe mit Faktoren, Weg von → nach, Ergebnis. Flächen/Volumen: von='m²' nach='cm²' bzw. 'cm³'. Für alle Umrechnungen und Vorsilben (k, M, m, µ, n …).\n   Teile: stufe, von, nach, weg, faktor, regel, ergebnis\n23. <potenzen basis='2' oben='5;3' unten='4'/> Faktoren als Kreise, Kürzen, Exponenten addieren/subtrahieren, Ergebnis.\n   Teile: zaehler, nenner, kuerzen, exponenten, regel, ergebnis\n24. <baum stufen='1/6:Sechs; 5/6:keine Sechs | 1/6:Sechs; 5/6:keine Sechs' pfad='1-1'/> Baumdiagramm, Stufen mit | getrennt, Äste mit ;. pfad='1-1' (mehrere: '1-2, 2-1') markiert Pfade rot, rechnet Produkt- und Summenregel mit Brüchen.\n   Teile: ast-1, ast-1-1, pfad, stufe-1, blatt-1-1, produkt, summe, ergebnis\n25. <normalverteilung mu='100' sigma='15' band='2'/> Glockenkurve, μ, ±σ-Werte, schattiertes Band mit 68 / 95 / 99,7 %.\n   Teile: kurve, mittelwert, sigma-1, sigma-2, band, prozent, ergebnis\n26. <auswahl n='5' k='3' reihenfolge='nein' zuruecklegen='nein'/> Plätze füllen (5 · 4 · 3), bei 'Reihenfolge egal' durch k! teilen = Binomialkoeffizient.\n   Teile: platz-1, platz-2, produkt, ordnung, fakultaet, ergebnis\n27. <einheitskreis winkel='30'/> Einheitskreis, Winkel, sin als Höhe (rot), cos als Breite (blau), exakte Werte, tan = sin/cos.\n   Teile: kreis, winkel, radius, punkt, sinus, cosinus, tangens, pythagoras\n28. <vektoren vektoren='a=3,1; b=1,2' summe='ja' differenz='nein' betrag='a'/> Vektoren im Gitter, Addition Spitze an Fuß, Betrag mit Pythagoras.\n   Teile: vektor-a, vektor-b, summe, differenz, betrag-a, gitter, ergebnis\n29. <kreis r='5' einheit='cm'/> Kreis mit r, d, Fläche und Umfang berechnet.   Teile: radius, durchmesser, flaeche, umfang, formel, ergebnis\n30. <vieleck n='6'/> regelmäßiges Vieleck mit allen Diagonalen, von einer Ecke rot, n·(n−3)/2.   Teile: ecke, von-einer-ecke, diagonalen, ergebnis\nFür Pythagoras <dreieck-rw>, für Rechenwege <gleichung>, für Brüche <bruch-kreis>/<bruch-balken>, für Zahlenfolgen <zahlenfolge>.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
   return `${LB_ROLE}${EXTRAS}${board}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
 }
 
@@ -1742,7 +2100,8 @@ async function ask(preset) {
     await ensureLibs();
     const data = await callFn("lernblick-chat", { system_prompt: rules(), messages, image: lb.shot ? lb.shot.split(",")[1] : null });
     const text = data.response || "";
-    const { body, svgs, imgSvg, mols, tricks } = splitAnswer(text);
+    const { body, svgs, imgSvg, mols, tricks, segs } = splitAnswer(text);
+    answerSegs = segs;
     bubble.innerHTML = md(body);
     const hasImg = imgSvg ? renderImgDraw(imgSvg) : false;
     if (imgSvg && !hasImg) setStatus("Die Zeichnung auf dem Bildschirm war fehlerhaft.");
@@ -1804,7 +2163,7 @@ function showBoard(i, animate = true, cap = 9000) {
   $("board").className = "board" + (theme === "chalk" ? " chalk" : "");
   const out = b.svg ? buildBoardSvg(b.svg, theme) : null;
   let dur = 0;
-  if (out) { $("board").replaceChildren(out); fitTexts(out); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTexts(out)); markDeferred(out, b); if (animate) dur = animateSvg(out, cap); }
+  if (out) { $("board").replaceChildren(out); try { placeCallouts(out); } catch (e) {} fitTexts(out); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTexts(out)); markDeferred(out, b); if (animate) dur = animateSvg(out, cap); }
   else $("board").replaceChildren(el("div", "lb-board-empty", b.mols && b.mols.length ? "Strukturformel siehe oben." : "Diese Zeichnung konnte nicht angezeigt werden."));
   markStrip();
   updateStageNav();
@@ -1982,9 +2341,8 @@ function navTo(t) {
   if (!b) return;
   let i = -1;
   if (narr && narr.boardOf) {
-    // erster Satz, der wirklich auf etwas an dieser Tafel zeigt; sonst der erste, der ihr zugeordnet ist
-    i = narr.sents.findIndex((s, k) => narr.boardOf[k] === t && refsIn(s).some((r) => (b.teile || []).includes(r)));
-    if (i < 0) i = narr.boardOf.indexOf(t);
+    // erster Satz des Textabschnitts, der zu dieser Tafel gehört
+    i = narr.boardOf.indexOf(t);
   }
   if (i >= 0 && b.defer) { Object.assign(b, { shown: new Set(), full: false }); stopWalk(); showBoard(t, true, 3000); setStageMode("tafel"); playFrom(i); }
   else { stopWalk(); b.full = true; showBoard(t, true, 3000); }
@@ -2074,7 +2432,7 @@ function fitTexts(svg) {
   const vb = svg.viewBox && svg.viewBox.baseVal;
   if (!vb || !vb.width || !svg.isConnected) return;
   svg.querySelectorAll("text").forEach((t) => {
-    if (t.getAttribute("transform") || t.closest("[transform]")) return;
+    if (t.getAttribute("transform") || t.closest("[transform]") || t.hasAttribute("data-placed")) return;
     let b; try { b = t.getBBox(); } catch (e) { return; }
     if (!b || !b.width) return;
     const maxW = vb.width - 40;
@@ -2089,6 +2447,7 @@ function fitTexts(svg) {
     if (t.getAttribute("transform") || t.closest("[transform]") || !t.hasAttribute("y")) return;
     let b; try { b = t.getBBox(); } catch (e) { return; }
     if (!b || !b.width) return;
+    if (t.hasAttribute("data-placed")) { placed.push(b); return; }
     for (let tries = 0; tries < 4; tries++) {
       const hit = placed.find((p) => b.x < p.x + p.width - 4 && p.x < b.x + b.width - 4 && b.y < p.y + p.height - 4 && p.y < b.y + b.height - 4);
       if (!hit) break;
@@ -2232,11 +2591,18 @@ function backToParent(auto) {
 }
 
 // ---------- Erzählung: Sätze, zugehörige Tafeln, Tonspur ----------
-let narr = null;
-function boardOfSentences(sents) {
-  const out = []; let last = answerBoards ? answerBoards[0] : -1;
+let narr = null, answerSegs = [];
+function boardOfSentences(sents, body) {
+  const out = []; let last = answerBoards ? answerBoards[0] : -1, cursor = 0;
   sents.forEach((s) => {
     const refs = refsIn(s); let found = -1;
+    // Abschnitt im Text → Tafel, zu der dieser Text geschrieben wurde
+    const pos = body ? body.indexOf(s, cursor) : -1;
+    if (pos >= 0) cursor = pos + s.length;
+    if (pos >= 0 && answerBoards && answerSegs.length) {
+      let seg = null; for (const g of answerSegs) if (g.start <= pos) seg = g;
+      if (seg) { const j = answerBoards[0] + seg.board; if (j <= answerBoards[1]) last = j; }
+    }
     if (answerBoards) for (let j = answerBoards[0]; j <= answerBoards[1] && found < 0; j++) { const b = cur.boards[j]; if (b && refs.some((r) => (b.teile || []).includes(r) || (b.mols || []).some((m) => slug(m.name) === r))) found = j; }
     if (found >= 0) last = found;
     out.push(last);
@@ -2247,7 +2613,7 @@ function explain(body, delay) {
   stopWalk();
   if (narr && narr.url) URL.revokeObjectURL(narr.url);
   const sents = sentencesOf(body);
-  narr = { body, sents, boardOf: boardOfSentences(sents), audio: null, url: null, loading: false, from: 0, shown: 0, stopped: false };
+  narr = { body, sents, boardOf: boardOfSentences(sents, body), audio: null, url: null, loading: false, from: 0, shown: 0, stopped: false };
   playFrom(0, delay);
 }
 function playFrom(i, delay = 0) {

@@ -59,16 +59,19 @@ Deno.serve(async (req: Request) => {
     const body = JSON.stringify({
       system_instruction: { parts: [{ text: system_prompt }] },
       contents,
-      generationConfig: { temperature: 0.4, maxOutputTokens: 8192 },
+      generationConfig: { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
     });
 
     let lastError = "";
     for (const model of MODELS) {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      const call = (b: string) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-        body,
+        body: b,
       });
+      let res = await call(body);
+      // Falls ein Modell die Denk-Einstellung nicht kennt: ohne nochmal
+      if (res.status === 400) { const t = await res.text(); if (/thinking/i.test(t)) res = await call(body.replace(/,"thinkingConfig":\{[^}]*\}/, "")); else res = new Response(t, { status: 400 }); }
       if (res.status === 404) { lastError = `Modell ${model} nicht verfügbar`; continue; }
       if (!res.ok) {
         lastError = `${res.status}: ${(await res.text()).slice(0, 300)}`;
