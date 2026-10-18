@@ -23,7 +23,7 @@ const json = (body: unknown, status = 200) =>
 
 const PROVIDER = (Deno.env.get("LERNBLICK_VOICE_PROVIDER") || "gemini").toLowerCase();
 const GEMINI_VOICE = Deno.env.get("LERNBLICK_GEMINI_VOICE") || "Kore";
-const GEMINI_STYLE = Deno.env.get("LERNBLICK_GEMINI_STYLE") || "Read aloud in a warm, calm and clear voice, like a friendly teacher explaining something:";
+const TTS_LANG: Record<string, string> = { de: "de-DE", en: "en-GB", ro: "ro-RO", tr: "tr-TR", bks: "hr-HR", uk: "uk-UA", ar: "ar-EG" };
 const EL_VOICE = Deno.env.get("LERNBLICK_VOICE_ID") || "TGvCjJzuyubkDwINImMA";
 const EL_MODEL = Deno.env.get("LERNBLICK_VOICE_MODEL") || "eleven_flash_v2_5";
 const LANG_CODES: Record<string, string> = { de: "de", en: "en", ro: "ro", tr: "tr", bks: "hr", uk: "uk", ar: "ar" };
@@ -55,18 +55,31 @@ function wav(pcm: Uint8Array, rate = 24000): Uint8Array {
   h.setUint32(28, rate * 2, true); h.setUint16(32, 2, true); h.setUint16(34, 16, true); w(36, "data"); h.setUint32(40, pcm.length, true);
   const out = new Uint8Array(44 + pcm.length); out.set(new Uint8Array(h.buffer), 0); out.set(pcm, 44); return out;
 }
-async function geminiSpeak(text: string): Promise<Response | null> {
+let langCodeOk = true;
+async function geminiSpeak(text: string, lang: string): Promise<Response | null> {
   const key = Deno.env.get("GEMINI_API_KEY");
   if (!key) return null;
-  const body = JSON.stringify({
-    contents: [{ parts: [{ text: `${GEMINI_STYLE} ${text}` }] }],
-    generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: GEMINI_VOICE } } } },
+  // Nur der Text selbst – jede Regieanweisung würde mitgesprochen. Die Sprache wird fest vorgegeben (kein Akzent).
+  const make = (withLang: boolean) => JSON.stringify({
+    contents: [{ parts: [{ text }] }],
+    generationConfig: {
+      responseModalities: ["AUDIO"],
+      speechConfig: { ...(withLang ? { languageCode: TTS_LANG[lang] || "de-DE" } : {}), voiceConfig: { prebuiltVoiceConfig: { voiceName: GEMINI_VOICE } } },
+    },
   });
   for (const model of await geminiTtsModels(key)) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-      method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body,
+    const call = (b: string) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: b,
     });
-    if (!r.ok) { console.error("lernblick-voice Gemini-Fehler", model, r.status, (await r.text()).slice(0, 300)); continue; }
+    let r = await call(make(langCodeOk));
+    if (!r.ok) {
+      const t = await r.text();
+      if (r.status === 400 && langCodeOk && /language/i.test(t)) {
+        console.error("lernblick-voice: languageCode abgelehnt, versuche ohne", model, t.slice(0, 200));
+        langCodeOk = false; r = await call(make(false));
+        if (!r.ok) { console.error("lernblick-voice Gemini-Fehler", model, r.status, (await r.text()).slice(0, 300)); continue; }
+      } else { console.error("lernblick-voice Gemini-Fehler", model, r.status, t.slice(0, 300)); continue; }
+    }
     const d = await r.json();
     const part = (d?.candidates?.[0]?.content?.parts || []).find((p: { inlineData?: { data: string } }) => p.inlineData?.data);
     if (!part) { console.error("lernblick-voice: Gemini ohne Audio", model); continue; }
@@ -104,7 +117,7 @@ Deno.serve(async (req: Request) => {
     if (!clean) return json({ error: "Kein Text" }, 400);
     if (clean.length > 600) return json({ error: "Text zu lang (max. 600 Zeichen pro Satz)" }, 400);
 
-    const order = PROVIDER === "elevenlabs" ? [() => elevenSpeak(clean, lang), () => geminiSpeak(clean)] : [() => geminiSpeak(clean), () => elevenSpeak(clean, lang)];
+    const order = PROVIDER === "elevenlabs" ? [() => elevenSpeak(clean, lang), () => geminiSpeak(clean, lang)] : [() => geminiSpeak(clean, lang), () => elevenSpeak(clean, lang)];
     for (const speak of order) { const r = await speak(); if (r) return r; }
     return json({ error: "Die Stimme ist gerade nicht erreichbar." }, 502);
   } catch (err) {

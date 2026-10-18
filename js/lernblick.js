@@ -611,6 +611,87 @@ function compParticles(A) {
   });
   return out;
 }
+// Wellen (longitudinal/transversal): exakt berechnet, Teilchen bewegen sich auf Zeigen hin
+function compWave(A) {
+  const x = N(A("x"), 60), y = N(A("y"), 110), w = N(A("breite"), 880), h = N(A("hoehe"), 440);
+  const longi = !/trans/i.test(String(A("art") || "longitudinal"));
+  const wl = clampN(N(A("wellenlaengen"), 2), 1.5, 4), n = longi ? 25 : 21;
+  const x0 = x + 30, x1 = x + w - 30, d = (x1 - x0) / (n - 1), lam = (x1 - x0) / wl, k = (2 * Math.PI) / lam;
+  const y1 = y + h * 0.12, y2 = y + h * (longi ? 0.52 : 0.55), out = [];
+  const PURPLE = "#7b3fc4", ORANGE = "#f07c1a";
+  const arrow = (ax, ay, bx, by, c, teil, both) => {
+    const a = Math.atan2(by - ay, bx - ax), L = 16, head = (px, py, ang) => S("path", { d: `M${px - L * Math.cos(ang - 0.45)} ${py - L * Math.sin(ang - 0.45)} L${px} ${py} L${px - L * Math.cos(ang + 0.45)} ${py - L * Math.sin(ang + 0.45)}`, stroke: c, "stroke-width": 4, fill: "none", teil, "data-p": 1 });
+    const r = [ln(ax, ay, bx, by, c, 4, teil, true), head(bx, by, a)];
+    if (both) r.push(head(ax, ay, a + Math.PI));
+    return r;
+  };
+  // Ruhelage
+  out.push(tx(x0 - 4, y1 - 26, "Ruhelage", { size: 28, fill: C.grey, anchor: "start", teil: "ruhelage" }));
+  for (let i = 0; i < n; i++) out.push(S("circle", { cx: x0 + i * d, cy: y1, r: 9, stroke: "#9aa7b8", "stroke-width": 3, fill: "#9aa7b8", teil: "ruhelage", "data-p": 1 }));
+  const A_l = d * 0.45, A_t = h * 0.17;
+  if (!longi) {
+    // Mittellinie und Wellenform
+    out.push(S("line", { x1: x0 - 10, y1: y2, x2: x1 + 10, y2: y2, stroke: "#b9b3a6", "stroke-width": 2, "stroke-dasharray": "8 8", teil: "ruhelinie", "data-p": 1 }));
+    let dd = ""; for (let s = 0; s <= 120; s++) { const px = x0 + (x1 - x0) * s / 120; dd += (s ? " L" : "M") + px.toFixed(1) + " " + (y2 - A_t * Math.sin(k * (px - x0))).toFixed(1); }
+    out.push(S("path", { d: dd, stroke: C.blue, "stroke-width": 3, fill: "none", teil: "wellenform", "data-p": 1, opacity: 0.55 }));
+  }
+  for (let i = 0; i < n; i++) {
+    const xr = x0 + i * d, ph = k * (xr - x0);
+    const px = longi ? xr + A_l * Math.sin(ph) : xr, py = longi ? y2 : y2 - A_t * Math.sin(ph);
+    const cs = Math.cos(ph);
+    const zone = longi ? (cs < -0.55 ? "verdichtung" : cs > 0.55 ? "verduennung" : "") : (Math.sin(ph) > 0.85 ? "wellenberg" : Math.sin(ph) < -0.85 ? "wellental" : "");
+    const col = longi ? (zone === "verdichtung" ? C.red : zone === "verduennung" ? C.green : C.blue) : C.blue;
+    out.push(S("line", { x1: xr, y1: y1 + 11, x2: px, y2: py - 11, stroke: "#cfc9bd", "stroke-width": 1.5, "stroke-dasharray": "4 6", teil: "verschiebung", "data-p": 1 }));
+    const g = document.createElementNS(SVGNS, "g");
+    g.setAttribute("data-wave", `${longi ? A_l : 0},${longi ? 0 : -A_t},${ph.toFixed(4)}`);
+    const c = document.createElementNS(SVGNS, "circle");
+    for (const [kk, v] of Object.entries({ cx: px.toFixed(1), cy: py.toFixed(1), r: 11, stroke: col, "stroke-width": 3, fill: col, teil: ("teilchen welle " + zone).trim(), "data-p": 1 })) c.setAttribute(kk, v);
+    g.appendChild(c); out.push({ raw: g });
+  }
+  // Beschriftungen
+  if (longi) {
+    const cV = x0 + lam / 2, cD = x0 + lam;
+    out.push(tx(cV, y2 + 62, "Verdichtung", { size: 32, fill: C.red, teil: "verdichtung" }));
+    out.push(tx(cD, y2 + 62, "Verdünnung", { size: 32, fill: C.green, teil: "verduennung" }));
+    const yb = y2 + 112;
+    out.push(...arrow(cV, yb, cV + lam, yb, ORANGE, "wellenlaenge", true));
+    out.push(tx(cV + lam / 2, yb + 42, "Wellenlänge λ", { size: 32, fill: ORANGE, teil: "wellenlaenge" }));
+    const sx = x0 + lam * 0.25;
+    out.push(...arrow(sx - A_l - 14, y2 - 40, sx + A_l + 14, y2 - 40, PURPLE, "schwingung", true));
+    out.push(tx(sx, y2 - 62, "schwingt ↔", { size: 28, fill: PURPLE, teil: "schwingung" }));
+  } else {
+    const cB = x0 + lam / 4, cT = x0 + 3 * lam / 4;
+    out.push(tx(cB, y2 - A_t - 30, "Wellenberg", { size: 32, fill: C.ink, teil: "wellenberg" }));
+    out.push(tx(cT, y2 + A_t + 50, "Wellental", { size: 32, fill: C.ink, teil: "wellental" }));
+    out.push(...arrow(cB + 34, y2, cB + 34, y2 - A_t + 4, PURPLE, "amplitude", true));
+    out.push(tx(cB + 46, y2 - A_t / 2 + 10, "A", { size: 32, fill: PURPLE, anchor: "start", teil: "amplitude" }));
+    const yb = y2 + A_t + 95;
+    out.push(...arrow(cB, yb, cB + lam, yb, ORANGE, "wellenlaenge", true));
+    out.push(tx(cB + lam / 2, yb + 40, "Wellenlänge λ", { size: 32, fill: ORANGE, teil: "wellenlaenge" }));
+    const sx = x0 + lam * 1.5 + lam * 0.1;
+    if (sx < x1 - 40) { out.push(...arrow(sx + 30, y2 - A_t * 0.9, sx + 30, y2 + A_t * 0.9, PURPLE, "schwingung", true)); out.push(tx(sx + 44, y2 + 10, "schwingt ↕", { size: 28, fill: PURPLE, anchor: "start", teil: "schwingung" })); }
+  }
+  const ay = y1 + (y2 - y1) * (longi ? 0.5 : 0.42);
+  out.push(...arrow(x + w * 0.58, ay, x + w * 0.94, ay, C.blue, "ausbreitung"));
+  out.push(tx(x + w * 0.76, ay - 16, "Ausbreitung", { size: 30, fill: C.blue, teil: "ausbreitung" }));
+  return out;
+}
+// Teilchen einer Welle in Bewegung setzen (zwei volle Schwingungen, endet wieder im Standbild)
+function playWave(svg) {
+  if (!svg || svg.dataset.waving) return;
+  const gs = svg.querySelectorAll("[data-wave]");
+  if (!gs.length) return;
+  svg.dataset.waving = "1";
+  const T = 2200, periods = 2, steps = 48;
+  gs.forEach((g) => {
+    const [ax, ay, ph] = g.getAttribute("data-wave").split(",").map(Number);
+    const frames = [];
+    for (let s = 0; s <= steps; s++) { const t = (s / steps) * periods * 2 * Math.PI, f = Math.sin(ph - t) - Math.sin(ph); frames.push({ transform: `translate(${(ax * f).toFixed(2)}px, ${(ay * f).toFixed(2)}px)` }); }
+    g.animate(frames, { duration: T * periods, easing: "linear" });
+  });
+  svg.querySelectorAll('[data-teil~="wellenform"], [data-teil~="verschiebung"]').forEach((e) => e.animate([{ opacity: 1 }, { opacity: 0.15 }, { opacity: 0.15 }, { opacity: 1 }], { duration: T * periods }));
+  setTimeout(() => { delete svg.dataset.waving; }, T * periods + 50);
+}
 // Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen (schematisch)
 function compForgetting(A) {
   const x = N(A("x"), 70), y = N(A("y"), 60), w = N(A("breite"), 860), h = N(A("hoehe"), 440), days = clampN(N(A("tage"), 30), 5, 120);
@@ -660,7 +741,7 @@ function compPalace(A) {
   }
   return out;
 }
-Object.assign(COMPONENTS, { "zahlenfolge": compSequence, "venn": compVenn, "buchstaben": compLetters, "zusammensetzen": compAssemble, "vergessenskurve": compForgetting, "gedaechtnispalast": compPalace, "teilchen": compParticles });
+Object.assign(COMPONENTS, { "zahlenfolge": compSequence, "venn": compVenn, "buchstaben": compLetters, "zusammensetzen": compAssemble, "vergessenskurve": compForgetting, "gedaechtnispalast": compPalace, "teilchen": compParticles, "welle": compWave });
 
 
 
@@ -1011,7 +1092,7 @@ function rules() {
   const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
   const f = lb.ctx && lb.ctx.frage;
   const wrong = f && f.gewaehlt ? `\n\nFALSCH BEANTWORTETE AUFGABE – so erklärst du:\n1. Erst auf dem Bildschirm zeigen (BILDZEICHNUNG mit markiere): die gewählte Antwort rot einkreisen (text 'deine Wahl', teil 'deine-wahl'), die richtige grün einkreisen (text 'richtig', teil 'richtig'), ein entscheidendes Schlüsselwort der Frage (z. B. NICHT) orange unterstreichen. Achte genau darauf, welcher Buchstabe welche Antwort ist (KONTEXT und ANKER).\n2. Dann 1 bis 3 Tafeln, die das Fachwissen SICHTBAR machen – genau das, was man im Kopf haben muss, um die Frage zu lösen: Teilchen, Moleküle, Elektronen, Kräfte, Abläufe, Kurven. Bei Abläufen eine Tafel pro Schritt. Die Frage, die Antwortmöglichkeiten oder die Erklärung der App schreibst du NICHT an die Tafel – das steht schon auf dem Bildschirm.\n3. Im Text (vorgelesen) benennst du den Denkfehler in einem Satz, ohne Vorwurf, und gibst am Ende einen kurzen Prüfungstipp.` : "";
-  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
+  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
   return `${LB_ROLE}${EXTRAS}${board}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
 }
 
@@ -1449,6 +1530,22 @@ function fitTexts(svg) {
     if (b.x < vb.x + 15) dx = vb.x + 15 - b.x; else if (b.x + b.width > vb.x + vb.width - 15) dx = vb.x + vb.width - 15 - (b.x + b.width);
     if (dx && t.hasAttribute("x") && !/[\s,]/.test(t.getAttribute("x").trim())) t.setAttribute("x", (parseFloat(t.getAttribute("x")) || 0) + dx);
   });
+  // Beschriftungen, die sich überlappen, auseinanderschieben
+  const placed = [];
+  svg.querySelectorAll("text").forEach((t) => {
+    if (t.getAttribute("transform") || t.closest("[transform]") || !t.hasAttribute("y")) return;
+    let b; try { b = t.getBBox(); } catch (e) { return; }
+    if (!b || !b.width) return;
+    for (let tries = 0; tries < 4; tries++) {
+      const hit = placed.find((p) => b.x < p.x + p.width - 4 && p.x < b.x + b.width - 4 && b.y < p.y + p.height - 4 && p.y < b.y + b.height - 4);
+      if (!hit) break;
+      const down = hit.y + hit.height + 4 - b.y, up = hit.y - 4 - (b.y + b.height);
+      const dy = b.y + b.height + down < vb.y + vb.height - 5 ? down : up;
+      t.setAttribute("y", (parseFloat(t.getAttribute("y")) || 0) + dy);
+      b = t.getBBox();
+    }
+    placed.push(b);
+  });
 }
 
 // ---------- Zeigen: Text und Tafel synchron ----------
@@ -1486,6 +1583,7 @@ function highlight(names) {
       e.getAnimations?.({ subtree: true }).forEach((a) => { try { a.finish(); } catch (err) {} });
       e.classList.add("glow");
       if (/^uebergang/.test(n)) e.closest("svg")?.querySelectorAll("[data-after]").forEach((a) => { a.animate([{ fillOpacity: 0.12 }, { fillOpacity: 1 }], { duration: 600, delay: 1500, fill: "forwards" }); });
+      if (/^(ausbreitung|welle|schwingung|teilchen|bewegung)$/.test(n)) playWave(e.closest("svg"));
       const fly = e.closest("[data-fly]");
       if (fly && !fly.dataset.flown) {
         fly.dataset.flown = "1";
