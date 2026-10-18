@@ -29,7 +29,7 @@ function md(s) {
     .replace(/\[\[[^\]]*\]\]/g, "");
 }
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-function setStatus(t) { $("status").textContent = t; }
+function setStatus(t) { $("status").textContent = t; const s = $("stage-status"); if (s) s.textContent = t; }
 function fmtDate(ms) { try { return new Date(ms).toLocaleDateString("de-AT", { day: "numeric", month: "short", year: "numeric" }) + ", " + new Date(ms).toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } }
 
 // ================= Antwort zerlegen =================
@@ -554,6 +554,63 @@ function assemble(on) {
     g.animate([{ transform: on ? from : to }, { transform: on ? to : from }], { duration: 1400, delay: i * 350, fill: "forwards", easing: "ease-in-out" });
   });
 }
+// Teilchen (Atome/Ionen) mit Elektronenübergang oder gemeinsamem Elektronenpaar
+const METALS = new Set(["li", "na", "k", "rb", "cs", "be", "mg", "ca", "sr", "ba", "al", "fe", "cu", "zn", "ag", "au", "pb", "sn", "mn", "cr", "ni", "co", "hg", "pt"]);
+const ELCOL = { h: "#7a756c", c: "#1A1A1A", o: "#d62828", n: "#1f6fd1", s: "#c9a000", p: "#f07c1a", f: "#2a9d4b", cl: "#2a9d4b", br: "#8b5a2b", i: "#7b3fc4" };
+function compParticles(A) {
+  const x = N(A("x"), 40), y = N(A("y"), 110), w = N(A("breite"), 920), h = N(A("hoehe"), 400);
+  const list = String(A("liste") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 6).map((s) => { const [sym, ch] = s.split(":").map((v) => (v || "").trim()); return { sym: sym.slice(0, 4), ch: ch || "" }; });
+  if (!list.length) return [];
+  const names = String(A("namen") || "").split(";").map((s) => s.trim());
+  const shared = String(A("teilen") || "").split(";").map((s) => s.trim().match(/^(\d)\s*-\s*(\d)$/)).filter(Boolean).map((m) => [m[1] - 1, m[2] - 1]);
+  const trans = String(A("uebergang") || "").split(";").map((s) => s.trim().match(/^(\d)\s*>\s*(\d)(?:\s*:\s*(\d))?$/)).filter(Boolean).map((m) => [m[1] - 1, m[2] - 1, clampN(N(m[3], 1), 1, 3)]);
+  const isShared = (a, b) => shared.some(([p, q]) => (p === a && q === b) || (p === b && q === a));
+  let r = Math.min(h * 0.27, 120);
+  const adv = (i) => (i > 0 && isShared(i - 1, i) ? 1.5 : 2.9) * r;
+  let total = 2 * r; for (let i = 1; i < list.length; i++) total += adv(i);
+  if (total > w) { r *= w / total; total = w; }
+  const cy = y + h * 0.45, pos = [];
+  let cx = x + (w - total) / 2 + r;
+  list.forEach((_, i) => { if (i) cx += adv(i); pos.push([cx, cy]); });
+  const out = [], count = {};
+  list.forEach((p, i) => {
+    const key = p.sym.toLowerCase(), c = METALS.has(key) ? "#f07c1a" : (ELCOL[key] || C.blue);
+    count[key] = (count[key] || 0) + 1;
+    const teil = `teilchen-${i + 1} ${key} ${key}-${count[key]}`;
+    out.push(S("circle", { cx: pos[i][0], cy: pos[i][1], r, stroke: c, "stroke-width": 5, fill: c, teil }));
+    out.push(tx(pos[i][0], pos[i][1] + r * 0.24, p.sym, { size: Math.round(r * 0.7), fill: C.ink, teil }));
+    if (p.ch) { const t = tx(pos[i][0] + r * 0.78, pos[i][1] - r * 0.62, p.ch.replace(/-/g, "−"), { size: Math.round(r * 0.48), fill: C.red, teil: teil + " ladung" }); if (trans.length) { t.attrs["fill-opacity"] = 0.12; t.attrs["data-after"] = 1; } out.push(t); }
+    if (names[i]) out.push(tx(pos[i][0], cy + r + 46, names[i], { size: 30, fill: C.grey, teil }));
+  });
+  shared.forEach(([a, b], k) => {
+    if (!pos[a] || !pos[b]) return;
+    const mx = (pos[a][0] + pos[b][0]) / 2;
+    for (const dy of [-13, 13]) out.push(S("circle", { cx: mx, cy: cy + dy, r: 9, stroke: C.ink, "stroke-width": 2, fill: "#f2b705", teil: `paar paar-${k + 1} elektronenpaar` }));
+    out.push(tx(mx, cy - r - 24, "geteiltes e⁻-Paar", { size: 28, fill: C.blue, teil: `paar paar-${k + 1} elektronenpaar` }));
+  });
+  let e = 0;
+  trans.forEach(([a, b, n], k) => {
+    if (!pos[a] || !pos[b]) return;
+    const dir = Math.sign(pos[b][0] - pos[a][0]) || 1;
+    const sx = pos[a][0] + dir * r * 0.95, tx2 = pos[b][0] - dir * r * 0.95;
+    const lift = r + 40 + k * 26;
+    out.push(S("path", { d: `M${sx} ${cy - r * 0.5} Q${(sx + tx2) / 2} ${cy - lift - 40} ${tx2} ${cy - r * 0.5}`, stroke: C.red, "stroke-width": 4, fill: "none", "stroke-dasharray": "12 9", teil: `uebergang uebergang-${k + 1}` }));
+    const ex = tx2, ey = cy - r * 0.5, ang = Math.atan2(ey - (cy - lift - 40), ex - (sx + tx2) / 2);
+    out.push(S("path", { d: `M${ex - 20 * Math.cos(ang - 0.5)} ${ey - 20 * Math.sin(ang - 0.5)} L${ex} ${ey} L${ex - 20 * Math.cos(ang + 0.5)} ${ey - 20 * Math.sin(ang + 0.5)}`, stroke: C.red, "stroke-width": 4, fill: "none", teil: `uebergang uebergang-${k + 1}` }));
+    out.push(tx((sx + tx2) / 2, cy - lift - 30, n > 1 ? `${n} e⁻` : "e⁻", { size: 32, fill: C.red, teil: `uebergang uebergang-${k + 1}` }));
+    for (let j = 0; j < n; j++, e++) {
+      const fx = tx2, fy = cy - 14 + j * 28, ox = sx - fx, oy = (cy - 14 + j * 28) - fy;
+      const g = document.createElementNS(SVGNS, "g");
+      g.setAttribute("data-fly", `${ox.toFixed(1)},${oy.toFixed(1)}`);
+      g.setAttribute("style", `transform: translate(${ox.toFixed(1)}px, ${oy.toFixed(1)}px)`);
+      const dot = document.createElementNS(SVGNS, "circle");
+      for (const [kk, v] of Object.entries({ cx: fx, cy: fy, r: 10, stroke: C.ink, "stroke-width": 2, fill: "#f2b705", teil: `uebergang uebergang-${k + 1} elektron` })) dot.setAttribute(kk, v);
+      g.appendChild(dot);
+      out.push({ raw: g });
+    }
+  });
+  return out;
+}
 // Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen (schematisch)
 function compForgetting(A) {
   const x = N(A("x"), 70), y = N(A("y"), 60), w = N(A("breite"), 860), h = N(A("hoehe"), 440), days = clampN(N(A("tage"), 30), 5, 120);
@@ -603,7 +660,7 @@ function compPalace(A) {
   }
   return out;
 }
-Object.assign(COMPONENTS, { "zahlenfolge": compSequence, "venn": compVenn, "buchstaben": compLetters, "zusammensetzen": compAssemble, "vergessenskurve": compForgetting, "gedaechtnispalast": compPalace });
+Object.assign(COMPONENTS, { "zahlenfolge": compSequence, "venn": compVenn, "buchstaben": compLetters, "zusammensetzen": compAssemble, "vergessenskurve": compForgetting, "gedaechtnispalast": compPalace, "teilchen": compParticles });
 
 
 
@@ -907,13 +964,55 @@ async function captureScreen() {
   return { dataUrl, w: vw, h: vh };
 }
 
+// ---------- Anker: Stellen des Bildschirms, auf die LernBlick exakt zeigen kann ----------
+let anchors = {};
+const clean = (s, n = 70) => String(s || "").replace(/\s+/g, " ").trim().slice(0, n);
+function collectAnchors() {
+  anchors = {};
+  const lines = [], vw = window.innerWidth, vh = window.innerHeight, k = 1000 / vw, used = new Set();
+  const add = (name, e, desc) => {
+    if (!e || anchors[name] || used.has(e) || lines.length >= 45 || e.closest("#lernblick-root, #lb-wrong-btn")) return;
+    const r = e.getBoundingClientRect();
+    if (r.width < 10 || r.height < 10 || r.bottom < 0 || r.top > vh || r.right < 0 || r.left > vw || !visible(e)) return;
+    anchors[name] = e; used.add(e);
+    lines.push(`${name}: ${desc} [x ${Math.round(r.left * k)}, y ${Math.round(r.top * k)}, Breite ${Math.round(r.width * k)}, Höhe ${Math.round(r.height * k)}]`);
+  };
+  const qs = document.getElementById("screen-question");
+  if (qs && visible(qs)) {
+    add("frage", qs.querySelector("#q-text, .question-text, h2, h3"), "der Fragetext");
+    [...qs.querySelectorAll(".answer-btn")].forEach((b, i) => {
+      const L = "ABCDEFGH"[i] || String(i + 1);
+      const state = b.classList.contains("incorrect") ? " – DIE GEWÄHLTE FALSCHE ANTWORT" : b.classList.contains("correct") ? " – DIE RICHTIGE ANTWORT" : "";
+      const txt = b.querySelector(".answer-text") ? b.querySelector(".answer-text").textContent : b.textContent;
+      add("antwort-" + L.toLowerCase(), b, `${i + 1}. Antwortknopf (${L}): "${clean(txt)}"${state}`);
+    });
+    add("rueckmeldung", qs.querySelector("#q-feedback"), "Rückmeldung der App (richtig/falsch)");
+    add("erklaerung", qs.querySelector("#q-explanation"), "Erklärung der App");
+  }
+  let n = 0;
+  document.querySelectorAll("h1, h2, h3").forEach((h) => add("ueberschrift-" + (++n), h, `Überschrift "${clean(h.textContent, 60)}"`));
+  n = 0;
+  document.querySelectorAll("canvas, svg, img, video").forEach((g) => { const r = g.getBoundingClientRect(); if (r.width > 140 && r.height > 90) add("bild-" + (++n), g, `${g.localName === "canvas" ? "Grafik/Animation" : "Bild"}${g.getAttribute("aria-label") || g.alt ? ' "' + clean(g.getAttribute("aria-label") || g.alt, 40) + '"' : ""}`); });
+  n = 0;
+  document.querySelectorAll("input[type=range]").forEach((s) => { const lab = s.closest("label, .slider, .control, div")?.textContent || s.getAttribute("aria-label") || ""; add("regler-" + (++n), s, `Regler "${clean(lab, 40)}" (Wert ${s.value})`); });
+  n = 0;
+  document.querySelectorAll("button, [role=tab], .tab, a.btn").forEach((b) => { const t = clean(b.textContent, 40); if (t && n < 14) add("knopf-" + (++n), b, `Knopf "${t}"`); });
+  n = 0;
+  document.querySelectorAll("table, .card, .info-box, .formula, .result, p, li, label").forEach((p) => { const t = clean(p.textContent, 60); if (t.length > 12 && n < 12 && !p.querySelector("table, .card")) add("text-" + (++n), p, `Text "${t}"`); });
+  return lines.join("\n");
+}
+
 // ---------- Anleitung für die KI ----------
 function rules() {
   const L = LB_LANGS[$("lang").value] || LB_LANGS.de;
   const voice = lb.speak ? "Die Antwort wird VORGELESEN: höchstens 6 kurze Sätze, keine Listen, keine Tabellen, keine Sonderzeichen-Formeln im Text (Formeln gehören an die Tafel)." : "Halte dich kurz (höchstens etwa 160 Wörter). **fett** und Listen mit '- ' sind erlaubt.";
   const H = Math.round(1000 * lb.shotH / lb.shotW);
-  const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Du kannst wie mit einem Marker direkt auf den Bildschirm der Person zeichnen (einkreisen, unterstreichen, Pfeile, kurze Beschriftungen, zart einfärben). Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nDas Koordinatensystem entspricht genau dem Screenshot: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand. Schau genau hin, wo die Dinge liegen, und zeichne präzise darauf. Erlaubt: line, polyline, polygon, path, circle, ellipse, rect, text, pfeil; Linien stroke-width 4 bis 6, Text font-size 30 bis 44. Gib jedem Element teil='name' und zeige im Text mit [[name|…]] darauf. Höchstens 12 Elemente. Wenn nichts einzuzeichnen ist, lass BILDZEICHNUNG weg.` : "";
-  return `${LB_ROLE}${EXTRAS}${draw}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
+  const anchorList = lb.anchorText ? `\nANKER – diese Stellen des Bildschirms kennt das Programm genau (Name: was dort steht [Position im Screenshot]):\n${lb.anchorText}\n` : "";
+  const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
+  const f = lb.ctx && lb.ctx.frage;
+  const wrong = f && f.gewaehlt ? `\n\nFALSCH BEANTWORTETE AUFGABE – so erklärst du:\n1. Erst auf dem Bildschirm zeigen (BILDZEICHNUNG mit markiere): die gewählte Antwort rot einkreisen (text 'deine Wahl', teil 'deine-wahl'), die richtige grün einkreisen (text 'richtig', teil 'richtig'), ein entscheidendes Schlüsselwort der Frage (z. B. NICHT) orange unterstreichen. Achte genau darauf, welcher Buchstabe welche Antwort ist (KONTEXT und ANKER).\n2. Dann 1 bis 3 Tafeln, die das Fachwissen SICHTBAR machen – genau das, was man im Kopf haben muss, um die Frage zu lösen: Teilchen, Moleküle, Elektronen, Kräfte, Abläufe, Kurven. Bei Abläufen eine Tafel pro Schritt. Die Frage, die Antwortmöglichkeiten oder die Erklärung der App schreibst du NICHT an die Tafel – das steht schon auf dem Bildschirm.\n3. Im Text (vorgelesen) benennst du den Denkfehler in einem Satz, ohne Vorwurf, und gibst am Ende einen kurzen Prüfungstipp.` : "";
+  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
+  return `${LB_ROLE}${EXTRAS}${board}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
 }
 
 // ---------- Panel aufbauen ----------
@@ -963,13 +1062,41 @@ function buildUI() {
         <span class="lb-seg"><button type="button" id="lb-styleErk" aria-pressed="true">Erklären</button><button type="button" id="lb-styleSok" aria-pressed="false">Selbst denken</button></span>
       </div>
     </footer>
-  </aside>`;
+  </aside>
+  <section id="lb-stage" class="lb-stage" hidden aria-label="LernBlick Tafel">
+    <div class="lb-stage-top">
+      <div class="lb-brand">Lern<span>Blick</span></div>
+      <div id="lb-stage-title" class="lb-stage-title"></div>
+      <div class="lb-row lb-stage-tools">
+        <button class="lb-ghost" id="lb-stage-mode" type="button">Bildschirm ansehen</button>
+        <button class="lb-icon" id="lb-stage-close" type="button" aria-label="Tafel schließen">✕</button>
+      </div>
+    </div>
+    <div id="lb-stage-main" class="lb-stage-main"><div class="lb-turn">Tipp: Handy quer halten – dann wird die Tafel groß.</div></div>
+    <div class="lb-stage-bottom">
+      <div class="lb-stage-nav">
+        <button class="lb-navbtn" id="lb-prev" type="button" aria-label="Vorherige Tafel">‹</button>
+        <span id="lb-count" class="lb-count"></span>
+        <button class="lb-navbtn" id="lb-next" type="button" aria-label="Nächste Tafel">›</button>
+        <button class="lb-ghost lb-peekback" id="lb-peekback" type="button">Zur Tafel</button>
+      </div>
+      <div id="lb-sub" class="lb-sub" dir="auto" aria-live="polite"></div>
+      <div id="lb-stage-status" class="lb-status"></div>
+      <div class="lb-stage-actions">
+        <button class="lb-ghost" id="lb-sreplay" type="button">▶ Nochmal</button>
+        <button class="lb-ghost" id="lb-sstop" type="button">Stopp</button>
+        <input id="lb-sq" type="text" placeholder="Nachfragen …" dir="auto" aria-label="Nachfragen">
+        <button class="lb-send" id="lb-ssend" type="button">Fragen</button>
+        <button class="lb-ghost lb-done" id="lb-sdone" type="button">Fertig</button>
+      </div>
+    </div>
+  </section>`;
   document.body.appendChild(root);
   for (const [k, l] of Object.entries(LB_LANGS)) $("lang").add(new Option(l.label, k));
   $("fab").onclick = () => openPanel();
   $("close").onclick = closePanel;
   $("reshot").onclick = async () => { await takeShot(true); };
-  $("toggle-draw").onclick = () => { const d = $("imgdraw"); const on = d.style.visibility !== "hidden"; d.style.visibility = on ? "hidden" : "visible"; $("toggle-draw").textContent = on ? "Zeichnung einblenden" : "Zeichnung ausblenden"; };
+  $("toggle-draw").onclick = () => { drawHidden = !drawHidden; $("imgdraw").style.visibility = drawHidden ? "hidden" : "visible"; $("toggle-draw").textContent = drawHidden ? "Zeichnung einblenden" : "Zeichnung ausblenden"; };
   $("send").onclick = () => ask();
   $("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
   $("stop").onclick = stopWalk;
@@ -980,8 +1107,28 @@ function buildUI() {
   $("styleSok").onclick = () => setStyle("sokratisch");
   $("newBoard").onclick = () => { clearBoard(); clearImgDraw(); };
   $("boardStyle").onchange = () => { if (curBoard >= 0) showBoard(curBoard); };
-  window.addEventListener("scroll", () => { if (Math.abs(window.scrollY - lb.shotScroll[1]) > 30) $("imgdraw").style.visibility = "hidden"; }, { passive: true });
-  window.addEventListener("resize", () => { $("imgdraw").style.visibility = "hidden"; });
+  let raf = 0;
+  const follow = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (lastImg) renderImgDraw(lastImg, false); }); };
+  window.addEventListener("scroll", follow, { passive: true });
+  window.addEventListener("resize", follow);
+  if (window.ResizeObserver) new ResizeObserver(follow).observe(document.body);
+  $("stage-close").onclick = closeStage;
+  $("sdone").onclick = closeStage;
+  $("stage-mode").onclick = () => setStageMode(stageMode === "tafel" ? "peek" : "tafel");
+  $("peekback").onclick = () => setStageMode("tafel");
+  $("prev").onclick = () => { if (curBoard > 0) { stopWalk(); showBoard(curBoard - 1, true, 3000); } };
+  $("next").onclick = () => { if (curBoard < cur.boards.length - 1) { stopWalk(); showBoard(curBoard + 1, true, 3000); } };
+  $("sreplay").onclick = replayExplain;
+  $("sstop").onclick = stopWalk;
+  const stageAsk = () => { const v = $("sq").value.trim(); if (v) { $("sq").value = ""; ask(v); } };
+  $("ssend").onclick = stageAsk;
+  $("sq").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); stageAsk(); } });
+  document.addEventListener("keydown", (e) => {
+    if ($("stage").hidden || e.target.closest?.("input, textarea, select")) return;
+    if (e.key === "Escape") closeStage();
+    if (e.key === "ArrowRight") $("next").click();
+    if (e.key === "ArrowLeft") $("prev").click();
+  });
   setupMic();
   for (const [label, question] of [
     ["Was sehe ich hier?", "Erklär mir einfach und anschaulich, was auf diesem Bildschirm gezeigt wird und worauf es ankommt."],
@@ -1012,6 +1159,7 @@ async function takeShot(announce) {
   try {
     const s = await captureScreen();
     lb.shot = s.dataUrl; lb.shotW = s.w; lb.shotH = s.h; lb.shotScroll = [window.scrollX, window.scrollY];
+    try { lb.anchorText = collectAnchors(); } catch (e) { lb.anchorText = ""; }
     shotBlob = true; shotW = s.w; shotH = s.h;
     $("shot").src = s.dataUrl;
     clearImgDraw();
@@ -1039,6 +1187,7 @@ async function openPanel(opts = {}) {
   else setTimeout(() => $("q").focus(), 50);
 }
 function closePanel() {
+  closeStage();
   stopWalk();
   lb.open = false;
   $("panel").hidden = true;
@@ -1059,6 +1208,7 @@ async function ask(preset) {
   lb.busy = true; $("send").disabled = true; $("q").value = ""; $("tips").hidden = true;
   stopWalk();
   addMsg("user", esc(q));
+  if (!$("stage").hidden) setSub("Ich schaue mir das an …");
   const bubble = addMsg("ai", '<span class="lb-thinking">Ich schaue mir das an …</span>');
   setStatus("");
   const history = cur.turns.slice(-6).flatMap((t) => [{ role: "user", content: t.q }, { role: "assistant", content: t.a }]);
@@ -1071,7 +1221,10 @@ async function ask(preset) {
     const text = data.response || "";
     const { body, svgs, imgSvg, mols, tricks } = splitAnswer(text);
     bubble.innerHTML = md(body);
-    if (imgSvg && !renderImgDraw(imgSvg)) setStatus("Die Zeichnung auf dem Bildschirm war fehlerhaft.");
+    const willStage = !!(imgSvg || svgs.length || mols.length);
+    if (willStage) openStage(svgs.length || mols.length ? "tafel" : "peek");
+    const hasImg = imgSvg ? renderImgDraw(imgSvg) : false;
+    if (imgSvg && !hasImg) setStatus("Die Zeichnung auf dem Bildschirm war fehlerhaft.");
     cur.turns.push({ q: (first ? contextText(lb.ctx) + "\n\nFRAGE: " : "") + q, a: body });
     const okSvgs = svgs.filter((x) => sanitizeSvg(x, "0 0 1000 600"));
     if (okSvgs.length || mols.length) {
@@ -1081,8 +1234,15 @@ async function ask(preset) {
       answerBoards = [firstIdx, cur.boards.length - 1];
       $("boardwrap").hidden = false;
       renderStrip();
+      openStage("tafel");
       boardDur = showBoard(firstIdx) || 0;
-      setTimeout(() => $("boardwrap").scrollIntoView({ block: "start", behavior: "smooth" }), 60);
+    }
+    if (!$("stage").hidden) {
+      // Beginnt die Erklärung mit einer Stelle auf dem Bildschirm, zuerst den Bildschirm zeigen
+      const firstRefs = sentencesOf(body).map(refsIn).find((r) => r.length) || [];
+      const onScreen = firstRefs.some((n) => document.querySelector(`${SCOPE} #lb-imgdraw [data-teil~="${n}"]`));
+      setStageMode(!cur.boards.length || onScreen ? "peek" : "tafel");
+      setSub("");
     }
     if (tricks.length) addMsg("trick", tricks.map((t) => `<b>Eselsbrücke:</b> ${esc(t.merksatz)}${t.wofuer ? ` <span class="lb-muted">(${esc(t.wofuer)})</span>` : ""}`).join("<br>"));
     lastBody = body;
@@ -1110,7 +1270,7 @@ function clearBoard() {
   $("board").replaceChildren(el("div", "lb-board-empty", "Hier zeichne ich, wenn ein Bild beim Verstehen hilft."));
   curBoard = -1; markStrip();
 }
-function showBoard(i, animate = true, cap = 20000) {
+function showBoard(i, animate = true, cap = 9000) {
   const b = cur.boards[i];
   if (!b) return 0;
   curBoard = i;
@@ -1119,9 +1279,10 @@ function showBoard(i, animate = true, cap = 20000) {
   $("board").className = "board" + (theme === "chalk" ? " chalk" : "");
   const out = b.svg ? buildBoardSvg(b.svg, theme) : null;
   let dur = 0;
-  if (out) { $("board").replaceChildren(out); if (animate) dur = animateSvg(out, cap); }
+  if (out) { $("board").replaceChildren(out); fitTexts(out); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTexts(out)); if (animate) dur = animateSvg(out, cap); }
   else $("board").replaceChildren(el("div", "lb-board-empty", b.mols && b.mols.length ? "Strukturformel siehe oben." : "Diese Zeichnung konnte nicht angezeigt werden."));
   markStrip();
+  updateStageNav();
   return dur;
 }
 function renderStrip() {
@@ -1141,22 +1302,154 @@ function renderStrip() {
 function markStrip() { [...$("strip").children].forEach((c, i) => c.setAttribute("aria-current", i === curBoard ? "true" : "false")); }
 
 // ---------- Auf den Bildschirm zeichnen ----------
-function clearImgDraw() { $("imgdraw").replaceChildren(); $("toggle-draw").hidden = true; }
-function renderImgDraw(svgText) {
+// Markierungen sitzen auf echten Elementen der Seite (Anker) und wandern beim Scrollen mit.
+let lastImg = null, drawHidden = false, curHL = [];
+const MARK_COLORS = { rot: "#d62828", gruen: "#2a9d4b", "grün": "#2a9d4b", blau: "#1f6fd1", orange: "#f07c1a", lila: "#7b3fc4", gelb: "#f2b705", schwarz: "#1A1A1A" };
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
+function clearImgDraw() { $("imgdraw").replaceChildren(); $("toggle-draw").hidden = true; lastImg = null; }
+function drawMark(dst, m, vw, vh) {
+  const target = anchors[(m.getAttribute("ziel") || "").trim().toLowerCase()];
+  if (!target || !target.isConnected) return;
+  let r = target.getBoundingClientRect();
+  if (!r.width || r.bottom < 0 || r.top > vh) return;
+  const art = (m.getAttribute("art") || "kreis").trim().toLowerCase();
+  const fc = (m.getAttribute("farbe") || "rot").trim();
+  const c = MARK_COLORS[fc.toLowerCase()] || (/^#[0-9a-f]{6}$/i.test(fc) ? fc : "#d62828");
+  const teil = (m.getAttribute("teil") || "").trim().toLowerCase();
+  const T = TEIL_OK.test(teil) ? teil : "";
+  const text = clean(m.getAttribute("text") || "", 40);
+  const mk = (tag, attrs, txt) => { const e = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (T) e.setAttribute("teil", T); if (txt != null) e.textContent = txt; dst.appendChild(e); return e; };
+  const st = (m.getAttribute("stelle") || "").split(/[\s,;]+/).map(Number);
+  const pt = st.length === 2 && st.every(isFinite) ? [r.left + clamp01(st[0]) * r.width, r.top + clamp01(st[1]) * r.height] : null;
+  const pad = 6;
+  let x = r.left - pad, y = r.top - pad, w = r.width + 2 * pad, h = r.height + 2 * pad;
+  const wide = w > 3.2 * h && w > 260;
+  if (pt && art !== "pfeil") { x = pt[0] - 38; y = pt[1] - 30; w = 76; h = 60; }
+  let right = x + w;
+  switch (art) {
+    case "rahmen": mk("rect", { x, y, width: w, height: h, stroke: c, "stroke-width": 5, fill: "none" }); break;
+    case "unterstreichen": mk("line", { x1: x + 6, y1: y + h - 2, x2: x + w - 6, y2: y + h - 2, stroke: c, "stroke-width": 6 }); break;
+    case "leuchtstift": mk("rect", { x, y, width: w, height: h, stroke: "none", fill: "#f2b705" }); break;
+    case "haken": { const cx = x + w - 36, cy = y + h / 2; mk("path", { d: `M${cx - 18} ${cy} L${cx - 5} ${cy + 15} L${cx + 22} ${cy - 20}`, stroke: c, "stroke-width": 7 }); break; }
+    case "kreuz": { const cx = x + w - 36, cy = y + h / 2; mk("path", { d: `M${cx - 16} ${cy - 16} L${cx + 16} ${cy + 16} M${cx + 16} ${cy - 16} L${cx - 16} ${cy + 16}`, stroke: c, "stroke-width": 7 }); break; }
+    case "pfeil": {
+      const tx = pt ? pt[0] : x - 2, ty = pt ? pt[1] : y + h / 2;
+      const fromLeft = tx > 170, sx = fromLeft ? tx - 130 : tx + 130, sy = ty - 70;
+      const ang = Math.atan2(ty - sy, tx - sx), hl = 20;
+      mk("path", { d: `M${sx} ${sy} Q${(sx + tx) / 2} ${sy - 10} ${tx} ${ty}`, stroke: c, "stroke-width": 6 });
+      mk("path", { d: `M${tx - hl * Math.cos(ang - 0.45)} ${ty - hl * Math.sin(ang - 0.45)} L${tx} ${ty} L${tx - hl * Math.cos(ang + 0.45)} ${ty - hl * Math.sin(ang + 0.45)}`, stroke: c, "stroke-width": 6 });
+      if (text) { const fs = 30, tw = text.length * fs * 0.48; mk("text", { x: Math.max(8, Math.min(vw - tw - 8, sx - tw / 2)), y: Math.max(32, sy - 12), fill: c, "font-size": fs }, text); }
+      return;
+    }
+    default: {
+      // Einkreisen: bei breiten Antwortknöpfen den Buchstaben einkreisen, sonst das Ganze
+      const badge = wide && target.querySelector(".answer-label, .option-label, .letter");
+      if (badge && !pt) { const b = badge.getBoundingClientRect(); mk("ellipse", { cx: b.left + b.width / 2, cy: b.top + b.height / 2, rx: b.width / 2 + 14, ry: b.height / 2 + 12, stroke: c, "stroke-width": 6, fill: "none" }); mk("rect", { x, y, width: w, height: h, stroke: c, "stroke-width": 3, fill: "none", opacity: 0.6 }); }
+      else { mk("ellipse", { cx: x + w / 2, cy: y + h / 2, rx: w / 2 + 12, ry: h / 2 + 12, stroke: c, "stroke-width": 6, fill: "none" }); right = x + w + 12; }
+    }
+  }
+  if (!text) return;
+  const fs = 32, tw = text.length * fs * 0.48;
+  let lx, ly;
+  if (wide && !pt) {                                                          // rechts im Knopf, sonst darüber
+    lx = x + w - tw - 24; ly = y + h / 2 + 11;
+    let textRight = 0;
+    try { const rg = document.createRange(); rg.selectNodeContents(target.querySelector(".answer-text") || target); for (const q of rg.getClientRects()) textRight = Math.max(textRight, q.right); } catch (e) {}
+    if (lx < textRight + 8) ly = y + 4;
+  }
+  else if (right + 14 + tw < vw - 8) { lx = right + 14; ly = y + h / 2 + 11; } // daneben
+  else { lx = Math.max(8, Math.min(x + w - tw, vw - tw - 8)); ly = y > 50 ? y - 12 : y + h + 36; } // darüber/darunter
+  mk("text", { x: lx, y: ly, fill: c, "font-size": fs }, text);
+}
+function renderImgDraw(svgText, animate = true) {
   const box = $("imgdraw");
   box.replaceChildren();
-  if (!svgText || !lb.shot) return false;
-  const H = Math.round(1000 * lb.shotH / lb.shotW);
-  const out = sanitizeSvg(svgText, `0 0 1000 ${H}`);
-  if (!out) return false;
-  box.setAttribute("viewBox", `0 0 1000 ${H}`);
-  roughify(out, "white", 1.2);
-  [...out.childNodes].forEach((n) => box.appendChild(n));
-  const sameView = Math.abs(window.scrollY - lb.shotScroll[1]) < 30 && Math.abs(window.innerWidth - lb.shotW) < 4;
-  box.style.visibility = sameView ? "visible" : "hidden";
-  $("toggle-draw").hidden = false; $("toggle-draw").textContent = sameView ? "Zeichnung ausblenden" : "Zeichnung einblenden";
-  animateSvg(box);
+  lastImg = svgText || null;
+  if (!svgText) return false;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  box.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
+  const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
+  if (doc.getElementsByTagName("parsererror").length || !doc.documentElement) return false;
+  const marks = [...doc.documentElement.getElementsByTagName("markiere")];
+  marks.forEach((m) => m.parentNode.removeChild(m));
+  const tmp = document.createElementNS(SVGNS, "svg");
+  for (const m of marks.slice(0, 8)) { try { drawMark(tmp, m, vw, vh); } catch (e) {} }
+  roughify(tmp, "white", 1);
+  // freie Zeichnung in Screenshot-Koordinaten: nur solange die Ansicht gleich ist
+  const sameView = Math.abs(window.scrollY - lb.shotScroll[1]) < 30 && Math.abs(vw - lb.shotW) < 4;
+  if (sameView && lb.shot) {
+    const H = Math.round(1000 * lb.shotH / lb.shotW);
+    const free = sanitizeSvg(new XMLSerializer().serializeToString(doc.documentElement), `0 0 1000 ${H}`);
+    if (free) {
+      roughify(free, "white", 1.2);
+      const g = document.createElementNS(SVGNS, "g");
+      g.setAttribute("transform", `scale(${vw / 1000})`);
+      [...free.childNodes].forEach((n) => g.appendChild(n));
+      box.appendChild(g);
+    }
+  }
+  [...tmp.childNodes].forEach((n) => box.appendChild(n));
+  if (!box.childNodes.length) return !!marks.length;
+  box.style.visibility = drawHidden ? "hidden" : "visible";
+  $("toggle-draw").hidden = false;
+  if (animate) animateSvg(box);
+  else if (curHL.length) highlight(curHL);
   return true;
+}
+
+// ---------- Vollbild-Tafel ----------
+let stageMode = "tafel";
+function openStage(mode) {
+  const st = $("stage");
+  if (st.hidden) {
+    $("stage-main").append($("mols"), $("board"));
+    st.hidden = false;
+    document.documentElement.classList.add("lb-staged");
+  }
+  setStageMode(mode || (cur.boards.length ? "tafel" : "peek"));
+  updateStageNav();
+}
+function closeStage() {
+  const st = $("stage");
+  if (st.hidden) return;
+  stopWalk();
+  $("boardwrap").insertBefore($("mols"), $("stripWrap"));
+  $("boardwrap").insertBefore($("board"), $("stripWrap"));
+  st.hidden = true; st.classList.remove("peek");
+  document.documentElement.classList.remove("lb-staged");
+  if (curBoard >= 0) showBoard(curBoard, false);
+}
+function setStageMode(m) {
+  if (m === "tafel" && !cur.boards.length) m = "peek";
+  stageMode = m;
+  $("stage").classList.toggle("peek", m === "peek");
+  $("stage").classList.toggle("has-boards", cur.boards.length > 0);
+  if (m === "peek" && drawHidden) { drawHidden = false; $("imgdraw").style.visibility = "visible"; }
+  if (m === "tafel" && curBoard >= 0) requestAnimationFrame(() => { const s = $("board").querySelector("svg"); if (s) fitTexts(s); });
+}
+function updateStageNav() {
+  const n = cur.boards.length;
+  $("count").textContent = n ? `Tafel ${curBoard + 1} von ${n}` : "";
+  $("prev").disabled = curBoard <= 0; $("next").disabled = curBoard >= n - 1;
+  $("prev").hidden = $("next").hidden = n < 2;
+  const b = cur.boards[curBoard];
+  $("stage-title").textContent = b ? (b.titel || "") : "";
+}
+function setSub(s) { const e = $("sub"); if (e) e.innerHTML = s ? md(s) : ""; }
+// Text an der Tafel, der über den Rand ragt, verkleinern bzw. hereinschieben
+function fitTexts(svg) {
+  const vb = svg.viewBox && svg.viewBox.baseVal;
+  if (!vb || !vb.width || !svg.isConnected) return;
+  svg.querySelectorAll("text").forEach((t) => {
+    if (t.getAttribute("transform") || t.closest("[transform]")) return;
+    let b; try { b = t.getBBox(); } catch (e) { return; }
+    if (!b || !b.width) return;
+    const maxW = vb.width - 40;
+    if (b.width > maxW) { const fs = parseFloat(t.getAttribute("font-size")) || 30; t.setAttribute("font-size", Math.max(16, fs * maxW / b.width).toFixed(1)); b = t.getBBox(); }
+    let dx = 0;
+    if (b.x < vb.x + 15) dx = vb.x + 15 - b.x; else if (b.x + b.width > vb.x + vb.width - 15) dx = vb.x + vb.width - 15 - (b.x + b.width);
+    if (dx && t.hasAttribute("x") && !/[\s,]/.test(t.getAttribute("x").trim())) t.setAttribute("x", (parseFloat(t.getAttribute("x")) || 0) + dx);
+  });
 }
 
 // ---------- Zeigen: Text und Tafel synchron ----------
@@ -1185,6 +1478,7 @@ function goToRefs(refs) {
   return false;
 }
 function highlight(names) {
+  curHL = names || [];
   if ((names || []).some((n) => n === "zusammensetzen" || n === "ziel")) assemble(true);
   document.querySelectorAll(`${SCOPE} .glow`).forEach((e) => e.classList.remove("glow"));
   document.querySelectorAll(`${SCOPE} .ref.active`).forEach((e) => e.classList.remove("active"));
@@ -1192,6 +1486,13 @@ function highlight(names) {
     document.querySelectorAll(`${SCOPE} #lb-board [data-teil~="${n}"], ${SCOPE} #lb-imgdraw [data-teil~="${n}"], ${SCOPE} #lb-mols [data-teil~="${n}"]`).forEach((e) => {
       e.getAnimations?.({ subtree: true }).forEach((a) => { try { a.finish(); } catch (err) {} });
       e.classList.add("glow");
+      if (/^uebergang/.test(n)) e.closest("svg")?.querySelectorAll("[data-after]").forEach((a) => { a.animate([{ fillOpacity: 0.12 }, { fillOpacity: 1 }], { duration: 600, delay: 1500, fill: "forwards" }); });
+      const fly = e.closest("[data-fly]");
+      if (fly && !fly.dataset.flown) {
+        fly.dataset.flown = "1";
+        const [dx, dy] = fly.getAttribute("data-fly").split(",").map(Number);
+        fly.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0px, 0px)" }], { duration: 1600, easing: "ease-in-out", fill: "forwards" });
+      }
     });
     document.querySelectorAll(`${SCOPE} .ref[data-ref="${n}"]`).forEach((e) => e.classList.add("active"));
   }
@@ -1221,6 +1522,11 @@ function keepBoardInView(refs) {
   }
 }
 function showRefs(refs) {
+  if (!$("stage").hidden && refs.length) {
+    const onScreen = refs.some((n) => document.querySelector(`${SCOPE} #lb-imgdraw [data-teil~="${n}"]`));
+    const onBoard = refs.some((n) => cur.boards.some((b) => (b.teile || []).includes(n) || (b.mols || []).some((m) => slug(m.name) === n)));
+    if (onScreen && !onBoard) setStageMode("peek"); else if (onBoard) setStageMode("tafel");
+  }
   const moved = goToRefs(refs);
   if (moved) walkTimers.push(setTimeout(() => { highlight(refs); keepBoardInView(refs); }, 900));
   else { highlight(refs); keepBoardInView(refs); }
@@ -1230,11 +1536,10 @@ function explain(body, delay) {
   const sents = sentencesOf(body);
   if (lb.speak && lb.natural) return speakNatural(sents);
   if (lb.speak && "speechSynthesis" in window) return speakBrowser(sents);
-  let t = Math.min(delay || 0, 6000);
+  let t = Math.min(delay || 0, 2500);
   for (const s of sents) {
     const refs = refsIn(s);
-    if (!refs.length) continue;
-    walkTimers.push(setTimeout(() => showRefs(refs), t));
+    walkTimers.push(setTimeout(() => { setSub(s); if (refs.length) showRefs(refs); }, t));
     t += Math.max(2200, plain(s).length * 60) + (refs.some(visibleHas) ? 0 : 1500);
   }
   walkTimers.push(setTimeout(() => highlight([]), t + 400));
@@ -1250,7 +1555,7 @@ function speakBrowser(sents) {
     const u = new SpeechSynthesisUtterance(plain(s));
     u.voice = v; if (v) u.lang = v.lang;
     const refs = refsIn(s);
-    u.onstart = () => showRefs(refs);
+    u.onstart = () => { setSub(s); showRefs(refs); };
     if (i === sents.length - 1) u.onend = () => walkTimers.push(setTimeout(() => highlight([]), 1500));
     speechSynthesis.speak(u);
   });
@@ -1273,8 +1578,9 @@ function speakNatural(sents) {
     fetchNext();
     const j = jobs[playing];
     const url = await j.audio;
-    if (failed && !url) { setStatus("Die natürliche Stimme ist gerade nicht erreichbar – ich lese mit der Browser-Stimme vor."); return speakBrowser(sents.slice(playing)); }
+    if (failed && !url) { lb.natural = false; $("natural").checked = false; setStatus("Die natürliche Stimme ist gerade nicht erreichbar – ich lese mit der Browser-Stimme vor."); return speakBrowser(sents.slice(playing)); }
     playing++;
+    setSub(j.s);
     showRefs(j.refs);
     if (!url) return playNext();
     currentAudio = new Audio(url);
@@ -1287,6 +1593,7 @@ function speakNatural(sents) {
 }
 function replayExplain() {
   if (!lastBody) { setStatus("Stell zuerst eine Frage."); return; }
+  document.querySelectorAll(`${SCOPE} [data-flown]`).forEach((g) => { g.getAnimations().forEach((a) => a.cancel()); delete g.dataset.flown; });
   if (answerBoards && curBoard !== answerBoards[0]) showBoard(answerBoards[0], false);
   let dur = 0;
   document.querySelectorAll(`${SCOPE} #lb-mols svg, ${SCOPE} #lb-board svg`).forEach((svg) => { dur = Math.max(dur, animateSvg(svg)); });
