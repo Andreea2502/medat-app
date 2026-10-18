@@ -1,0 +1,126 @@
+/* LernBlick – KI-Lerntutor (Panel rechts bzw. unten am Handy, schwebender Knopf unten links) */
+#lernblick-root {
+  --lb-bg: #faf6ee;
+  --lb-card: #ffffff;
+  --lb-ink: #1a1a2e;
+  --lb-muted: #5c5c6e;
+  --lb-line: #e8e2d8;
+  --lb-accent: #f5c542;
+  --lb-accent-ink: #1a1a2e;
+  --lb-red: #c0392b;
+  --lb-paper: #fdfcf8;
+  --lb-glow: #e0115f;
+  --lb-hand: "Caveat", "Comic Sans MS", cursive;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--lb-ink);
+}
+#lernblick-root *, .lb-wrong-btn { box-sizing: border-box; }
+#lernblick-root [hidden] { display: none !important; }
+
+/* Schwebender Knopf */
+#lb-fab {
+  position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 9000;
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px 11px 12px; border: none; border-radius: 999px;
+  background: var(--lb-ink); color: #fff; font: 600 14px/1 inherit; font-family: inherit; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26, 26, 46, 0.28); transition: transform .15s ease;
+}
+#lb-fab:hover { transform: translateY(-2px); }
+#lb-fab:focus-visible, #lernblick-root button:focus-visible, #lernblick-root select:focus-visible, #lernblick-root textarea:focus-visible { outline: 3px solid var(--lb-accent); outline-offset: 2px; }
+.lb-fab-dot { width: 22px; height: 22px; border-radius: 50%; background: var(--lb-accent); box-shadow: inset 0 0 0 5px var(--lb-ink), 0 0 0 2px var(--lb-accent); flex: none; }
+@media (max-width: 520px) { #lb-fab span:last-child { display: none; } #lb-fab { padding: 12px; } }
+
+/* Zeichnung direkt auf dem Bildschirm */
+.lb-imgdraw { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 8990; overflow: visible; }
+.lb-imgdraw text { font-family: var(--lb-hand); font-weight: 700; paint-order: stroke; stroke: #ffffff; stroke-width: 6px; stroke-linejoin: round; }
+
+/* Panel */
+.lb-panel {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 9100; width: min(520px, 100vw);
+  display: flex; flex-direction: column; background: var(--lb-bg); border-left: 1px solid var(--lb-line);
+  box-shadow: -10px 0 40px rgba(26, 26, 46, 0.16); animation: lb-in .25s ease-out;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+@keyframes lb-in { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 700px) {
+  .lb-panel { top: auto; left: 0; width: 100vw; height: 78vh; border-left: none; border-top: 1px solid var(--lb-line); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 40px rgba(26, 26, 46, 0.2); }
+  @keyframes lb-in { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+}
+.lb-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; border-bottom: 3px solid var(--lb-accent); background: var(--lb-card); }
+.lb-brand { font-weight: 800; font-size: 20px; letter-spacing: -0.02em; }
+.lb-brand span { color: #c99a12; }
+.lb-head-actions { display: flex; gap: 8px; align-items: center; }
+#lernblick-root select { padding: 6px 8px; border-radius: 8px; border: 1px solid var(--lb-line); background: var(--lb-card); color: var(--lb-ink); font: inherit; font-size: 13px; }
+.lb-icon { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--lb-line); background: var(--lb-card); color: var(--lb-ink); font-size: 16px; cursor: pointer; flex: none; }
+.lb-scroll { flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; }
+.lb-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--lb-muted); }
+.lb-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.lb-ghost { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--lb-line); background: var(--lb-card); color: var(--lb-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.lb-ghost:hover { border-color: var(--lb-ink); }
+
+.lb-seen { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 12px; align-items: start; padding: 10px; border-radius: 12px; background: var(--lb-card); border: 1px solid var(--lb-line); }
+.lb-seen img { width: 112px; height: 72px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--lb-line); background: #eee; }
+.lb-seen-text { display: grid; gap: 4px; min-width: 0; }
+#lb-seen-title { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+
+/* Tafel */
+.lb-boardwrap { display: flex; flex-direction: column; gap: 8px; }
+.lb-boardhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+#lernblick-root .board { background: var(--lb-paper); border: 1px solid var(--lb-line); border-radius: 12px; padding: 8px; box-shadow: inset 0 0 0 5px #f4f1ea; }
+#lernblick-root .board svg, #lernblick-root .lb-mini svg { width: 100%; height: auto; display: block; overflow: visible; }
+#lernblick-root .board text, #lernblick-root .lb-mini text { font-family: var(--lb-hand); font-weight: 700; }
+#lernblick-root .board.chalk { background: #23392d; border-color: #6b4f33; box-shadow: inset 0 0 0 7px #7a5a3a, inset 0 0 40px rgba(0,0,0,.35); padding: 12px; --lb-glow: #ffe066; }
+.lb-board-empty { font-family: var(--lb-hand); font-size: 22px; color: #9a948a; text-align: center; padding: 26px 10px; }
+.lb-mols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+#lernblick-root .mol { margin: 0; background: var(--lb-paper); border: 1px solid var(--lb-line); border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+#lernblick-root .mol svg { width: 100%; height: 160px; display: block; }
+#lernblick-root .mol figcaption { font-family: var(--lb-hand); font-size: 22px; font-weight: 700; text-align: center; }
+.lb-strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.lb-mini { flex: none; width: 112px; background: var(--lb-paper); border: 2px solid var(--lb-line); border-radius: 10px; padding: 4px; text-align: left; cursor: pointer; }
+.lb-mini[aria-current="true"] { border-color: var(--lb-accent); }
+.lb-cap { font-size: 10.5px; line-height: 1.25; padding-top: 3px; color: #4a4545; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.lb-molcap { font-family: var(--lb-hand); font-size: 18px; text-align: center; padding: 14px 4px; }
+
+/* Gespräch */
+.lb-chat { display: flex; flex-direction: column; gap: 8px; }
+.lb-msg { padding: 9px 12px; border-radius: 12px; max-width: 94%; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.lb-user { align-self: flex-end; background: var(--lb-ink); color: #fff; }
+.lb-ai { align-self: flex-start; background: var(--lb-card); border: 1px solid var(--lb-line); }
+.lb-ai ul { margin: 4px 0; padding-left: 18px; }
+.lb-trick { align-self: stretch; background: #fff6c8; color: #2b2615; border-radius: 6px; font-family: inherit; }
+.lb-err { align-self: stretch; border: 1px solid var(--lb-red); color: var(--lb-red); background: #fff; }
+.lb-muted { color: var(--lb-muted); }
+.lb-empty { margin: 0; color: var(--lb-muted); font-size: 14px; }
+.lb-thinking { color: var(--lb-muted); animation: lb-pulse 1.2s ease-in-out infinite alternate; }
+@keyframes lb-pulse { to { opacity: .45; } }
+.lb-tips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lb-tip { padding: 7px 12px; border-radius: 999px; border: 1px solid var(--lb-line); background: var(--lb-card); color: var(--lb-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.lb-tip:hover { border-color: #c99a12; background: #fff9e6; }
+
+/* Eingabe */
+.lb-foot { border-top: 1px solid var(--lb-line); background: var(--lb-card); padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px; }
+.lb-status { font-size: 12.5px; color: var(--lb-red); min-height: 0; }
+.lb-status:empty { display: none; }
+.lb-compose { display: flex; gap: 8px; align-items: flex-end; }
+#lb-q { flex: 1; min-width: 0; resize: none; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--lb-line); background: #fff; color: var(--lb-ink); font: inherit; font-size: 14px; }
+.lb-send { height: 44px; padding: 0 16px; border-radius: 10px; border: none; background: var(--lb-accent); color: var(--lb-accent-ink); font: inherit; font-weight: 700; cursor: pointer; }
+.lb-send:disabled { opacity: .5; cursor: wait; }
+.lb-mic.on { background: var(--lb-red); color: #fff; border-color: var(--lb-red); }
+.lb-small { font-size: 12.5px; }
+.lb-check { display: inline-flex; align-items: center; gap: 4px; color: var(--lb-muted); }
+.lb-seg { display: inline-flex; border: 1px solid var(--lb-line); border-radius: 8px; overflow: hidden; margin-left: auto; }
+.lb-seg button { border: none; background: var(--lb-card); color: var(--lb-ink); font: inherit; font-size: 12.5px; padding: 6px 9px; cursor: pointer; }
+.lb-seg button[aria-pressed="true"] { background: var(--lb-ink); color: #fff; }
+
+/* Zeigen: markierte Wörter und aufleuchtende Teile */
+#lernblick-root .ref { border-bottom: 2px solid var(--lb-glow); cursor: pointer; font-weight: 600; border-radius: 3px; padding: 0 1px; }
+#lernblick-root .ref.active { background: #ffe066; color: #1a1a2e; border-bottom-color: #1a1a2e; }
+#lernblick-root svg .glow path { stroke: var(--lb-glow) !important; stroke-width: 8px !important; }
+#lernblick-root svg .glow { filter: drop-shadow(0 0 5px var(--lb-glow)); animation: lb-glow .7s ease-in-out infinite alternate; }
+#lernblick-root svg text.glow, #lernblick-root svg text.glow tspan { fill: var(--lb-glow) !important; }
+#lernblick-root .mol.glow { outline: 4px solid var(--lb-glow); outline-offset: 2px; }
+@keyframes lb-glow { from { opacity: 1; } to { opacity: .6; } }
+@media (prefers-reduced-motion: reduce) { #lernblick-root svg .glow, .lb-panel, .lb-thinking { animation: none; } }
+
+/* Knopf nach falscher Antwort (sitzt in der Rückmeldung der App) */
+.lb-wrong-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 9px 14px 9px 10px; border-radius: 999px; border: none; background: #1a1a2e; color: #fff; font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; }
+.lb-wrong-btn .lb-fab-dot { width: 18px; height: 18px; box-shadow: inset 0 0 0 4px #1a1a2e, 0 0 0 2px #f5c542; }
