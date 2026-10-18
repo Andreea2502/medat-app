@@ -121,7 +121,8 @@ Mögliche Aktionen:
    KI-Arbeitsblatt zu einem Thema zum Ausdrucken. bild:true = mit gezeichneter Abbildung zum Beschriften (nur wenn gewünscht oder bei Aufbau-/Anatomie-Themen sinnvoll).
 6. {"typ":"zusammenfassung","fach":"…","thema":"genau so konkret wie gewünscht","bild":false} – kompakte Lernzusammenfassung auf MedAT-Niveau zum Ausdrucken.
 7. {"typ":"erklaeren","frage":"…"} – wenn jemand etwas ERKLÄRT haben will (dann übernimmt LernBlick mit Tafel und Stimme).
-Ist der Wunsch unklar, setze aktion auf null und stelle in "antwort" GENAU EINE kurze Rückfrage.
+HANDLE SOFORT: Sobald Art (Fragen, Arbeitsblatt, Zusammenfassung, Untertest, Simulation …) und Thema oder Fach erkennbar sind, setzt du die Aktion – frag NICHT nach Details wie Abbildung, Seitenzahl, Bausteinen oder Anzahl, nimm sinnvolle Standardwerte (bei Aufbau, Anatomie, Zellen, Organen, Geweben, Synapse, Neuron: "bild":true). In "antwort" sagst du kurz, was du baust.
+Nur wenn wirklich nicht erkennbar ist, worum es geht, setze aktion auf null und stelle GENAU EINE kurze Rückfrage.
 Standardwerte: 20 Fragen, wenn keine Zahl genannt ist (höchstens 80). "wie":"app", außer es fällt PDF, drucken, Blatt, ausdrucken oder Arbeitsblatt. Fragen nach dem, was die App kann, beantwortest du kurz und schlägst passende Aktionen vor.
 
 KATALOG

@@ -1690,12 +1690,14 @@ function compSchema(A) {
   if (!sc) return [tx(500, 300, `Schablone „${name}“ gibt es nicht`, { size: 26, fill: C.grey })];
   const parts = sc.build ? sc.build(A) : sc.parts, out = [];
   const zeige = String(A("zeige") || "alle").toLowerCase().split(/[;,]/).map((t) => t.trim()).filter(Boolean);
-  const all = zeige.includes("alle"), flussAus = /^(nein|false|0)$/i.test(String(A("fluss") || "ja"));
+  const flussAus = /^(nein|false|0)$/i.test(String(A("fluss") || "ja"));
   parts.forEach(([id, label, anchor, shapes]) => {
     if (flussAus && /fluss/.test(id)) return;
     const teil = `${id} ${keyOf(label)}`;
     shapes.forEach((sp) => { if (!sp) return; if (sp.raw) { out.push(sp); return; } sp.attrs.teil = ((sp.attrs.teil ? sp.attrs.teil + " " : "") + teil).trim(); out.push(sp); });
-    if (anchor && (all || zeige.includes(id) || zeige.includes(keyOf(label)))) {
+    // Jeder gezeichnete Teil bekommt seine Beschriftung (Andreea 18.10.: „wieso haben wir hier keine weiteren Beschriftungen“) –
+    // sie erscheinen nacheinander beim Erklären, spätestens am Ende alle
+    if (anchor) {
       out.push(S("circle", { cx: anchor[0], cy: anchor[1], r: 2, stroke: "none", fill: "none", teil: `anker-${id} ${teil}` }));
       const e = document.createElementNS(SVGNS, "text");
       e.setAttribute("data-callout", `anker-${id}`); e.setAttribute("data-ax", anchor[0]); e.setAttribute("data-ay", anchor[1]); e.setAttribute("font-size", "22"); e.setAttribute("fill", INK); e.setAttribute("x", "0"); e.setAttribute("y", "0");
@@ -2056,7 +2058,8 @@ function drawPlan(els, cap = 20000, start = 200) {
     if (p.kind === "stroke") {
       p.e.animate([{ strokeDasharray: p.len + " " + p.len, strokeDashoffset: p.len }, { strokeDasharray: p.len + " " + p.len, strokeDashoffset: 0 }], { duration: dur, delay: t, fill: "both", easing: "ease-in-out" });
       const f = p.e.getAttribute("fill");
-      if (f && f !== "none") p.e.animate([{ fillOpacity: 0 }, { fillOpacity: 1 }], { duration: 250, delay: t + dur, fill: "both" });
+      // bis zur eigenen Deckkraft einblenden (getönte Flächen bleiben getönt, sonst wird z. B. die Zelle knallgrün)
+      if (f && f !== "none") { const fo = parseFloat(p.e.getAttribute("fill-opacity")); p.e.animate([{ fillOpacity: 0 }, { fillOpacity: isFinite(fo) ? fo : 1 }], { duration: 250, delay: t + dur, fill: "both" }); }
     } else if (p.kind === "write") {
       // Text wird von links nach rechts „geschrieben“
       p.e.animate([{ opacity: 0, clipPath: "inset(-30% 100% -30% 0)" }, { opacity: 1, clipPath: "inset(-30% 92% -30% 0)", offset: 0.08 }, { opacity: 1, clipPath: "inset(-30% 0% -30% 0)" }], { duration: dur, delay: t, fill: "both", easing: "linear" });
