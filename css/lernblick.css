@@ -233,3 +233,34 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
 .lb-consent-hint { color: #64748b; font-size: 14px; }
 .lb-consent-link { color: #2563eb; font-size: 14px; }
 .lb-consent-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+
+/* Denkfehler-Analyse nach falscher Antwort */
+.lb-mistake { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--lb-card); border: 1px solid var(--lb-line); }
+.lb-mistake p { margin: 0; font-size: 14px; line-height: 1.4; }
+.lb-mistake-ok { color: #1d7a3a; }
+.lb-mistake-err { color: #b42318; font-weight: 600; }
+.lb-tip-main { background: #f2b84b; border-color: #e0a632; font-weight: 600; }
+.lb-tip-main:hover { background: #f5c566; border-color: #c99a12; }
+
+/* Nebentafel: kleine Karte vor der abgedunkelten Haupttafel */
+#lernblick-root .board.side { position: relative; aspect-ratio: 5 / 3; }
+#lernblick-root .board.side .lb-side-bg { position: absolute; inset: 0; opacity: .2; filter: grayscale(.5); pointer-events: none; z-index: 0; }
+#lernblick-root .board.side .lb-side-bg svg { width: 100%; height: 100%; }
+#lernblick-root .board.side .lb-side-card { position: absolute; right: 3%; top: 6%; width: 60%; z-index: 1; background: #fff; border: 2px solid #f2b84b; border-radius: 16px; box-shadow: 0 14px 44px rgba(20, 20, 30, .18); padding: 6px 8px 8px; }
+.lb-side-chip { display: inline-block; font: 600 12px/1 "LB Inter", Inter, sans-serif; background: #fff4d6; color: #8a5a00; border-radius: 999px; padding: 5px 10px; margin: 2px 0 2px 4px; }
+/* Ursprüngliche Aufgabe immer erreichbar */
+.lb-qwrap { position: relative; }
+.lb-qcard { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--lb-line); background: #fff; border-radius: 999px; padding: 6px 12px; font: 600 13px/1 inherit; font-family: inherit; cursor: pointer; color: var(--lb-ink); }
+.lb-qcard b { font-weight: 800; padding: 2px 7px; border-radius: 999px; }
+.lb-q-w { color: #b42318; } .lb-qcard .lb-q-w { background: #fde4e1; }
+.lb-q-r { color: #1d7a3a; } .lb-qcard .lb-q-r { background: #dcfce7; }
+.lb-qcard-detail { position: absolute; top: calc(100% + 8px); left: 0; z-index: 30; width: min(460px, 86vw); max-height: 50vh; overflow: auto; background: #fff; border: 1px solid var(--lb-line); border-radius: 14px; box-shadow: 0 16px 44px rgba(0,0,0,.16); padding: 12px 14px; font-size: 14px; line-height: 1.45; }
+.lb-qcard-detail p { margin: 0 0 8px; }
+.lb-resume { margin-left: 8px; }
+
+/* Eigenes Bild prüfen */
+.lb-upbtn { font-size: 18px; padding: 6px 10px; }
+.lb-upthumb { max-width: 180px; max-height: 140px; border-radius: 10px; display: block; }
+#lernblick-root .lb-upboard { position: relative; display: block; width: fit-content; margin: 0 auto; }
+#lernblick-root .lb-upboard img { display: block; max-width: 100%; max-height: calc(100vh - 250px); border-radius: 12px; }
+#lernblick-root .lb-upboard .lb-upov { position: absolute; inset: 0; width: 100%; height: 100%; }

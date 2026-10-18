@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
     const apiKey = Deno.env.get("GEMINI_API_KEY");
     if (!apiKey) return json({ error: "KI nicht konfiguriert (GEMINI_API_KEY fehlt)" }, 500);
 
-    const { system_prompt, messages, image, stream } = await req.json();
+    const { system_prompt, messages, image, stream, kurz } = await req.json();
     if (typeof system_prompt !== "string" || !Array.isArray(messages) || !messages.length) {
       return json({ error: "Fehlende Angaben: system_prompt und messages" }, 400);
     }
@@ -91,7 +91,8 @@ Deno.serve(async (req: Request) => {
     const body = JSON.stringify({
       system_instruction: { parts: [{ text: system_prompt }] },
       contents,
-      generationConfig: { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
+      // kurz: schnelle Analyse (Denkfehler, Gesprächsaufhänger) – ohne Nachdenk-Phase, wenige Wörter
+      generationConfig: kurz ? { temperature: 0.3, maxOutputTokens: 800, thinkingConfig: { thinkingBudget: 0 } } : { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
     });
 
     let lastError = "";
@@ -114,7 +115,7 @@ Deno.serve(async (req: Request) => {
       const data = await res.json();
       // Verbrauch protokollieren (ohne Inhalte), damit die echten Kosten pro Antwort messbar sind
       const u = data?.usageMetadata || {};
-      console.log("lernblick-usage", JSON.stringify({ model, in: u.promptTokenCount || 0, out: u.candidatesTokenCount || 0, think: u.thoughtsTokenCount || 0, cached: u.cachedContentTokenCount || 0, img: !!image }));
+      console.log("lernblick-usage", JSON.stringify({ model, in: u.promptTokenCount || 0, out: u.candidatesTokenCount || 0, think: u.thoughtsTokenCount || 0, cached: u.cachedContentTokenCount || 0, img: !!image, kurz: !!kurz }));
       const text = (data?.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || "").join("").trim();
       if (!text) return json({ error: "Keine Antwort erhalten. Bitte nochmal versuchen." }, 502);
       return json({ response: text, model });
