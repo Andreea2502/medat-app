@@ -1,0 +1,273 @@
+{
+ "stand": "Entwurf 18.10.2026 – 2 von 6 Blättern des BIO Package, zur Freigabe durch Andreea",
+ "zweck": "LernBlick kennt jedes Cheat-Sheet vorab: wann es passt (stichworte, ausloeser), was wo steht (bereiche mit Lage im Bild als Anteil 0–1: x, y, breite, hoehe). So kann er im Gespräch das richtige Blatt hervorholen, genau den passenden Bereich zeigen und markieren.",
+ "blaetter": [
+  {
+   "id": "aktionspotenzial",
+   "goodie": "BIO Package",
+   "datei": "8c796366-597b-4c3b-96f2-8dcd0bfe6938_0E36407C-35C4-4193-864B-5545D191BCC1.png",
+   "titel": "Aktionspotenzial & synaptische Transmission",
+   "fach": "Biologie · Neurophysiologie",
+   "kurz": "Vom Ruhepotenzial über die fünf Phasen des Aktionspotenzials bis zur Übertragung an der Synapse – mit EPSP/IPSP, den wichtigsten Neurotransmittern, drei klinischen Giften und zwei Merksätzen.",
+   "stichworte": [
+    "Aktionspotenzial",
+    "Ruhepotenzial",
+    "Ruhemembranpotenzial",
+    "Depolarisation",
+    "Repolarisation",
+    "Hyperpolarisation",
+    "Schwellenwert",
+    "Refraktärzeit",
+    "Alles-oder-nichts",
+    "Natrium-Kalium-Pumpe",
+    "Na⁺/K⁺-ATPase",
+    "Synapse",
+    "Neurotransmitter",
+    "Exozytose",
+    "EPSP",
+    "IPSP",
+    "Acetylcholin",
+    "Dopamin",
+    "Serotonin",
+    "GABA",
+    "Glutamat",
+    "Curare",
+    "Tetrodotoxin",
+    "Botulinumtoxin",
+    "Nerv",
+    "Erregung"
+   ],
+   "ausloeser": [
+    "Fragen zu Membranpotenzial, Ionenkanälen oder Erregungsleitung",
+    "falsche Antwort bei Phasen des AP oder Refraktärzeit",
+    "Verwechslung EPSP/IPSP oder erregende/hemmende Transmitter",
+    "Gifte an der Synapse (Curare, TTX, Botulinumtoxin)"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Ruhemembranpotenzial",
+     "lage": {
+      "x": 0.02,
+      "y": 0.115,
+      "breite": 0.33,
+      "hoehe": 0.3
+     },
+     "inhalt": "−70 mV. Na⁺ außen hoch, K⁺ innen hoch. Na⁺/K⁺-ATPase (aktiv, verbraucht ATP): 3 Na⁺ raus, 2 K⁺ rein – erhält Ruhepotenzial und Ionengradienten."
+    },
+    {
+     "nr": 2,
+     "titel": "Phasen des Aktionspotenzials",
+     "lage": {
+      "x": 0.36,
+      "y": 0.115,
+      "breite": 0.63,
+      "hoehe": 0.3
+     },
+     "inhalt": "Kurve Membranpotenzial (mV) gegen Zeit (ms), Schwellenwert −55 mV. 1 Ruhepotenzial ca. −70 mV · 2 Depolarisation: spannungsgesteuerte Na⁺-Kanäle öffnen, Na⁺-Einstrom, Overshoot bis ca. +30 mV · 3 Repolarisation: Na⁺-Kanäle inaktivieren, K⁺-Kanäle öffnen, K⁺-Ausstrom · 4 Hyperpolarisation: K⁺-Kanäle schließen verzögert, kurz unter −70 mV · 5 Rückkehr: Na⁺/K⁺-ATPase und Leckkanäle. Darunter: absolute Refraktärzeit (Na⁺-Kanäle inaktiviert), relative Refraktärzeit (stärkerer Reiz nötig)."
+    },
+    {
+     "nr": 3,
+     "titel": "Alles-oder-nichts-Prinzip",
+     "lage": {
+      "x": 0.02,
+      "y": 0.422,
+      "breite": 0.965,
+      "hoehe": 0.036
+     },
+     "inhalt": "Ein AP entsteht nur, wenn der Schwellenwert erreicht wird; darunter keines."
+    },
+    {
+     "nr": 4,
+     "titel": "Synaptische Übertragung – Schritt für Schritt",
+     "lage": {
+      "x": 0.02,
+      "y": 0.462,
+      "breite": 0.52,
+      "hoehe": 0.232
+     },
+     "inhalt": "Zeichnung präsynaptisches Neuron, synaptischer Spalt, postsynaptische Membran. 1 AP erreicht Endigung · 2 spannungsgesteuerte Ca²⁺-Kanäle öffnen · 3 Ca²⁺ strömt ein · 4 Vesikel fusionieren · 5 Transmitter per Exozytose in den Spalt · 6 bindet an Rezeptoren · 7 Ionenkanäle öffnen/schließen → EPSP oder IPSP."
+    },
+    {
+     "nr": "4b",
+     "titel": "EPSP vs. IPSP",
+     "lage": {
+      "x": 0.545,
+      "y": 0.465,
+      "breite": 0.44,
+      "hoehe": 0.228
+     },
+     "inhalt": "EPSP: Na⁺-Einstrom (oder Ca²⁺), Depolarisation, näher zum Schwellenwert, z. B. Glutamat, Acetylcholin. IPSP: Cl⁻-Einstrom oder K⁺-Ausstrom, Hyperpolarisation, weiter vom Schwellenwert, z. B. GABA, Glycin."
+    },
+    {
+     "nr": 5,
+     "titel": "Wichtige Neurotransmitter",
+     "lage": {
+      "x": 0.02,
+      "y": 0.7,
+      "breite": 0.49,
+      "hoehe": 0.152
+     },
+     "inhalt": "Acetylcholin (exzitatorisch, Muskelkontraktion; motorische Endplatte, Parasympathikus) · Dopamin (Belohnung, Motivation, Motorik; Basalganglien) · Serotonin (Stimmung, Schlaf, Appetit, Schmerz; Raphe-Kerne) · GABA (wichtigster Hemmer im ZNS) · Glutamat (wichtigster Erreger im ZNS)."
+    },
+    {
+     "nr": 6,
+     "titel": "Klinisch relevant",
+     "lage": {
+      "x": 0.54,
+      "y": 0.7,
+      "breite": 0.445,
+      "hoehe": 0.155
+     },
+     "inhalt": "Curare: kompetitiver Antagonist am nikotinischen ACh-Rezeptor → schlaffe Lähmung (Pfeilgiftfrösche). Tetrodotoxin: blockiert spannungsgesteuerte Na⁺-Kanäle → kein AP (Kugelfisch). Botulinumtoxin: blockiert Vesikelfusion/Exozytose von ACh → schlaffe Lähmung (Botulismus)."
+    },
+    {
+     "nr": 7,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.02,
+      "y": 0.859,
+      "breite": 0.965,
+      "hoehe": 0.086
+     },
+     "inhalt": "„NaK-Pumpe: 3 raus, 2 rein – immer im Defizit.“ (verbraucht ATP, hält die Gradienten aufrecht) · „Erst Na rein (hoch), dann K raus (runter).“ (Reihenfolge der Ionenströme)"
+    }
+   ],
+   "pruefungsfallen": [
+    "Na⁺/K⁺-ATPase hält das Ruhepotenzial aufrecht, macht aber nicht die schnellen Änderungen während des AP",
+    "Absolute Refraktärzeit = Na⁺-Kanäle inaktiviert (nicht geschlossen); relative = stärkerer Reiz nötig",
+    "IPSP entsteht durch Cl⁻-Einstrom ODER K⁺-Ausstrom",
+    "Curare und Botulinumtoxin führen beide zu schlaffer Lähmung, aber an verschiedenen Stellen (Rezeptor vs. Ausschüttung)"
+   ],
+   "hinweise": []
+  },
+  {
+   "id": "blutgruppen",
+   "goodie": "BIO Package",
+   "datei": "e8ca6936-3321-4abf-99f2-bf64a6aa214f_1FAE3996-DBFB-43BE-837E-5F654AE8089A.png",
+   "titel": "Blutgruppen AB0 & Rhesus: Vererbung, Antikörper & Transfusion",
+   "fach": "Biologie · Genetik und Immunologie",
+   "kurz": "AB0-System mit Antigenen und Antikörpern, Vererbung mit Punnett-Quadrat, Transfusionstabelle, Rhesus-System mit Rhesus-Inkompatibilität, IgM/IgG, Prüfungsfallen und zwei Merksätzen.",
+   "stichworte": [
+    "Blutgruppe",
+    "Blutgruppen",
+    "AB0",
+    "ABO",
+    "Antigen",
+    "Antikörper",
+    "Agglutination",
+    "Universalspender",
+    "Universalempfänger",
+    "Transfusion",
+    "Rhesus",
+    "Rh-positiv",
+    "Rh-negativ",
+    "Anti-D",
+    "Rhesus-Inkompatibilität",
+    "Erythroblastosis fetalis",
+    "Morbus haemolyticus neonatorum",
+    "IgM",
+    "IgG",
+    "plazentagängig",
+    "kodominant",
+    "Allele",
+    "Punnett-Quadrat",
+    "Erbgang"
+   ],
+   "ausloeser": [
+    "Vererbungsaufgaben zu Blutgruppen (welche Blutgruppen können die Kinder haben?)",
+    "Fragen zu Spender/Empfänger und Agglutination",
+    "Rhesus-Konflikt in der Schwangerschaft",
+    "Verwechslung IgM/IgG"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "AB0-System – Übersicht",
+     "lage": {
+      "x": 0.018,
+      "y": 0.107,
+      "breite": 0.49,
+      "hoehe": 0.313
+     },
+     "inhalt": "A: Antigen A, Anti-B im Serum · B: Antigen B, Anti-A · AB: Antigen A+B, keine Antikörper, Universalempfänger · 0: keine Antigene, Anti-A + Anti-B, Universalspender. Antikörper binden fremde Antigene → Agglutination (Verklumpung)."
+    },
+    {
+     "nr": 2,
+     "titel": "Vererbung der Blutgruppen",
+     "lage": {
+      "x": 0.52,
+      "y": 0.107,
+      "breite": 0.46,
+      "hoehe": 0.313
+     },
+     "inhalt": "Allele Iᴬ, Iᴮ (kodominant), i (rezessiv). Prüfungsbeispiel AB × 0: alle Kinder A oder B (nie AB, nie 0). Punnett-Quadrat IᴬIᴮ × ii → Iᴬi (A), Iᴮi (B). Genotyp → Phänotyp: IᴬIᴬ oder Iᴬi → A; IᴮIᴮ oder Iᴮi → B; IᴬIᴮ → AB; ii → 0. Merksätze: A × A oder A × 0 → nur A oder 0; 0 × 0 → nur 0."
+    },
+    {
+     "nr": 3,
+     "titel": "Transfusionskompatibilität (Erythrozyten)",
+     "lage": {
+      "x": 0.018,
+      "y": 0.426,
+      "breite": 0.475,
+      "hoehe": 0.244
+     },
+     "inhalt": "Tabelle Spender (Spalten 0, A, B, AB) gegen Empfänger (Zeilen). Merke: AB empfängt von allen, 0 spendet an alle."
+    },
+    {
+     "nr": 4,
+     "titel": "Rhesus-System und Rhesus-Inkompatibilität",
+     "lage": {
+      "x": 0.513,
+      "y": 0.426,
+      "breite": 0.47,
+      "hoehe": 0.319
+     },
+     "inhalt": "Rh+ = Antigen D vorhanden (DD oder Dd, dominant), Rh− = kein Antigen D (dd, rezessiv). Mutter Rh− mit Kind Rh+: Gefahr ab der 2. Schwangerschaft – Mutter bildet Anti-D-IgG, das plazentagängig ist und kindliche Erythrozyten zerstört. Erythroblastosis fetalis: Hämolyse → Anämie, Ikterus, Hydrops fetalis. Prophylaxe: Anti-D-Immunglobulin in der 28. SSW und innerhalb von 72 h nach der Geburt."
+    },
+    {
+     "nr": 5,
+     "titel": "Antikörper-Typen",
+     "lage": {
+      "x": 0.018,
+      "y": 0.676,
+      "breite": 0.475,
+      "hoehe": 0.111
+     },
+     "inhalt": "IgM: Primärantikörper, Pentamer, bleibt im Gefäßsystem, Erstkontakt, wichtig beim AB0-System. IgG: Sekundärantikörper, Monomer, plazentagängig, Zweitkontakt, wichtig bei Rhesus-Inkompatibilität. Merke: IgG überquert die Plazenta – IgM nicht."
+    },
+    {
+     "nr": 6,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.018,
+      "y": 0.793,
+      "breite": 0.475,
+      "hoehe": 0.126
+     },
+     "inhalt": "AB ist Universalempfänger nur für Erythrozyten, nicht für Plasma · IgG ist plazentagängig und kann beim Rhesuskonflikt das Kind schädigen · 0 Rh− ist Universalspender nur für Erythrozyten und nur im Notfall · Agglutination entsteht, wenn Antikörper auf passende Antigene treffen · Hämolyse = Zerstörung der Erythrozyten."
+    },
+    {
+     "nr": 7,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.51,
+      "y": 0.793,
+      "breite": 0.475,
+      "hoehe": 0.126
+     },
+     "inhalt": "„AB hat alles, 0 hat nichts.“ (AB: beide Antigene, keine Antikörper; 0: keine Antigene, beide Antikörper) · „Rh-negativ: erst beim zweiten Kind gefährlich.“ (Erstkontakt sensibilisiert, beim Zweitkontakt Anti-D-IgG)"
+    }
+   ],
+   "pruefungsfallen": [
+    "AB × 0 ergibt nie AB und nie 0",
+    "Universalspender/-empfänger gilt nur für Erythrozytenkonzentrat, bei Plasma ist es umgekehrt",
+    "Beim Rhesus-Konflikt schadet das IgG, weil es plazentagängig ist; die AB0-Antikörper (IgM) nicht"
+   ],
+   "hinweise": [
+    "Fehler im Blatt, Bereich 3 (Transfusionstabelle): In der Zeile „Empfänger 0“ stehen vier Häkchen. Richtig ist: Empfänger 0 verträgt nur Spender 0 (✓ ✗ ✗ ✗). Die Zeilen A, B und AB stimmen.",
+    "Bereich 6 markiert alle Sätze mit einem roten ✗, obwohl die meisten Aussagen richtig sind. Gemeint ist „Achtung, Falle“ – beim Erklären sagt LernBlick das so dazu."
+   ]
+  }
+ ]
+}
