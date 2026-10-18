@@ -38,6 +38,7 @@
   <!-- jsPDF für PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet" href="css/lernblick.css?v=20261018u">
+<link rel="stylesheet" href="css/assistent.css?v=20261018u">
 </head>
 <body>
 
@@ -97,6 +98,13 @@
         <span class="trap-hero-banner-desc">Trainiere die Denkfehler, die dich im MedAT Punkte kosten</span>
       </div>
       <span class="trap-hero-banner-arrow">›</span>
+    </button>
+
+    <!-- ===== LERN-ASSISTENT (kennt die ganze App, stellt Übungen und Blätter zusammen) ===== -->
+    <button class="as-banner fade-up" type="button" onclick="window.Assistent && Assistent.open()">
+      <span class="as-banner-icon" aria-hidden="true">✦</span>
+      <span class="as-banner-text"><b>Lern-Assistent</b><span>Sag einfach, was du üben willst – Fragen, Arbeitsblätter, Zusammenfassungen, Simulationen</span></span>
+      <span class="as-banner-arrow" aria-hidden="true">›</span>
     </button>
 
     <!-- ===== HAUPT-TILES (2x2 Grid) ===== -->
@@ -1493,7 +1501,7 @@
   <script src="js/goodies-mailer.js?v=20260424e"></script>
   <script src="js/goodies-analytics.js?v=20260424e"></script>
   <script src="js/credits.js?v=20260416a"></script>
-  <script src="js/app.js?v=20261018a"></script>
+  <script src="js/app.js?v=20261018b"></script>
   <script src="js/goodies.js?v=20261018u"></script>
   <script src="js/lernplan.js?v=20260402d"></script>
   <script src="js/pdf.js?v=20260404f"></script>
@@ -1636,5 +1644,7 @@
     }
   </script>
 <script src="js/lernblick.js?v=20261018u" defer></script>
+<script src="js/vendor/raetsel.js?v=20261018u" defer></script>
+<script src="js/assistent.js?v=20261018u" defer></script>
 </body>
 </html>
