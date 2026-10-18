@@ -23,7 +23,7 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
 const PROVIDER = (Deno.env.get("LERNBLICK_VOICE_PROVIDER") || "gemini").toLowerCase();
-const GEMINI_VOICE = Deno.env.get("LERNBLICK_GEMINI_VOICE") || "Kore";
+const GEMINI_VOICE = Deno.env.get("LERNBLICK_GEMINI_VOICE") || "Aoede"; // Andreea, 18.10.2026: „ich will aoede"
 const TTS_LANG: Record<string, string> = { de: "de-DE", en: "en-GB", ro: "ro-RO", tr: "tr-TR", bks: "hr-HR", uk: "uk-UA", ar: "ar-EG" };
 const EL_VOICE = Deno.env.get("LERNBLICK_VOICE_ID") || "TGvCjJzuyubkDwINImMA";
 const EL_MODEL = Deno.env.get("LERNBLICK_VOICE_MODEL") || "eleven_flash_v2_5";
@@ -114,8 +114,8 @@ async function geminiSpeak(text: string, lang: string): Promise<Response | null>
     const bytes = decodeBase64(part.inlineData.data);
     // Kommt schon eine fertige Audiodatei (WAV/MP3/OGG), unverändert weitergeben – nicht ein zweites Mal verpacken.
     const isFile = /wav|mpeg|mp3|ogg|opus|webm/i.test(mime) || (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46);
-    if (isFile) return new Response(bytes, { status: 200, headers: { ...cors, "Content-Type": /mpeg|mp3/i.test(mime) ? "audio/mpeg" : /ogg|opus/i.test(mime) ? "audio/ogg" : "audio/wav", "Cache-Control": "no-store", "X-Voice": model } });
-    return new Response(wav(cleanPcm(bytes, rate), rate), { status: 200, headers: { ...cors, "Content-Type": "audio/wav", "Cache-Control": "no-store", "X-Voice": model } });
+    if (isFile) return new Response(bytes, { status: 200, headers: { ...cors, "Content-Type": /mpeg|mp3/i.test(mime) ? "audio/mpeg" : /ogg|opus/i.test(mime) ? "audio/ogg" : "audio/wav", "Cache-Control": "no-store", "X-Voice": `${model}/${GEMINI_VOICE}` } });
+    return new Response(wav(cleanPcm(bytes, rate), rate), { status: 200, headers: { ...cors, "Content-Type": "audio/wav", "Cache-Control": "no-store", "X-Voice": `${model}/${GEMINI_VOICE}` } });
   }
   return null;
 }
