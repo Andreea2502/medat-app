@@ -1,0 +1,55 @@
+Quelle / Source: https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html
+Abgerufen / Retrieved: 2026-10-07 (UTC 13:37), Textkopie der Seite fuer das Lizenzregister des Lehrerzimmers.
+Zweck: Beleg, dass BodyParts3D unter CC BY 4.0 steht. Die Kopfzeilen der OBJ-Dateien (Release 4.0, 2013)
+nennen noch die fruehere Lizenz CC BY-SA 2.1 JP; die Lizenzseite wurde am 2025-02-27 auf CC BY 4.0 geaendert
+(siehe auch README_e.html, Abschnitt "4. Update History": "2025/02/27 'License' is updated.").
+Verlinkte Lizenz: https://creativecommons.org/licenses/by/4.0/deed.en
+Volltext:        https://creativecommons.org/licenses/by/4.0/legalcode.en
+------------------------------------------------------------------------------------------------
+
+BodyParts3D
+
+License
+
+License to Use This Database
+
+Last updated : 2025/02/27
+
+You may use this database in compliance with the terms and conditions of the license described
+below. The license specifies the license terms regarding the use of this database and the
+requirements you must follow in using this database.
+
+[Creative Commons License badge, linked to https://creativecommons.org/licenses/by/4.0/deed.en]
+The license for this database is specified in the Creative Commons Attribution 4.0 International.
+If you use data from this database, please be sure attribute this database as follows:
+"BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International".
+
+The summary of the Creative Commons Attribution 4.0 International is found here
+[https://creativecommons.org/licenses/by/4.0/legalcode.en].
+
+With regard to this database, you are licensed to:
+
+  1. freely access part or whole of this database, and acquire data;
+  2. freely redistribute part or whole of the data from this database; and
+  3. freely create and distribute database and other derivative works based on part or whole of
+     the data from this database,
+
+under the license, as long as you comply with the following conditions:
+
+  1. You must attribute this database in the manner specified by the author or licensor when
+     distributing part or whole of this database or any adapted material.
+  2. You need to contact the Licensor shown below to request a license for use of this database
+     or any part thereof not licensed under the license.
+
+Database Center for Life Science
+Research Organization of Information and Systems
+
+E-mail : [auf der Seite nur als Bild: /images/dbarchive_images/mail_address/bodyparts3d_address.png]
+
+------------------------------------------------------------------------------------------------
+Seitenfuss / Footer:
+Japan Science and Technology Agency
+Department for Information Infrastructure
+Office of NBDC Program
+5-3, Science Plaza 7F, Yonbancho, Chiyoda-ku, Tokyo 102-8666 Japan
+Tel. 03-5214-8491  Fax. 03-5214-8470

@@ -1,0 +1,188 @@
+/* ────────────────────────────────────────────────────────────────
+   3D-Atlas — Aussehen der Baugruppe lib/atlas.js (07.10.2026).
+   Passt zu kiste.css (Schrift „Plattform", Farben), läuft aber auch
+   allein. Ziele mindestens 48 px, Handy zuerst; die Bühne bekommt den
+   Hintergrund je Darstellung: „bunt" hell und freundlich (Volksschule),
+   „echt" dunkel wie ein Präparat-Schaukasten (Mittelschule).
+   ──────────────────────────────────────────────────────────────── */
+.atlas{--a-ink:#1d1b33;--a-ink2:#565470;--a-line:#e6dfd0;--a-akzent:var(--accent,#3d7be0);--a-akzent-deep:var(--accent-deep,#2a5fb8);--a-gelb:#ffd75e;--a-ok:#218a55;--a-falsch:#c8373a;--a-r:18px;
+  position:relative;font-family:'Plattform','Segoe UI',system-ui,sans-serif;color:var(--a-ink)}
+.atlas *{box-sizing:border-box}
+.atlas button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+.atlas .versteckt,.atlas [hidden]{display:none!important}
+.atlas .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ── Leiste über der Bühne ── */
+.atlas-leiste{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+.atlas-gruppe{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.atlas-knopf{min-height:48px;min-width:48px;padding:0 14px;border-radius:999px;border:2px solid var(--a-line);background:#fff;font-weight:800;font-size:.98rem;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,border-color .2s,transform .15s;user-select:none;-webkit-user-select:none;white-space:nowrap}
+.atlas-knopf:hover{border-color:var(--a-akzent)}
+.atlas-knopf:active{transform:scale(.96)}
+.atlas-knopf[aria-pressed="true"]{background:var(--a-ink);border-color:var(--a-ink);color:#fff}
+.atlas-knopf.haupt{background:var(--a-akzent);border-color:var(--a-akzent);color:#fff}
+.atlas-knopf.haupt:hover{background:var(--a-akzent-deep)}
+.atlas-knopf:disabled{opacity:.45;cursor:default}
+.atlas-knopf:focus-visible,.atlas-teil:focus-visible,.atlas-buehne:focus-visible,.atlas-schalter:focus-within{outline:3px solid var(--a-gelb);outline-offset:2px}
+.atlas-knopf .emo{font-size:1.15em;line-height:1}
+.atlas-regler{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;border-radius:999px;border:2px solid var(--a-line);background:#fff;font-weight:800}
+.atlas-regler input{width:130px;height:32px;accent-color:var(--a-akzent)}
+.atlas-regler output{min-width:3.2em;text-align:right;font-variant-numeric:tabular-nums}
+.atlas-suche{position:relative;flex:1 1 180px;min-width:150px;max-width:300px}
+.atlas-suche input{width:100%;min-height:48px;border-radius:999px;border:2px solid var(--a-line);background:#fff;padding:0 14px 0 40px;font:inherit;font-weight:600}
+.atlas-suche input:focus{outline:none;border-color:var(--a-akzent)}
+.atlas-suche::before{content:'🔎';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+.atlas-treffer{font-size:.85rem;color:var(--a-ink2);font-weight:700;min-width:5em}
+.atlas-kamera .atlas-knopf{padding:0 12px}
+.atlas[data-modus="setzkasten"] .atlas-nur-ganz,.atlas[data-modus="puzzle"] .atlas-nur-ganz,.atlas[data-modus="quiz"] .atlas-nur-ganz{display:none}
+.atlas[data-modus="setzkasten"] .atlas-kamera,.atlas[data-modus="puzzle"] .atlas-kamera{display:none}
+.atlas[data-modus="puzzle"] .atlas-leiste{display:none}
+.atlas[data-modus="quiz"] .atlas-suche,.atlas[data-modus="quiz"] .atlas-treffer,.atlas[data-modus="quiz"] .atlas-modi,.atlas[data-modus="quiz"] .atlas-extra-knoepfe{display:none}
+/* Handy: die Leiste in EINER Zeile, seitlich wischbar — so bleibt die Bühne im Bild */
+@media (max-width:560px){
+  .atlas-leiste{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 -14px 8px;padding:2px 14px 4px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  .atlas-leiste::-webkit-scrollbar{display:none}
+  .atlas-gruppe{flex-wrap:nowrap}
+  .atlas-suche{flex:0 0 190px}
+  .atlas-regler input{width:96px}
+  .atlas-knopf{padding:0 12px;font-size:.92rem}
+}
+.atlas-nur-setzkasten{display:none}
+.atlas[data-modus="setzkasten"] .atlas-nur-setzkasten{display:flex}
+
+/* ── Bühne und Seitenleiste ── */
+.atlas-haupt{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+@media (min-width:900px){
+  .atlas-haupt{grid-template-columns:270px minmax(0,1fr)}
+  .atlas-seite{order:-1}
+  .atlas.ohne-seite .atlas-haupt{grid-template-columns:minmax(0,1fr)}
+}
+.atlas.ohne-seite .atlas-seite{display:none}
+.atlas.ohne-leiste .atlas-leiste{display:none}
+.atlas-buehne{position:relative;height:clamp(420px,68vh,700px);border-radius:var(--a-r);overflow:hidden;border:3px solid var(--a-ink);
+  background:radial-gradient(120% 95% at 50% 28%,#ffffff 0%,#eef4ff 46%,#d9e5fa 100%);touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.atlas[data-darstellung="echt"] .atlas-buehne{background:radial-gradient(120% 95% at 50% 26%,#46506a 0%,#262c3d 52%,#151926 100%)}
+.atlas-buehne canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block;outline:none}
+.atlas-buehne.zieht canvas{cursor:grabbing}
+.atlas-buehne.zeigt canvas{cursor:pointer}
+@media (max-width:560px){.atlas-buehne{height:clamp(400px,68vh,640px);border-radius:16px}.atlas[data-modus="puzzle"] .atlas-buehne,.atlas[data-modus="quiz"] .atlas-buehne{height:clamp(440px,76vh,700px)}}
+.atlas-poster{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:10px;transition:opacity .5s;pointer-events:none}
+.atlas-poster.weg{opacity:0}
+.atlas-lade{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(255,255,255,.94);border-radius:999px;padding:8px 16px;display:flex;align-items:center;gap:10px;font-weight:800;font-size:.92rem;box-shadow:0 6px 20px -8px rgba(0,0,0,.35);white-space:nowrap}
+.atlas-balken{width:110px;height:10px;border-radius:99px;background:#e8e4f2;overflow:hidden}
+.atlas-balken i{display:block;height:100%;width:0;background:var(--a-akzent);border-radius:99px;transition:width .25s}
+.atlas-hinweis{position:absolute;left:12px;bottom:12px;max-width:calc(100% - 84px);background:rgba(29,27,51,.78);color:#fff;border-radius:12px;padding:7px 12px;font-weight:700;font-size:.84rem;pointer-events:none;transition:opacity .6s}
+.atlas-hinweis.weg{opacity:0}
+.atlas-ecke{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px;z-index:3}
+.atlas-ecke .atlas-knopf{width:48px;height:48px;padding:0;font-size:1.25rem;background:rgba(255,255,255,.92)}
+.atlas[data-modus="puzzle"] .atlas-ecke{display:none}
+
+/* Namen, Nummern, Linien */
+.atlas-etiketten{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.atlas-linien{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.atlas-et{position:absolute;left:0;top:0;transform:translate(-50%,0);white-space:nowrap;font-weight:800;font-size:.8rem;line-height:1.15;padding:3px 8px;border-radius:99px;background:rgba(255,255,255,.92);color:var(--a-ink);box-shadow:0 2px 6px rgba(0,0,0,.18);will-change:transform}
+.atlas[data-darstellung="echt"] .atlas-et{background:rgba(20,24,36,.82);color:#fff;box-shadow:none}
+.atlas-et.kat{font-size:.9rem;padding:4px 10px;color:#fff;transform:translate(0,-50%);letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis}
+.atlas-et.klein{font-size:.7rem;padding:2px 6px;text-overflow:ellipsis;overflow:hidden}
+.atlas-et.nummer{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:10px;background:#fff;border:2px solid #1d1b33;box-shadow:none;transform:translate(0,-50%);font-size:1.05rem}
+.atlas-et.nummer b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1d1b33;color:#fff;font-size:1.05rem}
+.atlas-et.nummer span{display:block;width:150px;height:26px;border-bottom:2px dotted #8c8aa3}
+.atlas-et.nummer.mitname span{width:auto;height:auto;border:0;padding-right:4px}
+.atlas-et.links{transform:translate(-100%,-50%)}
+
+/* Tooltip beim Zeigen mit der Maus */
+.atlas-tipp{position:absolute;left:0;top:0;z-index:5;pointer-events:none;background:#1d1b33;color:#fff;font-weight:800;font-size:.9rem;padding:6px 10px;border-radius:10px;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.5)}
+.atlas-tipp small{display:block;font-weight:600;opacity:.75;font-size:.76rem}
+
+/* ── Steckbrief ── */
+.atlas-karte{position:absolute;z-index:6;right:12px;top:12px;width:min(340px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:#fff;border-radius:16px;box-shadow:0 18px 40px -16px rgba(0,0,0,.45);border:2px solid var(--a-line);padding:14px 16px 14px;animation:atlasKarte .3s cubic-bezier(.3,1.3,.5,1)}
+@keyframes atlasKarte{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@media (max-width:640px){
+  .atlas-karte{left:6px;right:6px;top:auto;bottom:6px;width:auto;max-height:48%;padding:10px 12px;border-radius:14px}
+  .atlas-karte h3{font-size:1.12rem;margin-top:6px}
+  .atlas-karte p{font-size:.92rem;line-height:1.42;margin-top:6px}
+  .atlas-wusstest{font-size:.86rem;padding:6px 10px;margin-top:8px}
+  .atlas-karte .zeile{margin-top:8px}
+  .atlas-karte .atlas-knopf{min-height:44px;font-size:.88rem;padding:0 10px}
+  .atlas-karte:not([hidden]){display:flex;flex-direction:column;align-items:flex-start}
+  .atlas-karte>*{order:3}.atlas-karte>.zu,.atlas-karte>.atlas-chip,.atlas-karte>h3,.atlas-karte>.latein,.atlas-karte>.seite{order:1}
+  .atlas-karte>.zeile{order:2;margin-top:6px}
+}
+.atlas-karte .zu{position:absolute;right:6px;top:6px;width:44px;height:44px;border-radius:50%;border:0;background:transparent;font-size:1.3rem;font-weight:800}
+.atlas-karte .zu:hover{background:#f2eee6}
+.atlas-chip{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 10px;font-size:.78rem;font-weight:800;color:#fff;letter-spacing:.02em}
+.atlas-karte h3{font-size:1.32rem;font-weight:800;line-height:1.15;margin:8px 44px 2px 0}
+.atlas-karte .latein{font-style:italic;color:var(--a-ink2);font-weight:600;font-size:.95rem}
+.atlas-karte .seite{color:var(--a-ink2);font-size:.84rem;font-weight:700}
+.atlas-karte p{margin:8px 0 0;font-size:1rem;line-height:1.5;font-weight:500}
+.atlas-wusstest{margin-top:10px;background:#fff8e1;border:2px solid #f0cf6b;border-radius:12px;padding:8px 12px;font-size:.95rem;line-height:1.45}
+.atlas-wusstest b{display:block;font-size:.82rem;letter-spacing:.03em;color:#8a6200;margin-bottom:2px}
+.atlas-extra{margin-top:10px;font-size:.93rem;line-height:1.45}
+.atlas-karte .zeile{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+
+/* ── Aufgabe (Quiz, Puzzle) oben auf der Bühne ── */
+.atlas-aufgabe{position:absolute;z-index:4;left:10px;right:10px;top:10px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;background:rgba(255,255,255,.95);border-radius:16px;padding:8px 12px;box-shadow:0 10px 26px -14px rgba(0,0,0,.5);border:2px solid var(--a-line)}
+.atlas-aufgabe .frage{flex:1 1 220px;font-weight:800;font-size:1.12rem;line-height:1.25}
+.atlas-aufgabe .frage b{color:var(--a-akzent-deep);font-size:1.18rem}
+.atlas-aufgabe .stand{font-weight:800;font-size:.85rem;color:var(--a-ink2)}
+.atlas-aufgabe .sterne{display:flex;gap:2px;font-size:17px;line-height:1;flex-wrap:wrap}
+.atlas-aufgabe .sterne span{filter:grayscale(1);opacity:.25}
+.atlas-aufgabe .sterne span.an{filter:none;opacity:1}
+.atlas-aufgabe .rueck{flex:1 1 100%;font-weight:800;font-size:.95rem;min-height:1.3em}
+.atlas-aufgabe .rueck:empty{display:none}
+.atlas-aufgabe .rueck.ok{color:var(--a-ok)}
+.atlas-aufgabe .rueck.falsch{color:var(--a-falsch)}
+.atlas-aufgabe .atlas-knopf{min-height:44px}
+@media (max-width:560px){.atlas-aufgabe{left:6px;right:6px;top:6px;padding:6px 10px;gap:4px 8px;border-radius:12px}.atlas-aufgabe .frage{font-size:.94rem;flex-basis:160px}.atlas-aufgabe .frage b{font-size:1.02rem}.atlas-aufgabe .sterne{font-size:12px}.atlas-aufgabe .rueck{font-size:.86rem}.atlas-aufgabe .stand{font-size:.78rem}}
+
+/* ── Seitenleiste: Schichten, Kategorien, Teileliste ── */
+.atlas-seite{background:#fff;border:2px solid var(--a-line);border-radius:var(--a-r);padding:10px;max-height:clamp(420px,68vh,700px);overflow:auto;align-self:start}
+@media (max-width:899px){.atlas-seite{max-height:none}}
+.atlas-seite>details>summary{list-style:none;cursor:pointer;min-height:48px;display:flex;align-items:center;gap:8px;font-weight:800;padding:0 6px}
+.atlas-seite>details>summary::-webkit-details-marker{display:none}
+.atlas-seite>details>summary::after{content:'▾';margin-left:auto;transition:.2s}
+.atlas-seite>details[open]>summary::after{transform:rotate(180deg)}
+.atlas-titel{font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--a-ink2);margin:10px 6px 6px}
+.atlas-schalter{display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 8px;border-radius:12px;cursor:pointer;font-weight:800}
+.atlas-schalter:hover{background:#f7f4ee}
+.atlas-schalter input{width:22px;height:22px;accent-color:var(--a-akzent);flex:none}
+.atlas-schalter .punkt{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid rgba(0,0,0,.15)}
+.atlas-schalter .zahl{margin-left:auto;font-size:.8rem;font-weight:800;color:var(--a-ink2);background:#f2eee6;border-radius:99px;padding:2px 8px}
+.atlas-schalter.laedt .zahl::after{content:' …'}
+.atlas-gruppe-liste{margin:4px 0 8px}
+.atlas-gruppe-liste>h4{display:flex;align-items:center;gap:8px;font-size:.86rem;font-weight:800;margin:10px 6px 4px;color:var(--a-ink2)}
+.atlas-gruppe-liste>h4 .punkt{width:12px;height:12px;border-radius:50%}
+.atlas-teil{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:4px 10px;border:0;border-radius:10px;background:transparent;text-align:left;font-weight:700;font-size:.95rem;line-height:1.2}
+.atlas-teil:hover{background:#f2f6ff}
+.atlas-teil[aria-pressed="true"]{background:var(--a-ink);color:#fff}
+.atlas-teil .punkt{width:10px;height:10px;border-radius:50%;flex:none}
+.atlas-teil small{display:block;font-weight:600;font-style:italic;opacity:.7;font-size:.78rem}
+.atlas-teil .seite{margin-left:auto;font-size:.74rem;font-weight:700;opacity:.65}
+.atlas-teil.aus{opacity:.4}
+.atlas-teil.platz{opacity:.55}
+.atlas-teil.platz::after{content:'✔';margin-left:auto;color:var(--a-ok)}
+.atlas-teil.treffer{box-shadow:inset 0 0 0 2px var(--a-gelb)}
+.atlas-teil-text{display:none;padding:2px 10px 10px 28px;font-size:.92rem;line-height:1.45;color:var(--a-ink2)}
+.atlas.ohne-3d .atlas-teil[aria-pressed="true"]+.atlas-teil-text{display:block}
+
+/* ── Ohne 3D: Standbild + Teileliste mit allen Steckbriefen ── */
+.atlas-ohne{position:absolute;inset:auto 10px 10px 10px;z-index:7;background:rgba(255,255,255,.96);border-radius:14px;padding:10px 14px;font-weight:700;font-size:.92rem;line-height:1.4;box-shadow:0 10px 24px -12px rgba(0,0,0,.5)}
+.atlas-ohne b{display:block;font-size:1rem}
+.atlas.ohne-3d .atlas-leiste .atlas-nur-3d{display:none}
+.atlas.ohne-3d .atlas-ecke,.atlas.ohne-3d .atlas-hinweis,.atlas.ohne-3d .atlas-lade,.atlas.ohne-3d .atlas-etiketten,.atlas.ohne-3d .atlas-linien,.atlas.ohne-3d .atlas-tipp{display:none}
+
+/* Druckfassung (Blätter): heller Grund, dunkle Schrift, ohne Bedienelemente */
+.atlas.druck .atlas-buehne{border:0;border-radius:0;background:#fff}
+.atlas.druck[data-darstellung="echt"] .atlas-buehne{background:#eceef3}
+.atlas.druck .atlas-et{background:#fff;color:#1d1b33;border:1.5px solid #1d1b33;box-shadow:none}
+.atlas.druck .atlas-et.nummer{border-width:2px}
+.atlas.druck .atlas-leiste,.atlas.druck .atlas-ecke,.atlas.druck .atlas-hinweis,.atlas.druck .atlas-lade,.atlas.druck .atlas-karte,.atlas.druck .atlas-aufgabe,.atlas.druck .atlas-tipp,.atlas.druck .atlas-seite{display:none!important}
+.atlas.druck .atlas-haupt{grid-template-columns:minmax(0,1fr)}
+@media (prefers-reduced-motion:reduce){.atlas *{animation:none!important;transition:none!important}}
+@media print{.atlas-leiste,.atlas-ecke,.atlas-hinweis{display:none}}
+
+/* Markierungen (z. B. Gelenke): pulsierender Punkt mit Text */
+.atlas-marke{position:absolute;left:0;top:0;display:flex;align-items:center;gap:6px;--m:#ffd23a;will-change:transform}
+.atlas-marke i{display:block;width:22px;height:22px;border-radius:50%;background:var(--m);border:3px solid #fff;box-shadow:0 0 0 0 var(--m);animation:atlasPuls 1.6s ease-out infinite;flex:none}
+.atlas-marke.links{flex-direction:row-reverse}
+.atlas-marke span{background:rgba(29,27,51,.88);color:#fff;font-weight:800;font-size:.8rem;padding:3px 8px;border-radius:99px;white-space:nowrap}
+@keyframes atlasPuls{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--m) 70%,transparent)}100%{box-shadow:0 0 0 16px transparent}}

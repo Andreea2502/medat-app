@@ -1,0 +1,14 @@
+three.js r186 (npm three@0.186.1, 24.09.2026) — selbst gehostet für den 3D-Atlas (lib/atlas.js).
+Quelle: https://github.com/mrdoob/three.js · Lizenz: MIT (siehe LICENSE).
+
+Enthalten, mit esbuild minifiziert (r186 liefert keine minifizierten Dateien mehr), sonst unverändert:
+  three.module.js, three.core.js          build/
+  addons/loaders/GLTFLoader.js            examples/jsm/loaders/
+  addons/utils/BufferGeometryUtils.js     examples/jsm/utils/      (vom GLTFLoader gebraucht)
+  addons/utils/SkeletonUtils.js           examples/jsm/utils/      (vom GLTFLoader gebraucht)
+  addons/controls/OrbitControls.js        examples/jsm/controls/
+  addons/libs/meshopt_decoder.module.js   examples/jsm/libs/       meshoptimizer, MIT, (C) Arseny Kapoulkine
+  addons/libs/tween.module.js             examples/jsm/libs/       tween.js, MIT, (c) tween.js authors
+
+Einbinden im Werkzeug (Pfade relativ, nichts von fremden Servern):
+  <script type="importmap">{"imports":{"three":"../lib/three/three.module.js","three/addons/":"../lib/three/addons/"}}</script>

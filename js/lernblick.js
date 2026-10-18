@@ -11,7 +11,7 @@ if (window.LernBlick) return;
 const BASE = (() => { try { return new URL("..", document.currentScript.src).href; } catch (e) { return "/"; } })();
 const $ = (id) => document.getElementById("lb-" + id);
 
-const EXTRAS = "\n\nMOLEKÜLE: Strukturformeln zeichnest du nie selbst mit Linien, sondern immer mit dem Baustein <molekuel> in der ZEICHNUNG (siehe unten). Ein Programm zeichnet daraus die exakte Strukturformel im Tafelstil.\n\nESELSBRÜCKEN: Wenn du eine Eselsbrücke oder einen Merksatz gibst, hänge NACH deinem Text zusätzlich eine Zeile an, damit sie gespeichert wird:\nESELSBRUECKE: Merksatz | wofür er gut ist\n\nTAFEL – du zeichnest wie eine Lehrkraft an der Tafel:\nTafel und Erklärung sind EINE Einheit. Alles, was du sagst (Zahlen, Kästchen, Flächen, Seiten, Formeln, Umformungen, Begriffe), steht auch an der Tafel. Nach Text und Tafel darf keine Frage offen bleiben. Wenn du von Kästchen sprichst, zeichne die Kästchen. Wenn du rechnest, schreib jeden Rechenschritt und jede Umformung als eigene Zeile an.\nZeichne, wann immer ein Bild hilft (Geometrie, Rechnen, Brüche, Zahlen, Graphen, Abläufe, Organe, Mechanismen). Hänge NACH deinem Text an:\nZEICHNUNG:\n<svg viewBox='0 0 1000 600'> ... </svg>\nAufteilung: links (x 30 bis 580) das Bild, rechts (x 600 bis 980) die Rechnung. Abstand zum Rand mindestens 30.\n\nBAUKASTEN – benutze diese Bausteine, wo sie passen. Das Programm berechnet und zeichnet sie exakt, mit allen Kästchen, Zahlen und Beschriftungen:\n1. <dreieck-rw a='3' b='4' x='30' y='30' breite='550' hoehe='540'/> rechtwinkliges Dreieck: Kathete a unten (blau), Kathete b links (grün), Hypotenuse c (rot). Zeichnet automatisch die Quadrate über allen drei Seiten mit Einheitskästchen zum Abzählen und schreibt a² = 9, b² = 16, c² = 25 hinein. Optional quadrate='nein', kaestchen='nein', c-zeigen='nein' (wenn die Person c selbst finden soll).\n   Teile: kathete-a, kathete-b, hypotenuse, kurze-seite, lange-kathete, rechter-winkel, quadrat-a, quadrat-b, quadrat-c\n2. <gleichung x='620' y='90' zeilen='a² + b² = c²; 3² + 4² = c²; 9 + 16 = c²; 25 = c²; c = √25 = 5' notizen='; einsetzen; Quadrate ausrechnen; zusammenzählen; Wurzel ziehen'/> Rechnung Zeile für Zeile, an den = ausgerichtet, rechts grau die Umformung. Die letzte Zeile wird als Ergebnis rot doppelt unterstrichen.\n   Teile: zeile-1, zeile-2, … , ergebnis\n3. <kaestchen x='60' y='80' spalten='4' zeilen='3' gefuellt='12' farbe='#1f6fd1' zahlen='ja' beschriftung='3 · 4 = 12'/> Kästchengitter mit Seitenlängen zum Zählen, Malnehmen, Flächen.\n   Teile: gitter, gefuellt, kaestchen-1, kaestchen-2, … , breite, hoehe\n4. <bruch-kreis cx='280' cy='290' r='200' teile='4' gefuellt='1' farbe='#d62828' beschriftung='1/4'/> Kreis (Pizza) in gleiche Stücke.   Teile: ganzes, gefuellt, stueck-1, …\n5. <bruch-balken x='60' y='200' breite='500' hoehe='90' teile='5' gefuellt='2' beschriftung='2/5'/>   Teile: ganzes, gefuellt, stueck-1, …\n6. <zahlenstrahl x='60' y='300' laenge='860' von='0' bis='10' schritt='1' markiere='3; 7'/>   Teile: zahlenstrahl, punkt-3, punkt-7, zahl-5\n7. <koordinaten x='60' y='40' breite='520' hoehe='520' xmin='-5' xmax='5' ymin='-5' ymax='5' funktion='x^2; 2*x+1'/> Koordinatensystem mit exakt berechneten Graphen.   Teile: x-achse, y-achse, graph-1, graph-2\n8. <pfeil x1='600' y1='300' x2='800' y2='300' text='wird zu' teil='umwandlung'/>\n9. <molekuel id='m1' smiles='CNC[C@H](O)C1=CC=C([OH:1])C([OH:2])=C1' name='Adrenalin' x='20' y='70' breite='420' hoehe='450' teile='1=phenol-oh-1; 2=phenol-oh-2'/> exakte Strukturformel. Gültige SMILES verwenden. Ringe IMMER in Kekulé-Schreibweise mit Großbuchstaben und = (z. B. Benzol C1=CC=CC=C1, nicht c1ccccc1), damit die Doppelbindungen wie an der Tafel sichtbar sind. Ladungen mit eckigen Klammern ([O-], [NH2+], [Cu+2], [Fe+3]). Atome, über die du sprichst, bekommen im SMILES eine Nummer ([OH:1], [O-:2], [NH:3], [C:4](=O), [N+:5]) und in teile='1=name; 2=name' einen Namen. Auf das ganze Molekül zeigst du mit seiner id oder seinem Namen in Kleinbuchstaben ohne Umlaute (z. B. [[m1|Adrenalin]]).\n   Teile: m1 (ganzes Molekül), die Namen aus teile=, außerdem m1-1, m1-2 … für die nummerierten Atome\n10. <bogenpfeil von='m1:1' nach='m1:3' text='e⁻' teil='elektronenpaar-1'/> gebogener Pfeil von Atom zu Atom (Elektronen, Angriff, Ringschluss). Für abgehende Teilchen ohne Ziel: <bogenpfeil von='m1:1' richtung='oben-rechts' laenge='90' text='H⁺' teil='proton-1-geht'/> (Richtungen: oben, unten, links, rechts, oben-links, oben-rechts, unten-links, unten-rechts).\n11. <titel text='Schritt 1: Oxidation der Hydroxygruppen'/> Überschrift oben links an der Tafel.\n12. <zahlenfolge zahlen='2; 5; 4; 7; 6; 9; ?; ?' boegen='+3; −1; +3; −1; +3; −1; +3' x='40' y='300' breite='920'/> Zahlenfolge in Kästchen, oben jeder Rechenschritt als Bogen, Lücken als ?. Für zwei verschränkte Folgen zusätzlich boegen2='…' (Schritt von jeder Zahl zur übernächsten, unten).\n   Teile: zahl-1 …, bogen-1 …, bogen2-1 …, luecke, muster, muster-2\n13. <venn a='Chirurgen' b='Ärzte' c='Läufer' cx='300' cy='330' r='150' leer='a; ac' kreuz='bc|abc'/> Mengenkreise für Implikationen (c weglassen bei zwei Mengen). Bereiche heißen nach den Mengen, in denen sie GENAU liegen: a, b, c, ab, ac, bc, abc. leer = laut Prämissen leere Bereiche, sie werden schraffiert: 'Alle A sind B' → leer='a; ac'. 'Kein A ist B' → leer='ab; abc'. 'Einige A sind B' → kreuz='ab', oder auf die Grenze 'ab|abc', wenn offen ist, ob es auch in C liegt. Rechts daneben mit text die Prämissen und die geprüften Schlussfolgerungen (✓ / ✗).\n   Teile: kreis-a, kreis-b, kreis-c, leer, kreuz, bereich-ab, bereich-bc …\n14. <buchstaben gemischt='NERGAT' wort='GARTEN'/> Wortflüssigkeit: oben die gemischten Buchstaben, Linien zu ihrem Platz im Lösungswort, der erste Buchstabe rot.\n   Teile: gemischt, loesung, erster-buchstabe, buchstabe-1 …\n15. <zusammensetzen ziel='kreis' teile='5' seed='3'/> Figuren zusammensetzen: links die verstreuten, gedrehten Teile, rechts gestrichelt die Zielfigur (kreis, halbkreis, dreieck, quadrat, rechteck, fuenfeck, sechseck, achteck). Zeigst du im Text auf [[zusammensetzen|…]], gleiten die Teile an ihren Platz.\n   Teile: stueck-1 …, ziel, zusammensetzen\n16. <vergessenskurve tage='30' wiederholungen='1; 3; 7; 14'/> Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen.\n   Teile: ohne-wiederholung, mit-wiederholung, wiederholung-1 …\n17. <gedaechtnispalast raeume='Eingang: Türschild mit dem Namen; Küche: Torte mit dem Geburtsdatum; Bad: Blutgruppe als Badeschaum; …'/> Gedächtnispalast als Grundriss mit Rundgang und einem Merkbild je Raum (höchstens 8 Räume).\n   Teile: raum-1 …, weg\nDie Bausteine 12 bis 17 brauchen meist die ganze Tafel; nur venn lässt rechts Platz für Text.\n\nREAKTIONEN UND MECHANISMEN erklärst du SCHRITT FÜR SCHRITT, so wie Pharmazie- und Medizinstudierende es nachvollziehen müssen:\n- Pro Schritt eine eigene ZEICHNUNG (mehrere ZEICHNUNG-Blöcke hintereinander, 2 bis 5). Jede beginnt mit <titel text='Schritt n: …'/>.\n- Aufbau jedes Schritts: links das Ausgangsmolekül (x='20' breite='420'), in der Mitte ein <pfeil x1='450' y1='300' x2='560' y2='300' text='Reagenz/Bedingung'/>, rechts das Produkt (x='570' breite='410'). Abgehende Teilchen (H⁺, H₂O, e⁻) mit bogenpfeil zeigen, neue Bindungen und Elektronenwege ebenfalls mit bogenpfeil.\n- Benenne und nummeriere die Atome, die sich verändern (abgespaltene Protonen bzw. ihre OH-Gruppen, entstehende Ladungen, der angreifende Stickstoff, die neue Bindung), damit du im Text genau darauf zeigen kannst.\n- Ionen und Reagenzien (z. B. Kupferion) zeichnest du als eigenes kleines <molekuel> mit id, damit man im Text darauf zeigen kann.\n- Im Text schreibst du passend **Schritt 1: …**, **Schritt 2: …** und zeigst in jedem Satz mit [[name|…]] auf genau das, worüber du sprichst. Die Tafel wechselt dann automatisch zum richtigen Schritt.\nFür alles andere (Organe, Zellen, Abläufe, Kreisläufe) zeichnest du selbst mit line, polyline, polygon, path, circle, ellipse, rect und text (font-size 26 bis 40, text-anchor='middle'). Gib jedem wichtigen Element einen Namen mit teil='name', z. B. teil='zellkern'.\n\nZEIGEN – das Wichtigste: Wenn du im Text über einen Teil der Tafel sprichst, markiere ihn so: [[teilname|sichtbarer Text]]. Beispiel: Schau dir [[kurze-seite|die kurze Seite a]] an. Das [[quadrat-a|blaue Quadrat darunter]] hat 3 · 3 = 9 Kästchen. Genau dieser Teil leuchtet dann an der Tafel auf, während du darüber sprichst. Markiere in jedem Satz, der sich auf die Tafel bezieht, den passenden Teil. Nutze nur Teilnamen, die es an deiner Tafel wirklich gibt.\n\nSo sieht es aus:\n- Wie an einer echten Tafel: klare Linien, Flächen nur zart eingefärbt (fill mit einer Farbe, ohne fill-style). Schraffur nur ausnahmsweise mit fill-style='hachure', wenn etwas besonders betont werden soll.\n- Farben: #1A1A1A schwarz, #d62828 rot, #1f6fd1 blau, #2a9d4b grün, #f2b705 gelb, #f07c1a orange, #7b3fc4 lila, #e0559b rosa, #8b5a2b braun. Nenne im Text dieselben Farben, die an der Tafel stehen.\n- Reihenfolge der Elemente = Reihenfolge deiner Erklärung (zuerst das Bild, dann die Rechnung).\n- Rechne alle Zahlen korrekt. Text und Tafel zeigen dieselben Zahlen.\n- Keine Styles, keine Skripte, keine Bilder. Wenn eine Zeichnung nichts bringt, lass ZEICHNUNG ganz weg.";
+const EXTRAS = "\n\nMOLEKÜLE: Strukturformeln zeichnest du nie selbst mit Linien, sondern immer mit dem Baustein <molekuel> in der ZEICHNUNG (siehe unten). Ein Programm zeichnet daraus die exakte Strukturformel im Tafelstil.\n\nESELSBRÜCKEN: Wenn du eine Eselsbrücke oder einen Merksatz gibst, hänge NACH deinem Text zusätzlich eine Zeile an, damit sie gespeichert wird:\nESELSBRUECKE: Merksatz | wofür er gut ist\n\nTAFEL – du zeichnest wie eine Lehrkraft an der Tafel:\nTafel und Erklärung sind EINE Einheit. Alles, was du sagst (Zahlen, Kästchen, Flächen, Seiten, Formeln, Umformungen, Begriffe), steht auch an der Tafel. Nach Text und Tafel darf keine Frage offen bleiben. Wenn du von Kästchen sprichst, zeichne die Kästchen. Wenn du rechnest, schreib jeden Rechenschritt und jede Umformung als eigene Zeile an.\nZeichne, wann immer ein Bild hilft (Geometrie, Rechnen, Brüche, Zahlen, Graphen, Abläufe, Organe, Mechanismen). Format einer Tafel:\nZEICHNUNG:\n<svg viewBox='0 0 1000 600'> ... </svg>\nDer gesprochene Text zu einer Tafel steht direkt VOR ihrem ZEICHNUNG-Block. Abstand zum Rand mindestens 30.\n\nBAUKASTEN – benutze diese Bausteine, wo sie passen. Das Programm berechnet und zeichnet sie exakt, mit allen Kästchen, Zahlen und Beschriftungen:\n1. <dreieck-rw a='3' b='4' x='30' y='30' breite='550' hoehe='540'/> rechtwinkliges Dreieck: Kathete a unten (blau), Kathete b links (grün), Hypotenuse c (rot). Zeichnet automatisch die Quadrate über allen drei Seiten mit Einheitskästchen zum Abzählen und schreibt a² = 9, b² = 16, c² = 25 hinein. Optional quadrate='nein', kaestchen='nein', c-zeigen='nein' (wenn die Person c selbst finden soll).\n   Teile: kathete-a, kathete-b, hypotenuse, kurze-seite, lange-kathete, rechter-winkel, quadrat-a, quadrat-b, quadrat-c\n2. <gleichung x='620' y='90' zeilen='a² + b² = c²; 3² + 4² = c²; 9 + 16 = c²; 25 = c²; c = √25 = 5' notizen='; einsetzen; Quadrate ausrechnen; zusammenzählen; Wurzel ziehen'/> Rechenweg als Karte: Zeile für Zeile nummeriert, rechts grau was du tust, die letzte Zeile wird als Ergebnis grün hervorgehoben. Mehrere <gleichung> auf einer Tafel stapelt das Programm selbst untereinander.\n   Teile: zeile-1, zeile-2, … , ergebnis\n3. <kaestchen x='60' y='80' spalten='4' zeilen='3' gefuellt='12' farbe='#1f6fd1' zahlen='ja' beschriftung='3 · 4 = 12'/> Kästchengitter mit Seitenlängen zum Zählen, Malnehmen, Flächen.\n   Teile: gitter, gefuellt, kaestchen-1, kaestchen-2, … , breite, hoehe\n4. <bruch-kreis cx='280' cy='290' r='200' teile='4' gefuellt='1' farbe='#d62828' beschriftung='1/4'/> Kreis (Pizza) in gleiche Stücke.   Teile: ganzes, gefuellt, stueck-1, …\n5. <bruch-balken x='60' y='200' breite='500' hoehe='90' teile='5' gefuellt='2' beschriftung='2/5'/>   Teile: ganzes, gefuellt, stueck-1, …\n6. <zahlenstrahl x='60' y='300' laenge='860' von='0' bis='10' schritt='1' markiere='3; 7'/>   Teile: zahlenstrahl, punkt-3, punkt-7, zahl-5\n7. <koordinaten x='60' y='40' breite='520' hoehe='520' xmin='-5' xmax='5' ymin='-5' ymax='5' funktion='x^2; 2*x+1'/> Koordinatensystem mit exakt berechneten Graphen.   Teile: x-achse, y-achse, graph-1, graph-2\n8. <pfeil x1='600' y1='300' x2='800' y2='300' text='wird zu' teil='umwandlung'/>\n9. <molekuel id='m1' smiles='CNC[C@H](O)C1=CC=C([OH:1])C([OH:2])=C1' name='Adrenalin' x='20' y='70' breite='420' hoehe='450' teile='1=phenol-oh-1; 2=phenol-oh-2'/> exakte Strukturformel. Gültige SMILES verwenden. Ringe IMMER in Kekulé-Schreibweise mit Großbuchstaben und = (z. B. Benzol C1=CC=CC=C1, nicht c1ccccc1), damit die Doppelbindungen wie an der Tafel sichtbar sind. Ladungen mit eckigen Klammern ([O-], [NH2+], [Cu+2], [Fe+3]). Atome, über die du sprichst, bekommen im SMILES eine Nummer ([OH:1], [O-:2], [NH:3], [C:4](=O), [N+:5]) und in teile='1=name; 2=name' einen Namen. Auf das ganze Molekül zeigst du mit seiner id oder seinem Namen in Kleinbuchstaben ohne Umlaute (z. B. [[m1|Adrenalin]]).\n   Teile: m1 (ganzes Molekül), die Namen aus teile=, außerdem m1-1, m1-2 … für die nummerierten Atome\n10. <bogenpfeil von='m1:1' nach='m1:3' text='e⁻' teil='elektronenpaar-1'/> gebogener Pfeil von Atom zu Atom (Elektronen, Angriff, Ringschluss). Für abgehende Teilchen ohne Ziel: <bogenpfeil von='m1:1' richtung='oben-rechts' laenge='90' text='H⁺' teil='proton-1-geht'/> (Richtungen: oben, unten, links, rechts, oben-links, oben-rechts, unten-links, unten-rechts).\n11. <titel text='Schritt 1: Oxidation der Hydroxygruppen'/> Überschrift oben links an der Tafel.\n12. <zahlenfolge zahlen='2; 5; 4; 7; 6; 9; ?; ?' boegen='+3; −1; +3; −1; +3; −1; +3' x='40' y='300' breite='920'/> Zahlenfolge in Kästchen, oben jeder Rechenschritt als Bogen, Lücken als ?. Für zwei verschränkte Folgen zusätzlich boegen2='…' (Schritt von jeder Zahl zur übernächsten, unten).\n   Teile: zahl-1 …, bogen-1 …, bogen2-1 …, luecke, muster, muster-2\n13. <venn a='Chirurgen' b='Ärzte' c='Läufer' cx='300' cy='330' r='150' leer='a; ac' kreuz='bc|abc'/> Mengenkreise für Implikationen (c weglassen bei zwei Mengen). Bereiche heißen nach den Mengen, in denen sie GENAU liegen: a, b, c, ab, ac, bc, abc. leer = laut Prämissen leere Bereiche, sie werden schraffiert: 'Alle A sind B' → leer='a; ac'. 'Kein A ist B' → leer='ab; abc'. 'Einige A sind B' → kreuz='ab', oder auf die Grenze 'ab|abc', wenn offen ist, ob es auch in C liegt. Rechts daneben mit text die Prämissen und die geprüften Schlussfolgerungen (✓ / ✗).\n   Teile: kreis-a, kreis-b, kreis-c, leer, kreuz, bereich-ab, bereich-bc …\n14. <buchstaben gemischt='NERGAT' wort='GARTEN'/> Wortflüssigkeit: oben die gemischten Buchstaben, Linien zu ihrem Platz im Lösungswort, der erste Buchstabe rot.\n   Teile: gemischt, loesung, erster-buchstabe, buchstabe-1 …\n15. <zusammensetzen ziel='kreis' teile='5' seed='3'/> Figuren zusammensetzen: links die verstreuten, gedrehten Teile, rechts gestrichelt die Zielfigur (kreis, halbkreis, dreieck, quadrat, rechteck, fuenfeck, sechseck, achteck). Zeigst du im Text auf [[zusammensetzen|…]], gleiten die Teile an ihren Platz.\n   Teile: stueck-1 …, ziel, zusammensetzen\n16. <vergessenskurve tage='30' wiederholungen='1; 3; 7; 14'/> Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen.\n   Teile: ohne-wiederholung, mit-wiederholung, wiederholung-1 …\n17. <gedaechtnispalast raeume='Eingang: Türschild mit dem Namen; Küche: Torte mit dem Geburtsdatum; Bad: Blutgruppe als Badeschaum; …'/> Gedächtnispalast als Grundriss mit Rundgang und einem Merkbild je Raum (höchstens 8 Räume).\n   Teile: raum-1 …, weg\nDie Bausteine 12 bis 17 brauchen meist die ganze Tafel; nur venn lässt rechts Platz für Text.\n\nREAKTIONEN UND MECHANISMEN erklärst du SCHRITT FÜR SCHRITT, so wie Pharmazie- und Medizinstudierende es nachvollziehen müssen:\n- Pro Schritt eine eigene ZEICHNUNG (mehrere ZEICHNUNG-Blöcke hintereinander, 2 bis 5). Jede beginnt mit <titel text='Schritt n: …'/>.\n- Aufbau jedes Schritts: links das Ausgangsmolekül (x='20' breite='420'), in der Mitte ein <pfeil x1='450' y1='300' x2='560' y2='300' text='Reagenz/Bedingung'/>, rechts das Produkt (x='570' breite='410'). Abgehende Teilchen (H⁺, H₂O, e⁻) mit bogenpfeil zeigen, neue Bindungen und Elektronenwege ebenfalls mit bogenpfeil.\n- Benenne und nummeriere die Atome, die sich verändern (abgespaltene Protonen bzw. ihre OH-Gruppen, entstehende Ladungen, der angreifende Stickstoff, die neue Bindung), damit du im Text genau darauf zeigen kannst.\n- Ionen und Reagenzien (z. B. Kupferion) zeichnest du als eigenes kleines <molekuel> mit id, damit man im Text darauf zeigen kann.\n- Im Text schreibst du passend **Schritt 1: …**, **Schritt 2: …** und zeigst in jedem Satz mit [[name|…]] auf genau das, worüber du sprichst. Die Tafel wechselt dann automatisch zum richtigen Schritt.\nNur wenn es wirklich keinen Baustein und keine Schablone gibt, zeichnest du selbst mit line, polyline, polygon, path, circle, ellipse, rect und text (font-size 24 bis 34, text-anchor='middle'). Gib jedem wichtigen Element einen Namen mit teil='name', z. B. teil='zellkern'.\n\nZEIGEN – das Wichtigste: Wenn du im Text über einen Teil der Tafel sprichst, markiere ihn so: [[teilname|sichtbarer Text]]. Beispiel: Schau dir [[kurze-seite|die kurze Seite a]] an. Das [[quadrat-a|blaue Quadrat darunter]] hat 3 · 3 = 9 Kästchen. Genau dieser Teil leuchtet dann an der Tafel auf, während du darüber sprichst. Markiere in jedem Satz, der sich auf die Tafel bezieht, den passenden Teil. Nutze nur Teilnamen, die es an deiner Tafel wirklich gibt.\n\nSo sieht es aus:\n- Moderner, ruhiger Stil: klare Linien, Flächen nur zart eingefärbt (fill mit einer Farbe, ohne fill-style). Wenig Text, viel Luft.\n- Farben: #1e293b dunkel, #dc2626 rot, #2563eb blau, #16a34a grün, #eab308 gelb, #ea580c orange, #7c3aed lila, #db2777 rosa, #8b5a2b braun. Nenne im Text dieselben Farben, die an der Tafel stehen.\n- Reihenfolge der Elemente = Reihenfolge deiner Erklärung (zuerst das Bild, dann die Rechnung).\n- Rechne alle Zahlen korrekt. Text und Tafel zeigen dieselben Zahlen.\n- Keine Styles, keine Skripte, keine Bilder. Wenn eine Zeichnung nichts bringt, lass ZEICHNUNG ganz weg.";
 
 // ================= kleine Helfer =================
 function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
@@ -33,7 +33,44 @@ function setStatus(t) { $("status").textContent = t; const s = $("stage-status")
 function fmtDate(ms) { try { return new Date(ms).toLocaleDateString("de-AT", { day: "numeric", month: "short", year: "numeric" }) + ", " + new Date(ms).toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" }); } catch (e) { return ""; } }
 
 // ================= Antwort zerlegen =================
+// KI-Ausgaben reparieren, bevor sie zerlegt werden (häufigste Fehler laut Prüfstand)
+function repairAnswer(text) {
+  // ZEICHNUNG ohne <svg>-Hülle: die Bausteine direkt hingeschrieben
+  text = text.replace(/((?:BILD)?ZEICHNUNG\s*:\s*(?:```[a-z]*\s*)?)(<(?!svg\b)[a-z!][\s\S]*?)(?=\n\s*\n|\n\s*```|\n\s*(?:BILD)?ZEICHNUNG|\n\s*(?:ESELSBR|MOLEK)|\n(?=[A-ZÄÖÜ*\[][^=<>\n]*(?:\n|$))|$)/gi,
+    (m, head, tags) => `${head}<svg viewBox='0 0 1000 600'>\n${tags.trim()}\n</svg>\n`);
+  // Einzelnes & (z. B. „Stütze & Ansatz“) macht die ganze Zeichnung ungültig
+  // < und > in Attributwerten (z. B. zeilen='|2x − 5| < 3', knoten='a: ΔG < 0') ebenso
+  return text.replace(/<svg[\s\S]*?<\/svg>/gi, (svg) => svg
+    .replace(/&(?!(?:[a-z]+|#\d+|#x[0-9a-f]+);)/gi, "&amp;")
+    .replace(/(\s[a-z][a-z0-9-]*\s*=\s*)(['"])([\s\S]*?)\2/gi, (m, k, q, v) => k + q + v.replace(/</g, "&lt;").replace(/>/g, "&gt;") + q));
+}
+// Mehrere Ganz-Tafel-Bausteine (z. B. zwei <normalverteilung>) auf EINER Tafel würden übereinander liegen:
+// das Programm verteilt sie auf eigene Tafeln, jede mit dem Titel. Bausteine mit eigener Breite (≤ 600) bleiben nebeneinander.
+const FULL_BOARD = /^(analyse|normalverteilung|schema|tabelle|kreislauf|kette|netz|vergleich|phasen|raeume|kurve|einheitskreis|vektoren|baum|prozent|einheiten|potenzen|auswahl|welle|vieleck|kreis)$/i;
+function splitFull(svg) {
+  const m = svg.match(/^(<svg[^>]*>)([\s\S]*)<\/svg>\s*$/i);
+  if (!m) return [svg];
+  const inner = m[2], tagRe = /<([a-z][a-z0-9-]*)\b[^>]*?\/>/gi, full = [];
+  let t;
+  while ((t = tagRe.exec(inner))) {
+    if (!FULL_BOARD.test(t[1])) continue;
+    const br = t[0].match(/breite=['"](\d+)/i);
+    if (br && Number(br[1]) <= 600) continue;
+    full.push({ i: t.index, end: tagRe.lastIndex });
+  }
+  if (full.length < 2) return [svg];
+  const titel = (inner.match(/<titel\b[^>]*\/>/i) || [""])[0];
+  const rest = inner.slice(0, full[1].i);                       // alles bis zum zweiten Baustein bleibt auf Tafel 1
+  const out = [m[1] + rest + "</svg>"];
+  full.slice(1).forEach((f, k) => {
+    const next = full[k + 2] ? full[k + 2].i : inner.length;
+    const chunk = inner.slice(f.i, next).replace(/<titel\b[^>]*\/>/gi, "");
+    out.push(m[1] + titel + chunk + "</svg>");
+  });
+  return out;
+}
 function splitAnswer(text) {
+  text = repairAnswer(text);
   const mols = [...text.matchAll(/MOLEK(?:UE|Ü)L\s*:\s*([^|\n]+)\|\s*`?([^\s`\n]+)/gi)].map((m) => ({ name: m[1].replace(/[*`]/g, "").trim(), smiles: m[2].trim() }));
   const tricks = [...text.matchAll(/ESELSBR(?:UE|Ü)CKE\s*:\s*([^|\n]+)(?:\|\s*([^\n]*))?/gi)].map((m) => ({ merksatz: m[1].replace(/[*`"]/g, "").trim(), wofuer: (m[2] || "").replace(/[*`]/g, "").trim() })).filter((t) => t.merksatz);
   // Text und Tafeln dürfen sich abwechseln: Text zu Tafel 1, Tafel 1, Text zu Tafel 2, Tafel 2 …
@@ -45,23 +82,25 @@ function splitAnswer(text) {
   const addText = (t, board) => {
     const clean = t.replace(/^\s*(MOLEK(UE|Ü)L|ESELSBR(UE|Ü)CKE|MARKIERUNGEN)\s*:.*$/gim, "").replace(/```\w*/g, "").replace(/\n{3,}/g, "\n\n").trim();
     if (!clean) return;
-    segs.push({ start: body.length + (body ? 1 : 0), board });
+    segs.push({ start: body.length + (body ? 1 : 0), board, raw: board });
     body += (body ? "\n" : "") + clean;
   };
   while ((m = re.exec(text))) {
     const before = text.slice(last, m.index);
     if (/^BILD/i.test(m[1])) { addText(before, svgs.length); imgSvg = imgSvg || m[2]; }
-    else { addText(before, svgs.length); if (!svgs.includes(m[2])) svgs.push(m[2]); }
+    else { addText(before, svgs.length); splitFull(m[2]).forEach((sv) => { if (!svgs.includes(sv)) svgs.push(sv); }); }
     last = re.lastIndex;
   }
-  addText(text.slice(last), Math.max(0, svgs.length - 1));
+  addText(text.slice(last), svgs.length);
   // Text vor der ersten Tafel gehört zur ersten Tafel, Text nach der letzten Tafel zur letzten
   segs.forEach((g) => { g.board = Math.min(g.board, Math.max(0, svgs.length - 1)); });
   return { body, svg: svgs[0] || null, svgs: svgs.slice(0, 6), imgSvg, mols, tricks, segs };
 }
 
 // ================= Tafel-Baukasten: exakt berechnete Bausteine =================
-const C = { ink: "#1A1A1A", red: "#d62828", blue: "#1f6fd1", green: "#2a9d4b", grey: "#7a756c" };
+const C = { ink: "#1e293b", red: "#dc2626", blue: "#2563eb", green: "#16a34a", grey: "#64748b" };
+// Moderner, klarer Tafelstil (statt Kreide/Handzeichnung). LB_STIL = "hand" schaltet zurück.
+const MODERN = (window.LB_STIL || "modern") !== "hand";
 const N = (v, d) => { const x = parseFloat(String(v == null ? "" : v).replace(",", ".")); return isFinite(x) ? x : d; };
 const clampN = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const fmt = (v) => String(Math.round(v * 100) / 100).replace(".", ",");
@@ -145,6 +184,38 @@ function compGrid(A) {
   return out;
 }
 function compEquation(A) {
+  if (!MODERN) return compEquationHand(A);
+  // modern: Rechenweg als Karte – nummerierte Schritte, Notiz in Grau, Ergebnis grün hinterlegt
+  const lines = String(A("zeilen") || "").split(";").map((t) => t.trim()).filter(Boolean).slice(0, 10);
+  const notes = String(A("notizen") || "").split(";").map((t) => t.trim());
+  if (!lines.length) return [];
+  const x = clampN(N(A("x"), 60), 20, 900), y0 = N(A("y"), 80);
+  const W = Math.max(260, 980 - x), hasNotes = notes.some(Boolean);
+  const exprMax = Math.max(...lines.map((l) => l.length)), noteMax = hasNotes ? Math.max(...notes.map((n) => n.length)) : 0;
+  let size = N(A("groesse"), 30);
+  // Notizen rechts daneben – reicht der Platz nicht, stehen sie klein unter der Zeile
+  const fit = (stack) => 56 + exprMax * size * 0.56 + (hasNotes && !stack ? 28 + noteMax * size * 0.6 * 0.56 : 0) + 24;
+  let stacked = false;
+  while (size > 22 && fit(false) > W) size -= 1;
+  if (fit(false) > W) { stacked = true; size = N(A("groesse"), 30); while (size > 15 && fit(true) > W) size -= 1; }
+  const noteSize = Math.max(14, size * 0.6);
+  const lh = Math.max(46, size * 1.75) + (stacked && hasNotes ? noteSize * 1.1 : 0), pad = 14, out = [];
+  const cardH = lines.length * lh + pad * 2 - 6;
+  out.push(S("rect", { x, y: y0 - size - pad + 4, width: W, height: cardH, rx: 16, fill: "#f8fafc", stroke: "#e2e8f0", "stroke-width": 2, "fill-style": "solid", teil: "rechnung", "data-p": 1 }));
+  const color = A("farbe") || C.ink;
+  lines.forEach((l, i) => {
+    const yy = y0 + i * lh, last = i === lines.length - 1 && lines.length > 1;
+    const teil = "zeile-" + (i + 1) + (last ? " ergebnis" : "") + " rechnung";
+    if (last) out.push(S("rect", { x: x + 8, y: yy - size * 0.95, width: W - 16, height: size * 1.45 + (stacked && notes[i] ? noteSize * 1.2 : 0), rx: 10, fill: "#dcfce7", stroke: "none", "fill-style": "solid", teil, "data-p": 1 }));
+    out.push(S("circle", { cx: x + 28, cy: yy - size * 0.33, r: 13, fill: last ? C.green : "#e2e8f0", stroke: "none", "fill-style": "solid", teil, "data-p": 1 }));
+    out.push(tx(x + 28, yy - size * 0.33 + 6, String(i + 1), { size: 17, fill: last ? "#ffffff" : C.grey, teil }));
+    out.push(tx(x + 56, yy, l, { anchor: "start", size, fill: last ? "#15803d" : color, teil }));
+    if (notes[i]) out.push(stacked ? tx(x + 56, yy + noteSize * 1.25, notes[i], { anchor: "start", size: noteSize, fill: C.grey, teil }) : tx(x + W - 16, yy, notes[i], { anchor: "end", size: noteSize, fill: C.grey, teil }));
+  });
+  out.forEach((o) => { if (o.tag === "text") o.attrs["data-placed"] = 1; });
+  return out;
+}
+function compEquationHand(A) {
   const lines = String(A("zeilen") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 10);
   const notes = String(A("notizen") || "").split(";").map((s) => s.trim());
   const x = N(A("x"), 620), y = N(A("y"), 80);
@@ -377,8 +448,22 @@ function compCurved(A) {
   return out;
 }
 function compTitle(A) {
-  const x = N(A("x"), 30), y = N(A("y"), 48), t = String(A("text") || ""), color = A("farbe") || C.red;
-  return [tx(x, y, t, { anchor: "start", size: N(A("groesse"), 38), fill: color, teil: "titel" }), ln(x, y + 12, x + Math.min(940, t.length * 18), y + 12, color, 2.5, "titel")];
+  const x = N(A("x"), 30), y = N(A("y"), 48), color = A("farbe") || C.red;
+  let t = String(A("text") || "");
+  if (!MODERN) return [tx(x, y, t, { anchor: "start", size: N(A("groesse"), 38), fill: color, teil: "titel" }), ln(x, y + 12, x + Math.min(940, t.length * 18), y + 12, color, 2.5, "titel")];
+  // modern: Schrittnummer als Plakette, Titel ruhig in dunkler Schrift
+  const m = t.match(/^\s*(?:Schritt\s*)?(\d{1,2})[.:)]\s*(.+)$/i), out = [];
+  const size = Math.min(34, N(A("groesse"), 32));
+  let tx0 = x + 4;
+  if (m) {
+    t = m[2];
+    out.push(S("circle", { cx: x + 20, cy: y - size * 0.34, r: 19, fill: C.blue, stroke: "none", "fill-style": "solid", teil: "titel", "data-p": 1 }));
+    out.push(tx(x + 20, y - size * 0.34 + 7.5, m[1], { size: 21, fill: "#ffffff", teil: "titel" }));
+    tx0 = x + 52;
+  } else { out.push(S("rect", { x, y: y - size * 0.86, width: 6, height: size * 0.98, rx: 3, fill: C.blue, stroke: "none", "fill-style": "solid", teil: "titel", "data-p": 1 })); tx0 = x + 20; }
+  out.push(tx(tx0, y, t, { anchor: "start", size, fill: C.ink, teil: "titel" }));
+  out.forEach((o) => { if (o.tag === "text") o.attrs["data-placed"] = 1; });
+  return out;
 }
 Object.assign(COMPONENTS, { "molekuel": compMolecule, "bogenpfeil": compCurved, "titel": compTitle });
 // ================= MedAT-Bausteine =================
@@ -1117,11 +1202,11 @@ function compChain(A) {
 }
 Object.assign(COMPONENTS, { "kreislauf": compCycle, "kette": compChain });
 // ================= Layout-Bausteine für alle Fächer: die KI liefert Inhalte, das Programm ordnet an =================
-const tw = (t, size) => String(t).length * size * 0.5;            // grobe Textbreite
-function wrapWords(t, maxChars) {                                   // Zeilenumbruch nach Wörtern
+const tw = (t, size) => String(t).length * size * (MODERN ? 0.54 : 0.5); // grobe Textbreite
+function wrapWords(t, maxChars, max = 3) {                          // Zeilenumbruch nach Wörtern
   const words = String(t).split(/\s+/), lines = []; let cur = "";
   for (const w of words) { if ((cur + " " + w).trim().length > maxChars && cur) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim(); }
-  if (cur) lines.push(cur); return lines.slice(0, 3);
+  if (cur) lines.push(cur); return lines.slice(0, max);
 }
 function boxText(cx, cy, t, o) {                                    // Kästchen mit (umbrochenem) Text
   const size = o.size || 24, lines = wrapWords(t, o.chars || 18), lh = size * 1.15;
@@ -1193,6 +1278,44 @@ function compCompare(A) {
       out.push(tx(cx, cy + 9, yes ? "✓" : no ? "✗" : v, { size: yes || no ? 36 : 24, fill: yes ? C.green : no ? C.red : C.ink, teil: `zeile-${j + 1} spalte-${i + 1} ${keyOf(r.k)}` }));
     });
   });
+  return out;
+}
+
+// 40. Tabelle: Kopfzeile + bis zu 9 Zeilen, Spaltenbreite und Schriftgröße passen sich dem Inhalt an
+function compTable(A) {
+  const split = (s, sep) => String(s || "").split(sep).map((t) => t.trim());
+  const head = split(A("spalten"), /\s*[;|]\s*/).filter(Boolean).slice(0, 5);
+  let rows = split(A("zeilen"), ";").filter(Boolean).map((r) => split(r, "|"));
+  if (!rows.length) return [];
+  const nc = Math.min(5, Math.max(head.length, ...rows.map((r) => r.length)));
+  rows = rows.slice(0, 9).map((r) => Array.from({ length: nc }, (_, i) => r[i] || ""));
+  const x0 = 40, W = 920, top = Number(A("y")) || 92, H = 570 - top;
+  const len = (i) => Math.max(6, ...[head[i] || "", ...rows.map((r) => r[i])].map((t) => Math.min(t.length, 34)));
+  const tot = Array.from({ length: nc }, (_, i) => len(i)).reduce((a, b) => a + b, 0);
+  const cw = Array.from({ length: nc }, (_, i) => Math.max(120, W * len(i) / tot)); const k = W / cw.reduce((a, b) => a + b, 0); cw.forEach((_, i) => (cw[i] *= k));
+  let size = 32, cells, heights;
+  for (; size >= 16; size -= 1) {
+    const lh = size * 1.18;
+    cells = [head.length ? head : null, ...rows].filter(Boolean).map((r) => r.map((t, i) => wrapWords(t, Math.max(6, Math.floor((cw[i] - 16) / (size * 0.52))), 5)));
+    heights = cells.map((r) => Math.max(...r.map((l) => l.length || 1)) * lh + 18);
+    if (heights.reduce((a, b) => a + b, 0) <= H) break;
+  }
+  const out = [], lh = size * 1.18, hasHead = !!head.length;
+  let y = top;
+  cells.forEach((r, j) => {
+    const h = heights[j], isHead = hasHead && j === 0, rowNo = hasHead ? j : j + 1, rk = rowNo > 0 ? keyOf(rows[rowNo - 1][0]) : "";
+    const rowTeil = isHead ? "kopfzeile" : `zeile-${rowNo} ${rk}`;
+    out.push(S("rect", { x: x0, y, width: W, height: h, fill: isHead ? "#eef3fb" : rowNo % 2 ? "#ffffff" : "#faf7f0", stroke: "#d9d2c3", "stroke-width": 1.5, teil: rowTeil, "data-p": 1 }));
+    let x = x0;
+    r.forEach((lines, i) => {
+      const col = PALE[i % PALE.length], teil = isHead ? `kopfzeile spalte-${i + 1} ${keyOf(head[i] || "")}` : `zeile-${rowNo} spalte-${i + 1} ${rk}${i ? " " + keyOf(rows[rowNo - 1][i]) : ""}`;
+      lines.forEach((l, q) => out.push(tx(x + 10, y + 9 + size * 0.85 + q * lh + (h - 18 - lines.length * lh) / 2, l, { size, anchor: "start", fill: isHead ? col : i === 0 ? C.blue : C.ink, teil })));
+      if (i) out.push(ln(x, y, x, y + h, "#d9d2c3", 1.5, "linie", true));
+      x += cw[i];
+    });
+    y += h;
+  });
+  out.forEach((o) => { if (o.tag === "text") o.attrs["data-placed"] = 1; });
   return out;
 }
 
@@ -1301,7 +1424,7 @@ function placeCallouts(svg) {
     });
   }
 }
-Object.assign(COMPONENTS, { "netz": compNet, "vergleich": compCompare, "phasen": compPhases, "raeume": compRooms, "kurve": compCurve, "beschriftung": compLabel });
+Object.assign(COMPONENTS, { "netz": compNet, "vergleich": compCompare, "phasen": compPhases, "raeume": compRooms, "kurve": compCurve, "beschriftung": compLabel, "tabelle": compTable });
 
 // ================= Schablonen: fertige Schemata mit benannten Teilen (Anatomie, Zellbiologie) =================
 // Die KI zeichnet diese nie selbst – sie wählt die Schablone, lässt Teile aufleuchten und beschriften.
@@ -1537,12 +1660,22 @@ function copyInto(src, dst) {
     if (COMPONENTS[tag]) {
       let specs = [];
       try { specs = COMPONENTS[tag]((k) => n.getAttribute(k)); } catch (err) { specs = []; }
+      // Jeder Baustein in eine eigene Gruppe – so kann das Programm ihn später als Ganzes verschieben
+      const grp = document.createElementNS(SVGNS, "g"); grp.setAttribute("data-comp", tag); dst.appendChild(grp);
+      // Ganz-Tafel-Baustein mit eigener Größe (z. B. zwei Kurven nebeneinander): in den gewünschten Bereich verkleinern
+      if (FULL_BOARD.test(tag) && !/^(analyse|prozent|einheiten|welle)$/.test(tag) && (n.getAttribute("breite") || n.getAttribute("hoehe"))) {
+        const bx = N(n.getAttribute("x"), 0), by = N(n.getAttribute("y"), 0), bw = clampN(N(n.getAttribute("breite"), 1000), 200, 1000), bh = clampN(N(n.getAttribute("hoehe"), 600), 150, 600);
+        const k = Math.min(bw / 1000, bh / 600);
+        if (k < 0.98) grp.setAttribute("transform", `translate(${(bx + (bw - 1000 * k) / 2).toFixed(1)} ${(by + (bh - 600 * k) / 2).toFixed(1)}) scale(${k.toFixed(3)})`);
+      }
       for (const sp of specs) {
-        if (sp.raw) { dst.appendChild(sp.raw); continue; }
+        if (sp.raw) { grp.appendChild(sp.raw); continue; }
+        // Der Bausteinname zeigt auf den ganzen Baustein ([[gleichung|…]], [[tabelle|…]])
+        if (sp.attrs) sp.attrs.teil = sp.attrs.teil ? sp.attrs.teil + " " + tag : tag;
         const e = document.createElementNS(SVGNS, sp.tag);
         for (const [k, v] of Object.entries(sp.attrs)) if (v != null && v !== "" && !(k === "teil" && !TEIL_OK.test(String(v)))) e.setAttribute(k, String(v).trim());
         if (sp.text != null) e.textContent = sp.text;
-        dst.appendChild(e);
+        grp.appendChild(e);
       }
       continue;
     }
@@ -1584,7 +1717,29 @@ const num = (e, a, d = 0) => { const v = parseFloat(e.getAttribute(a)); return i
 const pts = (s) => { const n = (s || "").trim().split(/[\s,]+/).map(Number).filter(isFinite); const r = []; for (let i = 0; i + 1 < n.length; i += 2) r.push([n[i], n[i + 1]]); return r; };
 function roughOpts(o) { return Object.assign({ roughness: 0.85, bowing: 0.7 }, o); }
 // Jede Form wird handgezeichnet: erst der Umriss, dann die Schraffur
+// Moderner Stil: klare Linien, weiche Flächen, runde Enden – gleiche Teil-Markierungen wie beim Handstil
+function modernize(svg, theme) {
+  svg.querySelectorAll(SHAPES).forEach((e) => {
+    if (e.closest("defs, mask")) return;
+    const fill = e.getAttribute("fill");
+    const fs = (e.getAttribute("fill-style") || "tint").toLowerCase();
+    if (fill && fill !== "none" && !/^(#fff(fff)?|white)$/i.test(fill) && !e.hasAttribute("fill-opacity") && (fs === "tint" || !FILLSTYLES.has(fs))) e.setAttribute("fill-opacity", theme === "chalk" ? ".22" : ".2");
+    if (!e.hasAttribute("fill")) e.setAttribute("fill", "none");
+    e.setAttribute("stroke-linecap", "round"); e.setAttribute("stroke-linejoin", "round");
+    const sw = parseFloat(e.getAttribute("stroke-width")); if (sw > 3) e.setAttribute("stroke-width", String(Math.max(2.5, sw * 0.75)));
+    const st = e.getAttribute("stroke"); if (st) e.setAttribute("stroke", col(st, theme));
+    if (fill) e.setAttribute("fill", col(fill, theme));
+    if (e.getAttribute("teil")) e.setAttribute("data-teil", e.getAttribute("teil").toLowerCase());
+  });
+  svg.querySelectorAll("text, tspan[fill]").forEach((t) => {
+    const f = t.getAttribute("fill"); if (f) t.setAttribute("fill", col(f, theme));
+    if (t.getAttribute("teil")) t.setAttribute("data-teil", t.getAttribute("teil").toLowerCase());
+    // freie KI-Schrift nicht riesig
+    const fz = parseFloat(t.getAttribute("font-size")); if (fz > 38 && !t.closest("[data-comp]")) t.setAttribute("font-size", "36");
+  });
+}
 function roughify(svg, theme, scale) {
+  if (MODERN) return modernize(svg, theme);
   if (!window.rough) return;
   const rc = rough.svg(svg), gen = rc.generator;
   let seed = 1;
@@ -1628,9 +1783,28 @@ function roughify(svg, theme, scale) {
     if (t.getAttribute("teil")) t.setAttribute("data-teil", t.getAttribute("teil").toLowerCase());
   });
 }
-function buildBoardSvg(svgText, theme) {
+// Verweise der KI, deren Name nicht exakt an der Tafel steht ([[ovulation|…]] bei Beschriftung „Eisprung (Ovulation)“),
+// dem passenden Teil zuordnen: gleicher Wortstamm im Teilnamen oder in der Beschriftung.
+function linkRefs(out, refs) {
+  // läuft vor roughify: die Teilnamen stehen hier noch im Attribut „teil“
+  const tl = (e) => (e.getAttribute("teil") || "").toLowerCase();
+  const all = [...out.querySelectorAll("[teil]")];
+  const have = (r) => all.some((e) => tl(e).split(/\s+/).includes(r));
+  const parts = (t) => t.split(/[-_]+/).filter((x) => x.length >= 4);
+  const like = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && (a.includes(b) || b.includes(a))) || parts(a).some((x) => parts(b).includes(x));
+  for (const r of refs) {
+    if (!r || have(r)) continue;
+    const rr = slug(r);
+    let hit = all.filter((e) => tl(e).split(/\s+/).some((t) => like(slug(t), rr)));
+    if (!hit.length) hit = [...out.querySelectorAll("text")].filter((t) => { const k = slug(t.textContent || ""); return k.length >= 3 && like(k, rr); });
+    // Nur überschaubare Treffer, sonst würde zu viel aufleuchten
+    if (hit.length && hit.length <= 12) hit.forEach((e) => { e.setAttribute("teil", (tl(e) + " " + r).trim()); if (!all.includes(e)) all.push(e); });
+  }
+}
+function buildBoardSvg(svgText, theme, refs) {
   const out = sanitizeSvg(svgText, "0 0 1000 600");
   if (!out) return null;
+  if (refs && refs.length) try { linkRefs(out, refs); } catch (e) {}
   out.setAttribute("role", "img");
   const vbw = parseFloat(out.getAttribute("viewBox").split(/[\s,]+/)[2]) || 1000;
   roughify(out, theme, vbw / 1000);
@@ -1857,16 +2031,60 @@ function collectAnchors() {
 }
 
 // ---------- Anleitung für die KI ----------
+// Welche Bausteine braucht dieses Fach? Nur diese stehen in der Anleitung – kürzer, und die KI wählt treffsicherer.
+const UNIVERSAL = ["titel", "pfeil", "gleichung", "netz", "vergleich", "phasen", "raeume", "kurve", "beschriftung", "tabelle"];
+const FACH_BAUSTEINE = {
+  mathematik: ["dreieck-rw", "kaestchen", "bruch-kreis", "bruch-balken", "zahlenstrahl", "koordinaten", "analyse", "prozent", "einheiten", "potenzen", "baum", "normalverteilung", "auswahl", "einheitskreis", "vektoren", "kreis", "vieleck"],
+  physik: ["koordinaten", "analyse", "einheiten", "potenzen", "vektoren", "welle", "teilchen", "einheitskreis", "kreis"],
+  chemie: ["molekuel", "bogenpfeil", "teilchen", "einheiten", "potenzen", "prozent"],
+  biologie: ["schema", "kreislauf", "kette", "molekuel", "bogenpfeil", "teilchen"],
+  kff: ["zahlenfolge", "venn", "buchstaben", "zusammensetzen", "vergessenskurve", "gedaechtnispalast", "kaestchen"]
+};
+const FACH_WOERTER = {
+  mathematik: /integral|ableitung|funktion|gleichung|prozent|zins|bruch|wahrscheinlich|statistik|mittelwert|vektor|winkel|dreieck|kreis|fläche|volumen|potenz|wurzel|logarithm|einheit|umrechn|kombinatorik|binom|sinus|cosinus|parabel|gerade|steigung/i,
+  physik: /kraft|energie|arbeit|leistung|druck|welle|schall|licht|optik|linse|strom|spannung|widerstand|magnet|radioakt|zerfall|atomkern|wärme|temperatur|geschwindigkeit|beschleunigung|impuls|frequenz/i,
+  chemie: /molekül|reaktion|säure|base|ph-?wert|redox|oxidation|reduktion|bindung|ion|elektron|organisch|alkan|alkohol|ester|amin|gleichgewicht|stöchiometr|mol\b|isomer|periodensystem|katalys/i,
+  biologie: /zelle|organ|gewebe|herz|niere|lunge|nerv|synapse|hormon|drüse|enzym|dna|rna|gen|chromosom|mitose|meiose|immun|blut|verdauung|stoffwechsel|zyklus|evolution|ökolog|protein|muskel|knochen|auge/i,
+  kff: /zahlenfolge|implikation|wortflüssigkeit|figuren|allergieausweis|gedächtnis|merk/i
+};
+function fachVon(ctx, q) {
+  const f = ctx && ctx.frage, out = new Set();
+  if (f && f.bereich) {
+    const b = f.bereich.toLowerCase();
+    for (const k of Object.keys(FACH_BAUSTEINE)) if (b.includes(k)) out.add(k);
+    if (/zahlenfolge|implikation|wortfl|figur|allergie/.test(b)) out.add("kff");
+  }
+  const text = [q || "", f ? f.text : "", ctx ? ctx.ueberschrift : ""].join(" ");
+  for (const [k, re] of Object.entries(FACH_WOERTER)) if (re.test(text)) out.add(k);
+  return out;
+}
+// Baustein-Beschreibungen anderer Fächer aus der Anleitung nehmen (Punkt + eingerückte Folgezeilen)
+function nurFach(prompt, faecher) {
+  if (!faecher.size) return prompt;                        // Fach unklar: alles drinlassen
+  const ok = new Set(UNIVERSAL); faecher.forEach((f) => FACH_BAUSTEINE[f].forEach((t) => ok.add(t)));
+  const lines = prompt.split("\n"), out = []; let skip = false;
+  for (const l of lines) {
+    const m = l.match(/^(\d+)\. <([a-z-]+)/);
+    if (m) skip = !ok.has(m[2]);
+    else if (skip && !/^\s{2,}\S/.test(l)) skip = false;
+    if (!skip) out.push(l);
+  }
+  let res = out.join("\n");
+  if (!ok.has("molekuel")) res = res.replace(/\n\nREAKTIONEN UND MECHANISMEN[\s\S]*?(?=\nNur wenn es wirklich keinen Baustein)/, "\n");
+  if (!ok.has("analyse")) res = res.replace(/\nMATHE-BAUSTEINE[^\n]*/, "\n").replace(/\n- Mathe-Aufbau:[^\n]*/, "");
+  if (!ok.has("schema")) res = res.replace(/\nSCHABLONEN[^\n]*/, "\n").replace(/\n   Für Details \(z\. B\. was in der Henle-Schleife passiert\)[^\n]*/, "");
+  return res;
+}
 function rules() {
   const L = LB_LANGS[$("lang").value] || LB_LANGS.de;
-  const voice = lb.speak ? "Die Antwort wird VORGELESEN: höchstens 10 kurze Sätze, etwa 2 bis 3 pro Tafel, keine Listen, keine Tabellen, keine Sonderzeichen-Formeln im Text (Formeln gehören an die Tafel). Jede Tafel, die du zeichnest, wird im Text auch erklärt, in der Reihenfolge der Tafeln. Kündige nie etwas an, das danach nicht kommt (kein 'schauen wir uns gleich genauer an', ohne dass es im nächsten Satz passiert)." : "Halte dich kurz (höchstens etwa 160 Wörter). **fett** und Listen mit '- ' sind erlaubt.";
+  const voice = lb.speak ? "LÄNGE – STRENGE GRENZE (wird automatisch geprüft): Die Antwort wird VORGELESEN. Insgesamt höchstens 12 kurze Sätze, höchstens 3 Sätze pro Tafel, höchstens 4 Tafeln. Kein Begrüßungs- oder Trostsatz ('Hallo!', 'Keine Sorge'), die Frage nicht wiederholen. Rechenschritte stehen an der Tafel in <gleichung>, gesprochen wird nur kurz, worauf man dort schaut. Im gesprochenen Text keine Aufzählungen und keine Sonderzeichen-Formeln (Formeln und Tabellen gehören an die Tafel). Jede Tafel, die du zeichnest, wird im Text auch erklärt, in der Reihenfolge der Tafeln. Kündige nie etwas an, das danach nicht kommt (kein 'schauen wir uns gleich genauer an', ohne dass es im nächsten Satz passiert)." : "Halte dich kurz (höchstens etwa 160 Wörter). **fett** und Listen mit '- ' sind erlaubt.";
   const H = Math.round(1000 * lb.shotH / lb.shotW);
   const anchorList = lb.anchorText ? `\nANKER – diese Stellen des Bildschirms kennt das Programm genau (Name: was dort steht [Position im Screenshot]):\n${lb.anchorText}\n` : "";
-  const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
+  const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Schreibe dafür GANZ AM ANFANG deiner Antwort (vor dem ersten Satz):\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
   const f = lb.ctx && lb.ctx.frage;
   const wrong = f && f.gewaehlt ? `\n\nFALSCH BEANTWORTETE AUFGABE – so erklärst du:\n1. Erst auf dem Bildschirm zeigen (BILDZEICHNUNG mit markiere): die gewählte Antwort rot einkreisen (text 'deine Wahl', teil 'deine-wahl'), die richtige grün einkreisen (text 'richtig', teil 'richtig'), ein entscheidendes Schlüsselwort der Frage (z. B. NICHT) orange unterstreichen. Achte genau darauf, welcher Buchstabe welche Antwort ist (KONTEXT und ANKER).\n2. Dann 1 bis 3 Tafeln, die das Fachwissen SICHTBAR machen – genau das, was man im Kopf haben muss, um die Frage zu lösen: Teilchen, Moleküle, Elektronen, Kräfte, Abläufe, Kurven. Bei Abläufen eine Tafel pro Schritt. Die Frage, die Antwortmöglichkeiten oder die Erklärung der App schreibst du NICHT an die Tafel – das steht schon auf dem Bildschirm.\n3. Im Text (vorgelesen) benennst du den Denkfehler in einem Satz, ohne Vorwurf, und gibst am Ende einen kurzen Prüfungstipp.` : "";
-  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Aufbau der Antwort: Schreibe den gesprochenen Text zu jeder Tafel direkt VOR ihren ZEICHNUNG-Block (Text 1, ZEICHNUNG 1, Text 2, ZEICHNUNG 2 …). Jede Tafel bekommt ihren eigenen Text – keine Tafel bleibt ohne Erklärung, und kein Satz endet mit einem Doppelpunkt ohne Fortsetzung.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\nLEHRKRAFT-REGELN (das Wichtigste, so entsteht echtes Verständnis):\n- Alles, was du nennst, wird in genau diesem Moment GEZEIGT: jedes Fachwort, jede Größe, jede Fläche, Kurve, Grenze, jedes Enzym oder Molekül, jeder Rechenschritt steht an der Tafel oder ist auf dem Bildschirm markiert, und du zeigst mit [[teil|…]] darauf. Was nicht zu sehen ist, sagst du nicht.\n- Rechne immer ein konkretes Beispiel komplett vor, Zeile für Zeile mit <gleichung> (notizen = was du in dieser Zeile tust), mit echten Zahlen bis zum Ergebnis. Nie nur die Formel nennen.\n- Formeln dröselst du auf: jedes Symbol einzeln, farbig mit dem Bild verbunden (z. B. ∫ von a bis b f(x) dx: a und b = Grenzen auf der x-Achse, f(x) = die Kurve, dx = schmale Streifen, das Integral = die gelbe Fläche).\n- Mathe-Aufbau: Tafel 1 das Bild (z. B. <analyse> mit Fläche), Tafel 2 die Formel aufgedröselt, Tafel 3 Beispiel vorgerechnet: links <analyse x='40' breite='500'>, rechts <gleichung x='600'>.\n- Ist die Person in einem Lern-Tool (Grafik, Animation, Regler), beginne auf IHREM Bildschirm: markiere mit markiere ziel='bild-…' stelle='…' genau die Kurve, Fläche oder den Regler, über den du sprichst.\n- Abläufe (Zyklen, Kaskaden, Signalwege): zuerst der Überblick als <kreislauf> oder <kette>, dann einzelne Schritte auf eigenen Tafeln mit <molekuel> und <bogenpfeil>.\n31. <kreislauf schritte='Citrat; Isocitrat; α-Ketoglutarat; Succinyl-CoA; Succinat; Fumarat; Malat; Oxalacetat' enzyme='Aconitase; Isocitrat-DH; α-KG-DH; Succinyl-CoA-Synthetase; Succinat-DH; Fumarase; Malat-DH; Citrat-Synthase' extras='2: NADH + CO₂; 3: NADH + CO₂; 4: GTP; 5: FADH₂; 7: NADH' mitte='Citratzyklus'/> Kreislauf: Stationen im Kreis, Enzym n steht am Pfeil von Station n zu n+1, extras n = was bei Schritt n entsteht. Jede Station und jeder Schritt ist antippbar.\n   Teile: station-1 …, schritt-1 …, reaktion-1 …, enzym, produkt, zyklus, außerdem die Namen in Kleinbuchstaben (z. B. citrat, aconitase)\n32. <kette schritte='Glucose; Glucose-6-phosphat; Fructose-6-phosphat; …' pfeile='Hexokinase; Isomerase; …'/> Ablauf als Kette (bei mehr als 5 Stationen in Schlangenlinien).   Teile: station-1 …, schritt-1 …, enzym, Namen in Kleinbuchstaben\nBAUSTEINE FÜR ALLE FÄCHER (das Programm ordnet an – du lieferst nur die Inhalte; benutze sie statt frei zu zeichnen):\n33. <netz knoten='a: Isomere; b: Konstitutionsisomere; c: Stereoisomere' kanten='a>b; a>c: gleiche Summenformel' richtung='unten'/> Begriffsnetz, Übersicht, Flussdiagramm, Hormonachse, Regelkreis. kanten: a>b Pfeil, a-b Linie, a<>b Doppelpfeil, Text nach Doppelpunkt. Eine Kante zurück zu einem früheren Knoten wird als Rückkopplung gezeichnet (negative Rückkopplung!). richtung='rechts' für waagrecht. Höchstens 14 Knoten, kurze Begriffe.\n   Teile: knoten, a, b, … (die Kürzel), kante-1 …, a-b, rueckkopplung, außerdem die Begriffe in Kleinbuchstaben\n34. <vergleich spalten='Mitose; Meiose' zeilen='Teilungen: 1 | 2; Tochterzellen: 2 | 4; Crossing-over: nein | ja'/> Gegenüberstellung (ja/nein werden ✓/✗).   Teile: spalte-1, zeile-1 …\n35. <phasen phasen='Prophase: Chromosomen kondensieren; Metaphase: in der Mitte; Anaphase: Chromatiden getrennt; Telophase: zwei Kerne'/> Ablauf in Phasen auf einem Zeitstrahl (max. 7).   Teile: phase-1 …, Phasennamen in Kleinbuchstaben\n36. <raeume bereiche='Zelle > Mitochondrium > Matrix' inhalt='Matrix: Citratzyklus, β-Oxidation; Mitochondrium: Atmungskette'/> verschachtelte Räume (wo passiert was).   Teile: bereich-1 …, Namen in Kleinbuchstaben\n37. <kurve kurven='saettigung: Enzymaktivität' x-name='Substratkonzentration' y-name='v' hlinien='1: Vmax; 0.5: ½ Vmax' vlinien='0.25: Km' punkte='0.25: Km'/> typische Kurve exakt gezeichnet. Formen: saettigung, sigmoid (z. B. O₂-Bindung Hämoglobin), exponentiell, abfall (Zerfall), glocke, optimum (Temperatur/pH), logistisch, linear, schwingung. Werte von 0 bis 1.   Teile: kurve-1, hlinie-1, vlinie-1, punkt-1, x-achse, y-achse\n38. <beschriftung ziel='teilname' text='…'/> wenn du doch frei zeichnest: Beschriftung NICHT selbst platzieren, sondern so – das Programm setzt sie mit Hinweislinie sauber daneben.\nSCHABLONEN (fertig gezeichnete Schemata – Anatomie und Zellen zeichnest du NIE selbst):\n39. <schema name='herz' zeige='alle'/> Namen: zelle, mitochondrium, dna (basen='ATGCGT'), chromosom, neuron, synapse, herz, nephron, alveole, auge. zeige='alle' oder nur bestimmte Teile (z. B. zeige='linke-kammer; aorta'), fluss='nein' blendet Flusspfeile aus. Die Schablone braucht die ganze Tafel; zeige mit [[teil|…]] auf die Teile:\n   zelle: zellmembran, zytoplasma, zellkern, kernkoerperchen, raues-er, golgi-apparat, mitochondrium, ribosomen, lysosom, zentriolen\n   mitochondrium: aeussere-membran, intermembranraum, innere-membran, cristae, matrix, atp-synthase, mtdna, ribosomen\n   dna: rueckgrat, basenpaar, wasserstoffbruecken, adenin, thymin, guanin, cytosin, 5-ende, 3-ende\n   chromosom: chromatid-1, chromatid-2, zentromer, kinetochor, p-arm, q-arm, telomer\n   neuron: dendriten, soma, zellkern, axonhuegel, axon, myelinscheide, ranvier-schnuerring, endknoepfchen, erregung\n   synapse: aktionspotenzial, praesynapse, vesikel, transmitter, calciumkanal, synaptischer-spalt, postsynapse, rezeptoren\n   herz: rechter-vorhof, rechte-kammer, linker-vorhof, linke-kammer, septum, trikuspidalklappe, mitralklappe, pulmonalklappe, aortenklappe, aorta, lungenarterie, obere-hohlvene, untere-hohlvene, lungenvenen, blutfluss\n   nephron: glomerulus, bowman-kapsel, vas-afferens, vas-efferens, proximaler-tubulus, henle-schleife, distaler-tubulus, sammelrohr, rinde, mark, harnfluss\n   alveole: bronchiole, alveole, alveolarwand, kapillare, erythrozyt, sauerstoff, kohlendioxid\n   auge: lederhaut, hornhaut, iris, pupille, linse, ziliarkoerper, glaskoerper, netzhaut, gelber-fleck, blinder-fleck, sehnerv, lichtstrahlen\n   Für Details (z. B. was in der Henle-Schleife passiert) eine zweite Tafel mit <netz>, <kette> oder <kurve>.\nMATHE-BAUSTEINE (für alle Mathe-Fragen zuerst diese benutzen, sie rechnen alles exakt; jeder braucht die ganze Tafel unter dem <titel>):\n20. <analyse funktion='x^3-3x' bereich='-3;3' nullstellen='ja' extrema='ja' wendepunkte='ja' tangente='1' steigungsdreieck='0' flaeche='0;2'/> Graph mit berechneten Punkten (N, H, T, W), Tangente an x=1, Steigungsdreieck ab x=0, Fläche/Integral von 0 bis 2. Nur angeben, was gebraucht wird. Zwei Funktionen: funktion='2x+1; x^2' schnittpunkt='ja' (Gleichungssysteme, Schnittpunkte). Für Geraden, Parabeln, Exponentialfunktionen, Ableitung (Tangente), Integral.\n   Teile: graph-1, graph-2, nullstelle, nullstelle-1, hochpunkt, tiefpunkt, extremum-1, scheitel, wendepunkt-1, tangente, steigungsdreieck, delta-x, delta-y, flaeche, ergebnis, schnittpunkt\n21. <prozent start='100 €' schritte='-20%; -10%'/> Balken nach jeder Änderung, Rechnung pro Schritt, Gesamtänderung und die Falle (nicht −30 %). Ohne schritte: <prozent start='80 €' anteil='25'/> zeigt Grundwert, Prozentwert, Prozentsatz.\n   Teile: grundwert, schritt-1, schritt-2, gesamt, falle, prozentwert, prozentsatz, ergebnis\n22. <einheiten von='mL' nach='µL' wert='0.025'/> Vorsilben-Treppe mit Faktoren, Weg von → nach, Ergebnis. Flächen/Volumen: von='m²' nach='cm²' bzw. 'cm³'. Für alle Umrechnungen und Vorsilben (k, M, m, µ, n …).\n   Teile: stufe, von, nach, weg, faktor, regel, ergebnis\n23. <potenzen basis='2' oben='5;3' unten='4'/> Faktoren als Kreise, Kürzen, Exponenten addieren/subtrahieren, Ergebnis.\n   Teile: zaehler, nenner, kuerzen, exponenten, regel, ergebnis\n24. <baum stufen='1/6:Sechs; 5/6:keine Sechs | 1/6:Sechs; 5/6:keine Sechs' pfad='1-1'/> Baumdiagramm, Stufen mit | getrennt, Äste mit ;. pfad='1-1' (mehrere: '1-2, 2-1') markiert Pfade rot, rechnet Produkt- und Summenregel mit Brüchen.\n   Teile: ast-1, ast-1-1, pfad, stufe-1, blatt-1-1, produkt, summe, ergebnis\n25. <normalverteilung mu='100' sigma='15' band='2'/> Glockenkurve, μ, ±σ-Werte, schattiertes Band mit 68 / 95 / 99,7 %.\n   Teile: kurve, mittelwert, sigma-1, sigma-2, band, prozent, ergebnis\n26. <auswahl n='5' k='3' reihenfolge='nein' zuruecklegen='nein'/> Plätze füllen (5 · 4 · 3), bei 'Reihenfolge egal' durch k! teilen = Binomialkoeffizient.\n   Teile: platz-1, platz-2, produkt, ordnung, fakultaet, ergebnis\n27. <einheitskreis winkel='30'/> Einheitskreis, Winkel, sin als Höhe (rot), cos als Breite (blau), exakte Werte, tan = sin/cos.\n   Teile: kreis, winkel, radius, punkt, sinus, cosinus, tangens, pythagoras\n28. <vektoren vektoren='a=3,1; b=1,2' summe='ja' differenz='nein' betrag='a'/> Vektoren im Gitter, Addition Spitze an Fuß, Betrag mit Pythagoras.\n   Teile: vektor-a, vektor-b, summe, differenz, betrag-a, gitter, ergebnis\n29. <kreis r='5' einheit='cm'/> Kreis mit r, d, Fläche und Umfang berechnet.   Teile: radius, durchmesser, flaeche, umfang, formel, ergebnis\n30. <vieleck n='6'/> regelmäßiges Vieleck mit allen Diagonalen, von einer Ecke rot, n·(n−3)/2.   Teile: ecke, von-einer-ecke, diagonalen, ergebnis\nFür Pythagoras <dreieck-rw>, für Rechenwege <gleichung>, für Brüche <bruch-kreis>/<bruch-balken>, für Zahlenfolgen <zahlenfolge>.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
-  return `${LB_ROLE}${EXTRAS}${board}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
+  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht. AUSNAHME: Wünscht sich die Person ausdrücklich eine Tabelle oder Übersicht (z. B. Hormone, Drüsen, Wirkung), bekommt sie diese – mit dem Baustein <tabelle>.\n- Zeichne NIE Platzhalter oder Ersatztexte wie 'Tafel wird geladen', 'Hier sollte … sein' oder 'normalerweise siehst du hier'. Was du ankündigst, zeichnest du wirklich – mit einem Baustein.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 26 bis 36, Überschriften nur mit <titel>. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Aufbau der Antwort: Schreibe den gesprochenen Text zu jeder Tafel direkt VOR ihren ZEICHNUNG-Block (Text 1, ZEICHNUNG 1, Text 2, ZEICHNUNG 2 …). Jede Tafel bekommt ihren eigenen Text – keine Tafel bleibt ohne Erklärung, und kein Satz endet mit einem Doppelpunkt ohne Fortsetzung.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\nLEHRKRAFT-REGELN (das Wichtigste, so entsteht echtes Verständnis):\n- Alles, was du nennst, wird in genau diesem Moment GEZEIGT: jedes Fachwort, jede Größe, jede Fläche, Kurve, Grenze, jedes Enzym oder Molekül, jeder Rechenschritt steht an der Tafel oder ist auf dem Bildschirm markiert, und du zeigst mit [[teil|…]] darauf. Was nicht zu sehen ist, sagst du nicht.\n- Rechne immer ein konkretes Beispiel komplett vor, Zeile für Zeile mit <gleichung> (notizen = was du in dieser Zeile tust), mit echten Zahlen bis zum Ergebnis. Nie nur die Formel nennen.\n- Formeln dröselst du auf: jedes Symbol einzeln, farbig mit dem Bild verbunden (z. B. ∫ von a bis b f(x) dx: a und b = Grenzen auf der x-Achse, f(x) = die Kurve, dx = schmale Streifen, das Integral = die gelbe Fläche).\n- Mathe-Aufbau: Tafel 1 das Bild (z. B. <analyse> mit Fläche), Tafel 2 die Formel aufgedröselt, Tafel 3 Beispiel vorgerechnet: links <analyse x='40' breite='500'>, rechts <gleichung x='600'>.\n- Ist die Person in einem Lern-Tool (Grafik, Animation, Regler), beginne auf IHREM Bildschirm: markiere mit markiere ziel='bild-…' stelle='…' genau die Kurve, Fläche oder den Regler, über den du sprichst.\n- Abläufe (Zyklen, Kaskaden, Signalwege): zuerst der Überblick als <kreislauf> oder <kette>, dann einzelne Schritte auf eigenen Tafeln mit <molekuel> und <bogenpfeil>.\n31. <kreislauf schritte='Citrat; Isocitrat; α-Ketoglutarat; Succinyl-CoA; Succinat; Fumarat; Malat; Oxalacetat' enzyme='Aconitase; Isocitrat-DH; α-KG-DH; Succinyl-CoA-Synthetase; Succinat-DH; Fumarase; Malat-DH; Citrat-Synthase' extras='2: NADH + CO₂; 3: NADH + CO₂; 4: GTP; 5: FADH₂; 7: NADH' mitte='Citratzyklus'/> Kreislauf: Stationen im Kreis, Enzym n steht am Pfeil von Station n zu n+1, extras n = was bei Schritt n entsteht. Jede Station und jeder Schritt ist antippbar.\n   Teile: station-1 …, schritt-1 …, reaktion-1 …, enzym, produkt, zyklus, außerdem die Namen in Kleinbuchstaben (z. B. citrat, aconitase)\n32. <kette schritte='Glucose; Glucose-6-phosphat; Fructose-6-phosphat; …' pfeile='Hexokinase; Isomerase; …'/> Ablauf als Kette (bei mehr als 5 Stationen in Schlangenlinien).   Teile: station-1 …, schritt-1 …, enzym, Namen in Kleinbuchstaben\nBAUSTEINE FÜR ALLE FÄCHER (das Programm ordnet an – du lieferst nur die Inhalte; benutze sie statt frei zu zeichnen):\n33. <netz knoten='a: Isomere; b: Konstitutionsisomere; c: Stereoisomere' kanten='a>b; a>c: gleiche Summenformel' richtung='unten'/> Begriffsnetz, Übersicht, Flussdiagramm, Hormonachse, Regelkreis. kanten: a>b Pfeil, a-b Linie, a<>b Doppelpfeil, Text nach Doppelpunkt. Eine Kante zurück zu einem früheren Knoten wird als Rückkopplung gezeichnet (negative Rückkopplung!). richtung='rechts' für waagrecht. Höchstens 14 Knoten, kurze Begriffe.\n   Teile: knoten, a, b, … (die Kürzel), kante-1 …, a-b, rueckkopplung, außerdem die Begriffe in Kleinbuchstaben\n34. <vergleich spalten='Mitose; Meiose' zeilen='Teilungen: 1 | 2; Tochterzellen: 2 | 4; Crossing-over: nein | ja'/> Gegenüberstellung (ja/nein werden ✓/✗).   Teile: spalte-1, zeile-1 …\n35. <phasen phasen='Prophase: Chromosomen kondensieren; Metaphase: in der Mitte; Anaphase: Chromatiden getrennt; Telophase: zwei Kerne'/> Ablauf in Phasen auf einem Zeitstrahl (max. 7).   Teile: phase-1 …, Phasennamen in Kleinbuchstaben\n36. <raeume bereiche='Zelle > Mitochondrium > Matrix' inhalt='Matrix: Citratzyklus, β-Oxidation; Mitochondrium: Atmungskette'/> verschachtelte Räume (wo passiert was).   Teile: bereich-1 …, Namen in Kleinbuchstaben\n37. <kurve kurven='saettigung: Enzymaktivität' x-name='Substratkonzentration' y-name='v' hlinien='1: Vmax; 0.5: ½ Vmax' vlinien='0.25: Km' punkte='0.25: Km'/> typische Kurve exakt gezeichnet. Formen: saettigung, sigmoid (z. B. O₂-Bindung Hämoglobin), exponentiell, abfall (Zerfall), glocke, optimum (Temperatur/pH), logistisch, linear, schwingung. Werte von 0 bis 1.   Teile: kurve-1, hlinie-1, vlinie-1, punkt-1, x-achse, y-achse\n40. <tabelle spalten='Hormon; Drüse; Wirkung' zeilen='Insulin | Pankreas (β-Zellen) | senkt Blutzucker; Glukagon | Pankreas (α-Zellen) | hebt Blutzucker'/> Tabelle, wenn die Person eine Tabelle oder Übersicht will: bis zu 5 Spalten, höchstens 9 Zeilen pro Tafel (mehr Zeilen → zweite Tafel mit weiteren Zeilen), Zellen kurz (höchstens etwa 6 Wörter). Zeilen mit ; trennen, Zellen mit |. Das Programm passt Spaltenbreite und Schrift an. Dazu einen <titel>.\n   Teile: kopfzeile, spalte-1 …, zeile-1 …, außerdem der Inhalt der ersten Spalte in Kleinbuchstaben (z. B. insulin)\n38. <beschriftung ziel='teilname' text='…'/> wenn du doch frei zeichnest: Beschriftung NICHT selbst platzieren, sondern so – das Programm setzt sie mit Hinweislinie sauber daneben.\nSCHABLONEN (fertig gezeichnete Schemata – Anatomie und Zellen zeichnest du NIE selbst):\n39. <schema name='herz' zeige='alle'/> Namen: zelle, mitochondrium, dna (basen='ATGCGT'), chromosom, neuron, synapse, herz, nephron, alveole, auge. zeige='alle' oder nur bestimmte Teile (z. B. zeige='linke-kammer; aorta'), fluss='nein' blendet Flusspfeile aus. Die Schablone braucht die ganze Tafel; zeige mit [[teil|…]] auf die Teile:\n   zelle: zellmembran, zytoplasma, zellkern, kernkoerperchen, raues-er, golgi-apparat, mitochondrium, ribosomen, lysosom, zentriolen\n   mitochondrium: aeussere-membran, intermembranraum, innere-membran, cristae, matrix, atp-synthase, mtdna, ribosomen\n   dna: rueckgrat, basenpaar, wasserstoffbruecken, adenin, thymin, guanin, cytosin, 5-ende, 3-ende\n   chromosom: chromatid-1, chromatid-2, zentromer, kinetochor, p-arm, q-arm, telomer\n   neuron: dendriten, soma, zellkern, axonhuegel, axon, myelinscheide, ranvier-schnuerring, endknoepfchen, erregung\n   synapse: aktionspotenzial, praesynapse, vesikel, transmitter, calciumkanal, synaptischer-spalt, postsynapse, rezeptoren\n   herz: rechter-vorhof, rechte-kammer, linker-vorhof, linke-kammer, septum, trikuspidalklappe, mitralklappe, pulmonalklappe, aortenklappe, aorta, lungenarterie, obere-hohlvene, untere-hohlvene, lungenvenen, blutfluss\n   nephron: glomerulus, bowman-kapsel, vas-afferens, vas-efferens, proximaler-tubulus, henle-schleife, distaler-tubulus, sammelrohr, rinde, mark, harnfluss\n   alveole: bronchiole, alveole, alveolarwand, kapillare, erythrozyt, sauerstoff, kohlendioxid\n   auge: lederhaut, hornhaut, iris, pupille, linse, ziliarkoerper, glaskoerper, netzhaut, gelber-fleck, blinder-fleck, sehnerv, lichtstrahlen\n   Für Details (z. B. was in der Henle-Schleife passiert) eine zweite Tafel mit <netz>, <kette> oder <kurve>.\nMATHE-BAUSTEINE (für alle Mathe-Fragen zuerst diese benutzen, sie rechnen alles exakt; jeder braucht die ganze Tafel unter dem <titel>):\n20. <analyse funktion='x^3-3x' bereich='-3;3' nullstellen='ja' extrema='ja' wendepunkte='ja' tangente='1' steigungsdreieck='0' flaeche='0;2'/> Graph mit berechneten Punkten (N, H, T, W), Tangente an x=1, Steigungsdreieck ab x=0, Fläche/Integral von 0 bis 2. Nur angeben, was gebraucht wird. Zwei Funktionen: funktion='2x+1; x^2' schnittpunkt='ja' (Gleichungssysteme, Schnittpunkte). Für Geraden, Parabeln, Exponentialfunktionen, Ableitung (Tangente), Integral.\n   Teile: graph-1, graph-2, nullstelle, nullstelle-1, hochpunkt, tiefpunkt, extremum-1, scheitel, wendepunkt-1, tangente, steigungsdreieck, delta-x, delta-y, flaeche, ergebnis, schnittpunkt\n21. <prozent start='100 €' schritte='-20%; -10%'/> Balken nach jeder Änderung, Rechnung pro Schritt, Gesamtänderung und die Falle (nicht −30 %). Ohne schritte: <prozent start='80 €' anteil='25'/> zeigt Grundwert, Prozentwert, Prozentsatz.\n   Teile: grundwert, schritt-1, schritt-2, gesamt, falle, prozentwert, prozentsatz, ergebnis\n22. <einheiten von='mL' nach='µL' wert='0.025'/> Vorsilben-Treppe mit Faktoren, Weg von → nach, Ergebnis. Flächen/Volumen: von='m²' nach='cm²' bzw. 'cm³'. Für alle Umrechnungen und Vorsilben (k, M, m, µ, n …).\n   Teile: stufe, von, nach, weg, faktor, regel, ergebnis\n23. <potenzen basis='2' oben='5;3' unten='4'/> Faktoren als Kreise, Kürzen, Exponenten addieren/subtrahieren, Ergebnis.\n   Teile: zaehler, nenner, kuerzen, exponenten, regel, ergebnis\n24. <baum stufen='1/6:Sechs; 5/6:keine Sechs | 1/6:Sechs; 5/6:keine Sechs' pfad='1-1'/> Baumdiagramm, Stufen mit | getrennt, Äste mit ;. pfad='1-1' (mehrere: '1-2, 2-1') markiert Pfade rot, rechnet Produkt- und Summenregel mit Brüchen.\n   Teile: ast-1, ast-1-1, pfad, stufe-1, blatt-1-1, produkt, summe, ergebnis\n25. <normalverteilung mu='100' sigma='15' band='2'/> Glockenkurve, μ, ±σ-Werte, schattiertes Band mit 68 / 95 / 99,7 %.\n   Teile: kurve, mittelwert, sigma-1, sigma-2, band, prozent, ergebnis\n26. <auswahl n='5' k='3' reihenfolge='nein' zuruecklegen='nein'/> Plätze füllen (5 · 4 · 3), bei 'Reihenfolge egal' durch k! teilen = Binomialkoeffizient.\n   Teile: platz-1, platz-2, produkt, ordnung, fakultaet, ergebnis\n27. <einheitskreis winkel='30'/> Einheitskreis, Winkel, sin als Höhe (rot), cos als Breite (blau), exakte Werte, tan = sin/cos.\n   Teile: kreis, winkel, radius, punkt, sinus, cosinus, tangens, pythagoras\n28. <vektoren vektoren='a=3,1; b=1,2' summe='ja' differenz='nein' betrag='a'/> Vektoren im Gitter, Addition Spitze an Fuß, Betrag mit Pythagoras.\n   Teile: vektor-a, vektor-b, summe, differenz, betrag-a, gitter, ergebnis\n29. <kreis r='5' einheit='cm'/> Kreis mit r, d, Fläche und Umfang berechnet.   Teile: radius, durchmesser, flaeche, umfang, formel, ergebnis\n30. <vieleck n='6'/> regelmäßiges Vieleck mit allen Diagonalen, von einer Ecke rot, n·(n−3)/2.   Teile: ecke, von-einer-ecke, diagonalen, ergebnis\nFür Pythagoras <dreieck-rw>, für Rechenwege <gleichung>, für Brüche <bruch-kreis>/<bruch-balken>, für Zahlenfolgen <zahlenfolge>.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
+  return `${LB_ROLE}${nurFach(EXTRAS + board, lb.faecher || new Set())}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
 }
 
 // ---------- Panel aufbauen ----------
@@ -2033,8 +2251,33 @@ async function takeShot(announce) {
     setStatus("Die Bildschirmaufnahme hat nicht geklappt – du kannst trotzdem fragen.");
   }
 }
+// ---------- Datenschutz-Hinweis beim ersten Öffnen ----------
+const CONSENT_KEY = "lb-datenschutz-v1";
+function hasConsent() { try { return !!localStorage.getItem(CONSENT_KEY); } catch (e) { return true; } }
+function askConsent(then) {
+  let box = document.getElementById("lb-consent");
+  if (!box) {
+    box = el("div", "lb-consent"); box.id = "lb-consent"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "lb-consent-h");
+    box.innerHTML = `<div class="lb-consent-card">
+      <h2 id="lb-consent-h">Kurz zum Datenschutz</h2>
+      <p>LernBlick ist ein KI-Tutor. Damit er dir helfen kann, schicken wir bei jeder Frage</p>
+      <ul><li>deine Frage und den bisherigen Gesprächsverlauf und</li><li>ein Bild der gerade geöffneten App-Seite – nur diese Seite, nicht deinen übrigen Bildschirm –</li></ul>
+      <p>an Google (Gemini). Daraus entstehen Erklärung, Tafel und Stimme. Google nutzt diese Daten nicht zum Training seiner KI, und wir speichern keine Gesprächsinhalte.</p>
+      <p class="lb-consent-hint">Bitte gib keine sensiblen persönlichen Daten ein (z. B. zu deiner Gesundheit).</p>
+      <a href="#" class="lb-consent-link">Datenschutzerklärung lesen</a>
+      <div class="lb-consent-btns"><button type="button" class="lb-ghost lb-consent-no">Abbrechen</button><button type="button" class="lb-send lb-consent-ok">Verstanden, los geht's</button></div>
+    </div>`;
+    $("panel").parentNode.appendChild(box);
+    box.querySelector(".lb-consent-link").onclick = (e) => { e.preventDefault(); const m = document.getElementById("modal-datenschutz"); if (m) { m.style.display = "block"; m.style.zIndex = "2147483647"; } else window.open("/", "_blank"); };
+  }
+  box.hidden = false;
+  box.querySelector(".lb-consent-no").onclick = () => { box.hidden = true; };
+  box.querySelector(".lb-consent-ok").onclick = () => { try { localStorage.setItem(CONSENT_KEY, JSON.stringify({ am: new Date().toISOString() })); } catch (e) {} box.hidden = true; then(); };
+  box.querySelector(".lb-consent-ok").focus();
+}
 async function openPanel(opts = {}) {
   if (lb.open) { if (opts.ask) ask(opts.ask); return; }
+  if (!hasConsent() && !window.__LB_BENCH) return askConsent(() => openPanel(opts));
   $("fab").hidden = true;
   lb.ctx = readContext();
   await takeShot(false);
@@ -2078,6 +2321,66 @@ function closePanel() {
 }
 
 // ---------- Fragen ----------
+function presentAnswer(text, o) {
+  const { body, svgs, imgSvg, mols, tricks, segs } = splitAnswer(text);
+  const early = o.early || null;
+  answerSegs = segs;
+  o.bubble.innerHTML = md(body);
+  // Zeigt der Text auf eine Stelle des Bildschirms ([[antwort-b|…]], [[frage|…]]), die die KI nicht markiert hat,
+  // markiert das Programm sie selbst – sonst würde der Verweis ins Leere zeigen.
+  let img = imgSvg;
+  const anchorRefs = [...new Set(refsIn(body))].filter((r) => anchors[r] && !(img && new RegExp(`teil=['"][^'"]*\\b${r}\\b`).test(img)));
+  if (anchorRefs.length) {
+    const extra = anchorRefs.slice(0, 6).map((r) => `<markiere ziel='${r}' art='rahmen' farbe='blau' teil='${r}'/>`).join("");
+    img = img ? img.replace(/<\/svg>\s*$/i, extra + "</svg>") : `<svg viewBox='0 0 1000 600'>${extra}</svg>`;
+  }
+  if (img && (!early || img !== early.img)) {
+    const hasImg = renderImgDraw(img, !early);
+    if (imgSvg && !hasImg && !o.partial) setStatus("Die Zeichnung auf dem Bildschirm war fehlerhaft.");
+  }
+  const okSvgs = svgs.filter((x) => sanitizeSvg(x, "0 0 1000 600"));
+  const allRefs = [...new Set(refsIn(body))];
+  if (early && early.firstIdx != null) {
+    // Rest der Antwort: neue Tafeln anhängen, bereits gezeigte bleiben
+    const have = cur.boards.length - early.firstIdx;
+    okSvgs.slice(have).forEach((sv) => cur.boards.push({ svg: sv, mols: [], q: o.q, titel: titleOf(sv), teile: teileOf(sv, allRefs) }));
+    answerBoards = [early.firstIdx, cur.boards.length - 1];
+    for (let i = early.firstIdx; i < cur.boards.length; i++) {
+      const b = cur.boards[i];
+      if (i - early.firstIdx >= have) Object.assign(b, { shown: new Set(), full: false, parent: early.parent });
+      b.defer = allRefs; b.teile = teileOf(b.svg, allRefs);
+    }
+    renderStrip(); updateStageNav();
+  } else if (okSvgs.length || mols.length) {
+    const firstIdx = cur.boards.length;
+    if (!okSvgs.length) cur.boards.push({ svg: null, mols, q: o.q, teile: mols.map((m) => slug(m.name)) });
+    okSvgs.forEach((sv, k) => cur.boards.push({ svg: sv, mols: k === 0 ? mols : [], q: o.q, titel: titleOf(sv), teile: teileOf(sv, allRefs) }));
+    answerBoards = [firstIdx, cur.boards.length - 1];
+    for (let i = firstIdx; i < cur.boards.length; i++) Object.assign(cur.boards[i], { defer: allRefs, shown: new Set(), full: false, parent: pendingDrill || null });
+    $("boardwrap").hidden = false;
+    renderStrip();
+    pendingBoard = firstIdx;
+  } else if (!early) answerBoards = null;
+  if (!early) {
+    // Beginnt die Erklärung mit einer Stelle auf dem Bildschirm, zuerst den Bildschirm zeigen
+    const firstRefs = sentencesOf(body).map(refsIn).find((r) => r.length) || [];
+    const onScreen = firstRefs.some((n) => document.querySelector(`${SCOPE} #lb-imgdraw [data-teil~="${n}"]`));
+    pendingMode = !answerBoards || onScreen ? "peek" : "tafel";
+  }
+  const state = { firstIdx: answerBoards ? answerBoards[0] : null, img, parent: pendingDrill || (early && early.parent) || null };
+  if (o.partial) {
+    // Erster Teil: erklären beginnen; die Stimme nimmt nur diesen Teil auf
+    lastBody = body;
+    explain(body, 0, true);
+    return state;
+  }
+  cur.turns.push({ q: o.qText, a: body });
+  if (tricks.length) addMsg("trick", tricks.map((t) => `<b>Eselsbrücke:</b> ${esc(t.merksatz)}${t.wofuer ? ` <span class="lb-muted">(${esc(t.wofuer)})</span>` : ""}`).join("<br>"));
+  pendingDrill = null;
+  lastBody = body;
+  if (early) extendNarration(body); else explain(body, 0);
+  return state;
+}
 async function ask(preset) {
   const q = (typeof preset === "string" ? preset : $("q").value).trim();
   if (!q || lb.busy) return;
@@ -2095,39 +2398,24 @@ async function ask(preset) {
   const history = cur.turns.slice(-6).flatMap((t) => [{ role: "user", content: t.q }, { role: "assistant", content: t.a }]);
   const first = !cur.turns.length;
   const messages = [...history, { role: "user", content: (first ? contextText(lb.ctx) + "\n\nFRAGE: " : "") + q }];
+  if (first) lb.faecher = new Set();
+  fachVon(lb.ctx, q).forEach((f) => lb.faecher.add(f));
   let boardDur = 0;
   try {
     await ensureLibs();
-    const data = await callFn("lernblick-chat", { system_prompt: rules(), messages, image: lb.shot ? lb.shot.split(",")[1] : null });
-    const text = data.response || "";
-    const { body, svgs, imgSvg, mols, tricks, segs } = splitAnswer(text);
-    answerSegs = segs;
-    bubble.innerHTML = md(body);
-    const hasImg = imgSvg ? renderImgDraw(imgSvg) : false;
-    if (imgSvg && !hasImg) setStatus("Die Zeichnung auf dem Bildschirm war fehlerhaft.");
-    cur.turns.push({ q: (first ? contextText(lb.ctx) + "\n\nFRAGE: " : "") + q, a: body });
-    const okSvgs = svgs.filter((x) => sanitizeSvg(x, "0 0 1000 600"));
-    if (okSvgs.length || mols.length) {
-      const firstIdx = cur.boards.length;
-      if (!okSvgs.length) cur.boards.push({ svg: null, mols, q, teile: mols.map((m) => slug(m.name)) });
-      okSvgs.forEach((sv, k) => cur.boards.push({ svg: sv, mols: k === 0 ? mols : [], q, titel: titleOf(sv), teile: teileOf(sv) }));
-      answerBoards = [firstIdx, cur.boards.length - 1];
-      const allRefs = [...new Set(refsIn(body))];
-      for (let i = firstIdx; i < cur.boards.length; i++) Object.assign(cur.boards[i], { defer: allRefs, shown: new Set(), full: false, parent: pendingDrill || null });
-      $("boardwrap").hidden = false;
-      renderStrip();
-      pendingBoard = firstIdx;
-    } else answerBoards = null;
-    {
-      // Beginnt die Erklärung mit einer Stelle auf dem Bildschirm, zuerst den Bildschirm zeigen
-      const firstRefs = sentencesOf(body).map(refsIn).find((r) => r.length) || [];
-      const onScreen = firstRefs.some((n) => document.querySelector(`${SCOPE} #lb-imgdraw [data-teil~="${n}"]`));
-      pendingMode = !answerBoards || onScreen ? "peek" : "tafel";
-    }
-    if (tricks.length) addMsg("trick", tricks.map((t) => `<b>Eselsbrücke:</b> ${esc(t.merksatz)}${t.wofuer ? ` <span class="lb-muted">(${esc(t.wofuer)})</span>` : ""}`).join("<br>"));
-    pendingDrill = null;
-    lastBody = body;
-    explain(body, boardDur);
+    const qText = (first ? contextText(lb.ctx) + "\n\nFRAGE: " : "") + q;
+    let early = null;
+    const text = await chatStream({ system_prompt: rules(), messages, image: lb.shot ? lb.shot.split(",")[1] : null }, (partial) => {
+      if (early || !(lb.speak && lb.natural)) return;
+      // Sobald die erste Tafel komplett geschrieben ist: zeigen und mit dem Erklären anfangen, der Rest kommt nach
+      const fixed = repairAnswer(partial);
+      const m = /(?<!BILD)ZEICHNUNG\s*:\s*(?:```[a-z]*\s*)?<svg[\s\S]*?<\/svg>/i.exec(fixed);
+      if (!m) return;
+      const head = fixed.slice(0, m.index + m[0].length);
+      if (!sentencesOf(splitAnswer(head).body).length) return;
+      early = presentAnswer(head, { q, bubble, partial: true });
+    });
+    presentAnswer(text, { q, qText, bubble, early });
   } catch (e) {
     bubble.remove();
     const msg = e.code === "login" ? e.message : "Das hat gerade nicht geklappt: " + (e.message || e);
@@ -2161,9 +2449,9 @@ function showBoard(i, animate = true, cap = 9000) {
   const theme = $("boardStyle").value;
   renderMolecules(b.mols, $("mols"), animate);
   $("board").className = "board" + (theme === "chalk" ? " chalk" : "");
-  const out = b.svg ? buildBoardSvg(b.svg, theme) : null;
+  const out = b.svg ? buildBoardSvg(b.svg, theme, b.defer) : null;
   let dur = 0;
-  if (out) { $("board").replaceChildren(out); try { placeCallouts(out); } catch (e) {} fitTexts(out); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTexts(out)); markDeferred(out, b); if (animate) dur = animateSvg(out, cap); }
+  if (out) { $("board").replaceChildren(out); try { placeCallouts(out); } catch (e) {} fitTexts(out); try { layoutBlocks(out); } catch (e) {} if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTexts(out)); markDeferred(out, b); if (animate) dur = animateSvg(out, cap); }
   else $("board").replaceChildren(el("div", "lb-board-empty", b.mols && b.mols.length ? "Strukturformel siehe oben." : "Diese Zeichnung konnte nicht angezeigt werden."));
   markStrip();
   updateStageNav();
@@ -2257,7 +2545,7 @@ function renderImgDraw(svgText, animate = true) {
   const marks = [...doc.documentElement.getElementsByTagName("markiere")];
   marks.forEach((m) => m.parentNode.removeChild(m));
   const tmp = document.createElementNS(SVGNS, "svg");
-  for (const m of marks.slice(0, 8)) { try { drawMark(tmp, m, vw, vh); } catch (e) {} }
+  for (const m of marks.slice(0, 12)) { try { drawMark(tmp, m, vw, vh); } catch (e) {} }
   roughify(tmp, "white", 1);
   // freie Zeichnung in Screenshot-Koordinaten: nur solange die Ansicht gleich ist
   const sameView = Math.abs(window.scrollY - lb.shotScroll[1]) < 30 && Math.abs(vw - lb.shotW) < 4;
@@ -2364,6 +2652,31 @@ function showWarmup() {
   $("wq").textContent = WARMUPS[waitIdx][0]; $("wa").textContent = WARMUPS[waitIdx][1]; $("wa").hidden = true; $("wa-btn").hidden = false;
 }
 function setWaitStatus(t) { const e = $("wait-status"); if (e) e.textContent = t; }
+// Antwort der KI Stück für Stück lesen; onPart bekommt den bisherigen Text. Fällt auf die normale Antwort zurück.
+async function chatStream(body, onPart) {
+  const token = await getToken();
+  const send = () => fetch(`${CONFIG.SUPABASE_URL}/functions/v1/lernblick-chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: CONFIG.SUPABASE_ANON_KEY },
+    body: JSON.stringify({ ...body, stream: true })
+  });
+  let resp = await send();
+  // Kaltstart der Funktion schlägt manchmal fehl (BOOT_ERROR) – einmal still wiederholen
+  if (resp.status >= 500 && resp.status !== 502) { await new Promise((r) => setTimeout(r, 800)); resp = await send(); }
+  if (!resp.ok) { const d = await resp.json().catch(() => ({})); throw new Error(d.error || `Fehler ${resp.status}`); }
+  if (/json/i.test(resp.headers.get("content-type") || "") || !resp.body) { const d = await resp.json(); return d.response || ""; }
+  const reader = resp.body.getReader(), dec = new TextDecoder();
+  let text = "";
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    text += dec.decode(value, { stream: true });
+    try { onPart && onPart(text); } catch (e) { console.warn("LernBlick Teilantwort", e); }
+  }
+  text += dec.decode();
+  if (!text.trim()) throw new Error("Keine Antwort erhalten. Bitte nochmal versuchen.");
+  return text;
+}
 function startWait() {
   openStage("tafel");
   const st = $("stage"); st.classList.remove("peek"); st.classList.add("waiting");
@@ -2428,6 +2741,47 @@ function setSub(s) {
   else if (lastImg && /bildschirm|in der app|oben auf|auf der seite|in der animation|markiert|eingekreist/.test(t)) setStageMode("peek");
 }
 // Text an der Tafel, der über den Rand ragt, verkleinern bzw. hereinschieben
+// Nach dem Zeichnen: Rechenblöcke, die sich überlappen, untereinander stapeln; ragt danach etwas über die Tafel,
+// wird die ganze Tafel so verkleinert, dass alles sichtbar ist (statt abgeschnitten).
+function layoutBlocks(svg) {
+  const vb = svg.viewBox && svg.viewBox.baseVal;
+  if (!vb || !vb.width || !svg.isConnected) return;
+  const flow = [...svg.querySelectorAll("g[data-comp='gleichung'], g[data-comp='zahlenfolge'], g[data-comp='potenzen']")];
+  const boxes = flow.map((g) => ({ g, b: g.getBBox() })).filter((x) => x.b.width > 0).sort((a, b) => a.b.y - b.b.y);
+  for (let i = 1; i < boxes.length; i++) for (let j = 0; j < i; j++) {
+    const A = boxes[j].b, B = boxes[i].b, dy0 = boxes[j].dy || 0, dy1 = boxes[i].dy || 0;
+    const xo = Math.min(A.x + A.width, B.x + B.width) - Math.max(A.x, B.x);
+    const push = (A.y + dy0 + A.height + 14) - (B.y + dy1);
+    if (xo > 10 && push > 0) { boxes[i].dy = dy1 + push; boxes[i].g.setAttribute("transform", `translate(0 ${boxes[i].dy.toFixed(1)})`); }
+  }
+  // Rechenkarte liegt auf einem Bild (z. B. Dreieck)? Dann daneben verkleinern oder darunter setzen
+  const others = [...svg.querySelectorAll("g[data-comp]")].filter((g) => !flow.includes(g) && !/^(titel|pfeil|beschriftung|bogenpfeil)$/.test(g.getAttribute("data-comp")));
+  const ob = others.map((g) => { try { return g.getBBox(); } catch (e) { return null; } }).filter((b) => b && b.width > 40);
+  if (ob.length) {
+    const O = ob.reduce((u, b) => ({ x: Math.min(u.x, b.x), y: Math.min(u.y, b.y), r: Math.max(u.r, b.x + b.width), b: Math.max(u.b, b.y + b.height) }), { x: 1e9, y: 1e9, r: -1e9, b: -1e9 });
+    boxes.forEach((x) => {
+      const dy = x.dy || 0, G = x.b, gy = G.y + dy;
+      const hit = Math.min(G.x + G.width, O.r) - Math.max(G.x, O.x) > 10 && Math.min(gy + G.height, O.b) - Math.max(gy, O.y) > 10;
+      if (!hit) return;
+      const left = O.x - vb.x, right = vb.x + vb.width - O.r;
+      const side = right >= left ? [O.r + 10, vb.x + vb.width - 10] : [vb.x + 10, O.x - 10];
+      if (side[1] - side[0] >= 260) {
+        const k = Math.min(1, (side[1] - side[0]) / G.width);
+        x.g.setAttribute("transform", `translate(${(side[0] - G.x * k).toFixed(1)} ${(gy - G.y * k).toFixed(1)}) scale(${k.toFixed(3)})`);
+      } else x.g.setAttribute("transform", `translate(0 ${(dy + O.b + 14 - gy).toFixed(1)})`);
+    });
+  }
+  // Nur Schrift zählt fürs Einpassen – lange Linien (Tangenten, Achsen) dürfen über den Rand laufen
+  const tb = [...svg.querySelectorAll("text")].map((t) => { try { const b = t.getBBox(); if (!b.width) return null; const m = t.getCTM && svg.getCTM ? svg.getCTM().inverse().multiply(t.getCTM()) : null; if (!m) return b; const p1 = new DOMPoint(b.x, b.y).matrixTransform(m), p2 = new DOMPoint(b.x + b.width, b.y + b.height).matrixTransform(m); return { x: Math.min(p1.x, p2.x), y: Math.min(p1.y, p2.y), width: Math.abs(p2.x - p1.x), height: Math.abs(p2.y - p1.y) }; } catch (e) { return null; } }).filter(Boolean);
+  if (!tb.length) return;
+  const bb = tb.reduce((u, b) => { const x0 = Math.min(u.x, b.x), y0 = Math.min(u.y, b.y); return { x: x0, y: y0, width: Math.max(u.x + u.width, b.x + b.width) - x0, height: Math.max(u.y + u.height, b.y + b.height) - y0 }; }), pad = 12;
+  const x0 = Math.min(vb.x, bb.x - pad), y0 = Math.min(vb.y, bb.y - pad), x1 = Math.max(vb.x + vb.width, bb.x + bb.width + pad), y1 = Math.max(vb.y + vb.height, bb.y + bb.height + pad);
+  if (x0 < vb.x - 1 || y0 < vb.y - 1 || x1 > vb.x + vb.width + 1 || y1 > vb.y + vb.height + 1) {
+    let w = x1 - x0, h = y1 - y0; const ratio = vb.width / vb.height;
+    if (w / h > ratio) h = w / ratio; else w = h * ratio;
+    svg.setAttribute("viewBox", `${(x0 - (w - (x1 - x0)) / 2).toFixed(1)} ${y0.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`);
+  }
+}
 function fitTexts(svg) {
   const vb = svg.viewBox && svg.viewBox.baseVal;
   if (!vb || !vb.width || !svg.isConnected) return;
@@ -2494,8 +2848,8 @@ function revealAll() {
 // ---------- Zeigen: Text und Tafel synchron ----------
 const slug = (s) => String(s || "").toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 function titleOf(svgText) { const m = String(svgText).match(/<titel[^>]*\btext\s*=\s*(['"])(.*?)\1/i); return m ? m[2] : ""; }
-function teileOf(svgText) {
-  try { const out = buildBoardSvg(svgText, "white"); return out ? [...new Set([...out.querySelectorAll("[data-teil]")].flatMap((e) => e.getAttribute("data-teil").split(/\s+/)))] : []; }
+function teileOf(svgText, refs) {
+  try { const out = buildBoardSvg(svgText, "white", refs); return out ? [...new Set([...out.querySelectorAll("[data-teil]")].flatMap((e) => e.getAttribute("data-teil").split(/\s+/)))] : []; }
   catch (e) { return []; }
 }
 const refsIn = (s) => [...s.matchAll(/\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g)].map((m) => m[1].trim().toLowerCase()).filter((n) => /^[a-z0-9äöüß-]+$/i.test(n));
@@ -2593,27 +2947,48 @@ function backToParent(auto) {
 // ---------- Erzählung: Sätze, zugehörige Tafeln, Tonspur ----------
 let narr = null, answerSegs = [];
 function boardOfSentences(sents, body) {
-  const out = []; let last = answerBoards ? answerBoards[0] : -1, cursor = 0;
-  sents.forEach((s) => {
-    const refs = refsIn(s); let found = -1;
-    // Abschnitt im Text → Tafel, zu der dieser Text geschrieben wurde
-    const pos = body ? body.indexOf(s, cursor) : -1;
-    if (pos >= 0) cursor = pos + s.length;
-    if (pos >= 0 && answerBoards && answerSegs.length) {
-      let seg = null; for (const g of answerSegs) if (g.start <= pos) seg = g;
-      if (seg) { const j = answerBoards[0] + seg.board; if (j <= answerBoards[1]) last = j; }
-    }
-    if (answerBoards) for (let j = answerBoards[0]; j <= answerBoards[1] && found < 0; j++) { const b = cur.boards[j]; if (b && refs.some((r) => (b.teile || []).includes(r) || (b.mols || []).some((m) => slug(m.name) === r))) found = j; }
-    if (found >= 0) last = found;
-    out.push(last);
+  if (!answerBoards) return sents.map(() => -1);
+  const b0 = answerBoards[0], b1 = answerBoards[1], nB = b1 - b0 + 1;
+  const has = (j, r) => { const b = cur.boards[j]; return !!b && ((b.teile || []).includes(r) || (b.mols || []).some((m) => slug(m.name) === r)); };
+  // Steht derselbe Teil auf mehreren Tafeln (z. B. „gleichung“), zählt die Tafel, zu der der Abschnitt gehört
+  const refBoard = (refs, near) => {
+    if (!refs.length) return -1;
+    for (const j of [near, near + 1, near - 1]) if (j >= b0 && j <= b1 && refs.some((r) => has(j, r))) return j;
+    for (let j = b0; j <= b1; j++) if (refs.some((r) => has(j, r))) return j;
+    return -1;
+  };
+  // Jeder Satz: in welchem Textabschnitt steht er (raw = Anzahl Tafeln davor) und worauf zeigt er?
+  let cursor = 0;
+  const info = sents.map((s) => {
+    const pos = body ? body.indexOf(s, cursor) : -1; if (pos >= 0) cursor = pos + s.length;
+    let seg = null, next = null; if (pos >= 0) for (const g of answerSegs) { if (g.start <= pos) seg = g; else if (!next) next = g; }
+    // letzter Absatz seines Abschnitts? (dann leitet er oft schon die NÄCHSTE Tafel ein)
+    const segEnd = next ? next.start : body.length;
+    const lastPara = pos >= 0 && body.slice(pos, segEnd).indexOf("\n\n") < 0;
+    const para = pos >= 0 ? body.lastIndexOf("\n\n", pos) : -1;
+    return { raw: seg ? (seg.raw ?? seg.board) : 0, refs: refsIn(s), lastPara, para };
   });
-  return out;
+  // erst ohne Nähe zählen (welche Konvention?), dann mit Nähe zuordnen
+  info.forEach((x) => { x.ref = refBoard(x.refs, -99); });
+  // Schreibt die KI den Text VOR ihre Tafel (so verlangt) oder DANACH (kommt oft vor)? Die Verweise entscheiden.
+  let before = 0, after = 0;
+  info.forEach((x) => { if (x.ref < 0) return; if (b0 + Math.min(x.raw, nB - 1) === x.ref) before++; if (b0 + Math.max(0, x.raw - 1) === x.ref) after++; });
+  const afterMode = after > before;
+  // Zeigt ein Satz auf etwas an einer Tafel, gehört er zu dieser Tafel – sonst zu seinem Abschnitt
+  // Im Danach-Stil: der letzte Absatz zwischen zwei Tafeln, der nicht auf die vorige Tafel zeigt, leitet die nächste ein
+  const intro = new Set();
+  if (afterMode) {
+    const paras = {};
+    info.forEach((x) => { if (x.lastPara && x.raw >= 1 && x.raw < nB) (paras[x.para] = paras[x.para] || []).push(x); });
+    Object.values(paras).forEach((xs) => { if (!xs.some((x) => x.ref === b0 + xs[0].raw - 1)) xs.forEach((x) => intro.add(x)); });
+  }
+  return info.map((x) => { const pos = b0 + (intro.has(x) ? Math.min(x.raw, nB - 1) : afterMode ? Math.max(0, x.raw - 1) : Math.min(x.raw, nB - 1)); const r = refBoard(x.refs, pos); return r >= 0 ? r : pos; });
 }
-function explain(body, delay) {
+function explain(body, delay, partial) {
   stopWalk();
-  if (narr && narr.url) URL.revokeObjectURL(narr.url);
+  if (narr && narr.parts) narr.parts.forEach((p) => p.url && URL.revokeObjectURL(p.url));
   const sents = sentencesOf(body);
-  narr = { body, sents, boardOf: boardOfSentences(sents, body), audio: null, url: null, loading: false, from: 0, shown: 0, stopped: false };
+  narr = { body, sents, boardOf: boardOfSentences(sents, body), parts: null, jobs: null, from: 0, shown: 0, stopped: false, partial: !!partial };
   playFrom(0, delay);
 }
 function playFrom(i, delay = 0) {
@@ -2648,51 +3023,88 @@ function speakBrowser(sents) {
 }
 // Natürliche Stimme: die ganze Antwort in EINEM Stück (gleiche Stimme, keine Brüche).
 // Untertitel und Zeigen laufen anteilig zur Abspielzeit mit; beim Blättern wird an die passende Stelle gesprungen.
-function speakNatural(from) {
-  const n = narr;
-  if (!n.jobs) {
-    n.jobs = n.sents.map((s) => ({ s, refs: refsIn(s), text: plain(s).trim() }));
-    const total = n.jobs.reduce((a, j) => a + Math.max(1, j.text.length), 0);
-    let acc = 0; n.starts = n.jobs.map((j) => { const st = acc / total; acc += Math.max(1, j.text.length); return st; });
+// Die Stimme kommt in Teilen: Teil 1 (alles bis zur ersten Tafel) wird schon aufgenommen, während die KI noch schreibt,
+// Teil 2 (der Rest) sobald die Antwort komplett ist. Jeder Teil ist EIN Aufruf → gleichmäßige Stimme innerhalb des Teils.
+function ensureJobs(n) {
+  if (!n.jobs) n.jobs = [];
+  for (let i = n.jobs.length; i < n.sents.length; i++) n.jobs.push({ s: n.sents[i], refs: refsIn(n.sents[i]), text: plain(n.sents[i]).trim() });
+  if (!n.parts) n.parts = [];
+  const covered = n.parts.length ? n.parts[n.parts.length - 1].to : 0;
+  if (covered < n.jobs.length && !(n.partial && n.parts.length)) {
+    const part = { from: covered, to: n.jobs.length, audio: null, url: null, loading: false, failed: false };
+    const total = n.jobs.slice(part.from, part.to).reduce((a, j) => a + Math.max(1, j.text.length), 0);
+    let acc = 0; part.starts = n.jobs.slice(part.from, part.to).map((j) => { const st = acc / total; acc += Math.max(1, j.text.length); return st; });
+    n.parts.push(part);
   }
-  if (n.audio) return startAudio(n, from);
-  if (n.loading) return;
-  const full = n.jobs.map((j) => j.text).filter(Boolean).join(" ").slice(0, 3000);
-  if (!full) { endWait(); return; }
-  n.loading = true;
-  setStatus(""); setWaitStatus("Die Stimme wird aufgenommen …");
+}
+function partOf(n, i) { return n.parts.find((p) => i >= p.from && i < p.to) || null; }
+function loadPart(n, part) {
+  if (part.audio || part.loading || part.failed) return;
+  const full = n.jobs.slice(part.from, part.to).map((j) => j.text).filter(Boolean).join(" ").slice(0, 6000);
+  if (!full) { part.failed = true; return; }
+  part.loading = true;
   callFn("lernblick-voice", { text: full, lang: $("lang").value }, true).then((blob) => {
-    n.loading = false;
+    part.loading = false;
     if (narr !== n) return;
-    n.url = URL.createObjectURL(blob);
-    n.audio = new Audio(n.url);
-    const a = n.audio;
+    part.url = URL.createObjectURL(blob);
+    const a = part.audio = new Audio(part.url);
     a.ontimeupdate = () => {
       if (a.paused || !a.duration || !isFinite(a.duration) || currentAudio !== a) return;
       const f = a.currentTime / a.duration;
-      let k = n.shown; while (k + 1 < n.jobs.length && f >= n.starts[k + 1] - 0.01) k++;
+      let k = n.shown; if (k < part.from || k >= part.to) k = part.from;
+      while (k + 1 < part.to && f >= part.starts[k + 1 - part.from] - 0.01) k++;
       if (k !== n.shown) { n.shown = k; setSub(n.jobs[k].s); showRefs(n.jobs[k].refs); }
     };
-    a.onended = () => { walkTimers.push(setTimeout(() => onNarrationEnd(), 1500)); };
-    if (!n.stopped) startAudio(n, n.from);
-    else endWait();
+    a.onended = () => {
+      if (currentAudio !== a) return;
+      const next = n.parts[n.parts.indexOf(part) + 1];
+      if (next) return speakNatural(next.from);
+      if (n.partial) { n.waitMore = true; setStatus("Gleich geht's weiter …"); return; }   // der Rest der Antwort kommt noch
+      walkTimers.push(setTimeout(() => onNarrationEnd(), 1500));
+    };
+    if (n.want != null && n.want >= part.from && n.want < part.to && !n.stopped) { const w = n.want; n.want = null; startAudio(n, part, w); }
   }).catch(() => {
-    n.loading = false;
+    part.loading = false; part.failed = true;
     if (narr !== n) return;
     lb.natural = false; $("natural").checked = false;
     setStatus("Die natürliche Stimme ist gerade nicht erreichbar – ich lese mit der Browser-Stimme vor.");
-    if (!n.stopped) playFrom(n.from); else endWait();
+    if (!n.stopped) playFrom(n.want != null ? n.want : n.from); else endWait();
   });
 }
-function startAudio(n, from) {
-  const a = n.audio;
+function speakNatural(from) {
+  const n = narr;
+  ensureJobs(n);
+  if (!n.jobs.length) { endWait(); return; }
+  const part = partOf(n, from);
+  if (!part) { if (n.partial) { n.waitMore = true; return; } endWait(); return; }
+  if (part.audio) return startAudio(n, part, from);
+  n.want = from;
+  setStatus(""); setWaitStatus("Die Stimme wird aufgenommen …");
+  loadPart(n, part);
+}
+function startAudio(n, part, from) {
+  const a = part.audio;
+  if (currentAudio && currentAudio !== a) { try { currentAudio.pause(); } catch (e) {} }
   const go = () => {
-    try { a.currentTime = Math.max(0, (n.starts[from] || 0) * a.duration - 0.05); } catch (e) {}
+    try { a.currentTime = Math.max(0, (part.starts[from - part.from] || 0) * a.duration - 0.05); } catch (e) {}
     n.shown = from; currentAudio = a;
-    a.play().then(() => { endWait(); setSub(n.jobs[from].s); showRefs(n.jobs[from].refs); })
+    a.play().then(() => { endWait(); setStatus(""); setSub(n.jobs[from].s); showRefs(n.jobs[from].refs); })
       .catch(() => { endWait(); setStatus("Tippe auf ▶ Nochmal, um das Vorlesen zu starten."); });
   };
   if (isFinite(a.duration) && a.duration > 0) go(); else a.addEventListener("loadedmetadata", go, { once: true });
+}
+// Die Antwort ist komplett: Sätze ergänzen, Teil 2 der Stimme sofort aufnehmen, ggf. direkt weiterspielen
+function extendNarration(body) {
+  const n = narr; if (!n) return explain(body, 0);
+  const sents = sentencesOf(body);
+  const same = n.sents.every((x, i) => sents[i] === x);
+  if (!same) { const keep = n.parts; n.parts = null; n.jobs = null; keep && keep.forEach((p) => p.url && URL.revokeObjectURL(p.url)); }
+  n.body = body; n.sents = sents; n.boardOf = boardOfSentences(sents, body); n.partial = false;
+  if (!(lb.speak && lb.natural)) return;
+  ensureJobs(n);
+  const last = n.parts[n.parts.length - 1];
+  if (last) loadPart(n, last);
+  if (n.waitMore || !same) { n.waitMore = false; if (!n.stopped) speakNatural(same ? last.from : 0); }
 }
 function replayExplain() {
   if (!lastBody) { setStatus("Stell zuerst eine Frage."); return; }
@@ -2747,5 +3159,12 @@ function init() {
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 window.LernBlick = { open: (o) => openPanel(o || {}), close: closePanel, ask: (q) => openPanel({ ask: q }) };
+// Nur für den automatischen Prüfstand (wird im normalen Betrieb nie gesetzt)
+if (window.__LB_BENCH) window.LernBlick._bench = {
+  state: () => ({ turns: cur.turns.length, busy: lb.busy, boards: cur.boards.map((b) => ({ titel: b.titel || "", teile: b.teile || [], svg: !!b.svg })), answerBoards, sents: narr ? narr.sents : [], boardOf: narr ? narr.boardOf : [], segs: answerSegs, anchors: Object.keys(anchors), imgTeile: [...document.querySelectorAll("#lb-imgdraw [data-teil]")].flatMap((e) => e.getAttribute("data-teil").split(/\s+/)), status: $("status").textContent }),
+  comps: () => Object.keys(COMPONENTS),
+  repair: (t) => repairAnswer(t),
+  show: (i) => { stopWalk(); if (narr) { narr.stopped = true; try { currentAudio && currentAudio.pause(); } catch (e) {} } if (i === "peek") return setStageMode("peek"); revealAll(); showBoard(i, false); setStageMode("tafel"); revealAll(); }
+};
 
 })();

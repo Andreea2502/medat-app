@@ -6,8 +6,8 @@
 //
 // POST .../functions/v1/lernblick-chat
 // Authorization: Bearer <access_token des Nutzers>
-// Body: { system_prompt: string, messages: [{role, content}], image?: base64-JPEG ohne "data:"-Präfix }
-// Antwort: { response: string }
+// Body: { system_prompt: string, messages: [{role, content}], image?: base64-JPEG ohne "data:"-Präfix, stream?: boolean }
+// Antwort: { response: string } – oder mit stream: true der Text Stück für Stück (text/plain), sobald die KI schreibt
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -23,6 +23,38 @@ const json = (body: unknown, status = 200) =>
 // Erst das bevorzugte Modell, bei "Modell nicht gefunden" das nächste.
 const MODELS = (Deno.env.get("LERNBLICK_MODELS") || "gemini-2.5-flash,gemini-flash-latest").split(",").map((m) => m.trim()).filter(Boolean);
 const MAX_IMAGE_BYTES = 4_000_000;
+
+// Gemini schickt Server-Sent-Events; wir reichen nur den reinen Antworttext weiter (ohne Denk-Teile)
+function streamOut(res: Response, model: string, img: boolean): Response {
+  const enc = new TextEncoder(), dec = new TextDecoder();
+  const body = new ReadableStream({
+    async start(ctrl) {
+      const reader = res.body!.getReader();
+      let buf = "", usage: Record<string, number> = {}, any = false;
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += dec.decode(value, { stream: true });
+          let i;
+          while ((i = buf.indexOf("\n")) >= 0) {
+            const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+            if (!line.startsWith("data:")) continue;
+            try {
+              const d = JSON.parse(line.slice(5));
+              if (d.usageMetadata) usage = d.usageMetadata;
+              const t = (d?.candidates?.[0]?.content?.parts || []).filter((p: { thought?: boolean }) => !p.thought).map((p: { text?: string }) => p.text || "").join("");
+              if (t) { any = true; ctrl.enqueue(enc.encode(t)); }
+            } catch (_) { /* unvollständige Zeile */ }
+          }
+        }
+      } catch (e) { console.error("lernblick-chat Stream-Fehler", e); }
+      console.log("lernblick-usage", JSON.stringify({ model, in: usage.promptTokenCount || 0, out: usage.candidatesTokenCount || 0, think: usage.thoughtsTokenCount || 0, cached: usage.cachedContentTokenCount || 0, img, stream: true, empty: !any }));
+      ctrl.close();
+    },
+  });
+  return new Response(body, { status: 200, headers: { ...cors, "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", "X-Model": model } });
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
@@ -40,7 +72,7 @@ Deno.serve(async (req: Request) => {
     const apiKey = Deno.env.get("GEMINI_API_KEY");
     if (!apiKey) return json({ error: "KI nicht konfiguriert (GEMINI_API_KEY fehlt)" }, 500);
 
-    const { system_prompt, messages, image } = await req.json();
+    const { system_prompt, messages, image, stream } = await req.json();
     if (typeof system_prompt !== "string" || !Array.isArray(messages) || !messages.length) {
       return json({ error: "Fehlende Angaben: system_prompt und messages" }, 400);
     }
@@ -64,7 +96,7 @@ Deno.serve(async (req: Request) => {
 
     let lastError = "";
     for (const model of MODELS) {
-      const call = (b: string) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      const call = (b: string) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:${stream ? "streamGenerateContent?alt=sse" : "generateContent"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: b,
@@ -78,6 +110,7 @@ Deno.serve(async (req: Request) => {
         console.error("lernblick-chat Gemini-Fehler", model, lastError);
         return json({ error: "Die KI hat gerade nicht geantwortet. Bitte versuch es gleich nochmal." }, 502);
       }
+      if (stream) return streamOut(res, model, !!image);
       const data = await res.json();
       // Verbrauch protokollieren (ohne Inhalte), damit die echten Kosten pro Antwort messbar sind
       const u = data?.usageMetadata || {};

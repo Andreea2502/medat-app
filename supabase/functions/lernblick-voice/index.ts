@@ -7,7 +7,7 @@
 //
 // POST .../functions/v1/lernblick-voice
 // Authorization: Bearer <access_token des Nutzers>
-// Body: { text: string (max. 3000 Zeichen, die ganze Antwort), lang?: "de" | "en" | "ro" | "tr" | "bks" | "uk" | "ar" }
+// Body: { text: string (max. 6000 Zeichen, die ganze Antwort), lang?: "de" | "en" | "ro" | "tr" | "bks" | "uk" | "ar" }
 // Antwort: audio/wav (Gemini) oder audio/mpeg (ElevenLabs)
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -144,7 +144,7 @@ Deno.serve(async (req: Request) => {
     const { text, lang } = await req.json();
     const clean = String(text || "").replace(/\s+/g, " ").trim();
     if (!clean) return json({ error: "Kein Text" }, 400);
-    if (clean.length > 3000) return json({ error: "Text zu lang (max. 3000 Zeichen)" }, 400);
+    if (clean.length > 6000) return json({ error: "Text zu lang (max. 6000 Zeichen)" }, 400);
 
     const order = PROVIDER === "elevenlabs" ? [() => elevenSpeak(clean, lang), () => geminiSpeak(clean, lang)] : [() => geminiSpeak(clean, lang), () => elevenSpeak(clean, lang)];
     for (const speak of order) { const r = await speak(); if (r) return r; }

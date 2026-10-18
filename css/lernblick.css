@@ -1,4 +1,5 @@
 /* LernBlick – KI-Lerntutor (Panel rechts bzw. unten am Handy, schwebender Knopf unten links) */
+@font-face { font-family: "LB Inter"; src: url("/lernwerkzeuge/lib/schrift/inter-latin-var.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
 #lernblick-root {
   --lb-bg: #faf6ee;
   --lb-card: #ffffff;
@@ -10,7 +11,7 @@
   --lb-red: #c0392b;
   --lb-paper: #fdfcf8;
   --lb-glow: #e0115f;
-  --lb-hand: "Caveat", "Comic Sans MS", cursive;
+  --lb-hand: "LB Inter", "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--lb-ink);
 }
@@ -65,9 +66,9 @@
 /* Tafel */
 .lb-boardwrap { display: flex; flex-direction: column; gap: 8px; }
 .lb-boardhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-#lernblick-root .board { background: var(--lb-paper); border: 1px solid var(--lb-line); border-radius: 12px; padding: 8px; box-shadow: inset 0 0 0 5px #f4f1ea; }
+#lernblick-root .board { background: #ffffff radial-gradient(circle, #e2e8f0 1.1px, transparent 1.3px) 0 0 / 26px 26px; border: 1px solid #e2e8f0; border-radius: 18px; padding: 14px; box-shadow: 0 1px 2px rgba(15, 23, 42, .06), 0 8px 28px rgba(15, 23, 42, .08); }
 #lernblick-root .board svg, #lernblick-root .lb-mini svg { width: 100%; height: auto; display: block; overflow: visible; }
-#lernblick-root .board text, #lernblick-root .lb-mini text { font-family: var(--lb-hand); font-weight: 700; }
+#lernblick-root .board text, #lernblick-root .lb-mini text { font-family: var(--lb-hand); font-weight: 600; letter-spacing: -0.01em; font-feature-settings: "tnum" 1; }
 #lernblick-root .board.chalk { background: #23392d; border-color: #6b4f33; box-shadow: inset 0 0 0 7px #7a5a3a, inset 0 0 40px rgba(0,0,0,.35); padding: 12px; --lb-glow: #ffe066; }
 .lb-board-empty { font-family: var(--lb-hand); font-size: 22px; color: #9a948a; text-align: center; padding: 26px 10px; }
 .lb-mols { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
@@ -201,6 +202,7 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
 #lernblick-root .lb-wait { opacity: 0 !important; }
 /* Beschriftungen bleiben über Linien lesbar */
 #lernblick-root .board svg text { paint-order: stroke; stroke: var(--lb-paper); stroke-width: 7px; stroke-linejoin: round; }
+#lernblick-root .board svg text[fill="#ffffff"], #lernblick-root .board svg text[fill="#fff"] { stroke: none; }
 #lernblick-root .board.chalk svg text { stroke: #23392d; }
 
 /* Warten mit Aufwärmfrage */
@@ -220,3 +222,14 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
 @media (prefers-reduced-motion: reduce) { .lb-dots span { animation: none; } }
 /* Atombeschriftungen in Molekülen ohne Rand (sonst unleserlich) */
 #lernblick-root .board svg g[transform] text { stroke: none; }
+
+/* Datenschutz-Hinweis beim ersten Öffnen */
+.lb-consent { position: fixed; inset: 0; z-index: 2147483600; background: rgba(15, 23, 42, .55); display: grid; place-items: center; padding: 16px; }
+.lb-consent[hidden] { display: none !important; }
+.lb-consent-card { background: #fff; color: #1e293b; border-radius: 18px; max-width: 520px; width: 100%; padding: 24px 24px 20px; box-shadow: 0 20px 60px rgba(15, 23, 42, .35); font-size: 15px; line-height: 1.55; max-height: calc(100vh - 32px); overflow: auto; }
+.lb-consent-card h2 { margin: 0 0 10px; font-size: 20px; }
+.lb-consent-card p { margin: 0 0 8px; }
+.lb-consent-card ul { margin: 0 0 8px; padding-left: 20px; }
+.lb-consent-hint { color: #64748b; font-size: 14px; }
+.lb-consent-link { color: #2563eb; font-size: 14px; }
+.lb-consent-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
