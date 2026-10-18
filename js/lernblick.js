@@ -352,7 +352,7 @@ function compAxes(A) {
       if (isFinite(yv) && yv >= ymin - (ymax - ymin) * 0.02 && yv <= ymax + (ymax - ymin) * 0.02) { seg.push([X(xv), Y(yv)]); last = [X(xv), Y(yv)]; } else flush();
     }
     flush();
-    if (last) out.push(tx(Math.min(last[0], x + w - 10), Math.max(last[1] - 14, y + 20 + k * 30), "f(x) = " + src.replace(/^\s*(y|f\(x\))\s*=\s*/i, "").replace(/\^2/g, "²").replace(/\^3/g, "³").replace(/\*/g, "·"), { size: 26, fill: color, anchor: "end", teil }));
+    if (last) out.push(tx(Math.min(last[0], x + w - 10), Math.max(last[1] - 14, y + 20 + k * 30), "fgh"[k] + "(x) = " + src.replace(/^\s*(y|[fgh]\(x\))\s*=\s*/i, "").replace(/\^2/g, "²").replace(/\^3/g, "³").replace(/\*/g, "·"), { size: 26, fill: color, anchor: "end", teil }));
   });
   return out;
 }
@@ -657,7 +657,7 @@ const METALS = new Set(["li", "na", "k", "rb", "cs", "be", "mg", "ca", "sr", "ba
 const ELCOL = { h: "#7a756c", c: "#1A1A1A", o: "#d62828", n: "#1f6fd1", s: "#c9a000", p: "#f07c1a", f: "#2a9d4b", cl: "#2a9d4b", br: "#8b5a2b", i: "#7b3fc4" };
 function compParticles(A) {
   const x = N(A("x"), 40), y = N(A("y"), 110), w = N(A("breite"), 920), h = N(A("hoehe"), 400);
-  const list = String(A("liste") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 6).map((s) => { const [sym, ch] = s.split(":").map((v) => (v || "").trim()); return { sym: sym.slice(0, 4), ch: ch || "" }; });
+  const list = String(A("liste") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 6).map((s) => { const [sym, ch] = s.split(":").map((v) => (v || "").trim()); return { sym: sym.slice(0, 4), ch: /^\d?[+−-]$|^[+−-]\d?$/.test(ch || "") ? ch : "" }; });   // nur echte Ladungen (2+, −), keine Formeln
   if (!list.length) return [];
   const names = String(A("namen") || "").split(";").map((s) => s.trim());
   const shared = String(A("teilen") || "").split(";").map((s) => s.trim().match(/^(\d)\s*-\s*(\d)$/)).filter(Boolean).map((m) => [m[1] - 1, m[2] - 1]);
@@ -818,7 +818,7 @@ function arrowLine(ax, ay, bx, by, c, w, teil, both) {
 
 // 20. Funktion untersuchen: Graph mit Nullstellen, Extrema, Wendepunkten, Tangente, Steigungsdreieck, Fläche, Schnittpunkt
 function compAnalysis(A) {
-  const x = N(A("x"), 70), y = N(A("y"), 80), w = N(A("breite"), 860), h = N(A("hoehe"), 450);
+  const x = N(A("x"), 70), y = Math.max(105, N(A("y"), 105)), w = N(A("breite"), 860), h = Math.min(N(A("hoehe"), 440), 560 - Math.max(105, N(A("y"), 105)));
   const srcs = String(A("funktion") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 2);
   const fs = srcs.map(makeFn).filter(Boolean);
   if (!fs.length) return [tx(500, 300, "Funktion nicht lesbar: " + srcs.join("; "), { size: 26, fill: C.grey })];
@@ -922,10 +922,41 @@ function parseUnit(s, base) {
   const p = PREF.find((q) => q[0] === pre) || (pre === "" ? PREF[5] : null);
   return p ? { pre: p[0], e: p[1], name: p[2], base, dim } : null;
 }
+// Zusammengesetzte Einheiten (g/cm³ → kg/m³, km/h → m/s): Zähler und Nenner getrennt umrechnen
+function compUnitsRatio(A) {
+  const von = String(A("von") || ""), nach = String(A("nach") || ""), wert = N(A("wert"), 1);
+  const [vz, vn = ""] = von.split("/"), [nz, nn = ""] = nach.split("/");
+  const TIME = { s: 1, min: 60, h: 3600, d: 86400 };
+  const fac = (a, b) => {                                   // 1 a = f · b
+    if (!a && !b) return 1;
+    if (TIME[a] && TIME[b]) return TIME[a] / TIME[b];
+    const pa = parseUnit(a), pb = parseUnit(b, pa ? pa.base : undefined);
+    if (!pa || !pb) return null;
+    return Math.pow(10, (pa.e - pb.e) * pa.dim);
+  };
+  const fz = fac(vz.trim(), nz.trim()), fn = fac(vn.trim(), nn.trim());
+  const out = [];
+  const num = (v) => { if (v === 0) return "0"; if (Math.abs(v) >= 1e-3 && Math.abs(v) < 1) return String(+v.toPrecision(6)).replace(".", ","); const e = Math.floor(Math.log10(Math.abs(v))); if (e >= 6 || e <= -4) { const m = v / Math.pow(10, e); const sup = String(e).replace("-", "⁻").replace(/\d/g, (d) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[d]); return (Math.abs(m - 1) < 1e-9 ? "" : fmt(m) + " · ") + "10" + sup; } return fmt(v).replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
+  if (fz == null || fn == null) { out.push(tx(500, 300, `${von} → ${nach}`, { size: 34, teil: "von nach" })); return out; }
+  const res = wert * fz / fn, lines = [
+    [`${num(wert)} ${von} = ? ${nach}`, "Aufgabe", "von"],
+    [`1 ${vz} = ${num(fz)} ${nz}`, "Zähler umrechnen", "zaehler"],
+    ...(vn ? [[`1 ${vn} = ${num(fn)} ${nn}`, "Nenner umrechnen", "nenner"]] : []),
+    [`${num(wert)} · ${num(fz)}${vn ? " / " + num(fn) : ""}`, "einsetzen", "einsetzen"],
+    [`= ${num(res)} ${nach}`, "Ergebnis", "ergebnis"],
+  ];
+  lines.forEach((l, i) => {
+    const y = 140 + i * 78, last = i === lines.length - 1;
+    out.push(tx(90, y, l[0], { size: 36, anchor: "start", fill: last ? C.green : C.ink, teil: l[2] }));
+    out.push(tx(940, y, l[1], { size: 22, anchor: "end", fill: C.grey, teil: l[2] }));
+  });
+  return out;
+}
 function compUnits(A) {
   const x = N(A("x"), 50), y = N(A("y"), 110), w = N(A("breite"), 900);
   const from = parseUnit(A("von") || "m"), to = parseUnit(A("nach") || "cm", from ? from.base : undefined);
-  if (!from || !to) return [tx(500, 300, "Einheit nicht erkannt", { size: 28, fill: C.grey })];
+  if (/\//.test(String(A("von") || "")) || /\//.test(String(A("nach") || ""))) return compUnitsRatio(A);
+  if (!from || !to) return compUnitsRatio(A);
   const dim = Math.max(from.dim, N(A("dim"), 1)), base = from.base, sup = dim === 3 ? "³" : dim === 2 ? "²" : "";
   const lo = Math.min(from.e, to.e), hi = Math.max(from.e, to.e);
   let list = PREF.filter((p) => p[1] <= hi + 1 && p[1] >= lo - 1);
@@ -1204,7 +1235,15 @@ Object.assign(COMPONENTS, { "kreislauf": compCycle, "kette": compChain });
 // ================= Layout-Bausteine für alle Fächer: die KI liefert Inhalte, das Programm ordnet an =================
 const tw = (t, size) => String(t).length * size * (MODERN ? 0.54 : 0.5); // grobe Textbreite
 function wrapWords(t, maxChars, max = 3) {                          // Zeilenumbruch nach Wörtern
-  const words = String(t).split(/\s+/), lines = []; let cur = "";
+  // Wörter, die länger als eine Zeile sind, mit Trennstrich teilen (zuerst an vorhandenen Bindestrichen)
+  const words = [];
+  for (const w of String(t).split(/\s+/)) {
+    if (w.length <= maxChars) { words.push(w); continue; }
+    let rest = w;
+    while (rest.length > maxChars) { let cut = rest.lastIndexOf("-", maxChars - 1); if (cut < 3) cut = maxChars - 1; words.push(rest.slice(0, cut + (rest[cut] === "-" ? 1 : 0)) + (rest[cut] === "-" ? "" : "-")); rest = rest.slice(cut + (rest[cut] === "-" ? 1 : 0)); }
+    if (rest) words.push(rest);
+  }
+  const lines = []; let cur = "";
   for (const w of words) { if ((cur + " " + w).trim().length > maxChars && cur) { lines.push(cur); cur = w; } else cur = (cur + " " + w).trim(); }
   if (cur) lines.push(cur); return lines.slice(0, max);
 }
@@ -1292,11 +1331,16 @@ function compTable(A) {
   const x0 = 40, W = 920, top = Number(A("y")) || 92, H = 570 - top;
   const len = (i) => Math.max(6, ...[head[i] || "", ...rows.map((r) => r[i])].map((t) => Math.min(t.length, 34)));
   const tot = Array.from({ length: nc }, (_, i) => len(i)).reduce((a, b) => a + b, 0);
-  const cw = Array.from({ length: nc }, (_, i) => Math.max(120, W * len(i) / tot)); const k = W / cw.reduce((a, b) => a + b, 0); cw.forEach((_, i) => (cw[i] *= k));
-  let size = 32, cells, heights;
+  const longest = (i) => Math.max(...[head[i] || "", ...rows.map((r) => r[i])].flatMap((t) => t.split(/\s+/)).map((w) => w.length));
+  let size = 32, cells, heights, cw;
   for (; size >= 16; size -= 1) {
     const lh = size * 1.18;
-    cells = [head.length ? head : null, ...rows].filter(Boolean).map((r) => r.map((t, i) => wrapWords(t, Math.max(6, Math.floor((cw[i] - 16) / (size * 0.52))), 5)));
+    // Spalten so breit, dass das längste Wort hineinpasst; den Rest nach Textmenge verteilen
+    const minW = Array.from({ length: nc }, (_, i) => Math.max(110, longest(i) * size * 0.57 + 22));
+    const free = W - minW.reduce((a, b) => a + b, 0);
+    if (free < 0 && size > 16) continue;
+    cw = minW.map((m, i) => m + Math.max(0, free) * len(i) / tot);
+    cells = [head.length ? head : null, ...rows].filter(Boolean).map((r) => r.map((t, i) => wrapWords(t, Math.max(6, Math.floor((cw[i] - 18) / (size * 0.57))), 5)));
     heights = cells.map((r) => Math.max(...r.map((l) => l.length || 1)) * lh + 18);
     if (heights.reduce((a, b) => a + b, 0) <= H) break;
   }
