@@ -182,7 +182,7 @@ const Goodies = {
 
     if (type === 'image') {
       return `
-        <div class="gd-sheet-hint">👆 Tippe auf einen Punkt im Bild – LernBlick erklärt ihn dir an der Tafel.</div>
+        <div class="gd-sheet-hint">👆 Tippe auf einen Punkt im Bild – LernBlick erklärt ihn dir an der Tafel. LernBlick arbeitet mit KI und kann Fehler machen.</div>
         <div class="gd-media-preview"><img class="lb-sheet" crossorigin="anonymous" src="${this._escape(url)}" data-title="${this._escape(this._sheetTitle || '')}" alt="${this._escape(file.name || '')}"></div>
         <div class="gd-file-item">
           <div class="gd-file-thumb">🖼</div>

@@ -2333,6 +2333,7 @@ function buildUI() {
       <div id="lb-tips" class="lb-tips"></div>
     </div>
     <footer class="lb-foot">
+      <div class="lb-ki-hinweis">⚠︎ LernBlick arbeitet mit künstlicher Intelligenz und kann Fehler machen – prüf wichtige Fakten nach.</div>
       <div id="lb-status" class="lb-status"></div>
       <div class="lb-compose">
         <button class="lb-icon lb-mic" id="lb-mic" type="button" aria-label="Sprechen" hidden>🎤</button>
@@ -2366,7 +2367,7 @@ function buildUI() {
         <button class="lb-icon" id="lb-stage-close" type="button" aria-label="Tafel schließen">✕</button>
       </div>
     </div>
-    <div id="lb-stage-main" class="lb-stage-main"><div class="lb-waitcard" id="lb-waitcard"><div class="lb-dots"><span></span><span></span><span></span></div><div id="lb-wait-status" class="lb-wait-status"></div><div class="lb-wq-box"><div class="lb-label">Kurze Aufwärmfrage, solange du wartest</div><div id="lb-wq" class="lb-wq"></div><div id="lb-wa" class="lb-wa" hidden></div><div class="lb-row lb-wq-btns"><button class="lb-ghost" id="lb-wa-btn" type="button">Lösung zeigen</button><button class="lb-ghost" id="lb-wnext" type="button">Andere Frage</button></div></div></div><div class="lb-turn">Tipp: Handy quer halten – dann wird die Tafel groß.</div><div class="lb-taphint">Tipp auf etwas an der Tafel, um genau dazu zu fragen.</div></div>
+    <div id="lb-stage-main" class="lb-stage-main"><div class="lb-waitcard" id="lb-waitcard"><div class="lb-dots"><span></span><span></span><span></span></div><div id="lb-wait-status" class="lb-wait-status"></div><div class="lb-wq-box"><div class="lb-label">Kurze Aufwärmfrage, solange du wartest</div><div id="lb-wq" class="lb-wq"></div><div id="lb-wa" class="lb-wa" hidden></div><div class="lb-row lb-wq-btns"><button class="lb-ghost" id="lb-wa-btn" type="button">Lösung zeigen</button><button class="lb-ghost" id="lb-wnext" type="button">Andere Frage</button></div></div></div><div class="lb-turn">Tipp: Handy quer halten – dann wird die Tafel groß.</div><div class="lb-taphint">Tipp auf etwas an der Tafel, um genau dazu zu fragen. · KI kann Fehler machen.</div></div>
     <div class="lb-stage-bottom">
       <div class="lb-stage-nav">
         <button class="lb-navbtn" id="lb-prev" type="button" aria-label="Vorherige Tafel">‹</button>
@@ -2643,9 +2644,9 @@ async function appKatalog() {
 }
 async function sheetKatalog() {
   try {
-    if (typeof Auth === "undefined" || !Auth.supabase || typeof Goodies === "undefined") return [];
-    const { data } = await Auth.supabase.from("goodies").select("id,title,description,content_highlights,files,cover_emoji");
-    return (data || []).map((g) => ({ art: "sheet", id: g.id, titel: g.title, emoji: g.cover_emoji || "📄",
+    const sb = await getSupabase();
+    const { data } = await sb.from("goodies").select("id,title,description,content_highlights,files,cover_emoji");
+    return (data || []).map((g) => ({ art: "sheet", id: g.id, titel: g.title, emoji: g.cover_emoji || "📄", files: (Array.isArray(g.files) ? g.files : []).filter((f) => f && f.path && /\.(png|jpe?g|webp)$/i.test(f.path)),
       text: [g.description || "", ...(Array.isArray(g.content_highlights) ? g.content_highlights : []), ...(Array.isArray(g.files) ? g.files.map((f) => (f && f.name) || "") : [])].join(" ") }));
   } catch (e) { return []; }
 }
@@ -2714,20 +2715,47 @@ async function themaAnsicht(t) {
     const tx = el("div", "lb-thema-tx"); tx.appendChild(el("b", "", it.titel));
     tx.appendChild(el("span", "", it.art === "sheet" ? "Cheat-Sheet – Punkt antippen, LernBlick erklärt ihn" : `${it.fach}${it.text ? " · " + it.text : ""}`));
     const b = el("button", "lb-ghost", it.art === "sheet" ? "Ansehen" : "Öffnen & erklären"); b.type = "button";
-    b.onclick = () => (it.art === "sheet" ? oeffneSheet(it) : oeffneWerkzeug(it, t));
+    b.onclick = () => (it.art === "sheet" ? oeffneSheet(it) : oeffneWerkzeug(it, t, b));
     card.append(ico, tx, b); list.appendChild(card);
   });
 }
-function oeffneWerkzeug(it, t) {
-  if (it.card && it.card.classList.contains("is-locked")) { closePanel(); it.card.click(); return; }  // Bezahlschranke der App bleibt
-  const u = new URL(it.href);
-  if (u.pathname === location.pathname) { ask(TOOL_ASK(t)); return; }
+function oeffneWerkzeug(it, t, btn) {
+  // Bezahlschranke der App bleibt – aber sichtbar im Gespräch statt eines stillen Klicks
+  if (it.card && it.card.classList.contains("is-locked")) {
+    const box = el("div", "lb-thema-lock");
+    box.appendChild(el("p", "", `„${it.titel}“ gehört zu Premium. Mit Premium öffnet LernBlick das Werkzeug und erklärt dir das Thema direkt darin.`));
+    const up = el("button", "lb-send", "Premium ansehen"); up.type = "button";
+    up.onclick = () => { closePanel(); if (typeof App !== "undefined" && App.openToolsUpgradeModal) App.openToolsUpgradeModal(); else it.card.click(); };
+    box.appendChild(up);
+    const card = btn && btn.closest(".lb-thema-card");
+    if (card) card.after(box); else $("chat").appendChild(box);
+    return;
+  }
+  const u = new URL(it.href, location.origin + "/");
+  if (u.pathname.replace(/\.html$/, "") === location.pathname.replace(/\.html$/, "")) { ask(TOOL_ASK(t)); return; }
   u.searchParams.set("lernblick", t);
-  location.href = u.href;
+  setStatus(`Ich öffne „${it.titel}“ …`);
+  location.assign(u.href);
 }
+// Cheat-Sheet direkt hier im Gespräch zeigen – antippen erklärt den Punkt, Herunterladen geht auch
 async function oeffneSheet(it) {
-  try { if (!Goodies._cache) await Goodies._loadGoodies(); closePanel(); await Goodies.openGoodie(it.id); }
-  catch (e) { setStatus("Das Cheat-Sheet konnte nicht geöffnet werden."); }
+  try {
+    const sb = await getSupabase();
+    const files = it.files || [];
+    if (!files.length) throw new Error("keine Bilder");
+    const box = el("div", "lb-thema-sheets");
+    box.appendChild(el("p", "lb-muted", `Cheat-Sheet „${it.titel}“ – tipp auf einen Punkt, dann erkläre ich genau den.`));
+    files.forEach((f) => {
+      const url = sb.storage.from("goodies").getPublicUrl(f.path).data.publicUrl;
+      const fig = el("figure", "lb-grafik");
+      const im = new Image(); im.className = "lb-sheet lb-grafik-img"; im.crossOrigin = "anonymous"; im.loading = "lazy"; im.src = url; im.alt = it.titel; im.setAttribute("data-title", it.titel);
+      const dl = el("a", "lb-tip", "⬇ Herunterladen"); dl.href = url; dl.target = "_blank"; dl.rel = "noopener"; dl.setAttribute("download", (f.name || it.titel) .replace(/[^\wäöüÄÖÜß .-]+/g, ""));
+      fig.append(im, dl); box.appendChild(fig);
+    });
+    const list = document.querySelector("#lb-thema .lb-thema-list");
+    (list || $("chat")).appendChild(box);
+    box.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { setStatus("Das Cheat-Sheet konnte nicht geladen werden – bitte gleich nochmal versuchen."); }
 }
 async function grafikWahl(sec, t) {
   const kat = await grafikKatalog();
@@ -2767,8 +2795,8 @@ async function grafikErstellen(t, kat, out, go) {
     const d = await callFn("lernblick-bild", { thema: t, art_label: a.label, art_regeln: a.regeln, stil_text: s.design, orientation: a.hoch ? "hochformat" : "querformat" });
     if (!d.image_base64) throw new Error(d.error || "Kein Bild");
     if (thema.titel !== t) return;
-    const url = `data:${d.mime_type || "image/jpeg"};base64,${d.image_base64}`;
-    thema.grafik = { url, b64: d.image_base64, inhalt: d.inhalt || "", titel: `${a.label.replace(/ \(sehr dicht\)/, "")}: ${t}`, art: a.id, stil: s.id };
+    const url = await kiStempel(`data:${d.mime_type || "image/jpeg"};base64,${d.image_base64}`);
+    thema.grafik = { url, b64: url.split(",")[1], inhalt: d.inhalt || "", titel: `${a.label.replace(/ \(sehr dicht\)/, "")}: ${t}`, art: a.id, stil: s.id };
     const fig = el("figure", "lb-grafik");
     const im = new Image(); im.className = "lb-sheet lb-grafik-img"; im.src = url; im.alt = thema.grafik.titel; im.setAttribute("data-title", thema.grafik.titel); im.setAttribute("data-ki", "1");
     fig.append(im, el("figcaption", "", "Tipp auf eine Stelle – LernBlick erklärt genau die. Die Grafik hat eine KI gezeichnet: Wenn dir etwas komisch vorkommt, frag nach."));
@@ -2782,6 +2810,20 @@ async function grafikErstellen(t, kat, out, go) {
   } catch (e) {
     out.replaceChildren(el("p", "lb-err", "Die Infografik hat gerade nicht geklappt: " + (e.message || e) + " – versuch es gleich nochmal."));
   } finally { go.disabled = false; }
+}
+// Unten ins Bild: „Mit KI erstellt – kann Fehler enthalten“ – so steht der Hinweis auch auf jedem Ausdruck
+async function kiStempel(src) {
+  try {
+    const im = await new Promise((r, j) => { const x = new Image(); x.onload = () => r(x); x.onerror = j; x.src = src; });
+    const bar = Math.round(im.width * 0.035), c = document.createElement("canvas");
+    c.width = im.width; c.height = im.height + bar;
+    const g = c.getContext("2d");
+    g.fillStyle = "#ffffff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0);
+    g.fillStyle = "#f4f1fa"; g.fillRect(0, im.height, c.width, bar);
+    g.fillStyle = "#4a4560"; g.font = `${Math.round(bar * 0.45)}px Inter, Arial, sans-serif`; g.textBaseline = "middle";
+    g.fillText("Mit KI erstellt – kann Fehler enthalten. Bitte wichtige Fakten prüfen. · MedAT Trainer", Math.round(bar * 0.5), im.height + bar / 2);
+    return c.toDataURL("image/jpeg", 0.9);
+  } catch (e) { return src; }
 }
 async function grafikErklaeren() {
   const g = thema.grafik; if (!g) return;
@@ -3284,6 +3326,7 @@ function openSummary(d) {
   <article class="lb-sum-page">
     <header class="lb-sum-head"><div class="lb-sum-brand">Lern<span>Blick</span> · Lernzusammenfassung</div><h1></h1><div class="lb-sum-date">${esc(fmtDate(dt.getTime()))}</div></header>
     <div class="lb-sum-body"></div>
+    <footer class="lb-sum-ki">Erstellt mit künstlicher Intelligenz (LernBlick, MedAT Trainer). KI kann Fehler machen – bitte wichtige Inhalte mit Lehrbuch oder Skript abgleichen.</footer>
   </article>`;
   box.querySelector("h1").textContent = d.titel;
   const body = box.querySelector(".lb-sum-body");
