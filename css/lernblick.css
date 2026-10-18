@@ -298,3 +298,46 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
   html.lb-summary-open .lb-sum-page { box-shadow: none; margin: 0; padding: 0; max-width: none; }
   .lb-sum-board { page-break-inside: avoid; }
 }
+
+/* Thema lernen */
+.lb-thema { display: grid; gap: 12px; }
+.lb-thema-h { font-weight: 700; font-size: 17px; }
+.lb-thema-form { display: flex; gap: 8px; }
+.lb-thema-form input { flex: 1; min-width: 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--lb-line); background: var(--lb-card); font: inherit; font-size: 15px; color: var(--lb-ink); }
+.lb-thema-form input:focus-visible { outline: 3px solid var(--lb-accent); outline-offset: 1px; }
+.lb-thema-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lb-thema-chips[hidden] { display: none; }
+.lb-thema-sec { display: grid; gap: 8px; padding: 12px; border-radius: 14px; background: var(--lb-card); border: 1px solid var(--lb-line); }
+.lb-thema-sec .lb-tips { margin: 0; }
+.lb-thema-list { display: grid; gap: 8px; }
+.lb-thema-card { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: var(--lb-bg); }
+.lb-thema-ico { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: #fff; font-size: 19px; }
+.lb-thema-tx { display: grid; gap: 1px; min-width: 0; }
+.lb-thema-tx b { font-size: 14px; }
+.lb-thema-tx span { font-size: 12px; color: var(--lb-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-thema-card .lb-ghost { white-space: nowrap; }
+.lb-label-sm { margin-top: 2px; }
+.lb-art-row, .lb-stil-row { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 8px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+.lb-art, .lb-stil { flex: none; display: grid; gap: 4px; justify-items: center; padding: 4px; border-radius: 10px; border: 2px solid transparent; background: var(--lb-bg); cursor: pointer; font: inherit; color: var(--lb-ink); scroll-snap-align: start; }
+.lb-art { width: 112px; }
+.lb-art img { width: 102px; height: 78px; object-fit: cover; object-position: top; border-radius: 6px; background: #fff; }
+.lb-stil { width: 78px; }
+.lb-stil img { width: 68px; height: 68px; object-fit: cover; border-radius: 50%; background: #fff; }
+.lb-art span, .lb-stil span { font-size: 11.5px; line-height: 1.2; text-align: center; }
+.lb-art[aria-pressed="true"], .lb-stil[aria-pressed="true"] { border-color: #e0a632; background: #fff6dc; }
+.lb-art-info { margin: 0; font-size: 12.5px; color: var(--lb-muted); line-height: 1.4; }
+.lb-grafik-go { justify-self: start; }
+.lb-grafik-go:disabled { opacity: .6; cursor: wait; }
+.lb-grafik-out { display: grid; gap: 8px; }
+.lb-grafik-out:empty { display: none; }
+.lb-grafik-wait { padding: 14px; border-radius: 10px; background: var(--lb-bg); font-size: 13.5px; color: var(--lb-muted); animation: lb-pulse 1.2s ease-in-out infinite alternate; }
+.lb-grafik { margin: 0; display: grid; gap: 6px; }
+.lb-grafik img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--lb-line); cursor: crosshair; background: #fff; }
+.lb-grafik figcaption { font-size: 12px; color: var(--lb-muted); }
+a.lb-tip { text-decoration: none; display: inline-block; }
+.lb-err { margin: 0; color: var(--lb-red); font-size: 13.5px; }
+/* Handy: Eingabezeile und Schalter nicht über den Rand schieben */
+.lb-foot { grid-template-columns: minmax(0, 1fr); }
+.lb-foot .lb-row.lb-small { flex-wrap: wrap; row-gap: 6px; }
+/* Tafel-Leiste unten schlicht: nur Nachfragen (Untertitel, Nochmal, Stopp, Fertig ausgeblendet – oben gibt es ✕) */
+#lb-sub, #lb-sreplay, #lb-sstop, #lb-sdone { display: none !important; }
