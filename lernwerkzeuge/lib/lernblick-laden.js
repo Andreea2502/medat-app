@@ -3,7 +3,7 @@
    (gleiche Domain, gleiche gespeicherte Sitzung). */
 (function () {
   if (window.__lbLaden) return; window.__lbLaden = true;
-  var V = '20261018t';
+  var V = '20261018u';
   var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/css/lernblick.css?v=' + V; document.head.appendChild(css);
   function js(src, cb) { var s = document.createElement('script'); s.src = src; s.onload = cb; s.onerror = cb; document.head.appendChild(s); }
   function weiter() { js('/js/config.js?v=20260527a', function () { js('/js/lernblick.js?v=' + V); }); }
