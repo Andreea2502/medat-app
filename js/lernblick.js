@@ -1566,7 +1566,7 @@ const SCHEMAS = {
     ["kernkoerperchen", "Kernkörperchen", [488, 322], [sC(488, 322, 18, PURPLE, { fill: PURPLE, sw: 2 })]],
     ["raues-er", "raues ER", [568, 330], [sP("M552 262 q22 14 0 28 q-22 14 0 28 q22 14 0 28 q-22 14 0 28 q22 14 0 28", BLUE), ...[270, 298, 326, 354, 382].map((y) => sC(566, y, 3.5, INK, { sw: 1 }))]],
     ["golgi-apparat", "Golgi-Apparat", [625, 235], [0, 1, 2, 3].map((k) => sP(`M${588 + k * 3} ${222 + k * 13} q38 -16 76 0`, ORANGE, { sw: 4 }))],
-    ["mitochondrium", "Mitochondrium", [380, 205], [sE(380, 205, 48, 24, RED), sP("M340 205 l8 -11 l8 22 l8 -22 l8 22 l8 -22 l8 22 l8 -22 l8 22 l8 -11", RED, { sw: 2 }), sE(612, 445, 42, 21, RED), sP("M577 445 l7 -10 l7 20 l7 -20 l7 20 l7 -20 l7 20 l7 -20 l7 10", RED, { sw: 2 })]],
+    ["mitochondrium", "Mitochondrium", [395, 238], [sE(395, 238, 48, 24, RED), sP("M355 238 l8 -11 l8 22 l8 -22 l8 22 l8 -22 l8 22 l8 -22 l8 22 l8 -11", RED, { sw: 2 }), sE(612, 445, 42, 21, RED), sP("M577 445 l7 -10 l7 20 l7 -20 l7 20 l7 -20 l7 20 l7 -20 l7 10", RED, { sw: 2 })]],
     ["ribosomen", "Ribosomen", [420, 470], [[420, 470], [440, 480], [520, 505], [330, 300], [345, 315], [640, 330]].map(([x, y]) => sC(x, y, 4, INK, { sw: 1 }))],
     ["lysosom", "Lysosom", [395, 450], [sC(395, 450, 19, BROWN)]],
     ["zentriolen", "Zentriolen", [540, 470], [sR(522, 462, 26, 12, INK, { fill: "#ffffff" }), sR(548, 452, 12, 26, INK, { fill: "#ffffff" })]],

@@ -17,6 +17,8 @@ const KI_HINWEIS = "Erstellt mit künstlicher Intelligenz (MedAT Trainer). KI ka
 const $ = (id) => document.getElementById("as-" + id);
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// Text der KI fürs Blatt: **fett** wird fett, übrige Sternchen und Listenzeichen am Anfang verschwinden
+const fmt = (s) => esc(String(s == null ? "" : s).replace(/^\s*[-–•*]\s+/, "")).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*/g, "");
 const norm = (s) => String(s || "").toLowerCase().replace(/ß/g, "ss").replace(/[^a-z0-9äöü]+/g, " ").trim();
 const shuffle = (a) => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
@@ -310,9 +312,9 @@ async function fragenBlatt(a) {
     const teile = fragen.map((x, i) => { const d = frageDaten(x); return { d, i }; });
     const html = `
       ${kopf(titel, `MedAT · BMS ${sec.label} · Bearbeitungszeit etwa ${Math.max(1, Math.round(sec.minutes / sec.questions * fragen.length))} Minuten`)}
-      <section class="as-b"><ol class="as-mc">${teile.map(({ d }) => `<li><p>${esc(d.frage)}</p><ol class="as-opts" type="A">${d.opts.map((o) => `<li>${esc(o)}</li>`).join("")}</ol></li>`).join("")}</ol></section>
+      <section class="as-b"><ol class="as-mc">${teile.map(({ d }) => `<li><p>${fmt(d.frage)}</p><ol class="as-opts" type="A">${d.opts.map((o) => `<li>${fmt(o)}</li>`).join("")}</ol></li>`).join("")}</ol></section>
       <section class="as-b as-neu"><h2>Antwortbogen</h2><div class="as-bogen">${teile.map(({ i }) => `<div><b>${i + 1}</b>${"ABCDE".slice(0, 5).split("").map((l) => `<span>${l}</span>`).join("")}</div>`).join("")}</div></section>
-      <section class="as-b as-neu as-loesung"><h2>Lösungen und Erklärungen</h2><ol class="as-loes-liste">${teile.map(({ d }) => `<li><b>${d.richtig >= 0 ? L[d.richtig] : "–"}</b> ${d.richtig >= 0 ? esc(d.opts[d.richtig] || "") : ""}${d.erkl ? `<p>${esc(d.erkl)}</p>` : ""}</li>`).join("")}</ol></section>
+      <section class="as-b as-neu as-loesung"><h2>Lösungen und Erklärungen</h2><ol class="as-loes-liste">${teile.map(({ d }) => `<li><b>${d.richtig >= 0 ? L[d.richtig] : "–"}</b> ${d.richtig >= 0 ? esc(d.opts[d.richtig] || "") : ""}${d.erkl ? `<p>${fmt(d.erkl)}</p>` : ""}</li>`).join("")}</ol></section>
       ${fuss()}`;
     zeigeBlatt(titel, html, true);
     karte(titel, "Das Blatt ist offen – drucken oder als PDF speichern. Ich merke mir die Fragen: Sie kommen frühestens in drei Wochen wieder, falsch beantwortete früher.", [["📄 Blatt öffnen", () => zeigeBlatt(titel, html, true), true]]);
@@ -382,7 +384,7 @@ async function quellenFragen(fach, thema, n) {
   } catch (e) { return ""; }
 }
 const BLATT_REGELN = `Du erstellst Lernmaterial für die MedAT-Vorbereitung (Medizinaufnahmetest Österreich), Niveau Matura bis erstes Studienjahr – sachlich, nicht kindlich, fachlich exakt.
-Schreibweise: Deutsch, keine LaTeX-Befehle, Formeln und Ionen wie gedruckt (Na⁺, Ca²⁺, CO₂, H₂O, →, ·). Keine Platzhalter.
+Schreibweise: Deutsch, KEIN Markdown (keine Sternchen, keine Rauten, keine Spiegelstriche in den Texten), keine LaTeX-Befehle, Formeln und Ionen wie gedruckt (Na⁺, Ca²⁺, CO₂, H₂O, →, ·). Keine Platzhalter.
 Antworte NUR mit JSON.`;
 async function arbeitsblatt(a) {
   const w = warte(`Ich baue dein Arbeitsblatt „${a.thema}“ – das dauert etwa 20–40 Sekunden${a.bild ? " (mit Abbildung etwas länger)" : ""} …`);
@@ -427,12 +429,12 @@ Format: {"titel":"…","einleitung":"1–2 Sätze","abschnitte":[{"ueberschrift"
     let bild = null;
     if (a.bild && s.bild && Array.isArray(s.bild.begriffe)) { w.textContent = "Die Zusammenfassung steht – jetzt zeichne ich die Abbildung …"; bild = await zeichneBeschriftung(a.thema, s.bild, true).catch(() => null); }
     w.remove();
-    const html = kopf(s.titel || a.thema, "MedAT · Lernzusammenfassung") + (s.einleitung ? `<p class="as-einl">${esc(s.einleitung)}</p>` : "") +
-      (bild ? `<figure class="as-b as-fig"><img src="${bild}" alt="Abbildung ${esc(a.thema)}"></figure>` : "") +
-      `<div class="as-zf">${(s.abschnitte || []).map((x) => `<section class="as-b"><h2>${esc(x.ueberschrift)}</h2><ul>${(x.punkte || []).map((p) => `<li>${esc(p)}</li>`).join("")}</ul></section>`).join("")}</div>` +
+    const html = kopf(s.titel || a.thema, "MedAT · Lernzusammenfassung") + (s.einleitung ? `<p class="as-einl">${fmt(s.einleitung)}</p>` : "") +
+      (bild ? `<figure class="as-b as-fig"><img src="${bild}" alt="Abbildung ${fmt(a.thema)}"></figure>` : "") +
+      `<div class="as-zf">${(s.abschnitte || []).map((x) => `<section class="as-b"><h2>${fmt(x.ueberschrift)}</h2><ul>${(x.punkte || []).map((p) => `<li>${fmt(p)}</li>`).join("")}</ul></section>`).join("")}</div>` +
       (s.tabelle && s.tabelle.kopf ? block({ art: "tabelle", ...s.tabelle }) : "") +
-      ((s.merksaetze || []).length ? `<section class="as-b as-merk"><h2>Merksätze</h2>${s.merksaetze.map((m) => `<p>💡 ${esc(m)}</p>`).join("")}</section>` : "") +
-      ((s.pruefungsfallen || []).length ? `<section class="as-b as-falle"><h2>Prüfungsfallen</h2><ul>${s.pruefungsfallen.map((m) => `<li>${esc(m)}</li>`).join("")}</ul></section>` : "") + fuss();
+      ((s.merksaetze || []).length ? `<section class="as-b as-merk"><h2>Merksätze</h2>${s.merksaetze.map((m) => `<p>💡 ${fmt(m)}</p>`).join("")}</section>` : "") +
+      ((s.pruefungsfallen || []).length ? `<section class="as-b as-falle"><h2>Prüfungsfallen</h2><ul>${s.pruefungsfallen.map((m) => `<li>${fmt(m)}</li>`).join("")}</ul></section>` : "") + fuss();
     zeigeBlatt(s.titel || a.thema, html, false);
     karte(s.titel || "Zusammenfassung", "Zum Lesen oder Ausdrucken.", [["📄 Zusammenfassung öffnen", () => zeigeBlatt(s.titel || a.thema, html, false), true]]);
   } catch (e) { w.remove(); blase("as", "Die Zusammenfassung hat gerade nicht geklappt: " + (e.message || e)); }
@@ -453,32 +455,32 @@ async function zeichneBeschriftung(thema, b, mitWoertern) {
 }
 function bildBlock(src, begriffe) {
   return `<section class="as-b"><h2>Beschrifte die Abbildung</h2><figure class="as-fig"><img src="${src}" alt="Abbildung zum Beschriften"></figure>
-    <ol class="as-beschr">${begriffe.slice(0, 9).map((b) => `<li><span class="as-linie"></span><span class="as-l">${esc(b)}</span></li>`).join("")}</ol></section>`;
+    <ol class="as-beschr">${begriffe.slice(0, 9).map((b) => `<li><span class="as-linie"></span><span class="as-l">${fmt(b)}</span></li>`).join("")}</ol></section>`;
 }
 
 // Bausteine → HTML (Lösungen stecken in .as-l und erscheinen mit „Lösungen zeigen“ bzw. beim Drucken mit Lösungen)
 let nr = 0;
 function block(b) {
   if (!b || !b.art) return "";
-  const h = b.titel ? `<h2><span class="as-nr">${++nr}</span>${esc(b.titel)}</h2>` : "";
+  const h = b.titel ? `<h2><span class="as-nr">${++nr}</span>${fmt(b.titel)}</h2>` : "";
   switch (b.art) {
-    case "aufgaben": return `<section class="as-b">${h}<ol class="as-auf">${(b.items || []).map((x) => `<li><p>${esc(x.aufgabe)}</p>${'<span class="as-linie"></span>'.repeat(Math.max(1, Math.min(8, x.zeilen || 3)))}<p class="as-l">${esc(x.loesung)}</p></li>`).join("")}</ol></section>`;
-    case "multiple_choice": return `<section class="as-b">${h}<ol class="as-mc">${(b.items || []).map((x) => `<li><p>${esc(x.frage)}</p><ol class="as-opts" type="A">${(x.optionen || []).map((o, i) => `<li class="${i === x.richtig ? "as-richtig" : ""}">${esc(o)}</li>`).join("")}</ol>${x.erklaerung ? `<p class="as-l">${esc(x.erklaerung)}</p>` : ""}</li>`).join("")}</ol></section>`;
-    case "wahr_falsch": return `<section class="as-b">${h}<table class="as-wf"><thead><tr><th>Aussage</th><th>richtig</th><th>falsch</th></tr></thead><tbody>${(b.items || []).map((x) => `<tr><td>${esc(x.satz)}<p class="as-l">${x.richtig ? "Richtig" : "Falsch"}${x.begruendung ? ": " + esc(x.begruendung) : ""}</p></td><td class="${x.richtig ? "as-x" : ""}">☐</td><td class="${x.richtig ? "" : "as-x"}">☐</td></tr>`).join("")}</tbody></table></section>`;
+    case "aufgaben": return `<section class="as-b">${h}<ol class="as-auf">${(b.items || []).map((x) => `<li><p>${fmt(x.aufgabe)}</p>${'<span class="as-linie"></span>'.repeat(Math.max(1, Math.min(8, x.zeilen || 3)))}<p class="as-l">${fmt(x.loesung)}</p></li>`).join("")}</ol></section>`;
+    case "multiple_choice": return `<section class="as-b">${h}<ol class="as-mc">${(b.items || []).map((x) => `<li><p>${fmt(x.frage)}</p><ol class="as-opts" type="A">${(x.optionen || []).map((o, i) => `<li class="${i === x.richtig ? "as-richtig" : ""}">${fmt(o)}</li>`).join("")}</ol>${x.erklaerung ? `<p class="as-l">${fmt(x.erklaerung)}</p>` : ""}</li>`).join("")}</ol></section>`;
+    case "wahr_falsch": return `<section class="as-b">${h}<table class="as-wf"><thead><tr><th>Aussage</th><th>richtig</th><th>falsch</th></tr></thead><tbody>${(b.items || []).map((x) => `<tr><td>${fmt(x.satz)}<p class="as-l">${x.richtig ? "Richtig" : "Falsch"}${x.begruendung ? ": " + esc(x.begruendung) : ""}</p></td><td class="${x.richtig ? "as-x" : ""}">☐</td><td class="${x.richtig ? "" : "as-x"}">☐</td></tr>`).join("")}</tbody></table></section>`;
     case "zuordnen": {
       const paare = (b.paare || []).slice(0, 10), rechts = shuffle(paare.map((p, i) => ({ t: p.rechts, i })));
       const buchst = "ABCDEFGHIJ", los = paare.map((p, i) => buchst[rechts.findIndex((r) => r.i === i)]);
-      return `<section class="as-b">${h}${b.anweisung ? `<p class="as-anw">${esc(b.anweisung)}</p>` : ""}<div class="as-zu"><ol>${paare.map((p, i) => `<li>${esc(p.links)} <span class="as-kast">${'<span class="as-l">' + los[i] + "</span>"}</span></li>`).join("")}</ol><ol type="A">${rechts.map((r) => `<li>${esc(r.t)}</li>`).join("")}</ol></div></section>`;
+      return `<section class="as-b">${h}${b.anweisung ? `<p class="as-anw">${fmt(b.anweisung)}</p>` : ""}<div class="as-zu"><ol>${paare.map((p, i) => `<li>${fmt(p.links)} <span class="as-kast">${'<span class="as-l">' + los[i] + "</span>"}</span></li>`).join("")}</ol><ol type="A">${rechts.map((r) => `<li>${fmt(r.t)}</li>`).join("")}</ol></div></section>`;
     }
     case "lueckentext": {
       const woerter = [];
-      const t = esc(b.text || "").replace(/\{\{(.+?)\}\}/g, (m, w) => { woerter.push(w); return `<span class="as-luecke"><span class="as-l">${w}</span></span>`; });
+      const t = fmt(b.text || "").replace(/\{\{(.+?)\}\}/g, (m, w) => { woerter.push(w); return `<span class="as-luecke"><span class="as-l">${w}</span></span>`; });
       return `<section class="as-b">${h}<p class="as-bank">${shuffle(woerter).map((x) => `<span>${x}</span>`).join("")}</p><p class="as-lt">${t}</p></section>`;
     }
     case "kreuzwort": return kreuzwort(b, h);
     case "tabelle": {
       const leer = new Set((b.leer || []).map((x) => x.join(",")));
-      return `<section class="as-b">${h}<table class="as-tab"><thead><tr>${(b.kopf || []).map((k) => `<th>${esc(k)}</th>`).join("")}</tr></thead><tbody>${(b.zeilen || []).map((z, i) => `<tr>${z.map((c, j) => `<td>${leer.has(i + "," + j) ? `<span class="as-l">${esc(c)}</span>` : esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`;
+      return `<section class="as-b">${h}<table class="as-tab"><thead><tr>${(b.kopf || []).map((k) => `<th>${fmt(k)}</th>`).join("")}</tr></thead><tbody>${(b.zeilen || []).map((z, i) => `<tr>${z.map((c, j) => `<td>${leer.has(i + "," + j) ? `<span class="as-l">${fmt(c)}</span>` : esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`;
     }
   }
   return "";
@@ -490,14 +492,14 @@ function kreuzwort(b, h) {
   const feld = Array.from({ length: r.hoehe }, () => Array(r.breite).fill(null));
   r.woerter.forEach((w) => { [...w.wort].forEach((ch, k) => { const z = w.zeile + (w.richtung === "senkrecht" ? k : 0), s = w.spalte + (w.richtung === "waagrecht" ? k : 0); feld[z][s] = feld[z][s] || { ch }; }); feld[w.zeile][w.spalte].nr = w.nummer; });
   const gitter = `<table class="as-kw">${feld.map((row) => `<tr>${row.map((c) => (c ? `<td class="as-kw-f">${c.nr ? `<sup>${c.nr}</sup>` : ""}<span class="as-l">${c.ch}</span></td>` : "<td></td>")).join("")}</tr>`).join("")}</table>`;
-  const liste = (rich) => r.woerter.filter((w) => w.richtung === rich).sort((x, y) => x.nummer - y.nummer).map((w) => `<li value="${w.nummer}">${esc(w.frage)}</li>`).join("");
+  const liste = (rich) => r.woerter.filter((w) => w.richtung === rich).sort((x, y) => x.nummer - y.nummer).map((w) => `<li value="${w.nummer}">${fmt(w.frage)}</li>`).join("");
   return `<section class="as-b">${h}<div class="as-kw-wrap">${gitter}<div class="as-kw-fragen"><h3>Waagrecht</h3><ol>${liste("waagrecht")}</ol><h3>Senkrecht</h3><ol>${liste("senkrecht")}</ol></div></div></section>`;
 }
 function kopf(titel, unter) {
   nr = 0;
-  return `<header class="as-kopf"><div class="as-marke">MedAT Trainer · ${esc(NAME)}</div><h1>${esc(titel)}</h1><div class="as-unter">${esc(unter || "")}</div><div class="as-name"><span>Name: <i></i></span><span>Datum: <i></i></span></div></header>`;
+  return `<header class="as-kopf"><div class="as-marke">MedAT Trainer · ${fmt(NAME)}</div><h1>${fmt(titel)}</h1><div class="as-unter">${fmt(unter || "")}</div><div class="as-name"><span>Name: <i></i></span><span>Datum: <i></i></span></div></header>`;
 }
-function fuss() { return `<footer class="as-fuss">${esc(KI_HINWEIS)}</footer>`; }
+function fuss() { return `<footer class="as-fuss">${fmt(KI_HINWEIS)}</footer>`; }
 function zeigeBlatt(titel, html, mitBogen) {
   $("blatt-titel").textContent = titel;
   $("seite").innerHTML = html;
