@@ -7,6 +7,9 @@
 // Bildmodell (18.10.2026): Liste über LERNBLICK_BILD_MODELS, sonst DEFAULT unten.
 // Preise je Bild (Google, Standard, 1K): 2.5 Flash Image 0,039 $ · 3.1 Flash-Lite Image 0,034 $ ·
 // 3.1 Flash Image 0,067 $ · 3 Pro Image 0,134 $. Dazu der Text-Schritt (2.5 Flash) ≈ 0,1 ct.
+// OpenAI (gpt-image-…): nur wenn das Secret OPENAI_API_KEY gesetzt ist; Auswahl über modell oder LERNBLICK_BILD_MODELS.
+//   Gemessen im Lehrerzimmer (17.09.2026): gpt-image-2.5-flare 1024×1024 „medium" ≈ 0,013 $, 1536×1024 „high" ≈ 0,042 $.
+//   Qualität über LERNBLICK_BILD_QUALITAET (low|medium|high, Standard medium) oder body.qualitaet.
 // Zugang: angemeldete Nutzer – oder der private Prüfstand-Schlüssel (Vorschaubilder, Tests).
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -33,6 +36,7 @@ const ERLAUBT = new Set([
   "gemini-3.1-flash-image", "gemini-3.1-flash-image-preview", "gemini-3.1-flash-lite-image",
   "gemini-3.1-flash-lite-image-preview", "gemini-2.5-flash-image",
 ]);
+const OPENAI_SIZE: Record<string, string> = { "3:4": "1024x1536", "4:3": "1536x1024", "1:1": "1024x1024" };
 const ORIENT: Record<string, [string, string]> = {
   hochformat: ["3:4", "PORTRAIT orientation (taller than wide, like an A4 page standing upright)."],
   querformat: ["4:3", "LANDSCAPE orientation (wider than tall)."],
@@ -60,6 +64,7 @@ Deno.serve(async (req: Request) => {
     if (!key) return json({ error: "GEMINI_API_KEY fehlt" }, 500);
 
     const b = await req.json();
+    if (b.pruefen && bench) return json({ openai: !!Deno.env.get("OPENAI_API_KEY"), modelle: Deno.env.get("LERNBLICK_BILD_MODELS") || DEFAULT_MODELS });   // nur nachsehen, ob der Schlüssel da ist – kostet nichts
     const thema = String(b.thema || "").trim().slice(0, 300);
     if (!thema) return json({ error: "Welches Thema?" }, 400);
     const artLabel = String(b.art_label || "Lernposter").slice(0, 80);
@@ -118,9 +123,32 @@ Antworte NUR mit der Beschreibung.`;
 
     const liste = (Deno.env.get("LERNBLICK_BILD_MODELS") || DEFAULT_MODELS).split(",").map((m) => m.trim()).filter(Boolean);
     const wunsch = String(b.modell || "");
-    const models = ERLAUBT.has(wunsch) ? [wunsch, ...liste.filter((m) => m !== wunsch)] : liste;
+    const okModell = (m: string) => ERLAUBT.has(m) || /^gpt-image-[a-z0-9.\-]+$/.test(m);
+    const models = okModell(wunsch) ? [wunsch, ...liste.filter((m) => m !== wunsch)] : liste;
+    const openaiKey = Deno.env.get("OPENAI_API_KEY");
+    const qualitaet = ["low", "medium", "high"].includes(b.qualitaet) ? b.qualitaet : (Deno.env.get("LERNBLICK_BILD_QUALITAET") || "medium");
     const fehler: string[] = [];
     for (const m of models) {
+      if (m.startsWith("gpt-image")) {
+        if (!openaiKey) { fehler.push(`${m}: OPENAI_API_KEY fehlt`); continue; }
+        try {
+          const r = await fetch("https://api.openai.com/v1/images/generations", {
+            method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${openaiKey}` },
+            body: JSON.stringify({ model: m, prompt: prompt.slice(0, 32000), size: OPENAI_SIZE[aspect] || "1024x1536", quality: qualitaet, output_format: "jpeg", output_compression: 88, n: 1 }),
+            signal: AbortSignal.timeout(150000),
+          });
+          const d = await r.json().catch(() => ({}));
+          const b64 = d?.data?.[0]?.b64_json;
+          if (!r.ok || !b64) { fehler.push(`${m}: ${r.status} ${String(d?.error?.message || "kein Bild").slice(0, 160)}`); continue; }
+          const u = d?.usage || {};
+          console.log("lernblick-bild-usage", JSON.stringify({ model: m, quality: qualitaet, in: u.input_tokens || 0, out: u.output_tokens || 0, ms: Date.now() - t0, bench }));
+          try {
+            const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+            await admin.from("image_generations").insert({ user_id: userId, session_id: crypto.randomUUID(), topic: `[LernBlick ${artLabel}] ${thema}`.slice(0, 500), prompt_used: `[${m} ${qualitaet}] ${prompt}`.slice(0, 3000), success: true });
+          } catch (_) { /* Protokoll ist nicht wichtig */ }
+          return json({ image_base64: b64, mime_type: "image/jpeg", inhalt: beschreibung, model: `${m} (${qualitaet})`, ms: Date.now() - t0, usage: { in: u.input_tokens || 0, out: u.output_tokens || 0 } });
+        } catch (e) { fehler.push(`${m}: ${String(e)}`); continue; }
+      }
       const send = (cfg: boolean) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
         method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify({
