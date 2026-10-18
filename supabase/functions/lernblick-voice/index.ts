@@ -12,6 +12,7 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { decodeBase64 } from "jsr:@std/encoding@1/base64";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -110,8 +111,11 @@ async function geminiSpeak(text: string, lang: string): Promise<Response | null>
     const mime: string = part.inlineData.mimeType || "";
     const rate = Number((mime.match(/rate=(\d+)/) || [])[1]) || 24000;
     if (!loggedMime) { console.log("lernblick-voice Format", model, mime); loggedMime = true; }
-    const pcm = cleanPcm(Uint8Array.from(atob(part.inlineData.data), (c) => c.charCodeAt(0)), rate);
-    return new Response(wav(pcm, rate), { status: 200, headers: { ...cors, "Content-Type": "audio/wav", "Cache-Control": "no-store", "X-Voice": model } });
+    const bytes = decodeBase64(part.inlineData.data);
+    // Kommt schon eine fertige Audiodatei (WAV/MP3/OGG), unverändert weitergeben – nicht ein zweites Mal verpacken.
+    const isFile = /wav|mpeg|mp3|ogg|opus|webm/i.test(mime) || (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46);
+    if (isFile) return new Response(bytes, { status: 200, headers: { ...cors, "Content-Type": /mpeg|mp3/i.test(mime) ? "audio/mpeg" : /ogg|opus/i.test(mime) ? "audio/ogg" : "audio/wav", "Cache-Control": "no-store", "X-Voice": model } });
+    return new Response(wav(cleanPcm(bytes, rate), rate), { status: 200, headers: { ...cors, "Content-Type": "audio/wav", "Cache-Control": "no-store", "X-Voice": model } });
   }
   return null;
 }

@@ -692,6 +692,360 @@ function playWave(svg) {
   svg.querySelectorAll('[data-teil~="wellenform"], [data-teil~="verschiebung"]').forEach((e) => e.animate([{ opacity: 1 }, { opacity: 0.15 }, { opacity: 0.15 }, { opacity: 1 }], { duration: T * periods }));
   setTimeout(() => { delete svg.dataset.waving; }, T * periods + 50);
 }
+// ================= Mathe-Bausteine (MedAT): alles exakt berechnet =================
+const fmtN = (v, d = 2) => { if (!isFinite(v)) return "–"; const r = Math.round(v * 10 ** d) / 10 ** d; return String(Math.abs(r) < 1e-12 ? 0 : r).replace(".", ","); };
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+function parseFrac(s) {
+  const t = String(s || "").trim().replace(",", ".").replace(/[−–]/g, "-");
+  let m = t.match(/^(-?\d+)\s*\/\s*(\d+)$/);
+  if (m) return { n: +m[1], d: +m[2], v: +m[1] / +m[2], txt: `${m[1]}/${m[2]}` };
+  m = t.match(/^(-?\d+(?:\.\d+)?)\s*%$/);
+  if (m) return { n: null, d: null, v: +m[1] / 100, txt: fmtN(+m[1], 2) + " %" };
+  const v = parseFloat(t);
+  return isFinite(v) ? { n: null, d: null, v, txt: fmtN(v, 4) } : null;
+}
+function mulFracs(fs) {
+  if (fs.every((f) => f.n != null)) { let n = 1, d = 1; fs.forEach((f) => { n *= f.n; d *= f.d; }); const g = gcd(n, d); return { n: n / g, d: d / g, v: n / d, txt: d / g === 1 ? String(n / g) : `${n / g}/${d / g}` }; }
+  const v = fs.reduce((a, f) => a * f.v, 1); return { v, txt: fmtN(v, 4) };
+}
+const superscript = (s) => String(s).replace(/\^(-?\d+)/g, (_, e) => e.split("").map((c) => "⁰¹²³⁴⁵⁶⁷⁸⁹"["0123456789".indexOf(c)] || (c === "-" ? "⁻" : c)).join("")).replace(/\*/g, "·");
+const dot = (cx, cy, color, teil, r = 9) => S("circle", { cx, cy, r, stroke: color, "stroke-width": 3, fill: color, teil, "data-p": 1 });
+function arrowLine(ax, ay, bx, by, c, w, teil, both) {
+  const a = Math.atan2(by - ay, bx - ax), L = 16;
+  const head = (px, py, ang) => S("path", { d: `M${(px - L * Math.cos(ang - 0.45)).toFixed(1)} ${(py - L * Math.sin(ang - 0.45)).toFixed(1)} L${px.toFixed(1)} ${py.toFixed(1)} L${(px - L * Math.cos(ang + 0.45)).toFixed(1)} ${(py - L * Math.sin(ang + 0.45)).toFixed(1)}`, stroke: c, "stroke-width": w, fill: "none", teil, "data-p": 1 });
+  const r = [ln(ax, ay, bx, by, c, w, teil, true), head(bx, by, a)];
+  if (both) r.push(head(ax, ay, a + Math.PI));
+  return r;
+}
+
+// 20. Funktion untersuchen: Graph mit Nullstellen, Extrema, Wendepunkten, Tangente, Steigungsdreieck, Fläche, Schnittpunkt
+function compAnalysis(A) {
+  const x = N(A("x"), 70), y = N(A("y"), 80), w = N(A("breite"), 860), h = N(A("hoehe"), 450);
+  const srcs = String(A("funktion") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 2);
+  const fs = srcs.map(makeFn).filter(Boolean);
+  if (!fs.length) return [tx(500, 300, "Funktion nicht lesbar: " + srcs.join("; "), { size: 26, fill: C.grey })];
+  const [xa, xb] = String(A("bereich") || "-5;5").split(/[;,]/).map((v) => N(v, NaN));
+  const xmin = isFinite(xa) ? xa : -5, xmax = isFinite(xb) && xb > xmin ? xb : xmin + 10;
+  const f = fs[0], g = fs[1], STEPS = 1200, dx = (xmax - xmin) / STEPS;
+  let lo = Infinity, hi = -Infinity;
+  for (const fn of fs) for (let i = 0; i <= STEPS; i++) { const v = fn(xmin + i * dx); if (isFinite(v) && Math.abs(v) < 1e4) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }
+  if (!isFinite(lo)) { lo = -5; hi = 5; }
+  lo = Math.min(lo, 0); hi = Math.max(hi, 0);
+  const pad = (hi - lo || 2) * 0.14;
+  const ymin = A("ymin") != null ? N(A("ymin"), lo - pad) : lo - pad, ymax = A("ymax") != null ? N(A("ymax"), hi + pad) : hi + pad;
+  const out = compAxes((k) => ({ x, y, breite: w, hoehe: h, xmin, xmax, ymin, ymax, funktion: srcs.join("; ") }[k] ?? A(k)));
+  const X = (v) => x + ((v - xmin) / (xmax - xmin)) * w, Y = (v) => y + h - ((v - ymin) / (ymax - ymin)) * h;
+  const inside = (yy) => yy >= ymin && yy <= ymax;
+  const d1 = (fn, v) => (fn(v + 1e-4) - fn(v - 1e-4)) / 2e-4, d2 = (fn, v) => (fn(v + 1e-3) - 2 * fn(v) + fn(v - 1e-3)) / 1e-6;
+  const bisect = (fn, a, b) => { let fa = fn(a); for (let k = 0; k < 60; k++) { const m = (a + b) / 2, fm = fn(m); if ((fa < 0) === (fm < 0)) { a = m; fa = fm; } else b = m; } return (a + b) / 2; };
+  const zeros = (fn) => { const r = []; let pv = fn(xmin); for (let i = 1; i <= STEPS; i++) { const xv = xmin + i * dx, v = fn(xv); if (isFinite(pv) && isFinite(v) && Math.abs(v - pv) < (ymax - ymin)) { if (v === 0) r.push(xv); else if ((pv < 0) !== (v < 0)) r.push(bisect(fn, xv - dx, xv)); } pv = v; } return r.filter((v, i, a) => !i || Math.abs(v - a[i - 1]) > dx * 2).slice(0, 6); };
+  const yes = (k) => /^(ja|true|1)$/i.test(String(A(k) || ""));
+  const label = (px, py, t, color, teil, above = true) => tx(X(px) + 10, Y(py) + (above ? -16 : 34), t, { size: 24, fill: color, anchor: "start", teil });
+  // Extrema (auch Berührpunkte, die keine Vorzeichenwechsel-Nullstelle sind)
+  const ext = zeros((v) => d1(f, v)).map((v) => ({ x: v, y: f(v), typ: d2(f, v) < 0 ? "hochpunkt" : "tiefpunkt" })).filter((p) => isFinite(p.y));
+  if (yes("nullstellen")) {
+    const zs = zeros(f); ext.forEach((p) => { if (Math.abs(p.y) < (ymax - ymin) * 1e-4 && !zs.some((z) => Math.abs(z - p.x) < dx * 3)) zs.push(p.x); });
+    zs.sort((a, b) => a - b).forEach((z, i) => { out.push(dot(X(z), Y(0), C.red, `nullstelle nullstelle-${i + 1}`)); out.push(label(z, 0, `N${zs.length > 1 ? i + 1 : ""}(${fmtN(z)}|0)`, C.red, `nullstelle nullstelle-${i + 1}`, i % 2 === 0)); });
+  }
+  if (yes("extrema") || yes("scheitel")) ext.forEach((p, i) => { if (!inside(p.y)) return; const c = p.typ === "hochpunkt" ? C.green : C.blue, nm = p.typ === "hochpunkt" ? "H" : "T"; out.push(dot(X(p.x), Y(p.y), c, `${p.typ} extremum extremum-${i + 1} scheitel`)); out.push(label(p.x, p.y, `${nm}(${fmtN(p.x)}|${fmtN(p.y)})`, c, `${p.typ} extremum extremum-${i + 1} scheitel`, p.typ === "hochpunkt")); });
+  if (yes("wendepunkte")) zeros((v) => d2(f, v)).forEach((wx, i) => { const wy = f(wx); if (!inside(wy)) return; out.push(dot(X(wx), Y(wy), "#7b3fc4", `wendepunkt wendepunkt-${i + 1}`)); out.push(label(wx, wy, `W(${fmtN(wx)}|${fmtN(wy)})`, "#7b3fc4", `wendepunkt wendepunkt-${i + 1}`, false)); });
+  if (A("tangente") != null && isFinite(N(A("tangente"), NaN))) {
+    const t0 = N(A("tangente"), 0), m = d1(f, t0), b0 = f(t0) - m * t0, x1 = xmin, x2 = xmax;
+    out.push(S("line", { x1: X(x1), y1: Y(m * x1 + b0), x2: X(x2), y2: Y(m * x2 + b0), stroke: "#f07c1a", "stroke-width": 3, "stroke-dasharray": "12 8", teil: "tangente", "data-p": 1 }));
+    out.push(dot(X(t0), Y(f(t0)), "#f07c1a", "tangente beruehrpunkt"));
+    out.push(tx(x + w - 10, y + 24, `Tangente: y = ${fmtN(m)}x ${b0 < 0 ? "−" : "+"} ${fmtN(Math.abs(b0))}`, { size: 26, fill: "#f07c1a", anchor: "end", teil: "tangente" }));
+  }
+  if (A("steigungsdreieck") != null && isFinite(N(A("steigungsdreieck"), NaN))) {
+    const s0 = N(A("steigungsdreieck"), 0), s1 = s0 + 1, y0 = f(s0), y1v = f(s1);
+    out.push(S("polyline", { points: `${X(s0)},${Y(y0)} ${X(s1)},${Y(y0)} ${X(s1)},${Y(y1v)}`, stroke: "#f07c1a", "stroke-width": 4, fill: "none", teil: "steigungsdreieck", "data-p": 1 }));
+    out.push(tx((X(s0) + X(s1)) / 2, Y(y0) + (y1v > y0 ? 32 : -12), "Δx = 1", { size: 26, fill: "#f07c1a", teil: "steigungsdreieck delta-x" }));
+    out.push(tx(X(s1) + 10, (Y(y0) + Y(y1v)) / 2 + 9, `Δy = ${fmtN(y1v - y0)}`, { size: 26, fill: "#f07c1a", anchor: "start", teil: "steigungsdreieck delta-y" }));
+    out.push(tx(x + w - 10, y + 56, `Steigung k = Δy/Δx = ${fmtN(y1v - y0)}`, { size: 26, fill: "#f07c1a", anchor: "end", teil: "steigungsdreieck steigung" }));
+  }
+  const fl = String(A("flaeche") || "").split(/\.\.|[;,]/).map((v) => N(v, NaN));
+  if (fl.length === 2 && fl.every(isFinite) && fl[1] > fl[0]) {
+    const [a, b] = fl, n = 200, hh = (b - a) / n; let sum = 0; const pts = [`${X(a)},${Y(0)}`];
+    for (let i = 0; i <= n; i++) { const xv = a + i * hh, v = f(xv); pts.push(`${X(xv).toFixed(1)},${Y(Math.max(ymin, Math.min(ymax, v))).toFixed(1)}`); sum += (i === 0 || i === n ? 1 : i % 2 ? 4 : 2) * v; }
+    pts.push(`${X(b)},${Y(0)}`); const I = (sum * hh) / 3;
+    out.unshift(S("polygon", { points: pts.join(" "), stroke: "none", fill: "#f2b705", teil: "flaeche integral" }));
+    out.push(tx((X(a) + X(b)) / 2, Y(0) + (I >= 0 ? -16 : 40), `A = ${fmtN(I)}`, { size: 30, fill: C.ink, teil: "flaeche integral ergebnis" }));
+    out.push(tx(X(a), Y(0) + 34, fmtN(a), { size: 24, fill: "#b38600", teil: "flaeche grenze" }), tx(X(b), Y(0) + 34, fmtN(b), { size: 24, fill: "#b38600", teil: "flaeche grenze" }));
+  }
+  if (g && yes("schnittpunkt")) zeros((v) => f(v) - g(v)).forEach((sx, i) => { const sy = f(sx); if (!inside(sy)) return; out.push(dot(X(sx), Y(sy), C.ink, `schnittpunkt schnittpunkt-${i + 1}`, 11)); out.push(label(sx, sy, `S(${fmtN(sx)}|${fmtN(sy)})`, C.ink, `schnittpunkt schnittpunkt-${i + 1}`)); });
+  return out;
+}
+
+// 21. Prozent: Grundwert als Balken, nacheinander Änderungen (die Falle: −20 % und −10 % sind nicht −30 %)
+function compPercent(A) {
+  const x = N(A("x"), 80), y = N(A("y"), 100), w = N(A("breite"), 760);
+  const start = N(String(A("start") || "100").replace(/[^\d.,-]/g, ""), 100), unit = String(A("start") || "").replace(/[\d.,\s-]/g, "").trim();
+  const steps = String(A("schritte") || "").split(";").map((s) => s.trim()).filter(Boolean).slice(0, 4).map((s) => N(s.replace("%", "").replace(/[−–]/g, "-"), 0));
+  const out = [], u = unit ? " " + unit : "", vals = [start];
+  steps.forEach((p) => vals.push(vals[vals.length - 1] * (1 + p / 100)));
+  const max = Math.max(...vals), barH = 54, gap = steps.length ? Math.min(118, 360 / steps.length) : 0;
+  const bar = (i, v, color, teil) => {
+    const yy = y + i * gap, bw = (w * v) / max;
+    out.push(S("rect", { x, y: yy, width: w * start / max, height: barH, stroke: "#cfc9bd", "stroke-width": 2, fill: "none", "stroke-dasharray": "8 6", teil, "data-p": 1 }));
+    out.push(S("rect", { x, y: yy, width: bw, height: barH, stroke: color, "stroke-width": 4, fill: color, teil, "data-p": 1 }));
+    out.push(tx(x + bw + 14, yy + barH * 0.68, fmtN(v) + u, { size: 32, fill: color, anchor: "start", teil }));
+  };
+  if (!steps.length) {
+    const p = N(String(A("anteil") || "25").replace("%", ""), 25);
+    out.push(S("rect", { x, y: y + 60, width: w, height: 80, stroke: C.ink, "stroke-width": 4, fill: "none", teil: "grundwert", "data-p": 1 }));
+    out.push(S("rect", { x, y: y + 60, width: (w * p) / 100, height: 80, stroke: C.blue, "stroke-width": 4, fill: C.blue, teil: "prozentwert anteil", "data-p": 1 }));
+    for (let i = 1; i < 10; i++) out.push(ln(x + (w * i) / 10, y + 140, x + (w * i) / 10, y + 128, C.grey, 2, "skala", true));
+    out.push(tx(x + w / 2, y + 40, `Grundwert G = ${fmtN(start)}${u} (100 %)`, { size: 30, teil: "grundwert" }));
+    out.push(tx(x + (w * p) / 200, y + 190, `Prozentwert W = ${fmtN((start * p) / 100)}${u}`, { size: 30, fill: C.blue, teil: "prozentwert" }));
+    out.push(tx(x + (w * p) / 200, y + 230, `Prozentsatz p = ${fmtN(p)} %`, { size: 30, fill: C.blue, teil: "prozentsatz" }));
+    out.push(tx(x + w / 2, y + 320, `W = G · p / 100 = ${fmtN(start)} · ${fmtN(p)} / 100 = ${fmtN((start * p) / 100)}${u}`, { size: 30, teil: "formel ergebnis" }));
+    return out;
+  }
+  bar(0, start, C.ink, "grundwert schritt-0");
+  steps.forEach((p, i) => {
+    const before = vals[i], after = vals[i + 1], yy = y + (i + 1) * gap, col = p < 0 ? C.red : C.green;
+    bar(i + 1, after, col, `schritt-${i + 1}`);
+    out.push(tx(x - 12, yy - 14, `${p > 0 ? "+" : "−"}${fmtN(Math.abs(p))} % von ${fmtN(before)}${u} = ${p > 0 ? "+" : "−"}${fmtN(Math.abs((before * p) / 100))}${u}`, { size: 26, fill: col, anchor: "start", teil: `schritt-${i + 1} rechnung-${i + 1}` }));
+  });
+  const end = vals[vals.length - 1], total = (end / start - 1) * 100, naive = steps.reduce((a, b) => a + b, 0);
+  const yt = y + (steps.length + 1) * gap + 30;
+  out.push(tx(x, yt, `insgesamt: ${fmtN(start)}${u} → ${fmtN(end)}${u} = ${total > 0 ? "+" : "−"}${fmtN(Math.abs(total))} %`, { size: 34, fill: C.ink, anchor: "start", teil: "gesamt ergebnis" }));
+  if (steps.length > 1 && Math.abs(naive - total) > 0.01) out.push(tx(x, yt + 44, `nicht ${naive > 0 ? "+" : "−"}${fmtN(Math.abs(naive))} % – jeder Schritt rechnet vom neuen Wert!`, { size: 28, fill: C.red, anchor: "start", teil: "falle" }));
+  return out;
+}
+
+// 22. Einheiten: Treppe der Vorsilben, Weg von → nach, Faktor und Ergebnis
+const PREF = [["G", 9, "Giga"], ["M", 6, "Mega"], ["k", 3, "Kilo"], ["h", 2, "Hekto"], ["da", 1, "Deka"], ["", 0, ""], ["d", -1, "Dezi"], ["c", -2, "Zenti"], ["m", -3, "Milli"], ["µ", -6, "Mikro"], ["n", -9, "Nano"], ["p", -12, "Piko"]];
+function parseUnit(s, base) {
+  let t = String(s || "").trim().replace(/^u/, "µ").replace(/^μ/, "µ");
+  const dim = /³|\^3/.test(t) ? 3 : /²|\^2/.test(t) ? 2 : 1;
+  t = t.replace(/[²³]|\^[23]/g, "");
+  if (!base) { const m = t.match(/(m|g|l|L|s|mol|Pa|Hz|J|W|V|A|N)$/); base = m ? m[1] : t.slice(-1); }
+  const pre = t.endsWith(base) ? t.slice(0, t.length - base.length) : t;
+  const p = PREF.find((q) => q[0] === pre) || (pre === "" ? PREF[5] : null);
+  return p ? { pre: p[0], e: p[1], name: p[2], base, dim } : null;
+}
+function compUnits(A) {
+  const x = N(A("x"), 50), y = N(A("y"), 110), w = N(A("breite"), 900);
+  const from = parseUnit(A("von") || "m"), to = parseUnit(A("nach") || "cm", from ? from.base : undefined);
+  if (!from || !to) return [tx(500, 300, "Einheit nicht erkannt", { size: 28, fill: C.grey })];
+  const dim = Math.max(from.dim, N(A("dim"), 1)), base = from.base, sup = dim === 3 ? "³" : dim === 2 ? "²" : "";
+  const lo = Math.min(from.e, to.e), hi = Math.max(from.e, to.e);
+  let list = PREF.filter((p) => p[1] <= hi + 1 && p[1] >= lo - 1);
+  if (list.length > 9) list = PREF.filter((p) => p[1] <= hi && p[1] >= lo);
+  const n = list.length, stepW = w / n, stepH = Math.min(46, 300 / n), out = [];
+  const ix = (e) => list.findIndex((p) => p[1] === e);
+  list.forEach((p, i) => {
+    const bx = x + i * stepW, by = y + i * stepH, on = p[1] === from.e || p[1] === to.e, sym = p[0] + base + sup;
+    out.push(S("rect", { x: bx + 4, y: by, width: stepW - 8, height: 64, stroke: on ? C.red : C.ink, "stroke-width": on ? 5 : 3, fill: on ? "#ffe9e6" : "#ffffff", teil: `stufe stufe-${p[0] || "basis"}${p[1] === from.e ? " von" : ""}${p[1] === to.e ? " nach" : ""}`, "data-p": 1 }));
+    out.push(tx(bx + stepW / 2, by + 44, sym, { size: 30, fill: on ? C.red : C.ink, teil: `stufe-${p[0] || "basis"}` }));
+    if (p[2]) out.push(tx(bx + stepW / 2, by + 90, p[2], { size: 20, fill: C.grey, teil: `stufe-${p[0] || "basis"}` }));
+    if (i < n - 1) { const f = Math.pow(10, (p[1] - list[i + 1][1]) * dim); out.push(tx(bx + stepW, by + stepH + 32 + 64, "· " + (f >= 1e4 ? "10" + superscript("^" + Math.log10(f)) : fmtN(f, 0)), { size: 22, fill: "#7b3fc4", teil: "faktor" })); }
+  });
+  const i1 = ix(from.e), i2 = ix(to.e);
+  if (i1 >= 0 && i2 >= 0 && i1 !== i2) {
+    const ax = x + i1 * stepW + stepW / 2, bx2 = x + i2 * stepW + stepW / 2, ay = y + i1 * stepH - 18, by2 = y + i2 * stepH - 18;
+    out.push(S("path", { d: `M${ax} ${ay} Q${(ax + bx2) / 2} ${Math.min(ay, by2) - 70} ${bx2} ${by2}`, stroke: C.red, "stroke-width": 5, fill: "none", teil: "weg", "data-p": 1 }));
+    const ang = Math.atan2(by2 - (Math.min(ay, by2) - 70), bx2 - (ax + bx2) / 2);
+    out.push(S("path", { d: `M${bx2 - 18 * Math.cos(ang - 0.45)} ${by2 - 18 * Math.sin(ang - 0.45)} L${bx2} ${by2} L${bx2 - 18 * Math.cos(ang + 0.45)} ${by2 - 18 * Math.sin(ang + 0.45)}`, stroke: C.red, "stroke-width": 5, fill: "none", teil: "weg", "data-p": 1 }));
+  }
+  const expo = (from.e - to.e) * dim, factor = Math.pow(10, expo);
+  const val = A("wert") != null ? N(A("wert"), NaN) : NaN;
+  const yb = y + n * stepH + 170;
+  const fTxt = Math.abs(expo) >= 4 ? "10" + superscript("^" + expo) : fmtN(factor, 6);
+  out.push(tx(x + w / 2, yb, `1 ${from.pre}${base}${sup} = ${fTxt} ${to.pre}${base}${sup}   (${expo > 0 ? "kleiner werden → mal" : "größer werden → durch"} ${Math.abs(expo) >= 4 ? "10" + superscript("^" + Math.abs(expo)) : fmtN(Math.pow(10, Math.abs(expo)), 0)})`, { size: 28, teil: "faktor regel" }));
+  if (isFinite(val)) out.push(tx(x + w / 2, yb + 56, `${fmtN(val, 6)} ${from.pre}${base}${sup} = ${fmtN(val, 6)} · ${fTxt} = ${fmtN(val * factor, 8)} ${to.pre}${base}${sup}`, { size: 34, fill: C.red, teil: "ergebnis" }));
+  return out;
+}
+
+// 23. Potenzen: Faktoren als Kreise, kürzen, Ergebnis
+function compPowers(A) {
+  const b = String(A("basis") || "2").trim(), top = String(A("oben") || "5;3").split(/[;,]/).map((v) => Math.round(N(v, 0))).filter((v) => v > 0).slice(0, 3);
+  const bot = String(A("unten") || "").split(/[;,]/).map((v) => Math.round(N(v, 0))).filter((v) => v > 0).slice(0, 2);
+  const nt = top.reduce((a, c) => a + c, 0), nb = bot.reduce((a, c) => a + c, 0), x0 = 90, out = [], cols = [C.blue, C.green, "#f07c1a"];
+  const r = Math.min(30, 760 / Math.max(nt, nb, 1) / 2.4), sp = r * 2.4;
+  const row = (groups, yy, prefix) => { let i = 0; const pos = []; groups.forEach((g, k) => { for (let j = 0; j < g; j++, i++) { const cx = x0 + r + i * sp + k * 18; pos.push(cx); out.push(S("circle", { cx, cy: yy, r, stroke: cols[k % 3], "stroke-width": 3, fill: cols[k % 3], teil: `${prefix} ${prefix}-gruppe-${k + 1} faktor`, "data-p": 1 })); out.push(tx(cx, yy + r * 0.4, b, { size: Math.round(r * 1.05), teil: `${prefix} ${prefix}-gruppe-${k + 1}` })); } }); return pos; };
+  const label = (groups) => groups.map((g) => b + superscript("^" + g)).join(" · ");
+  out.push(tx(x0, 120, label(top), { size: 34, anchor: "start", teil: "zaehler" }));
+  const pt = row(top, 190, "zaehler");
+  let pb = [];
+  if (nb) {
+    const lw = Math.max(pt.length ? pt[pt.length - 1] : 0, x0 + nb * sp) + r + 10;
+    out.push(ln(x0 - 10, 250, lw, 250, C.ink, 4, "bruchstrich", true));
+    pb = row(bot, 310, "nenner");
+    out.push(tx(x0, 390, label(bot), { size: 34, anchor: "start", teil: "nenner" }));
+    for (let i = 0; i < Math.min(nt, nb); i++) { out.push(ln(pt[i] - r, 190 + r, pt[i] + r, 190 - r, C.red, 4, "kuerzen", true)); out.push(ln(pb[i] - r, 310 + r, pb[i] + r, 310 - r, C.red, 4, "kuerzen", true)); }
+  }
+  const e = nt - nb, val = Math.pow(N(b, NaN), e);
+  const res = `= ${b}${superscript("^" + nt)}${nb ? " / " + b + superscript("^" + nb) : ""} = ${b}${superscript("^" + e)}${isFinite(val) ? " = " + fmtN(val, 6) : ""}`;
+  out.push(tx(x0, nb ? 470 : 300, `Exponenten: ${top.join(" + ")}${nb ? " − " + bot.join(" − ") : ""} = ${e}`, { size: 32, fill: "#7b3fc4", anchor: "start", teil: "exponenten regel" }));
+  out.push(tx(x0, nb ? 530 : 360, res, { size: 38, fill: C.red, anchor: "start", teil: "ergebnis" }));
+  return out;
+}
+
+// 24. Baumdiagramm mit Pfadregel (Produkt) und Summenregel
+function compTree(A) {
+  const stages = String(A("stufen") || "1/2:Kopf; 1/2:Zahl").split("|").map((st) => st.split(";").map((b) => { const [p, ...l] = b.split(":"); return { p: parseFrac(p), l: l.join(":").trim() }; }).filter((b) => b.p)).filter((s) => s.length).slice(0, 3);
+  if (!stages.length) return [];
+  const paths = String(A("pfad") || "").split(/[,;]/).map((s) => s.trim()).filter(Boolean).map((s) => s.split("-").map((v) => Math.round(N(v, 0)) - 1));
+  const x0 = 70, x1 = 690, y0 = 80, y1 = 560, out = [], colW = (x1 - x0) / stages.length;
+  let nodes = [{ x: x0, y: (y0 + y1) / 2, path: [], probs: [] }];
+  out.push(dot(x0, (y0 + y1) / 2, C.ink, "start", 7));
+  stages.forEach((st, si) => {
+    const next = [], leaves = nodes.length * st.length, slot = (y1 - y0) / leaves;
+    nodes.forEach((nd, ni) => st.forEach((br, bi) => {
+      const idx = ni * st.length + bi, nx = x0 + (si + 1) * colW, ny = y0 + slot * (idx + 0.5);
+      const path = [...nd.path, bi], hot = paths.some((p) => p.slice(0, path.length).join() === path.join() && p.length >= path.length);
+      const teil = `ast ast-${path.map((v) => v + 1).join("-")}${hot ? " pfad" : ""} stufe-${si + 1}`;
+      out.push(ln(nd.x, nd.y, nx - 8, ny, hot ? C.red : C.ink, hot ? 5 : 3, teil, true));
+      const mx = (nd.x + nx) / 2, my = (nd.y + ny) / 2;
+      out.push(tx(mx, my + (ny < nd.y ? -10 : 28), br.p.txt, { size: Math.max(18, Math.min(28, slot * 0.55)), fill: hot ? C.red : C.blue, teil }));
+      out.push(tx(nx + 4, ny + 8, br.l, { size: Math.max(16, Math.min(26, slot * 0.5)), anchor: "start", fill: hot ? C.red : C.ink, teil }));
+      next.push({ x: nx + Math.min(110, 10 + br.l.length * 13), y: ny, path, probs: [...nd.probs, br.p] });
+    }));
+    nodes = next;
+  });
+  const leafSize = Math.max(16, Math.min(26, ((y1 - y0) / nodes.length) * 0.5));
+  let sum = []; nodes.forEach((nd) => {
+    const hot = paths.some((p) => p.join() === nd.path.join()), prod = mulFracs(nd.probs);
+    if (hot) sum.push(prod);
+    out.push(tx(Math.max(nd.x, x1 + 40), nd.y + 8, `${nd.probs.map((p) => p.txt).join(" · ")} = ${prod.txt}`, { size: leafSize, anchor: "start", fill: hot ? C.red : C.grey, teil: `blatt blatt-${nd.path.map((v) => v + 1).join("-")}${hot ? " pfad produkt" : ""}` }));
+  });
+  if (sum.length > 1) {
+    const all = sum.every((f) => f.n != null) ? (() => { let n = 0, d = 1; sum.forEach((f) => { n = n * f.d + f.n * d; d *= f.d; const g = gcd(n, d); n /= g; d /= g; }); return d === 1 ? String(n) : `${n}/${d}`; })() : fmtN(sum.reduce((a, f) => a + f.v, 0), 4);
+    out.push(tx(500, 590, `Summe der Pfade: ${sum.map((f) => f.txt).join(" + ")} = ${all}`, { size: 30, fill: C.red, teil: "summe ergebnis" }));
+  }
+  return out;
+}
+
+// 25. Normalverteilung: Glockenkurve, μ, σ-Bereiche mit 68 / 95 / 99,7 %
+function compNormal(A) {
+  const mu = N(A("mu") ?? A("mittelwert"), 0), sg = Math.abs(N(A("sigma") ?? A("standardabweichung"), 1)) || 1, band = clampN(Math.round(N(A("band"), 2)), 0, 3);
+  const x = 80, y = 110, w = 840, h = 360, X = (v) => x + ((v - (mu - 3.6 * sg)) / (7.2 * sg)) * w, pdf = (v) => Math.exp(-0.5 * ((v - mu) / sg) ** 2), Y = (p) => y + h - p * h * 0.92, out = [];
+  if (band) {
+    const pts = [`${X(mu - band * sg)},${Y(0)}`]; for (let i = 0; i <= 80; i++) { const v = mu - band * sg + (2 * band * sg * i) / 80; pts.push(`${X(v).toFixed(1)},${Y(pdf(v)).toFixed(1)}`); } pts.push(`${X(mu + band * sg)},${Y(0)}`);
+    out.push(S("polygon", { points: pts.join(" "), stroke: "none", fill: C.blue, teil: `band band-${band}` }));
+  }
+  let d = ""; for (let i = 0; i <= 160; i++) { const v = mu - 3.6 * sg + (7.2 * sg * i) / 160; d += (i ? " L" : "M") + X(v).toFixed(1) + " " + Y(pdf(v)).toFixed(1); }
+  out.push(ln(x - 10, Y(0), x + w + 10, Y(0), C.ink, 3, "achse", true));
+  out.push(S("path", { d, stroke: C.ink, "stroke-width": 4, fill: "none", teil: "kurve glocke", "data-p": 1 }));
+  out.push(ln(X(mu), Y(0), X(mu), Y(1), C.red, 3, "mittelwert", true));
+  out.push(tx(X(mu), Y(1) - 14, `μ = ${fmtN(mu)}`, { size: 30, fill: C.red, teil: "mittelwert" }));
+  for (let k = -3; k <= 3; k++) { if (!k) continue; out.push(ln(X(mu + k * sg), Y(0) - 8, X(mu + k * sg), Y(0) + 8, C.ink, 2, `sigma sigma-${Math.abs(k)}`, true)); out.push(tx(X(mu + k * sg), Y(0) + 34, fmtN(mu + k * sg), { size: 22, fill: C.grey, teil: `sigma sigma-${Math.abs(k)}` })); out.push(tx(X(mu + k * sg), Y(0) + 60, `${k > 0 ? "+" : "−"}${Math.abs(k)}σ`, { size: 20, fill: C.grey, teil: `sigma sigma-${Math.abs(k)}` })); }
+  out.push(tx(X(mu), Y(0) + 34, fmtN(mu), { size: 22, fill: C.red, teil: "mittelwert" }));
+  const pct = { 1: "68 %", 2: "95 %", 3: "99,7 %" };
+  if (band) { out.push(tx(X(mu), Y(0.35), pct[band], { size: 40, fill: C.blue, teil: `band prozent band-${band}` })); out.push(tx(500, Y(0) + 106, `${pct[band]} aller Werte liegen zwischen ${fmtN(mu - band * sg)} und ${fmtN(mu + band * sg)} (μ ± ${band}σ)`, { size: 30, fill: C.blue, teil: "band ergebnis" })); }
+  return out;
+}
+
+// 26. Auswahl / Kombinatorik: Plätze füllen, mit oder ohne Reihenfolge
+function compChoose(A) {
+  const n = clampN(Math.round(N(A("n"), 5)), 1, 20), k = clampN(Math.round(N(A("k"), 3)), 1, Math.min(n, 8));
+  const ordered = /^(ja|true|1)$/i.test(String(A("reihenfolge") || "nein")), repeat = /^(ja|true|1)$/i.test(String(A("zuruecklegen") || "nein"));
+  const out = [], bw = Math.min(130, 760 / k), x0 = 500 - (k * bw) / 2, fact = (m) => { let r = 1; for (let i = 2; i <= m; i++) r *= i; return r; };
+  const nums = []; for (let i = 0; i < k; i++) nums.push(repeat ? n : n - i);
+  nums.forEach((v, i) => {
+    out.push(S("rect", { x: x0 + i * bw + 8, y: 150, width: bw - 16, height: 110, stroke: C.blue, "stroke-width": 4, fill: C.blue, teil: `platz platz-${i + 1}`, "data-p": 1 }));
+    out.push(tx(x0 + i * bw + bw / 2, 222, String(v), { size: 52, teil: `platz platz-${i + 1}` }));
+    out.push(tx(x0 + i * bw + bw / 2, 296, `${i + 1}. Platz`, { size: 22, fill: C.grey, teil: `platz platz-${i + 1}` }));
+    if (i < k - 1) out.push(tx(x0 + (i + 1) * bw, 222, "·", { size: 46, fill: C.grey, teil: "produkt" }));
+  });
+  const prod = nums.reduce((a, b) => a * b, 1);
+  out.push(tx(500, 110, `${n} zur Auswahl, ${k} ${k === 1 ? "Platz" : "Plätze"}${repeat ? ", mit Zurücklegen" : ""}`, { size: 30, fill: C.grey, teil: "aufgabe" }));
+  out.push(tx(500, 370, `${nums.join(" · ")} = ${prod}${ordered || repeat ? "  Möglichkeiten (Reihenfolge zählt)" : ""}`, { size: 36, fill: ordered || repeat ? C.red : C.ink, teil: `produkt${ordered || repeat ? " ergebnis" : ""}` }));
+  if (!ordered && !repeat) {
+    out.push(tx(500, 440, `Reihenfolge egal → durch ${k}! = ${fact(k)} teilen (so oft lässt sich jede Gruppe umordnen)`, { size: 26, fill: "#7b3fc4", teil: "ordnung fakultaet" }));
+    out.push(tx(500, 510, `${prod} : ${fact(k)} = ${prod / fact(k)}   =  (${n} über ${k})`, { size: 40, fill: C.red, teil: "ergebnis binomial" }));
+  }
+  return out;
+}
+
+// 27. Einheitskreis: Winkel, sin und cos als Strecken, Werte
+function compUnitCircle(A) {
+  const deg = N(A("winkel"), 30), a = (deg * Math.PI) / 180, cx = 330, cy = 330, R = 220, out = [];
+  const px = cx + R * Math.cos(a), py = cy - R * Math.sin(a);
+  const exact = { 0: ["0", "1", "0"], 30: ["1/2", "√3/2", "√3/3"], 45: ["√2/2", "√2/2", "1"], 60: ["√3/2", "1/2", "√3"], 90: ["1", "0", "–"], 180: ["0", "−1", "0"], 270: ["−1", "0", "–"], 360: ["0", "1", "0"] }[((deg % 360) + 360) % 360 === 0 && deg ? 360 : ((deg % 360) + 360) % 360];
+  out.push(...arrowLine(cx - R - 40, cy, cx + R + 50, cy, C.ink, 3, "x-achse"), ...arrowLine(cx, cy + R + 40, cx, cy - R - 50, C.ink, 3, "y-achse"));
+  out.push(S("circle", { cx, cy, r: R, stroke: C.grey, "stroke-width": 3, fill: "none", teil: "kreis einheitskreis", "data-p": 1 }));
+  out.push(tx(cx + R + 8, cy + 30, "1", { size: 24, fill: C.grey, teil: "kreis" }), tx(cx - 14, cy - R - 8, "1", { size: 24, fill: C.grey, teil: "kreis" }));
+  const ar = 56; out.push(S("path", { d: `M${cx + ar} ${cy} A${ar} ${ar} 0 ${deg % 360 > 180 ? 1 : 0} 0 ${cx + ar * Math.cos(a)} ${cy - ar * Math.sin(a)}`, stroke: "#7b3fc4", "stroke-width": 4, fill: "none", teil: "winkel", "data-p": 1 }));
+  out.push(tx(cx + 84 * Math.cos(a / 2), cy - 84 * Math.sin(a / 2) + 8, `${fmtN(deg)}°`, { size: 26, fill: "#7b3fc4", teil: "winkel" }));
+  out.push(ln(cx, cy, px, py, C.ink, 4, "radius", true));
+  out.push(ln(cx, cy, px, cy, C.blue, 7, "cosinus cos", true));
+  out.push(ln(px, cy, px, py, C.red, 7, "sinus sin", true));
+  out.push(dot(px, py, C.ink, "punkt", 10));
+  out.push(tx(px + (Math.cos(a) >= 0 ? 16 : -16), py - 14, "P(cos α | sin α)", { size: 24, anchor: Math.cos(a) >= 0 ? "start" : "end", teil: "punkt" }));
+  const sv = Math.sin(a), cv = Math.cos(a), tv = Math.abs(cv) < 1e-9 ? NaN : sv / cv, R3 = 660;
+  out.push(tx(R3, 170, `sin ${fmtN(deg)}° = ${exact ? exact[0] + " ≈ " : ""}${fmtN(sv, 3)}`, { size: 32, fill: C.red, anchor: "start", teil: "sinus sin" }));
+  out.push(tx(R3, 230, `cos ${fmtN(deg)}° = ${exact ? exact[1] + " ≈ " : ""}${fmtN(cv, 3)}`, { size: 32, fill: C.blue, anchor: "start", teil: "cosinus cos" }));
+  out.push(tx(R3, 290, `tan ${fmtN(deg)}° = ${isFinite(tv) ? (exact ? exact[2] + " ≈ " : "") + fmtN(tv, 3) : "nicht definiert"}`, { size: 32, fill: "#f07c1a", anchor: "start", teil: "tangens tan" }));
+  out.push(tx(R3, 360, "rot = sin (Höhe)", { size: 24, fill: C.red, anchor: "start", teil: "sinus" }), tx(R3, 396, "blau = cos (Breite)", { size: 24, fill: C.blue, anchor: "start", teil: "cosinus" }), tx(R3, 432, "tan = sin / cos", { size: 24, fill: "#f07c1a", anchor: "start", teil: "tangens" }));
+  out.push(tx(R3, 490, "sin² + cos² = 1", { size: 28, fill: C.ink, anchor: "start", teil: "pythagoras" }));
+  return out;
+}
+
+// 28. Vektoren im Gitter: Pfeile, Addition (Spitze an Fuß), Betrag
+function compVectors(A) {
+  const vs = String(A("vektoren") || "a=3,1; b=1,2").split(";").map((s) => { const m = s.trim().match(/^([a-zA-Z]\w*)\s*=\s*\(?\s*(-?[\d.,]+)\s*[|,;\s]\s*(-?[\d.,]+)\s*\)?$/); return m ? { n: m[1], x: N(m[2], 0), y: N(m[3], 0) } : null; }).filter(Boolean).slice(0, 3);
+  if (!vs.length) return [];
+  const sum = /^(ja|true|1)$/i.test(String(A("summe") || "nein")) && vs.length >= 2, diff = /^(ja|true|1)$/i.test(String(A("differenz") || "nein")) && vs.length >= 2;
+  const pts = [[0, 0]]; let cxs = 0, cys = 0; vs.forEach((v) => { pts.push([v.x, v.y]); cxs += v.x; cys += v.y; pts.push([cxs, cys]); });
+  if (diff) pts.push([vs[0].x - vs[1].x, vs[0].y - vs[1].y]);
+  const mnx = Math.min(...pts.map((p) => p[0])) - 1, mxx = Math.max(...pts.map((p) => p[0])) + 1, mny = Math.min(...pts.map((p) => p[1])) - 1, mxy = Math.max(...pts.map((p) => p[1])) + 1;
+  const sz = Math.min(560 / (mxx - mnx), 480 / (mxy - mny)), ox = 60 + (-mnx) * sz, oy = 80 + mxy * sz, P = (vx, vy) => [ox + vx * sz, oy - vy * sz], out = [];
+  for (let i = Math.ceil(mnx); i <= mxx; i++) out.push(ln(P(i, 0)[0], P(0, mny)[1], P(i, 0)[0], P(0, mxy)[1], i === 0 ? C.ink : "#e3ded3", i === 0 ? 3 : 1.5, "gitter", true));
+  for (let j = Math.ceil(mny); j <= mxy; j++) out.push(ln(P(mnx, 0)[0], P(0, j)[1], P(mxx, 0)[0], P(0, j)[1], j === 0 ? C.ink : "#e3ded3", j === 0 ? 3 : 1.5, "gitter", true));
+  const cols = [C.blue, C.green, "#f07c1a"]; let bx = 0, by = 0;
+  vs.forEach((v, i) => {
+    const sx = sum ? bx : 0, sy = sum ? by : 0, [x1, y1] = P(sx, sy), [x2, y2] = P(sx + v.x, sy + v.y);
+    out.push(...arrowLine(x1, y1, x2, y2, cols[i], 5, `vektor-${v.n.toLowerCase()} vektor`));
+    out.push(tx((x1 + x2) / 2 - 16, (y1 + y2) / 2 - 12, `${v.n} = (${fmtN(v.x)}|${fmtN(v.y)})`, { size: 28, fill: cols[i], anchor: "end", teil: `vektor-${v.n.toLowerCase()}` }));
+    if (sum && i > 0) { const [c1, d1] = P(0, 0), [c2, d2] = P(v.x, v.y); out.push(S("line", { x1: c1, y1: d1, x2: c2, y2: d2, stroke: cols[i], "stroke-width": 2, "stroke-dasharray": "8 6", teil: `vektor-${v.n.toLowerCase()} parallelogramm`, "data-p": 1 })); }
+    bx += v.x; by += v.y;
+  });
+  const R = 640;
+  if (sum) { const [x1, y1] = P(0, 0), [x2, y2] = P(bx, by); out.push(...arrowLine(x1, y1, x2, y2, C.red, 6, "summe ergebnis")); out.push(tx(R, 150, `${vs.map((v) => v.n).join(" + ")} = (${fmtN(bx)}|${fmtN(by)})`, { size: 32, fill: C.red, anchor: "start", teil: "summe ergebnis" })); out.push(tx(R, 190, "Spitze an Fuß hängen", { size: 24, fill: C.grey, anchor: "start", teil: "summe regel" })); }
+  if (diff) { const dx = vs[0].x - vs[1].x, dy = vs[0].y - vs[1].y, [x1, y1] = P(vs[1].x, vs[1].y), [x2, y2] = P(vs[0].x, vs[0].y); out.push(...arrowLine(x1, y1, x2, y2, "#7b3fc4", 5, "differenz")); out.push(tx(R, 250, `${vs[0].n} − ${vs[1].n} = (${fmtN(dx)}|${fmtN(dy)})`, { size: 32, fill: "#7b3fc4", anchor: "start", teil: "differenz" })); }
+  const bn = String(A("betrag") || "").trim(); const bv = vs.find((v) => v.n === bn);
+  if (bv) { const L = Math.hypot(bv.x, bv.y); out.push(tx(R, 330, `|${bv.n}| = √(${fmtN(bv.x)}² + ${fmtN(bv.y)}²)`, { size: 30, anchor: "start", teil: `betrag betrag-${bn.toLowerCase()}` })); out.push(tx(R, 372, `= √${fmtN(bv.x * bv.x + bv.y * bv.y)} ≈ ${fmtN(L)}`, { size: 30, fill: C.red, anchor: "start", teil: `betrag betrag-${bn.toLowerCase()} ergebnis` })); }
+  return out;
+}
+
+// 29. Kreis: Radius, Durchmesser, Fläche und Umfang berechnet
+function compCircle(A) {
+  const r = N(A("r") ?? A("radius"), 5), u = String(A("einheit") || "cm"), cx = 300, cy = 320, R = 210, out = [];
+  out.push(S("circle", { cx, cy, r: R, stroke: C.blue, "stroke-width": 5, fill: C.blue, teil: "flaeche kreis", "data-p": 1 }));
+  out.push(S("circle", { cx, cy, r: R, stroke: C.red, "stroke-width": 5, fill: "none", teil: "umfang", "data-p": 1 }));
+  out.push(ln(cx, cy, cx + R, cy, C.ink, 5, "radius", true), dot(cx, cy, C.ink, "mittelpunkt", 6));
+  out.push(tx(cx + R / 2, cy - 14, `r = ${fmtN(r)} ${u}`, { size: 30, teil: "radius" }));
+  out.push(S("line", { x1: cx - R * 0.7071, y1: cy + R * 0.7071, x2: cx + R * 0.7071, y2: cy - R * 0.7071, stroke: C.grey, "stroke-width": 3, "stroke-dasharray": "10 8", teil: "durchmesser", "data-p": 1 }));
+  out.push(tx(cx - R * 0.45, cy + R * 0.45 + 40, `d = 2r = ${fmtN(2 * r)} ${u}`, { size: 26, fill: C.grey, teil: "durchmesser" }));
+  const Rx = 590;
+  out.push(tx(Rx, 200, "Fläche:", { size: 30, fill: C.blue, anchor: "start", teil: "flaeche" }));
+  out.push(tx(Rx, 248, `A = π · r² = π · ${fmtN(r)}²`, { size: 32, anchor: "start", teil: "flaeche formel" }));
+  out.push(tx(Rx, 296, `= ${fmtN(Math.PI * r * r)} ${u}²`, { size: 36, fill: C.red, anchor: "start", teil: "flaeche ergebnis" }));
+  out.push(tx(Rx, 380, "Umfang:", { size: 30, fill: C.red, anchor: "start", teil: "umfang" }));
+  out.push(tx(Rx, 428, `U = 2 · π · r = ${fmtN(2 * Math.PI * r)} ${u}`, { size: 32, anchor: "start", teil: "umfang formel ergebnis" }));
+  out.push(tx(Rx, 490, "π ≈ 3,14", { size: 26, fill: C.grey, anchor: "start", teil: "pi" }));
+  return out;
+}
+
+// 30. Vieleck mit Diagonalen: n·(n−3)/2
+function compPolygon(A) {
+  const n = clampN(Math.round(N(A("n") ?? A("ecken"), 6)), 3, 12), cx = 300, cy = 320, R = 220, out = [];
+  const P = (i) => [cx + R * Math.cos(-Math.PI / 2 + (2 * Math.PI * i) / n), cy + R * Math.sin(-Math.PI / 2 + (2 * Math.PI * i) / n)];
+  out.push(S("polygon", { points: Array.from({ length: n }, (_, i) => P(i).map((v) => v.toFixed(1)).join(",")).join(" "), stroke: C.ink, "stroke-width": 4, fill: "#ffffff", teil: "vieleck", "data-p": 1 }));
+  for (let i = 0; i < n; i++) for (let j = i + 2; j < n; j++) { if (i === 0 && j === n - 1) continue; const [a1, b1] = P(i), [a2, b2] = P(j); out.push(ln(a1, b1, a2, b2, i === 0 ? C.red : "#9fb6d8", i === 0 ? 4 : 2, i === 0 ? "von-einer-ecke diagonalen" : "diagonalen alle", true)); }
+  for (let i = 0; i < n; i++) { const [a1, b1] = P(i); out.push(dot(a1, b1, i === 0 ? C.red : C.ink, `ecke ecke-${i + 1}`, 8)); }
+  const Rx = 590, d = (n * (n - 3)) / 2;
+  out.push(tx(Rx, 200, `${n} Ecken`, { size: 32, anchor: "start", teil: "ecke" }));
+  out.push(tx(Rx, 250, `von einer Ecke: ${n} − 3 = ${n - 3} Diagonalen`, { size: 28, fill: C.red, anchor: "start", teil: "von-einer-ecke" }));
+  out.push(tx(Rx, 300, `(nicht zu sich selbst und den 2 Nachbarn)`, { size: 22, fill: C.grey, anchor: "start", teil: "von-einer-ecke" }));
+  out.push(tx(Rx, 370, `alle: ${n} · ${n - 3} : 2 = ${d}`, { size: 34, fill: C.ink, anchor: "start", teil: "diagonalen ergebnis" }));
+  out.push(tx(Rx, 412, "(: 2, sonst jede doppelt gezählt)", { size: 22, fill: C.grey, anchor: "start", teil: "diagonalen" }));
+  return out;
+}
+Object.assign(COMPONENTS, { "analyse": compAnalysis, "prozent": compPercent, "einheiten": compUnits, "potenzen": compPowers, "baum": compTree, "normalverteilung": compNormal, "auswahl": compChoose, "einheitskreis": compUnitCircle, "vektoren": compVectors, "kreis": compCircle, "vieleck": compPolygon });
+
 // Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen (schematisch)
 function compForgetting(A) {
   const x = N(A("x"), 70), y = N(A("y"), 60), w = N(A("breite"), 860), h = N(A("hoehe"), 440), days = clampN(N(A("tage"), 30), 5, 120);
@@ -870,9 +1224,13 @@ function buildBoardSvg(svgText, theme) {
 function animateSvg(svg, cap = 20000) {
   if (!svg || !svg.animate) return 0;
   svg.getAnimations?.({ subtree: true }).forEach((a) => a.cancel());
+  return drawPlan([...svg.querySelectorAll(SHAPES + ",text")].filter((e) => !e.closest(".lb-wait")), cap, 200);
+}
+// Zeichnet die übergebenen Elemente nacheinander (wie mit der Hand)
+function drawPlan(els, cap = 20000, start = 200) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return 0;
   const plan = [];
-  svg.querySelectorAll(SHAPES + ",text").forEach((e) => {
+  els.forEach((e) => {
     if (e.closest("defs, mask")) return;
     if (e.localName === "text") { plan.push({ e, kind: "fade", dur: 380, step: 260 }); return; }
     let len = 0;
@@ -885,7 +1243,7 @@ function animateSvg(svg, cap = 20000) {
   });
   const total = plan.reduce((s, p) => s + p.step, 0);
   const k = total > cap ? cap / total : 1;
-  let t = 200;
+  let t = start;
   plan.forEach((p) => {
     const dur = p.dur * k;
     if (p.kind === "stroke") {
@@ -1086,13 +1444,13 @@ function collectAnchors() {
 // ---------- Anleitung für die KI ----------
 function rules() {
   const L = LB_LANGS[$("lang").value] || LB_LANGS.de;
-  const voice = lb.speak ? "Die Antwort wird VORGELESEN: höchstens 6 kurze Sätze, keine Listen, keine Tabellen, keine Sonderzeichen-Formeln im Text (Formeln gehören an die Tafel)." : "Halte dich kurz (höchstens etwa 160 Wörter). **fett** und Listen mit '- ' sind erlaubt.";
+  const voice = lb.speak ? "Die Antwort wird VORGELESEN: höchstens 10 kurze Sätze, etwa 2 bis 3 pro Tafel, keine Listen, keine Tabellen, keine Sonderzeichen-Formeln im Text (Formeln gehören an die Tafel). Jede Tafel, die du zeichnest, wird im Text auch erklärt, in der Reihenfolge der Tafeln. Kündige nie etwas an, das danach nicht kommt (kein 'schauen wir uns gleich genauer an', ohne dass es im nächsten Satz passiert)." : "Halte dich kurz (höchstens etwa 160 Wörter). **fett** und Listen mit '- ' sind erlaubt.";
   const H = Math.round(1000 * lb.shotH / lb.shotW);
   const anchorList = lb.anchorText ? `\nANKER – diese Stellen des Bildschirms kennt das Programm genau (Name: was dort steht [Position im Screenshot]):\n${lb.anchorText}\n` : "";
   const draw = lb.shot ? `\n\nAUF DEN BILDSCHIRM ZEICHNEN: Wie eine Lehrkraft, die mit dem Marker ins Buch zeigt, markierst du Stellen direkt auf dem Bildschirm der Person. Hänge dafür GANZ AM ENDE deiner Antwort an:\nBILDZEICHNUNG:\n<svg viewBox='0 0 1000 ${H}'> ... </svg>\nBenutze dafür VOR ALLEM den Baustein markiere. Er sitzt immer exakt auf der richtigen Stelle, auch wenn die Person scrollt:\n<markiere ziel='antwort-c' art='kreis' farbe='rot' text='deine Wahl' teil='deine-wahl'/>\n- ziel: ein Name aus der ANKER-Liste unten (nie raten).\n- art: kreis (einkreisen), rahmen (Kasten drum), unterstreichen, leuchtstift (gelb hinterlegen), haken (✓), kreuz (✗), pfeil (Pfeil zeigt darauf).\n- farbe: rot, gruen, blau, orange, lila. Rot = falsch / deine Wahl, Grün = richtig.\n- text: höchstens 3 Wörter, steht neben der Stelle. Weglassen, wenn nicht nötig.\n- stelle='0.3,0.5' (optional, nur bei Bildern, Grafiken und Animationen): zeigt auf einen Punkt innerhalb des Ankers (0,0 links oben, 1,1 rechts unten).\n- teil: Name, damit du im Text mit [[teil|…]] darauf zeigst. Dann leuchtet die Markierung genau in dem Moment auf.\nHöchstens 5 Markierungen, jede mit eigenem teil. Nur wenn es für eine Stelle keinen Anker gibt, darfst du frei mit line, path, circle, ellipse, rect und text zeichnen (Koordinaten des Screenshots: 0,0 links oben, x=1000 rechter Rand, y=${H} unterer Rand). Wenn nichts zu markieren ist, lass BILDZEICHNUNG weg.${anchorList}` : "";
   const f = lb.ctx && lb.ctx.frage;
   const wrong = f && f.gewaehlt ? `\n\nFALSCH BEANTWORTETE AUFGABE – so erklärst du:\n1. Erst auf dem Bildschirm zeigen (BILDZEICHNUNG mit markiere): die gewählte Antwort rot einkreisen (text 'deine Wahl', teil 'deine-wahl'), die richtige grün einkreisen (text 'richtig', teil 'richtig'), ein entscheidendes Schlüsselwort der Frage (z. B. NICHT) orange unterstreichen. Achte genau darauf, welcher Buchstabe welche Antwort ist (KONTEXT und ANKER).\n2. Dann 1 bis 3 Tafeln, die das Fachwissen SICHTBAR machen – genau das, was man im Kopf haben muss, um die Frage zu lösen: Teilchen, Moleküle, Elektronen, Kräfte, Abläufe, Kurven. Bei Abläufen eine Tafel pro Schritt. Die Frage, die Antwortmöglichkeiten oder die Erklärung der App schreibst du NICHT an die Tafel – das steht schon auf dem Bildschirm.\n3. Im Text (vorgelesen) benennst du den Denkfehler in einem Satz, ohne Vorwurf, und gibst am Ende einen kurzen Prüfungstipp.` : "";
-  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
+  const board = `\n\nTAFEL-REGELN (die Tafel füllt den ganzen Bildschirm):\n- Die Tafel ist für BILDER, nicht für Text: Skizzen, Moleküle, Teilchen, Pfeile, Abläufe, Graphen. Text an der Tafel nur als kurze Beschriftung (höchstens 4 Wörter) direkt am Bild. Keine Sätze, keine Tabellen, keine Listen, nichts abschreiben, was schon auf dem Bildschirm steht.\n- Zu JEDER inhaltlichen Antwort gehört mindestens eine Tafel (ZEICHNUNG) – die Person lernt über das Bild. Nur bei reinen Rückfragen oder Smalltalk keine.\n- Benutze für das Bild IMMER zuerst einen passenden Baustein aus dem BAUKASTEN (exakt berechnet, sieht gut aus). Frei zeichnen nur, wenn wirklich keiner passt – dann groß über die ganze Tafel (x 60 bis 940), jede Beschriftung mit Abstand zu allem anderen.\n- Formeln gehören in <gleichung> und nur, wenn gerechnet wird – keine Formelsammlungen.\n- Pro Tafel EIN Gedanke mit einem großen Bild, das die Tafel füllt. Lieber 3 Tafeln nacheinander (wie Schritte) als eine volle.\n- Schrift: font-size 34 bis 46. Nichts darf über den Rand (x 30 bis 970, y 30 bis 570) hinausragen oder sich überlappen.\n- Wechsle sprachlich klar zwischen Bildschirm und Tafel (\"Schau hier in der App …\" / \"An der Tafel siehst du …\") und setze in genau diesem Satz einen [[teil|…]] auf etwas, das dort wirklich zu sehen ist – so springt die Ansicht mit.\n- Zeige in fast jedem Satz mit [[teil|…]] auf das Bild, über das du gerade sprichst – so entsteht die Erklärung Schritt für Schritt vor den Augen.\n19. <welle art='longitudinal' wellenlaengen='2' x='60' y='110' breite='880' hoehe='440'/> Longitudinal- oder Transversalwelle (art='transversal'), exakt berechnet: Ruhelage, ausgelenkte Teilchen, Verdichtung/Verdünnung bzw. Wellenberg/Wellental, Amplitude, Wellenlänge λ, Ausbreitungsrichtung, Schwingungsrichtung. Zeigst du im Text auf [[ausbreitung|…]] oder [[schwingung|…]], bewegen sich die Teilchen wirklich. Für ALLE Fragen zu Wellen (Schall, Licht, Seilwelle) diesen Baustein benutzen, nie selbst zeichnen. Braucht die ganze Tafel (mit <titel>).\n   Teile: ruhelage, teilchen, verdichtung, verduennung, wellenberg, wellental, amplitude, wellenlaenge, ausbreitung, schwingung\nMATHE-BAUSTEINE (für alle Mathe-Fragen zuerst diese benutzen, sie rechnen alles exakt; jeder braucht die ganze Tafel unter dem <titel>):\n20. <analyse funktion='x^3-3x' bereich='-3;3' nullstellen='ja' extrema='ja' wendepunkte='ja' tangente='1' steigungsdreieck='0' flaeche='0;2'/> Graph mit berechneten Punkten (N, H, T, W), Tangente an x=1, Steigungsdreieck ab x=0, Fläche/Integral von 0 bis 2. Nur angeben, was gebraucht wird. Zwei Funktionen: funktion='2x+1; x^2' schnittpunkt='ja' (Gleichungssysteme, Schnittpunkte). Für Geraden, Parabeln, Exponentialfunktionen, Ableitung (Tangente), Integral.\n   Teile: graph-1, graph-2, nullstelle, nullstelle-1, hochpunkt, tiefpunkt, extremum-1, scheitel, wendepunkt-1, tangente, steigungsdreieck, delta-x, delta-y, flaeche, ergebnis, schnittpunkt\n21. <prozent start='100 €' schritte='-20%; -10%'/> Balken nach jeder Änderung, Rechnung pro Schritt, Gesamtänderung und die Falle (nicht −30 %). Ohne schritte: <prozent start='80 €' anteil='25'/> zeigt Grundwert, Prozentwert, Prozentsatz.\n   Teile: grundwert, schritt-1, schritt-2, gesamt, falle, prozentwert, prozentsatz, ergebnis\n22. <einheiten von='mL' nach='µL' wert='0.025'/> Vorsilben-Treppe mit Faktoren, Weg von → nach, Ergebnis. Flächen/Volumen: von='m²' nach='cm²' bzw. 'cm³'. Für alle Umrechnungen und Vorsilben (k, M, m, µ, n …).\n   Teile: stufe, von, nach, weg, faktor, regel, ergebnis\n23. <potenzen basis='2' oben='5;3' unten='4'/> Faktoren als Kreise, Kürzen, Exponenten addieren/subtrahieren, Ergebnis.\n   Teile: zaehler, nenner, kuerzen, exponenten, regel, ergebnis\n24. <baum stufen='1/6:Sechs; 5/6:keine Sechs | 1/6:Sechs; 5/6:keine Sechs' pfad='1-1'/> Baumdiagramm, Stufen mit | getrennt, Äste mit ;. pfad='1-1' (mehrere: '1-2, 2-1') markiert Pfade rot, rechnet Produkt- und Summenregel mit Brüchen.\n   Teile: ast-1, ast-1-1, pfad, stufe-1, blatt-1-1, produkt, summe, ergebnis\n25. <normalverteilung mu='100' sigma='15' band='2'/> Glockenkurve, μ, ±σ-Werte, schattiertes Band mit 68 / 95 / 99,7 %.\n   Teile: kurve, mittelwert, sigma-1, sigma-2, band, prozent, ergebnis\n26. <auswahl n='5' k='3' reihenfolge='nein' zuruecklegen='nein'/> Plätze füllen (5 · 4 · 3), bei 'Reihenfolge egal' durch k! teilen = Binomialkoeffizient.\n   Teile: platz-1, platz-2, produkt, ordnung, fakultaet, ergebnis\n27. <einheitskreis winkel='30'/> Einheitskreis, Winkel, sin als Höhe (rot), cos als Breite (blau), exakte Werte, tan = sin/cos.\n   Teile: kreis, winkel, radius, punkt, sinus, cosinus, tangens, pythagoras\n28. <vektoren vektoren='a=3,1; b=1,2' summe='ja' differenz='nein' betrag='a'/> Vektoren im Gitter, Addition Spitze an Fuß, Betrag mit Pythagoras.\n   Teile: vektor-a, vektor-b, summe, differenz, betrag-a, gitter, ergebnis\n29. <kreis r='5' einheit='cm'/> Kreis mit r, d, Fläche und Umfang berechnet.   Teile: radius, durchmesser, flaeche, umfang, formel, ergebnis\n30. <vieleck n='6'/> regelmäßiges Vieleck mit allen Diagonalen, von einer Ecke rot, n·(n−3)/2.   Teile: ecke, von-einer-ecke, diagonalen, ergebnis\nFür Pythagoras <dreieck-rw>, für Rechenwege <gleichung>, für Brüche <bruch-kreis>/<bruch-balken>, für Zahlenfolgen <zahlenfolge>.\n18. <teilchen liste='Ca:2+; Cl:−; Cl:−' namen='Calcium; Chlorid; Chlorid' uebergang='1>2; 1>3' x='40' y='110' breite='920' hoehe='400'/> Atome und Ionen als farbige Kugeln (Metalle orange). uebergang='1>2' (oder '1>2:2' für zwei Elektronen): gelbe Elektronen fliegen sichtbar von Teilchen 1 zu Teilchen 2, sobald du im Text auf [[uebergang|…]] zeigst. teilen='1-2': die Kugeln überlappen, dazwischen das gemeinsame Elektronenpaar (für Atombindung, z. B. liste='Cl; Cl' teilen='1-2'). Ladungen nach dem Doppelpunkt.\n   Teile: teilchen-1 …, ca, cl-1, cl-2 …, uebergang, uebergang-1 …, elektron, paar, elektronenpaar, ladung\n   Ideal für Bindungsarten, Ionenbildung, Redox. Für Moleküle mit Struktur nimmst du <molekuel> (Wasser smiles='[H]O[H]', Ethanol 'CCO').`;
   return `${LB_ROLE}${EXTRAS}${board}${draw}${wrong}\n\nSPRACHE: Antworte immer auf ${L.name}, auch Beschriftungen in Zeichnungen. Die Schlüsselwörter ZEICHNUNG, BILDZEICHNUNG und ESELSBRUECKE bleiben unverändert.\n\n${LB_STYLES[lb.style]}\n${voice}`;
 }
 
@@ -1158,7 +1516,7 @@ function buildUI() {
         <button class="lb-icon" id="lb-stage-close" type="button" aria-label="Tafel schließen">✕</button>
       </div>
     </div>
-    <div id="lb-stage-main" class="lb-stage-main"><div class="lb-turn">Tipp: Handy quer halten – dann wird die Tafel groß.</div><div class="lb-taphint">Tipp auf etwas an der Tafel, um genau dazu zu fragen.</div></div>
+    <div id="lb-stage-main" class="lb-stage-main"><div class="lb-waitcard" id="lb-waitcard"><div class="lb-dots"><span></span><span></span><span></span></div><div id="lb-wait-status" class="lb-wait-status"></div><div class="lb-wq-box"><div class="lb-label">Kurze Aufwärmfrage, solange du wartest</div><div id="lb-wq" class="lb-wq"></div><div id="lb-wa" class="lb-wa" hidden></div><div class="lb-row lb-wq-btns"><button class="lb-ghost" id="lb-wa-btn" type="button">Lösung zeigen</button><button class="lb-ghost" id="lb-wnext" type="button">Andere Frage</button></div></div></div><div class="lb-turn">Tipp: Handy quer halten – dann wird die Tafel groß.</div><div class="lb-taphint">Tipp auf etwas an der Tafel, um genau dazu zu fragen.</div></div>
     <div class="lb-stage-bottom">
       <div class="lb-stage-nav">
         <button class="lb-navbtn" id="lb-prev" type="button" aria-label="Vorherige Tafel">‹</button>
@@ -1185,7 +1543,7 @@ function buildUI() {
   $("toggle-draw").onclick = () => { drawHidden = !drawHidden; $("imgdraw").style.visibility = drawHidden ? "hidden" : "visible"; $("toggle-draw").textContent = drawHidden ? "Zeichnung einblenden" : "Zeichnung ausblenden"; };
   $("send").onclick = () => ask();
   $("q").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } });
-  $("stop").onclick = stopWalk;
+  $("stop").onclick = () => { stopWalk(); if (narr) narr.stopped = true; endWait(); revealAll(); };
   $("explain").onclick = replayExplain;
   $("speak").onchange = () => { lb.speak = $("speak").checked; };
   $("natural").onchange = () => { lb.natural = $("natural").checked; };
@@ -1201,12 +1559,14 @@ function buildUI() {
   $("stage-close").onclick = closeStage;
   $("sdone").onclick = closeStage;
   setupBoardQuestions();
+  $("wa-btn").onclick = () => { $("wa").hidden = false; $("wa-btn").hidden = true; };
+  $("wnext").onclick = showWarmup;
   $("stage-mode").onclick = () => setStageMode(stageMode === "tafel" ? "peek" : "tafel");
   $("peekback").onclick = () => setStageMode("tafel");
-  $("prev").onclick = () => { if (curBoard > 0) { stopWalk(); showBoard(curBoard - 1, true, 3000); } };
-  $("next").onclick = () => { if (curBoard < cur.boards.length - 1) { stopWalk(); showBoard(curBoard + 1, true, 3000); } };
+  $("prev").onclick = () => { if (curBoard > 0) navTo(curBoard - 1); };
+  $("next").onclick = () => { if (curBoard < cur.boards.length - 1) navTo(curBoard + 1); };
   $("sreplay").onclick = replayExplain;
-  $("sstop").onclick = stopWalk;
+  $("sstop").onclick = () => { stopWalk(); if (narr) narr.stopped = true; endWait(); revealAll(); };
   const stageAsk = () => { const v = $("sq").value.trim(); if (v) { $("sq").value = ""; ask(v); } };
   $("ssend").onclick = stageAsk;
   $("sq").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); stageAsk(); } });
@@ -1295,7 +1655,7 @@ async function ask(preset) {
   lb.busy = true; $("send").disabled = true; $("q").value = ""; $("tips").hidden = true;
   stopWalk();
   addMsg("user", esc(q));
-  if (!$("stage").hidden) setSub("Ich schaue mir das an …");
+  startWait();
   const bubble = addMsg("ai", '<span class="lb-thinking">Ich schaue mir das an …</span>');
   setStatus("");
   const history = cur.turns.slice(-6).flatMap((t) => [{ role: "user", content: t.q }, { role: "assistant", content: t.a }]);
@@ -1308,7 +1668,6 @@ async function ask(preset) {
     const text = data.response || "";
     const { body, svgs, imgSvg, mols, tricks } = splitAnswer(text);
     bubble.innerHTML = md(body);
-    openStage(svgs.length || mols.length ? "tafel" : "peek");
     const hasImg = imgSvg ? renderImgDraw(imgSvg) : false;
     if (imgSvg && !hasImg) setStatus("Die Zeichnung auf dem Bildschirm war fehlerhaft.");
     cur.turns.push({ q: (first ? contextText(lb.ctx) + "\n\nFRAGE: " : "") + q, a: body });
@@ -1318,24 +1677,27 @@ async function ask(preset) {
       if (!okSvgs.length) cur.boards.push({ svg: null, mols, q, teile: mols.map((m) => slug(m.name)) });
       okSvgs.forEach((sv, k) => cur.boards.push({ svg: sv, mols: k === 0 ? mols : [], q, titel: titleOf(sv), teile: teileOf(sv) }));
       answerBoards = [firstIdx, cur.boards.length - 1];
+      const allRefs = [...new Set(refsIn(body))];
+      for (let i = firstIdx; i < cur.boards.length; i++) Object.assign(cur.boards[i], { defer: allRefs, shown: new Set(), full: false });
       $("boardwrap").hidden = false;
       renderStrip();
-      openStage("tafel");
-      boardDur = showBoard(firstIdx) || 0;
-    }
-    if (!$("stage").hidden) {
+      pendingBoard = firstIdx;
+    } else answerBoards = null;
+    {
       // Beginnt die Erklärung mit einer Stelle auf dem Bildschirm, zuerst den Bildschirm zeigen
       const firstRefs = sentencesOf(body).map(refsIn).find((r) => r.length) || [];
       const onScreen = firstRefs.some((n) => document.querySelector(`${SCOPE} #lb-imgdraw [data-teil~="${n}"]`));
-      setStageMode(!cur.boards.length || onScreen ? "peek" : "tafel");
-      setSub("");
+      pendingMode = !answerBoards || onScreen ? "peek" : "tafel";
     }
     if (tricks.length) addMsg("trick", tricks.map((t) => `<b>Eselsbrücke:</b> ${esc(t.merksatz)}${t.wofuer ? ` <span class="lb-muted">(${esc(t.wofuer)})</span>` : ""}`).join("<br>"));
     lastBody = body;
     explain(body, boardDur);
   } catch (e) {
     bubble.remove();
-    addMsg("err", esc(e.code === "login" ? e.message : "Das hat gerade nicht geklappt: " + (e.message || e)));
+    const msg = e.code === "login" ? e.message : "Das hat gerade nicht geklappt: " + (e.message || e);
+    addMsg("err", esc(msg));
+    pendingBoard = null; pendingMode = null; endWait();
+    if (!cur.boards.length) closeStage(); else setSub(msg);
   } finally {
     lb.busy = false; $("send").disabled = false;
   }
@@ -1365,7 +1727,7 @@ function showBoard(i, animate = true, cap = 9000) {
   $("board").className = "board" + (theme === "chalk" ? " chalk" : "");
   const out = b.svg ? buildBoardSvg(b.svg, theme) : null;
   let dur = 0;
-  if (out) { $("board").replaceChildren(out); fitTexts(out); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTexts(out)); if (animate) dur = animateSvg(out, cap); }
+  if (out) { $("board").replaceChildren(out); fitTexts(out); if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitTexts(out)); markDeferred(out, b); if (animate) dur = animateSvg(out, cap); }
   else $("board").replaceChildren(el("div", "lb-board-empty", b.mols && b.mols.length ? "Strukturformel siehe oben." : "Diese Zeichnung konnte nicht angezeigt werden."));
   markStrip();
   updateStageNav();
@@ -1536,6 +1898,51 @@ function setupBoardQuestions() {
   document.addEventListener("pointerdown", (e) => { if (!$("pop").hidden && !e.target.closest("#lb-pop") && !e.target.closest("#lb-board, #lb-mols")) closePop(); });
 }
 
+// Blättern: gehört zur Tafel ein Teil der Erklärung, wird genau dieser Teil (mit Stimme) gespielt
+function navTo(t) {
+  const b = cur.boards[t];
+  if (!b) return;
+  let i = -1;
+  if (narr && narr.boardOf) {
+    // erster Satz, der wirklich auf etwas an dieser Tafel zeigt; sonst der erste, der ihr zugeordnet ist
+    i = narr.sents.findIndex((s, k) => narr.boardOf[k] === t && refsIn(s).some((r) => (b.teile || []).includes(r)));
+    if (i < 0) i = narr.boardOf.indexOf(t);
+  }
+  if (i >= 0 && b.defer) { Object.assign(b, { shown: new Set(), full: false }); stopWalk(); showBoard(t, true, 3000); setStageMode("tafel"); playFrom(i); }
+  else { stopWalk(); b.full = true; showBoard(t, true, 3000); }
+}
+
+// ---------- Warten: kurze Aufwärmfrage, bis Antwort und Stimme fertig sind ----------
+const WARMUPS = [
+  ["Wie viele Diagonalen hat ein Fünfeck?", "5 · (5 − 3) : 2 = 5"], ["Was ist 2³ · 2²?", "2⁵ = 32 (Exponenten addieren)"], ["Wie viele mL sind 1 dL?", "100 mL"],
+  ["Mit welcher Base paart Adenin in der DNA?", "Thymin (in der RNA: Uracil)"], ["Wo läuft die Zellatmung hauptsächlich ab?", "In den Mitochondrien"],
+  ["pH 3 statt pH 5 – wie viel saurer?", "100-mal (10²)"], ["Einheit der Kraft?", "Newton: 1 N = 1 kg · m/s²"], ["2, 4, 8, 16, … – welche Zahl kommt?", "32 (immer · 2)"],
+  ["Was sind 15 % von 200?", "30"], ["Wie viele Chromosomen hat eine menschliche Keimzelle?", "23"], ["Ohmsches Gesetz?", "U = R · I"], ["sin 30° = ?", "1/2"],
+  ["Welches Organ bildet Insulin?", "Bauchspeicheldrüse (β-Zellen der Langerhans-Inseln)"], ["Halbwertszeit 2 h – wie viel ist nach 6 h übrig?", "1/8 (3 Halbwertszeiten)"],
+  ["Ableitung von x³?", "3x²"], ["In welcher Mitosephase liegen die Chromosomen in der Mitte?", "Metaphase"], ["−20 % und dann −10 %: wie viel insgesamt?", "−28 % (nicht −30 %)"],
+  ["Wie viele µL sind 1 mL?", "1000 µL"], ["Welche Blutgruppe hat keine Antigene A und B auf den Erythrozyten?", "Blutgruppe 0"], ["Wie viele Möglichkeiten gibt es, 2 aus 4 zu wählen?", "6 = 4 · 3 : 2"]
+];
+let pendingBoard = null, pendingMode = null, waitIdx = Math.floor(Math.random() * WARMUPS.length);
+function showWarmup() {
+  waitIdx = (waitIdx + 1) % WARMUPS.length;
+  $("wq").textContent = WARMUPS[waitIdx][0]; $("wa").textContent = WARMUPS[waitIdx][1]; $("wa").hidden = true; $("wa-btn").hidden = false;
+}
+function setWaitStatus(t) { const e = $("wait-status"); if (e) e.textContent = t; }
+function startWait() {
+  openStage("tafel");
+  const st = $("stage"); st.classList.remove("peek"); st.classList.add("waiting");
+  setSub(""); setWaitStatus("LernBlick schaut sich das an und bereitet die Tafel vor …"); showWarmup();
+}
+function endWait() {
+  const st = $("stage");
+  if (!st.classList.contains("waiting")) return;
+  st.classList.remove("waiting");
+  if (pendingBoard != null) { const pb = pendingBoard; pendingBoard = null; showBoard(pb); }
+  if (pendingMode) { setStageMode(pendingMode); pendingMode = null; }
+  else if (!cur.boards.length) setStageMode("peek");
+  if (lastImg) animateSvg($("imgdraw"));
+}
+
 // ---------- Vollbild-Tafel ----------
 let stageMode = "tafel";
 function openStage(mode) {
@@ -1614,6 +2021,37 @@ function fitTexts(svg) {
   });
 }
 
+// ---------- Zeichnen im Takt der Erklärung ----------
+// Teile, über die erst später gesprochen wird, bleiben unsichtbar, bis der passende Satz kommt.
+function markDeferred(svg, b) {
+  if (!svg || !b || !b.defer || b.full) return;
+  const later = b.defer.filter((n) => !b.shown.has(n));
+  if (!later.length) return;
+  svg.querySelectorAll("[data-teil]").forEach((e) => {
+    const t = e.getAttribute("data-teil").split(/\s+/);
+    if (t.includes("titel")) return;
+    if (t.some((n) => later.includes(n))) e.classList.add("lb-wait");
+  });
+}
+function reveal(names) {
+  const svg = $("board").querySelector("svg"), b = cur.boards[curBoard];
+  if (!svg || !names || !names.length) return;
+  if (b && b.shown) names.forEach((n) => b.shown.add(n));
+  const hit = [...svg.querySelectorAll(".lb-wait")].filter((e) => e.getAttribute("data-teil").split(/\s+/).some((n) => names.includes(n)));
+  if (!hit.length) return;
+  hit.forEach((e) => e.classList.remove("lb-wait"));
+  const els = hit.flatMap((e) => (e.matches(SHAPES + ",text") ? [e] : [...e.querySelectorAll(SHAPES + ",text")])).filter((e) => !e.closest(".lb-wait"));
+  drawPlan([...new Set(els)], 2600, 0);
+}
+function revealAll() {
+  if (answerBoards) for (let i = answerBoards[0]; i <= answerBoards[1]; i++) if (cur.boards[i]) cur.boards[i].full = true;
+  const svg = $("board").querySelector("svg");
+  if (!svg) return;
+  const hit = [...svg.querySelectorAll(".lb-wait")];
+  hit.forEach((e) => e.classList.remove("lb-wait"));
+  if (hit.length) drawPlan([...new Set(hit.flatMap((e) => (e.matches(SHAPES + ",text") ? [e] : [...e.querySelectorAll(SHAPES + ",text")])))], 2500, 0);
+}
+
 // ---------- Zeigen: Text und Tafel synchron ----------
 const slug = (s) => String(s || "").toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 function titleOf(svgText) { const m = String(svgText).match(/<titel[^>]*\btext\s*=\s*(['"])(.*?)\1/i); return m ? m[2] : ""; }
@@ -1641,6 +2079,7 @@ function goToRefs(refs) {
 }
 function highlight(names) {
   curHL = names || [];
+  if (curHL.length) reveal(curHL);
   if ((names || []).some((n) => n === "zusammensetzen" || n === "ziel")) assemble(true);
   document.querySelectorAll(`${SCOPE} .glow`).forEach((e) => e.classList.remove("glow"));
   document.querySelectorAll(`${SCOPE} .ref.active`).forEach((e) => e.classList.remove("active"));
@@ -1672,7 +2111,6 @@ function stopWalk() {
   walkTimers.forEach(clearTimeout); walkTimers = [];
   try { speechSynthesis.cancel(); } catch (e) {}
   audioQueue.forEach((a) => a.abort && a.abort()); audioQueue = [];
-  speakToken = null;
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   highlight([]);
 }
@@ -1695,18 +2133,38 @@ function showRefs(refs) {
   if (moved) walkTimers.push(setTimeout(() => { highlight(refs); keepBoardInView(refs); }, 900));
   else { highlight(refs); keepBoardInView(refs); }
 }
+// ---------- Erzählung: Sätze, zugehörige Tafeln, Tonspur ----------
+let narr = null;
+function boardOfSentences(sents) {
+  const out = []; let last = answerBoards ? answerBoards[0] : -1;
+  sents.forEach((s) => {
+    const refs = refsIn(s); let found = -1;
+    if (answerBoards) for (let j = answerBoards[0]; j <= answerBoards[1] && found < 0; j++) { const b = cur.boards[j]; if (b && refs.some((r) => (b.teile || []).includes(r) || (b.mols || []).some((m) => slug(m.name) === r))) found = j; }
+    if (found >= 0) last = found;
+    out.push(last);
+  });
+  return out;
+}
 function explain(body, delay) {
   stopWalk();
+  if (narr && narr.url) URL.revokeObjectURL(narr.url);
   const sents = sentencesOf(body);
-  if (lb.speak && lb.natural) return speakNatural(sents);
-  if (lb.speak && "speechSynthesis" in window) return speakBrowser(sents);
+  narr = { body, sents, boardOf: boardOfSentences(sents), audio: null, url: null, loading: false, from: 0, shown: 0, stopped: false };
+  playFrom(0, delay);
+}
+function playFrom(i, delay = 0) {
+  const n = narr; if (!n) return;
+  stopWalk(); n.stopped = false; n.from = i;
+  if (lb.speak && lb.natural) return speakNatural(i);
+  endWait();
+  if (lb.speak && "speechSynthesis" in window) return speakBrowser(n.sents.slice(i));
   let t = Math.min(delay || 0, 2500);
-  for (const s of sents) {
+  for (const s of n.sents.slice(i)) {
     const refs = refsIn(s);
     walkTimers.push(setTimeout(() => { setSub(s); if (refs.length) showRefs(refs); }, t));
     t += Math.max(2200, plain(s).length * 60) + (refs.some(visibleHas) ? 0 : 1500);
   }
-  walkTimers.push(setTimeout(() => highlight([]), t + 400));
+  walkTimers.push(setTimeout(() => { highlight([]); revealAll(); }, t + 400));
 }
 function langVoices() {
   const codes = (LB_LANGS[$("lang").value] || LB_LANGS.de).tts;
@@ -1720,53 +2178,66 @@ function speakBrowser(sents) {
     u.voice = v; if (v) u.lang = v.lang;
     const refs = refsIn(s);
     u.onstart = () => { setSub(s); showRefs(refs); };
-    if (i === sents.length - 1) u.onend = () => walkTimers.push(setTimeout(() => highlight([]), 1500));
+    if (i === sents.length - 1) u.onend = () => walkTimers.push(setTimeout(() => { highlight([]); revealAll(); }, 1500));
     speechSynthesis.speak(u);
   });
 }
-// Natürliche Stimme: die ganze Antwort in EINEM Stück (gleiche Stimme, keine Brüche);
-// Untertitel und Zeigen laufen anteilig zur Abspielzeit mit.
-function speakNatural(sents) {
-  const lang = $("lang").value;
-  const jobs = sents.map((s) => ({ s, refs: refsIn(s), text: plain(s).trim() })).filter((j) => j.text || j.refs.length);
-  const full = jobs.map((j) => j.text).filter(Boolean).join(" ").slice(0, 3000);
-  if (!full) return;
-  const total = jobs.reduce((a, j) => a + Math.max(1, j.text.length), 0);
-  let acc = 0; const starts = jobs.map((j) => { const st = acc / total; acc += Math.max(1, j.text.length); return st; });
-  const token = {}; speakToken = token;
-  setSub(jobs[0].s); showRefs(jobs[0].refs);
-  setStatus("");
-  if (!$("stage").hidden) $("stage-status").textContent = "Stimme wird vorbereitet …";
-  callFn("lernblick-voice", { text: full, lang }, true).then((blob) => {
-    if (speakToken !== token) return;
-    $("stage-status").textContent = "";
-    const url = URL.createObjectURL(blob);
-    const a = new Audio(url); currentAudio = a;
-    let shown = 0;
+// Natürliche Stimme: die ganze Antwort in EINEM Stück (gleiche Stimme, keine Brüche).
+// Untertitel und Zeigen laufen anteilig zur Abspielzeit mit; beim Blättern wird an die passende Stelle gesprungen.
+function speakNatural(from) {
+  const n = narr;
+  if (!n.jobs) {
+    n.jobs = n.sents.map((s) => ({ s, refs: refsIn(s), text: plain(s).trim() }));
+    const total = n.jobs.reduce((a, j) => a + Math.max(1, j.text.length), 0);
+    let acc = 0; n.starts = n.jobs.map((j) => { const st = acc / total; acc += Math.max(1, j.text.length); return st; });
+  }
+  if (n.audio) return startAudio(n, from);
+  if (n.loading) return;
+  const full = n.jobs.map((j) => j.text).filter(Boolean).join(" ").slice(0, 3000);
+  if (!full) { endWait(); return; }
+  n.loading = true;
+  setStatus(""); setWaitStatus("Die Stimme wird aufgenommen …");
+  callFn("lernblick-voice", { text: full, lang: $("lang").value }, true).then((blob) => {
+    n.loading = false;
+    if (narr !== n) return;
+    n.url = URL.createObjectURL(blob);
+    n.audio = new Audio(n.url);
+    const a = n.audio;
     a.ontimeupdate = () => {
-      if (!a.duration || !isFinite(a.duration)) return;
+      if (a.paused || !a.duration || !isFinite(a.duration) || currentAudio !== a) return;
       const f = a.currentTime / a.duration;
-      let k = shown; while (k + 1 < jobs.length && f >= starts[k + 1] - 0.01) k++;
-      if (k !== shown) { shown = k; setSub(jobs[k].s); showRefs(jobs[k].refs); }
+      let k = n.shown; while (k + 1 < n.jobs.length && f >= n.starts[k + 1] - 0.01) k++;
+      if (k !== n.shown) { n.shown = k; setSub(n.jobs[k].s); showRefs(n.jobs[k].refs); }
     };
-    a.onended = () => { URL.revokeObjectURL(url); walkTimers.push(setTimeout(() => highlight([]), 1500)); };
-    a.play().catch(() => setStatus("Tippe auf ▶ Nochmal, um das Vorlesen zu starten."));
+    a.onended = () => { walkTimers.push(setTimeout(() => { highlight([]); revealAll(); }, 1500)); };
+    if (!n.stopped) startAudio(n, n.from);
+    else endWait();
   }).catch(() => {
-    if (speakToken !== token) return;
-    $("stage-status").textContent = "";
+    n.loading = false;
+    if (narr !== n) return;
+    lb.natural = false; $("natural").checked = false;
     setStatus("Die natürliche Stimme ist gerade nicht erreichbar – ich lese mit der Browser-Stimme vor.");
-    speakBrowser(sents);
+    if (!n.stopped) playFrom(n.from); else endWait();
   });
 }
-let speakToken = null;
+function startAudio(n, from) {
+  const a = n.audio;
+  const go = () => {
+    try { a.currentTime = Math.max(0, (n.starts[from] || 0) * a.duration - 0.05); } catch (e) {}
+    n.shown = from; currentAudio = a;
+    a.play().then(() => { endWait(); setSub(n.jobs[from].s); showRefs(n.jobs[from].refs); })
+      .catch(() => { endWait(); setStatus("Tippe auf ▶ Nochmal, um das Vorlesen zu starten."); });
+  };
+  if (isFinite(a.duration) && a.duration > 0) go(); else a.addEventListener("loadedmetadata", go, { once: true });
+}
 function replayExplain() {
   if (!lastBody) { setStatus("Stell zuerst eine Frage."); return; }
   document.querySelectorAll(`${SCOPE} [data-flown]`).forEach((g) => { g.getAnimations().forEach((a) => a.cancel()); delete g.dataset.flown; });
-  if (answerBoards && curBoard !== answerBoards[0]) showBoard(answerBoards[0], false);
+  if (answerBoards) { for (let i = answerBoards[0]; i <= answerBoards[1]; i++) if (cur.boards[i] && cur.boards[i].defer) Object.assign(cur.boards[i], { shown: new Set(), full: false }); showBoard(answerBoards[0], false); }
   let dur = 0;
   document.querySelectorAll(`${SCOPE} #lb-mols svg, ${SCOPE} #lb-board svg`).forEach((svg) => { dur = Math.max(dur, animateSvg(svg)); });
   animateSvg($("imgdraw"));
-  explain(lastBody, dur);
+  if (narr && narr.body === lastBody) playFrom(0, dur); else explain(lastBody, dur);
 }
 document.addEventListener("click", (e) => {
   const r = e.target.closest && e.target.closest(`${SCOPE} .ref`);

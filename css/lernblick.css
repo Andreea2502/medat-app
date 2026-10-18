@@ -196,3 +196,25 @@ html.lb-staged #lernblick-root .lb-panel { display: none; }
 .lb-pop-own .lb-send { height: 38px; padding: 0 12px; }
 .lb-taphint { font-size: 12.5px; color: var(--lb-muted); text-align: center; order: 8; }
 .lb-stage-main .board { order: 1; } .lb-stage-main .lb-mols { order: 0; }
+
+/* Zeichnen im Takt: noch nicht besprochene Teile sind unsichtbar */
+#lernblick-root .lb-wait { opacity: 0 !important; }
+/* Beschriftungen bleiben über Linien lesbar */
+#lernblick-root .board svg text { paint-order: stroke; stroke: var(--lb-paper); stroke-width: 7px; stroke-linejoin: round; }
+#lernblick-root .board.chalk svg text { stroke: #23392d; }
+
+/* Warten mit Aufwärmfrage */
+.lb-waitcard { display: none; }
+.lb-stage.waiting .lb-stage-main > :not(.lb-waitcard) { display: none !important; }
+.lb-stage.waiting .lb-waitcard { display: grid; gap: 18px; justify-items: center; width: min(620px, 100%); margin: auto; text-align: center; }
+.lb-stage.waiting .lb-stage-nav, .lb-stage.waiting .lb-sub { display: none; }
+.lb-wait-status { font-size: 18px; color: var(--lb-muted); }
+.lb-dots { display: flex; gap: 8px; }
+.lb-dots span { width: 12px; height: 12px; border-radius: 50%; background: var(--lb-accent); animation: lb-bounce 1s ease-in-out infinite; }
+.lb-dots span:nth-child(2) { animation-delay: .15s; } .lb-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes lb-bounce { 0%, 100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(-8px); opacity: 1; } }
+.lb-wq-box { background: var(--lb-card); border: 1px solid var(--lb-line); border-radius: 16px; padding: 18px 20px; display: grid; gap: 12px; width: 100%; box-shadow: 0 8px 24px rgba(26, 26, 46, .08); }
+.lb-wq { font-size: 22px; font-weight: 700; }
+.lb-wa { font-family: var(--lb-hand); font-size: 30px; color: #2a9d4b; }
+.lb-wq-btns { justify-content: center; }
+@media (prefers-reduced-motion: reduce) { .lb-dots span { animation: none; } }

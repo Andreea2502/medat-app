@@ -76,6 +76,9 @@ Deno.serve(async (req: Request) => {
         return json({ error: "Die KI hat gerade nicht geantwortet. Bitte versuch es gleich nochmal." }, 502);
       }
       const data = await res.json();
+      // Verbrauch protokollieren (ohne Inhalte), damit die echten Kosten pro Antwort messbar sind
+      const u = data?.usageMetadata || {};
+      console.log("lernblick-usage", JSON.stringify({ model, in: u.promptTokenCount || 0, out: u.candidatesTokenCount || 0, think: u.thoughtsTokenCount || 0, cached: u.cachedContentTokenCount || 0, img: !!image }));
       const text = (data?.candidates?.[0]?.content?.parts || []).map((p: { text?: string }) => p.text || "").join("").trim();
       if (!text) return json({ error: "Keine Antwort erhalten. Bitte nochmal versuchen." }, 502);
       return json({ response: text, model });
