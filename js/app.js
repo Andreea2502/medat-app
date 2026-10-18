@@ -4361,6 +4361,13 @@ const App = {
   // ===== PRACTICE FINISH =====
   finishPractice() {
     this.stopCountdown();
+    // Zwischenphase (Zahlenfolgen) beendet → jetzt Allergieausweise abrufen
+    if (this._memInterlude) {
+      this._memInterlude = false;
+      this._memInterludeResult = { score: this.score, total: this.questions.length };
+      this.startMemorizeRecall();
+      return;
+    }
     this._markDailyDone(); // Daily Challenge als erledigt markieren (falls aktiv)
 
     // Clear TV state if current section is NOT TV (prevents TV data leaking into other results)
@@ -5240,12 +5247,35 @@ WICHTIG: Sei SPEZIFISCH. Banana/Merkbilder AKTIV empfehlen — nicht nur als let
 
   endMemorize() {
     clearInterval(this.memTimerInterval);
+    // Wie im echten MedAT: Zwischen Einprägen und Abruf liegen andere Untertests
+    // (Simulation: Zahlenfolgen + Wortflüssigkeit; Übung: Zahlenfolgen). Die Karten bleiben in this.memorizeCards.
     if (this.mode === 'simulation' && this._simBlockId) {
       this.simResults[this._simBlockId]['allergieausweis_mem'] = {
         score: 0, total: 0,
       };
+      const memIdx = this._simSectionKeys ? this._simSectionKeys.indexOf('allergieausweis_mem') : -1;
+      this.simSectionIdx = memIdx >= 0 ? memIdx + 1 : this.simSectionIdx + 1;
+      this.runNextSimSection();
+      return;
     }
-    this.startMemorizeRecall();
+    this._startMemInterlude();
+  },
+
+  // Übungsmodus: nach dem Einprägen 10 Zahlenfolgen (15 Min.), danach der Abruf
+  async _startMemInterlude() {
+    const zf = CONFIG.TEST_BLOCKS?.kff?.sections?.zahlenfolge;
+    if (!zf) { this.startMemorizeRecall(); return; }
+    this._memInterlude = true;
+    if (typeof this.showToast === 'function') this.showToast('Jetzt kommen Zahlenfolgen – danach fragen wir die Allergieausweise ab. Wie im echten MedAT.');
+    this.currentSection = zf;
+    this.currentSectionKey = 'zahlenfolge';
+    this.showTimer = true;
+    try {
+      await this.loadAndStartQuestions(zf, null, zf.questions, zf.minutes, false);
+    } catch (e) {
+      this._memInterlude = false;
+      this.startMemorizeRecall();
+    }
   },
 
   async startMemorizeRecall() {
@@ -5568,9 +5598,9 @@ WICHTIG: Sei SPEZIFISCH. Banana/Merkbilder AKTIV empfehlen — nicht nur als let
     }
 
     if (section.isRecall) {
-      if (this.simResults[this._simBlockId]?.['allergieausweis_abruf']) {
-        this.simSectionIdx++;
-        await this.runNextSimSection();
+      // Abruf der Karten, die vorher eingeprägt wurden (dazwischen liefen die anderen Untertests)
+      if (!this.simResults[this._simBlockId]?.['allergieausweis_abruf'] && this.memorizeCards && this.memorizeCards.length) {
+        await this.startMemorizeRecall();
         return;
       }
       this.simSectionIdx++;
