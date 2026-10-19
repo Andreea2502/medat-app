@@ -640,13 +640,16 @@ const App = {
     const labelEl = document.getElementById('hero-countdown-label');
     if (!daysEl || !labelEl) return;
 
-    // Default: July 3, 2026
-    const medatDate = new Date('2026-07-03T00:00:00');
+    // Nächster MedAT-Termin (2027: voraussichtlich, offiziell wird er um den Jahreswechsel bestätigt)
+    const TERMINE = ['2026-07-03', '2027-07-09', '2028-07-07'];
+    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const naechster = TERMINE.map((d) => new Date(d + 'T00:00:00')).find((d) => d >= heute) || new Date(TERMINE[TERMINE.length - 1] + 'T00:00:00');
+    const medatDate = new Date(naechster.getTime());
 
-    // Check if user has a custom date
+    // Eigenes Datum der Person – nur, wenn es noch in der Zukunft liegt (sonst zählt der nächste Termin)
     if (Auth.isLoggedIn && Auth.userProfile?.medat_date) {
       const custom = new Date(Auth.userProfile.medat_date + 'T00:00:00');
-      if (!isNaN(custom.getTime())) {
+      if (!isNaN(custom.getTime()) && custom >= heute) {
         medatDate.setTime(custom.getTime());
       }
     }
