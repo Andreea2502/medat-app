@@ -11,7 +11,7 @@ if (window.LernBlick) return;
 const BASE = (() => { try { return new URL("..", document.currentScript.src).href; } catch (e) { return "/"; } })();
 const $ = (id) => document.getElementById("lb-" + id);
 
-const LB_VERSION = "20261019l";
+const LB_VERSION = "20261019m";
 const EXTRAS = "\n\nMOLEKÜLE: Strukturformeln zeichnest du nie selbst mit Linien, sondern immer mit dem Baustein <molekuel> in der ZEICHNUNG (siehe unten). Ein Programm zeichnet daraus die exakte Strukturformel im Tafelstil.\n\nESELSBRÜCKEN: Wenn du eine Eselsbrücke oder einen Merksatz gibst, hänge NACH deinem Text zusätzlich eine Zeile an, damit sie gespeichert wird:\nESELSBRUECKE: Merksatz | wofür er gut ist\n\nTAFEL – du zeichnest wie eine Lehrkraft an der Tafel:\nTafel und Erklärung sind EINE Einheit. Alles, was du sagst (Zahlen, Kästchen, Flächen, Seiten, Formeln, Umformungen, Begriffe), steht auch an der Tafel. Nach Text und Tafel darf keine Frage offen bleiben. Wenn du von Kästchen sprichst, zeichne die Kästchen. Wenn du rechnest, schreib jeden Rechenschritt und jede Umformung als eigene Zeile an.\nZeichne, wann immer ein Bild hilft (Geometrie, Rechnen, Brüche, Zahlen, Graphen, Abläufe, Organe, Mechanismen). Format einer Tafel:\nZEICHNUNG:\n<svg viewBox='0 0 1000 600'> ... </svg>\nDer gesprochene Text zu einer Tafel steht direkt VOR ihrem ZEICHNUNG-Block. Abstand zum Rand mindestens 30.\n\nBAUKASTEN – benutze diese Bausteine, wo sie passen. Das Programm berechnet und zeichnet sie exakt, mit allen Kästchen, Zahlen und Beschriftungen:\n1. <dreieck-rw a='3' b='4' x='30' y='30' breite='550' hoehe='540'/> rechtwinkliges Dreieck: Kathete a unten (blau), Kathete b links (grün), Hypotenuse c (rot). Zeichnet automatisch die Quadrate über allen drei Seiten mit Einheitskästchen zum Abzählen und schreibt a² = 9, b² = 16, c² = 25 hinein. Optional quadrate='nein', kaestchen='nein', c-zeigen='nein' (wenn die Person c selbst finden soll).\n   Teile: kathete-a, kathete-b, hypotenuse, kurze-seite, lange-kathete, rechter-winkel, quadrat-a, quadrat-b, quadrat-c\n2. <gleichung x='620' y='90' zeilen='a² + b² = c²; 3² + 4² = c²; 9 + 16 = c²; 25 = c²; c = √25 = 5' notizen='; einsetzen; Quadrate ausrechnen; zusammenzählen; Wurzel ziehen'/> Rechenweg als Karte: Zeile für Zeile nummeriert, rechts grau was du tust, die letzte Zeile wird als Ergebnis grün hervorgehoben. Mehrere <gleichung> auf einer Tafel stapelt das Programm selbst untereinander.\n   Teile: zeile-1, zeile-2, … , ergebnis\n3. <kaestchen x='60' y='80' spalten='4' zeilen='3' gefuellt='12' farbe='#1f6fd1' zahlen='ja' beschriftung='3 · 4 = 12'/> Kästchengitter mit Seitenlängen zum Zählen, Malnehmen, Flächen.\n   Teile: gitter, gefuellt, kaestchen-1, kaestchen-2, … , breite, hoehe\n4. <bruch-kreis cx='280' cy='290' r='200' teile='4' gefuellt='1' farbe='#d62828' beschriftung='1/4'/> Kreis (Pizza) in gleiche Stücke.   Teile: ganzes, gefuellt, stueck-1, …\n5. <bruch-balken x='60' y='200' breite='500' hoehe='90' teile='5' gefuellt='2' beschriftung='2/5'/>   Teile: ganzes, gefuellt, stueck-1, …\n6. <zahlenstrahl x='60' y='300' laenge='860' von='0' bis='10' schritt='1' markiere='3; 7'/>   Teile: zahlenstrahl, punkt-3, punkt-7, zahl-5\n7. <koordinaten x='60' y='40' breite='520' hoehe='520' xmin='-5' xmax='5' ymin='-5' ymax='5' funktion='x^2; 2*x+1'/> Koordinatensystem mit exakt berechneten Graphen.   Teile: x-achse, y-achse, graph-1, graph-2\n8. <pfeil x1='600' y1='300' x2='800' y2='300' text='wird zu' teil='umwandlung'/>\n9. <molekuel id='m1' smiles='CNC[C@H](O)C1=CC=C([OH:1])C([OH:2])=C1' name='Adrenalin' x='20' y='70' breite='420' hoehe='450' teile='1=phenol-oh-1; 2=phenol-oh-2'/> exakte Strukturformel. Gültige SMILES verwenden. Ringe IMMER in Kekulé-Schreibweise mit Großbuchstaben und = (z. B. Benzol C1=CC=CC=C1, nicht c1ccccc1), damit die Doppelbindungen wie an der Tafel sichtbar sind. Ladungen mit eckigen Klammern ([O-], [NH2+], [Cu+2], [Fe+3]). Atome, über die du sprichst, bekommen im SMILES eine Nummer ([OH:1], [O-:2], [NH:3], [C:4](=O), [N+:5]) und in teile='1=name; 2=name' einen Namen. Auf das ganze Molekül zeigst du mit seiner id oder seinem Namen in Kleinbuchstaben ohne Umlaute (z. B. [[m1|Adrenalin]]).\n   Teile: m1 (ganzes Molekül), die Namen aus teile=, außerdem m1-1, m1-2 … für die nummerierten Atome\n10. <bogenpfeil von='m1:1' nach='m1:3' text='e⁻' teil='elektronenpaar-1'/> gebogener Pfeil von Atom zu Atom (Elektronen, Angriff, Ringschluss). Für abgehende Teilchen ohne Ziel: <bogenpfeil von='m1:1' richtung='oben-rechts' laenge='90' text='H⁺' teil='proton-1-geht'/> (Richtungen: oben, unten, links, rechts, oben-links, oben-rechts, unten-links, unten-rechts).\n11. <titel text='Schritt 1: Oxidation der Hydroxygruppen'/> Überschrift oben links an der Tafel.\n12. <zahlenfolge zahlen='2; 5; 4; 7; 6; 9; ?; ?' boegen='+3; −1; +3; −1; +3; −1; +3' x='40' y='300' breite='920'/> Zahlenfolge in Kästchen, oben jeder Rechenschritt als Bogen, Lücken als ?. Für zwei verschränkte Folgen zusätzlich boegen2='…' (Schritt von jeder Zahl zur übernächsten, unten).\n   Teile: zahl-1 …, bogen-1 …, bogen2-1 …, luecke, muster, muster-2\n13. <venn a='Chirurgen' b='Ärzte' c='Läufer' cx='300' cy='330' r='150' leer='a; ac' kreuz='bc|abc'/> Mengenkreise für Implikationen (c weglassen bei zwei Mengen). Bereiche heißen nach den Mengen, in denen sie GENAU liegen: a, b, c, ab, ac, bc, abc. leer = laut Prämissen leere Bereiche, sie werden schraffiert: 'Alle A sind B' → leer='a; ac'. 'Kein A ist B' → leer='ab; abc'. 'Einige A sind B' → kreuz='ab', oder auf die Grenze 'ab|abc', wenn offen ist, ob es auch in C liegt. Rechts daneben mit text die Prämissen und die geprüften Schlussfolgerungen (✓ / ✗).\n   Teile: kreis-a, kreis-b, kreis-c, leer, kreuz, bereich-ab, bereich-bc …\n14. <buchstaben gemischt='NERGAT' wort='GARTEN'/> Wortflüssigkeit: oben die gemischten Buchstaben, Linien zu ihrem Platz im Lösungswort, der erste Buchstabe rot.\n   Teile: gemischt, loesung, erster-buchstabe, buchstabe-1 …\n15. <zusammensetzen ziel='kreis' teile='5' seed='3'/> Figuren zusammensetzen: links die verstreuten, gedrehten Teile, rechts gestrichelt die Zielfigur (kreis, halbkreis, dreieck, quadrat, rechteck, fuenfeck, sechseck, achteck). Zeigst du im Text auf [[zusammensetzen|…]], gleiten die Teile an ihren Platz.\n   Teile: stueck-1 …, ziel, zusammensetzen\n16. <vergessenskurve tage='30' wiederholungen='1; 3; 7; 14'/> Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen.\n   Teile: ohne-wiederholung, mit-wiederholung, wiederholung-1 …\n17. <gedaechtnispalast raeume='Eingang: Türschild mit dem Namen; Küche: Torte mit dem Geburtsdatum; Bad: Blutgruppe als Badeschaum; …'/> Gedächtnispalast als Grundriss mit Rundgang und einem Merkbild je Raum (höchstens 8 Räume).\n   Teile: raum-1 …, weg\nDie Bausteine 12 bis 17 brauchen meist die ganze Tafel; nur venn lässt rechts Platz für Text.\n\nREAKTIONEN UND MECHANISMEN erklärst du SCHRITT FÜR SCHRITT, so wie Pharmazie- und Medizinstudierende es nachvollziehen müssen:\n- Pro Schritt eine eigene ZEICHNUNG (mehrere ZEICHNUNG-Blöcke hintereinander, 2 bis 5). Jede beginnt mit <titel text='Schritt n: …'/>.\n- Aufbau jedes Schritts: links das Ausgangsmolekül (x='20' breite='420'), in der Mitte ein <pfeil x1='450' y1='300' x2='560' y2='300' text='Reagenz/Bedingung'/>, rechts das Produkt (x='570' breite='410'). Abgehende Teilchen (H⁺, H₂O, e⁻) mit bogenpfeil zeigen, neue Bindungen und Elektronenwege ebenfalls mit bogenpfeil.\n- Benenne und nummeriere die Atome, die sich verändern (abgespaltene Protonen bzw. ihre OH-Gruppen, entstehende Ladungen, der angreifende Stickstoff, die neue Bindung), damit du im Text genau darauf zeigen kannst.\n- Ionen und Reagenzien (z. B. Kupferion) zeichnest du als eigenes kleines <molekuel> mit id, damit man im Text darauf zeigen kann.\n- Im Text schreibst du passend **Schritt 1: …**, **Schritt 2: …** und zeigst in jedem Satz mit [[name|…]] auf genau das, worüber du sprichst. Die Tafel wechselt dann automatisch zum richtigen Schritt.\nNur wenn es wirklich keinen Baustein und keine Schablone gibt, zeichnest du selbst mit line, polyline, polygon, path, circle, ellipse, rect und text (font-size 24 bis 34, text-anchor='middle'). Gib jedem wichtigen Element einen Namen mit teil='name', z. B. teil='zellkern'.\n\nZEIGEN – das Wichtigste: Wenn du im Text über einen Teil der Tafel sprichst, markiere ihn so: [[teilname|sichtbarer Text]]. Beispiel: Schau dir [[kurze-seite|die kurze Seite a]] an. Das [[quadrat-a|blaue Quadrat darunter]] hat 3 · 3 = 9 Kästchen. Genau dieser Teil leuchtet dann an der Tafel auf, während du darüber sprichst. Markiere in jedem Satz, der sich auf die Tafel bezieht, den passenden Teil. Nutze nur Teilnamen, die es an deiner Tafel wirklich gibt.\n\nSo sieht es aus:\n- Moderner, ruhiger Stil: klare Linien, Flächen nur zart eingefärbt (fill mit einer Farbe, ohne fill-style). Wenig Text, viel Luft.\n- Farben: #1e293b dunkel, #dc2626 rot, #2563eb blau, #16a34a grün, #eab308 gelb, #ea580c orange, #7c3aed lila, #db2777 rosa, #8b5a2b braun. Nenne im Text dieselben Farben, die an der Tafel stehen.\n- Reihenfolge der Elemente = Reihenfolge deiner Erklärung (zuerst das Bild, dann die Rechnung).\n- Rechne alle Zahlen korrekt. Text und Tafel zeigen dieselben Zahlen.\n- Keine Styles, keine Skripte, keine Bilder. Wenn eine Zeichnung nichts bringt, lass ZEICHNUNG ganz weg.";
 
 // ================= kleine Helfer =================
@@ -2918,7 +2918,7 @@ function buildUI() {
   $("end-weiter").onclick = () => { $("endbar").hidden = true; ask("Weiter: Erklär mir den nächsten wichtigen Punkt zu diesem Thema – Schritt für Schritt an der Tafel."); };
   $("end-quiz").onclick = () => { $("endbar").hidden = true; startQuiz(); };
   // Weg 2 auf Wunsch: wer es nach der Tafel noch nicht verstanden hat, bekommt eine genaue Abbildung (Andreea, 19.10.2026)
-  $("end-skizze").onclick = () => { $("endbar").hidden = true; ask("Ich habe es noch nicht ganz verstanden. PROFI-SKIZZE: Zeichne genau dieses Thema als EINE große, genaue Abbildung mit dem Baustein <abbildung motiv='…' begriffe='…'/> (wie eine Lehrbuch-Abbildung, höchstens 6 Beschriftungen, KEIN <netz>, keine Kästchen mit Pfeilen) und erkläre sie Schritt für Schritt, wo was im Bild liegt – wieder genau anhand meines Denkfehlers."); };
+  $("end-skizze").onclick = () => profiSkizze();
   $("end-neu").onclick = () => { $("endbar").hidden = true; closeStage(); setTimeout(() => $("q").focus(), 50); };
   $("reshot").onclick = async () => { lb.upload = null; await takeShot(true); };
   $("toggle-draw").onclick = () => { drawHidden = !drawHidden; $("imgdraw").style.visibility = drawHidden ? "hidden" : "visible"; $("toggle-draw").textContent = drawHidden ? "Zeichnung einblenden" : "Zeichnung ausblenden"; };
@@ -3463,6 +3463,40 @@ async function grafikErklaeren() {
   lb.shot = dataUrl; lb.shotW = c.width; lb.shotH = c.height; lb.anchorText = ""; anchors = {};
   lb.ctx = { seite: "Infografik „" + g.titel + "“", pfad: "", ueberschrift: g.titel, frage: null };
   ask(`Erklär mir diese Infografik zum Thema „${thema.titel}“ Schritt für Schritt: zeig auf der Grafik, wo was steht, und mach an der Tafel verständlich, was dahintersteckt.` + themaHintergrund().replace(/Ich habe dazu eben eine Infografik[^)]*/, ""));
+}
+// Profi-Skizze (Andreea, 19.10.2026: „es kam keine KI-Grafik, sondern genauso nur diese Übersichten“):
+// nicht mehr der Tafel-KI überlassen, sondern immer ein echtes Bild vom Bildmodell – zugeschnitten auf den Denkfehler –,
+// danach führt LernBlick mit Markierungen durch genau dieses Bild.
+async function profiSkizze() {
+  const t = cur.turns[cur.turns.length - 1] || {}, f = (lb.ctx && lb.ctx.frage) || null;
+  const df = String(t.raw || "").match(/<denkfehler\b[^>]*>/i), at = (k) => { const m = df && df[0].match(new RegExp(`\\b${k}\\s*=\\s*(['"])([\\s\\S]*?)\\1`, "i")); return m ? plain(m[2]) : ""; };
+  const tafelTitel = answerBoards ? cur.boards.slice(answerBoards[0], answerBoards[1] + 1).map((b) => b.titel).filter((x) => x && !/denkfehler/i.test(x)) : [];
+  const thema = String(tafelTitel[0] || cleanAsk(t.ask || t.q || "") || (f && f.text) || "").replace(/^\s*Schritt\s*\d+\s*[:–-]\s*/i, "").slice(0, 200);
+  if (!thema) { setStatus("Stell zuerst eine Frage."); return; }
+  const annahme = at("annahme"), richtig = at("richtig") || (f && f.richtig) || "", warum = at("warum");
+  const inhalt = [f && f.text ? `MedAT-Frage: ${f.text}` : "", annahme ? `Denkfehler der Person (klein unten rechts rot durchgestrichen zeigen): ${annahme}` : f && f.gewaehlt ? `Die Person hat falsch gewählt: ${f.gewaehlt}` : "", richtig ? `So ist es richtig (grün): ${richtig}` : "", warum ? `Warum das wichtig ist: ${warum}` : "", tafelTitel.length ? `Die Tafeln hießen: ${tafelTitel.join("; ")}` : ""].filter(Boolean).join("\n");
+  $("endbar").hidden = true; stopWalk();
+  startWait(); setWaitStatus("Die Profi-Skizze wird gezeichnet – eine echte Lehrbuch-Abbildung zu deinem Denkfehler. Das dauert etwa 20–30 Sekunden …");
+  let d;
+  try {
+    d = await callFn("lernblick-bild", {
+      thema, inhalt, art_label: "Profi-Skizze", orientation: "querformat",
+      art_regeln: "- EINE große, genaue Lehrbuch-Abbildung des Mechanismus: Organe, Zellen, Strukturen und Moleküle so gezeichnet, wie sie wirklich aussehen (Anatomie- bzw. Physiologie-Atlas). KEINE Tabelle, KEINE Liste, keine Kästchen mit Text.\n- Pfeile zeigen den Ablauf und die Wirkung (fördert grün, hemmt rot). Höchstens 8 kurze Beschriftungen an dünnen Linien.\n- Unten rechts ein kleiner Kasten: oben rot durchgestrichen der Denkfehler (Stichwort), darunter grün, wie es richtig ist.\n- Überschrift oben links, viel Luft.",
+      stil_text: "Style: precise medical textbook illustration (anatomy/physiology atlas), clean confident outlines, soft natural colors, white background, labels in a clean sans-serif. No clutter.",
+    });
+    if (!d || !d.image_base64) throw new Error((d && d.error) || "kein Bild");
+  } catch (e) { endWait(); setStatus("Die Profi-Skizze hat gerade nicht geklappt: " + (e.message || e) + " – versuch es gleich nochmal."); $("endbar").hidden = false; return; }
+  const url = await kiStempel(`data:${d.mime_type || "image/jpeg"};base64,${d.image_base64}`);
+  const src = await new Promise((r, j) => { const x = new Image(); x.onload = () => r(x); x.onerror = j; x.src = url; });
+  const k = Math.min(1, 1400 / Math.max(src.width, src.height)), c = document.createElement("canvas");
+  c.width = Math.round(src.width * k); c.height = Math.round(src.height * k);
+  c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
+  const dataUrl = c.toDataURL("image/jpeg", 0.88), titel = "Profi-Skizze: " + thema;
+  lb.upload = { dataUrl, w: c.width, h: c.height, fresh: true, kind: "grafik", title: titel };
+  lb.shot = dataUrl; lb.shotW = c.width; lb.shotH = c.height; lb.anchorText = ""; anchors = {};
+  lb.ctx = Object.assign({}, lb.ctx || {}, { seite: titel, pfad: "", ueberschrift: titel, frage: f });
+  endWait();
+  ask(`Ich habe es noch nicht ganz verstanden. Hier ist eine Profi-Skizze zu „${thema}“. Führe mich durch dieses Bild: zeig nacheinander, wo was liegt, und erkläre genau an dieser Abbildung, warum mein Denkfehler${annahme ? ` („${annahme.slice(0, 160)}“)` : ""} nicht stimmt. Kurz, höchstens 8 Sätze.`);
 }
 async function grafikSpeichern(btn) {
   const g = thema.grafik; if (!g) return;
@@ -5168,6 +5202,15 @@ function studioSatz(k) {
 }
 async function studioAbspielen(aufnehmen) {
   if (!lastBody) { $("studio-hinweis").textContent = "Zuerst eine Erklärung erzeugen oder aus dem Lernarchiv öffnen."; return; }
+  if (aufnehmen) {   // Video zeichnet die App selbst (kein Bildschirm-Mitschnitt mehr)
+    const h = $("studio-hinweis"), P = studio.paket || {};
+    try {
+      const v = await studioVideo({ format: studio.format, hook: P.hook || "Diesen MedAT-Fehler machen fast alle", schluss: P.schluss || "Damit dir das im MedAT nicht passiert – folge für mehr!", status: (t) => { h.textContent = t; } });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(v.blob); a.download = v.name; a.click();
+      h.textContent = `✓ Video gespeichert (${v.mp4 ? "MP4" : "WebM"}, ${(v.blob.size / 1048576).toFixed(1)} MB).`;
+    } catch (e) { h.textContent = "Video hat nicht geklappt: " + (e.message || e); }
+    return;
+  }
   let stream = null, chunks = [];
   if (aufnehmen) {
     try {
@@ -5201,6 +5244,271 @@ async function studioAbspielen(aufnehmen) {
     if (studio.rec && studio.rec.state === "recording") studio.rec.stop(); else document.documentElement.classList.remove("lb-studio-laeuft");
   };
   replayExplain();
+}
+
+// ================= Video direkt aus der Tafel (Andreea, 19.10.2026) =================
+// „Man sieht durch das ganze Video nur dieses eine Bild … die Tafel ist zu klein, oben und unten so viel von der App“:
+// kein Bildschirm-Mitschnitt mehr. Die App zeichnet das Video selbst – Frage-Karte, falsche Antwort, dann die Tafel groß
+// mit Stimme und Untertitel. Die Erklärung läuft dafür noch einmal aus der gespeicherten Stimme (keine neuen KI-Kosten).
+const VID = { schriften: null, ac: null, dest: null, laeuft: false };
+async function vidSchriften() {
+  if (VID.schriften != null) return VID.schriften;
+  const holen = async (name, url, gew) => {
+    try {
+      const b = await (await fetch(url)).blob();
+      const d = await new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(b); });
+      return `@font-face{font-family:"${name}";src:url(${d}) format("woff2");font-weight:${gew};}`;
+    } catch (e) { return ""; }
+  };
+  VID.schriften = (await Promise.all([holen("LB Inter", "/lernwerkzeuge/lib/schrift/inter-latin-var.woff2", "100 900"), holen("LB Hand", "/assets/lernblick/caveat-600.woff2", "600")])).join("");
+  return VID.schriften;
+}
+// Momentaufnahme einer Tafel: Animationen (Einblenden, Zeichnen, Bewegen) stecken in berechneten Stilen → als Stil festschreiben
+const VID_PROPS = ["opacity", "fill", "fill-opacity", "stroke", "stroke-width", "stroke-opacity", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "transform", "transform-origin", "transform-box", "visibility", "display", "font-family", "font-size", "font-weight", "font-style", "letter-spacing", "clip-path", "paint-order", "filter"];
+function vidSchnappschuss(svg, w, h, css) {
+  const kopie = svg.cloneNode(true);
+  const a = svg.querySelectorAll("*"), b = kopie.querySelectorAll("*");
+  for (let i = 0; i < a.length; i++) {
+    const cs = getComputedStyle(a[i]); let s = "";
+    for (const p of VID_PROPS) { const v = cs.getPropertyValue(p); if (v) s += `${p}:${v};`; }
+    b[i].setAttribute("style", s);
+  }
+  kopie.removeAttribute("style"); kopie.removeAttribute("class"); kopie.removeAttribute("id");
+  kopie.setAttribute("width", w); kopie.setAttribute("height", h);
+  if (!kopie.getAttribute("xmlns")) kopie.setAttribute("xmlns", SVGNS);
+  const st = document.createElementNS(SVGNS, "style"); st.textContent = css; kopie.insertBefore(st, kopie.firstChild);
+  return new XMLSerializer().serializeToString(kopie);
+}
+function vidRund(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function vidZeilen(g, text, maxW, maxZ) {
+  const w = String(text || "").split(/\s+/).filter(Boolean), z = []; let l = "";
+  for (const x of w) { const t = l ? l + " " + x : x; if (g.measureText(t).width > maxW && l) { z.push(l); l = x; } else l = t; }
+  if (l) z.push(l);
+  if (maxZ && z.length > maxZ) { z.length = maxZ; z[maxZ - 1] = z[maxZ - 1].replace(/\s*\S*$/, "") + " …"; }
+  return z;
+}
+const vidWarte = (ms) => new Promise((r) => setTimeout(r, ms));
+async function studioVideo(o = {}) {
+  if (VID.laeuft) throw new Error("Es läuft schon ein Video.");
+  if (!lastBody || !narr || !narr.sents || !narr.sents.length) throw new Error("Zuerst im Rahmen eine Erklärung von LernBlick laufen lassen.");
+  if (!(lb.speak && lb.natural)) throw new Error("Das Video braucht die natürliche Stimme. Schalte sie in LernBlick ein und lass die Erklärung einmal laufen.");
+  ensureJobs(narr);
+  narr.parts.forEach((p) => { if (!p.audio) loadPart(narr, p); });
+  const t0 = Date.now(); o.status && o.status("Ich hole die Stimme …");
+  while (narr.parts.some((p) => !p.audio && !p.failed) && Date.now() - t0 < 90000) await vidWarte(300);
+  if (narr.parts.some((p) => !p.audio)) throw new Error("Die Stimme fehlt noch. Spiel die Erklärung einmal ganz ab und versuch es dann nochmal.");
+
+  // Ton: die Stimme läuft weiter hörbar und zusätzlich ins Video
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!VID.ac) { VID.ac = new AC(); VID.dest = VID.ac.createMediaStreamDestination(); }
+  try { await VID.ac.resume(); } catch (e) {}
+  if (VID.ac.state !== "running") throw new Error("Der Ton ist noch blockiert. Tippe einmal in die App und starte das Video nochmal.");
+  narr.parts.forEach((p) => { if (p.audio && !p.audio._lbQuelle) { const q = VID.ac.createMediaElementSource(p.audio); q.connect(VID.ac.destination); q.connect(VID.dest); p.audio._lbQuelle = q; } });
+
+  const quer = o.format === "16x9", W = quer ? 1920 : 1080, H = quer ? 1080 : 1920;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H;
+  const g = cv.getContext("2d");
+  const css = await vidSchriften();
+  try { await document.fonts.load("700 40px Inter"); } catch (e) {}
+  const F = studioFrage(), P = studio.paket || {};
+  const hook = o.mitHook === false ? "" : String(o.hook != null ? o.hook : P.hook || "").trim();
+  const schluss = o.mitSchluss === false ? "" : String(o.schluss != null ? o.schluss : P.schluss || "").trim();
+  const opt = String((lb.ctx && lb.ctx.frage && lb.ctx.frage.optionen) || "").split(/\n+/).map((x) => x.trim()).filter(Boolean).slice(0, 6);
+  const buchst = (s) => (String(s || "").trim().match(/^([A-E])(?:\b|\))/) || [])[1] || "";
+  const FARBE = { tinte: "#1a1a2e", grau: "#6b6b80", gelb: "#f5c542", rot: "#e11d48", gruen: "#16a34a", nacht: "#15122b" };
+  // Bereiche: Hochformat Frage oben, Tafel groß in der Mitte, Untertitel unten; Querformat Tafel rechts, Frage und Untertitel links
+  const R = quer
+    ? { kopf: [60, 50], frage: [60, 110, 620, 330], tafel: [720, 50, 1150, 980], sub: [60, 500, 620, 480], fs: 46 }
+    : { kopf: [60, 70], frage: [60, 120, 960, 300], tafel: [40, 450, 1000, 1010], sub: [60, 1500, 960, 330], fs: 50 };
+
+  let kartenUnten = 0, phase = hook ? "hook" : "frage", seit = performance.now(), bild = null, holt = false, pop = null, popSatz = -1, ende = false;
+  const quelle = () => {
+    const peek = stageMode === "peek" && lb.upload && lb.upload.dataUrl;
+    return peek ? { svg: $("imgdraw"), foto: lb.upload } : { svg: $("board").querySelector("svg") };
+  };
+  let fotoBild = null, fotoUrl = "";
+  // Die Tafel wird groß neu gezeichnet (nicht in der kleinen Handy-Größe vom Bildschirm).
+  // Kamera wie bei einer Lehrkraft: Zeigt der rote Pfeil auf etwas, fährt das Bild dorthin und vergrößert; sonst ganze Tafel.
+  const ZOOM = quer ? 1.35 : 1.6;
+  let cam = null;
+  function schnapp() {
+    if (holt) return;
+    const q = quelle(), s = q.svg; if (!s) return;
+    const vb = s.viewBox && s.viewBox.baseVal; if (!vb || !vb.width || !vb.height) return;
+    const [, , bw, bh] = R.tafel, fit = Math.min((bw - 40) / vb.width, (bh - 40) / vb.height), zmax = q.foto || s.querySelector('[data-comp="denkfehler"], [data-comp="tabelle"], [data-comp="gleichung"], [data-comp="vergleich"], [data-comp="analyse"], [data-comp="netz"]') ? fit : fit * ZOOM;
+    const dw = Math.round(vb.width * zmax), dh = Math.round(vb.height * zmax);
+    // Ziel des roten Zeigepfeils (Spitze, etwas Richtung Anfang)
+    let ziel = null;
+    // Text-Tafeln (Denkfehler, Tabelle, Rechnung, Vergleich) immer ganz zeigen – vergrößert würden Sätze abgeschnitten
+    const textTafel = !!s.querySelector('[data-comp="denkfehler"], [data-comp="tabelle"], [data-comp="gleichung"], [data-comp="vergleich"], [data-comp="analyse"], [data-comp="netz"]');
+    const zp = !q.foto && !textTafel && s.querySelector(".lb-zeiger path");
+    if (zp) { const m = (zp.getAttribute("d") || "").match(/M\s*([-\d.]+)\s+([-\d.]+)\s*L\s*([-\d.]+)\s+([-\d.]+)/); if (m) { const [sx, sy, tx, ty] = m.slice(1).map(Number); ziel = [tx * 0.8 + sx * 0.2, ty * 0.8 + sy * 0.2]; } }
+    if (q.foto && fotoUrl !== q.foto.dataUrl) { fotoUrl = q.foto.dataUrl; fotoBild = new Image(); fotoBild.src = fotoUrl; }
+    holt = true;
+    let url;
+    try { url = URL.createObjectURL(new Blob([vidSchnappschuss(s, dw, dh, css)], { type: "image/svg+xml" })); }
+    catch (e) { holt = false; return; }
+    const im = new Image();
+    im.onload = () => { bild = { im, svg: s, vb: { x: vb.x, y: vb.y, w: vb.width, h: vb.height }, fit, zmax, ziel, foto: q.foto ? fotoBild : null }; URL.revokeObjectURL(url); holt = false; };
+    im.onerror = () => { URL.revokeObjectURL(url); holt = false; };
+    im.src = url;
+  }
+  function hintergrund() {
+    const v = g.createRadialGradient(W * 0.7, 0, 0, W * 0.7, 0, H * 0.9);
+    v.addColorStop(0, "#2b1d5c"); v.addColorStop(1, FARBE.nacht);
+    g.fillStyle = v; g.fillRect(0, 0, W, H);
+  }
+  function marke() {
+    g.font = "800 30px Inter, sans-serif"; g.textBaseline = "alphabetic"; g.textAlign = "left";
+    g.fillStyle = "#fff"; g.fillText("MedAT", R.kopf[0], R.kopf[1]);
+    const w1 = g.measureText("MedAT ").width; g.fillStyle = FARBE.gelb; g.fillText("Trainer", R.kopf[0] + w1, R.kopf[1]);
+    g.font = "600 24px Inter, sans-serif"; g.fillStyle = "rgba(255,255,255,.6)"; g.fillText("· LernBlick", R.kopf[0] + w1 + g.measureText("Trainer  ").width + 16, R.kopf[1]);
+  }
+  function chip(x, y, text, farbe, zeichen, fs) {
+    g.font = `800 ${fs}px Inter, sans-serif`;
+    const t = `${zeichen} ${text}`, w = Math.min(g.measureText(t).width + fs * 1.1, W - x - 40);
+    vidRund(g, x, y, w, fs * 1.75, fs * 0.5); g.fillStyle = farbe; g.fill();
+    g.fillStyle = "#fff"; g.textBaseline = "middle"; g.save(); g.beginPath(); g.rect(x, y, w - fs * 0.4, fs * 1.75); g.clip();
+    g.fillText(t, x + fs * 0.55, y + fs * 0.9); g.restore(); g.textBaseline = "alphabetic";
+    return w;
+  }
+  // Kleine Frage-Karte während der Erklärung
+  function frageKlein() {
+    const [x, y, w, h] = R.frage;
+    vidRund(g, x, y, w, h, 26); g.fillStyle = "rgba(255,255,255,.08)"; g.fill();
+    g.font = "700 22px Inter, sans-serif"; g.fillStyle = FARBE.gelb; g.textAlign = "left"; g.fillText("MEDAT-FRAGE", x + 28, y + 46);
+    g.font = `600 ${quer ? 30 : 34}px Inter, sans-serif`; g.fillStyle = "#fff";
+    const z = vidZeilen(g, F.frage, w - 56, quer ? 5 : 3); z.forEach((l, i) => g.fillText(l, x + 28, y + 94 + i * (quer ? 40 : 44)));
+    let cy = y + 94 + z.length * (quer ? 40 : 44) + 6, cx = x + 28;
+    if (F.falsch) cx += chip(cx, cy, buchst(F.falsch) || F.falsch.slice(0, 26), FARBE.rot, "✗", 26) + 14;
+    if (F.richtig) chip(cx, cy, buchst(F.richtig) || F.richtig.slice(0, 26), FARBE.gruen, "✓", 26);
+  }
+  // Große Frage-Karte am Anfang: Frage, Antworten, deine (falsche) Wahl rot, dann die richtige grün
+  function frageGross(t) {
+    const x = 60, w = W - 120, fs = quer ? 40 : 46;
+    g.textAlign = "left"; g.font = "800 28px Inter, sans-serif"; g.fillStyle = FARBE.gelb;
+    const y0 = quer ? 170 : 300;
+    g.fillText("MEDAT-FRAGE" + (lb.ctx && lb.ctx.frage && lb.ctx.frage.bereich ? " · " + lb.ctx.frage.bereich.toUpperCase() : ""), x, y0);
+    g.font = `700 ${fs}px Inter, sans-serif`; g.fillStyle = "#fff";
+    const z = vidZeilen(g, F.frage, w, quer ? 4 : 6); z.forEach((l, i) => g.fillText(l, x, y0 + 70 + i * fs * 1.25));
+    let y = y0 + 70 + z.length * fs * 1.25 + 30;
+    const wb = buchst(F.falsch), rb = buchst(F.richtig);
+    const zeigeFalsch = t > 1300, zeigeRichtig = t > 2900;
+    if (opt.length) {
+      opt.forEach((o2) => {
+        const b = buchst(o2), istF = b && b === wb, istR = b && b === rb;
+        const farbe = zeigeRichtig && istR ? FARBE.gruen : zeigeFalsch && istF ? FARBE.rot : "rgba(255,255,255,.1)";
+        g.font = `600 ${quer ? 30 : 34}px Inter, sans-serif`;
+        const zz = vidZeilen(g, o2, w - 110, 2), hh = zz.length * (quer ? 38 : 42) + 34;
+        vidRund(g, x, y, w, hh, 20); g.fillStyle = farbe; g.fill();
+        g.fillStyle = "#fff"; zz.forEach((l, i) => g.fillText(l, x + 28, y + 50 + i * (quer ? 38 : 42)));
+        g.font = `900 ${quer ? 34 : 40}px Inter, sans-serif`; g.textAlign = "right";
+        if (zeigeRichtig && istR) g.fillText("✓", x + w - 28, y + 52); else if (zeigeFalsch && istF) g.fillText("✗", x + w - 28, y + 52);
+        g.textAlign = "left"; y += hh + 16;
+      });
+    } else {
+      if (zeigeFalsch && F.falsch) { chip(x, y, "Meine Antwort: " + F.falsch.slice(0, 60), FARBE.rot, "✗", quer ? 32 : 36); y += 90; }
+      if (zeigeRichtig && F.richtig) chip(x, y, "Richtig: " + F.richtig.slice(0, 60), FARBE.gruen, "✓", quer ? 32 : 36);
+    }
+  }
+  function tafel() {
+    const [x0, y0, w, h0] = R.tafel;
+    const B = bild, h = B ? Math.min(h0, B.vb.h * B.zmax + 40) : h0, x = x0, y = quer ? y0 + (h0 - h) / 2 : y0;
+    kartenUnten = y + h;
+    g.save(); g.shadowColor = "rgba(0,0,0,.35)"; g.shadowBlur = 40; g.shadowOffsetY = 12;
+    vidRund(g, x, y, w, h, 28); g.fillStyle = "#fffdf8"; g.fill(); g.restore();
+    g.save(); vidRund(g, x, y, w, h, 28); g.clip();
+    g.fillStyle = "#ece6da"; for (let px = x + 30; px < x + w; px += 46) for (let py = y + 30; py < y + h; py += 46) g.fillRect(px, py, 3, 3);
+    if (B) {
+      const vb = B.vb, mitte = [vb.x + vb.w / 2, vb.y + vb.h / 2];
+      let ts = B.fit, tc = mitte;
+      if (B.ziel && !B.foto) {
+        ts = B.zmax;
+        const hw = (w - 40) / (2 * ts), hh = (h - 40) / (2 * ts);
+        tc = [hw * 2 >= vb.w ? mitte[0] : Math.max(vb.x + hw, Math.min(vb.x + vb.w - hw, B.ziel[0])), hh * 2 >= vb.h ? mitte[1] : Math.max(vb.y + hh, Math.min(vb.y + vb.h - hh, B.ziel[1]))];
+      }
+      if (!cam || cam.svg !== B.svg) cam = { svg: B.svg, s: ts, cx: tc[0], cy: tc[1] };
+      else { const f = 0.07; cam.s += (ts - cam.s) * f; cam.cx += (tc[0] - cam.cx) * f; cam.cy += (tc[1] - cam.cy) * f; }
+      const dx = x + w / 2 - (cam.cx - vb.x) * cam.s, dy = y + h / 2 - (cam.cy - vb.y) * cam.s, dw = vb.w * cam.s, dh = vb.h * cam.s;
+      if (B.foto && B.foto.complete) g.drawImage(B.foto, dx, dy, dw, dh);
+      g.drawImage(B.im, dx, dy, dw, dh);
+    }
+    g.restore();
+  }
+  function untertitel() {
+    const [x, y1, w, h1] = R.sub, k = narr && narr.shown >= 0 ? narr.shown : -1;
+    const y = quer || !kartenUnten ? y1 : kartenUnten + 40, h = quer ? h1 : Math.min(h1 + 200, H - 260 - y);   // unten bleibt Platz für die Leiste von TikTok/Reels
+    const s = k >= 0 && narr.sents[k] ? plain(narr.sents[k]).replace(/\s+/g, " ").trim() : "";
+    if (!s) return;
+    g.font = `700 ${R.fs}px Inter, sans-serif`; g.textAlign = quer ? "left" : "center";
+    const z = vidZeilen(g, s, w, Math.floor(h / (R.fs * 1.28)));
+    z.forEach((l, i) => {
+      const yy = y + R.fs + i * R.fs * 1.28, xx = quer ? x : x + w / 2;
+      g.lineWidth = 10; g.strokeStyle = "rgba(10,8,30,.85)"; g.lineJoin = "round"; g.strokeText(l, xx, yy);
+      g.fillStyle = "#fff"; g.fillText(l, xx, yy);
+    });
+    g.textAlign = "left";
+  }
+  function einblendung(jetzt) {
+    const k = narr ? narr.shown : -1;
+    if (k !== popSatz) { popSatz = k; const e = (P.einblendungen || []).find((x) => Number(x.nach_satz) === k + 1); if (e) pop = { text: e.text, ab: jetzt }; }
+    if (!pop || jetzt - pop.ab > 3200) return;
+    const a = Math.min(1, (jetzt - pop.ab) / 250), [tx, ty, tw] = R.tafel;
+    g.save(); g.globalAlpha = a; g.font = `900 ${quer ? 44 : 50}px Inter, sans-serif`;
+    const w = Math.min(g.measureText(pop.text).width + 60, tw - 40), x = tx + (tw - w) / 2, y = ty - (quer ? -24 : 38);
+    vidRund(g, x, y, w, quer ? 76 : 84, 20); g.fillStyle = FARBE.gelb; g.fill();
+    g.fillStyle = FARBE.tinte; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(pop.text, x + w / 2, y + (quer ? 39 : 43));
+    g.restore(); g.textBaseline = "alphabetic"; g.textAlign = "left";
+  }
+  function grossKarte(text, klein, t) {
+    const a = Math.min(1, t / 400), s = 0.85 + 0.15 * Math.min(1, t / 500);
+    g.save(); g.globalAlpha = a; g.translate(W / 2, H / 2); g.scale(s, s);
+    g.font = `900 ${quer ? 76 : 86}px Inter, sans-serif`; g.textAlign = "center"; g.fillStyle = "#fff";
+    const z = vidZeilen(g, text, W * 0.82, 6), lh = (quer ? 76 : 86) * 1.12, y0 = -((z.length - 1) * lh) / 2;
+    g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = 30; z.forEach((l, i) => g.fillText(l, 0, y0 + i * lh));
+    if (klein) { g.shadowBlur = 0; g.font = "800 34px Inter, sans-serif"; g.fillStyle = FARBE.gelb; g.fillText(klein, 0, y0 + z.length * lh + 30); }
+    g.restore(); g.textAlign = "left";
+  }
+  function zeichne() {
+    const jetzt = performance.now(), t = jetzt - seit;
+    hintergrund();
+    if (phase === "hook") grossKarte(hook, "", t);
+    else if (phase === "frage") { marke(); frageGross(t); }
+    else if (phase === "erklaerung") { schnapp(); marke(); frageKlein(); tafel(); untertitel(); einblendung(jetzt); }
+    else if (phase === "schluss") grossKarte(schluss || "MedAT Trainer", "MedAT Trainer · LernBlick", t);
+  }
+
+  const stream = cv.captureStream(30);
+  VID.dest.stream.getAudioTracks().forEach((tr) => stream.addTrack(tr));
+  const typ = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find((x) => window.MediaRecorder && MediaRecorder.isTypeSupported(x)) || "";
+  const rec = new MediaRecorder(stream, typ ? { mimeType: typ, videoBitsPerSecond: 8000000, audioBitsPerSecond: 128000 } : undefined);
+  const teile = [];
+  rec.ondataavailable = (e) => e.data.size && teile.push(e.data);
+  const fertig = new Promise((ok) => { rec.onstop = () => ok(new Blob(teile, { type: rec.mimeType || "video/webm" })); });
+
+  VID.laeuft = true;
+  let schleife = 0;
+  const lauf = () => { if (ende) return; zeichne(); schleife = requestAnimationFrame(lauf); };
+  try {
+    zeichne(); rec.start(1000); lauf();
+    if (hook) { o.status && o.status("Aufnahme: Hook …"); await vidWarte(2800); phase = "frage"; seit = performance.now(); }
+    if (F.frage) { o.status && o.status("Aufnahme: die Frage …"); await vidWarte(F.falsch ? 5200 : 3600); }
+    o.status && o.status("Aufnahme: LernBlick erklärt … (Tab bitte offen lassen)");
+    const fertigErkl = new Promise((ok) => { studio.ende = () => { studio.ende = null; ok(); }; });
+    phase = "erklaerung"; seit = performance.now(); bild = null;
+    $("endbar").hidden = true; setSub("");
+    replayExplain();
+    await Promise.race([fertigErkl, vidWarte(8 * 60000)]);
+    await vidWarte(900);
+    if (schluss) { phase = "schluss"; seit = performance.now(); o.status && o.status("Aufnahme: Schluss …"); await vidWarte(3000); }
+  } finally {
+    ende = true; cancelAnimationFrame(schleife);
+    studio.ende = null; VID.laeuft = false;
+    if (rec.state !== "inactive") rec.stop();
+    stream.getVideoTracks().forEach((tr) => tr.stop());
+  }
+  const blob = await fertig;
+  return { blob, mp4: /mp4/.test(blob.type), name: `medat-${slug(F.frage || "erklaerung").slice(0, 40)}-${quer ? "16x9" : "9x16"}.${/mp4/.test(blob.type) ? "mp4" : "webm"}` };
 }
 
 // ---------- Auswertung am Ende einer Prüfung: zu einem Fehler-Thema ein maßgeschneidertes Erklärvideo (Andreea, 19.10.2026) ----------
@@ -5376,7 +5684,7 @@ function init() {
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 window.LernBlick = { film: (m) => filmAbspielen(m), studio: () => studioEin(),
   // Für die Studio-Seite (studio.html), die die App in einem Handy- oder Laptop-Rahmen zeigt
-  _studio: { paket: () => studioPaket(), frage: () => studioFrage(), vorschau: (c, p, f) => studioVorschau(c, p, f), hatErklaerung: () => !!(narr && narr.sents && narr.sents.length), titel: () => { const t = cur.turns[cur.turns.length - 1]; return t ? cleanAsk(t.ask || t.q || "") : ""; } }, fehler: (f, z) => fehlerErklaeren(f, z), kurz: (sys, text) => callFn("lernblick-chat", { system_prompt: sys, messages: [{ role: "user", content: text }], kurz: true }).then((d) => d.response || ""), open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), foto: async (file) => { await openPanel({}); if (!lb.open) return; await pickUpload(file); ask(); }, blaetter: async (q) => { await ladeBlaetter(); return passendeBlaetter(q).map((b) => b.id); }, showSummary: (d) => openSummary(d) };
+  _studio: { video: (o) => studioVideo(o), paket: () => studioPaket(), frage: () => studioFrage(), vorschau: (c, p, f) => studioVorschau(c, p, f), hatErklaerung: () => !!(narr && narr.sents && narr.sents.length), titel: () => { const t = cur.turns[cur.turns.length - 1]; return t ? cleanAsk(t.ask || t.q || "") : ""; } }, fehler: (f, z) => fehlerErklaeren(f, z), kurz: (sys, text) => callFn("lernblick-chat", { system_prompt: sys, messages: [{ role: "user", content: text }], kurz: true }).then((d) => d.response || ""), open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), foto: async (file) => { await openPanel({}); if (!lb.open) return; await pickUpload(file); ask(); }, blaetter: async (q) => { await ladeBlaetter(); return passendeBlaetter(q).map((b) => b.id); }, showSummary: (d) => openSummary(d) };
 // Nur für den automatischen Prüfstand (wird im normalen Betrieb nie gesetzt)
 if (window.__LB_BENCH) window.LernBlick._bench = {
   state: () => ({ turns: cur.turns.length, busy: lb.busy, boards: cur.boards.map((b) => ({ titel: b.titel || "", teile: b.teile || [], svg: !!b.svg })), answerBoards, sents: narr ? narr.sents : [], boardOf: narr ? narr.boardOf : [], segs: answerSegs, anchors: Object.keys(anchors), imgTeile: [...document.querySelectorAll("#lb-imgdraw [data-teil]")].flatMap((e) => e.getAttribute("data-teil").split(/\s+/)), status: $("status").textContent }),

@@ -70,7 +70,7 @@
 <body>
 <aside class="panel">
   <h1>🎬 Social-Media-<span>Studio</span></h1>
-  <p class="hinweis">Die App läuft rechts im Rahmen. Aufgenommen wird <b>nur der Rahmen</b>, und zwar am Stück: von der Frage über die falsche Antwort bis zur Erklärung.</p>
+  <p class="hinweis">Rechts läuft die App im Rahmen. Du übst dort ganz normal. Das Video zeichnet die App danach selbst: Frage, falsche Antwort, dann die Tafel groß mit Stimme.</p>
 
   <div class="schritt" id="s1">
     <b>1 · Format</b>
@@ -89,16 +89,16 @@
   </div>
 
   <div class="schritt" id="s3">
-    <b>3 · Aufnahme</b>
+    <b>3 · Video</b>
     <ol class="ablauf">
-      <li>„Aufnahme starten“ – Chrome fragt nach <b>diesem Tab</b>: „Tab-Audio teilen“ anhaken.</li>
       <li>Im Rahmen eine Frage üben und <b>falsch</b> beantworten.</li>
-      <li>„Mit LernBlick verstehen“ tippen – die Erklärung läuft mit Stimme.</li>
-      <li>„Aufnahme beenden“ – das Video wird gespeichert.</li>
+      <li>„Mit LernBlick verstehen“ tippen und die Erklärung einmal ansehen (mit Stimme).</li>
+      <li>Optional zuerst Schritt 4: Hook und Schluss passend zur Erklärung schreiben lassen.</li>
+      <li>„Video erstellen“: Die App spielt die Erklärung noch einmal ab und zeichnet dabei das Video – Frage, deine falsche Antwort, dann die Tafel groß mit Stimme und Untertitel. Kostet nichts extra.</li>
     </ol>
-    <button class="knopf rec" id="rec" type="button">⏺ Aufnahme starten</button>
-    <div class="rec-an" id="rec-an" hidden><i></i><span id="rec-zeit">00:00</span> Aufnahme läuft</div>
-    <button class="knopf" id="stopp" type="button" hidden>⏹ Aufnahme beenden</button>
+    <button class="knopf rec" id="rec" type="button">🎬 Video erstellen</button>
+    <div class="rec-an" id="rec-an" hidden><i></i><span id="rec-zeit">00:00</span> <span id="rec-was">Video entsteht</span></div>
+    <p class="hinweis">Während das Video entsteht, diesen Tab bitte offen und im Vordergrund lassen.</p>
     <button class="knopf zweit" id="neu" type="button">↺ App im Rahmen neu laden</button>
     <p class="hinweis" id="rec-hinweis"></p>
     <video class="ergebnis" id="ergebnis" controls playsinline hidden></video>
@@ -158,42 +158,22 @@
     const k = $("karte"); k.innerHTML = html; k.classList.add("da"); await warte(ms); k.classList.remove("da"); await warte(450);
   }
 
+  // Video: die App im Rahmen zeichnet es selbst (Frage → falsche Antwort → Tafel groß mit Stimme) – kein Bildschirm-Mitschnitt
   $("rec").onclick = async () => {
+    const w = app(), S = w && w.LernBlick && w.LernBlick._studio;
     $("rec-hinweis").textContent = "";
-    let stream;
-    try {
-      stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser", frameRate: 30 }, audio: { suppressLocalAudioPlayback: false }, preferCurrentTab: true, selfBrowserSurface: "include", systemAudio: "include" });
-    } catch (e) { $("rec-hinweis").textContent = "Aufnahme nicht gestartet: " + (e.message || e); return; }
-    const [vt] = stream.getVideoTracks();
-    if (window.CropTarget && vt.cropTo) { try { await vt.cropTo(await CropTarget.fromElement($("rahmen"))); } catch (e) { $("rec-hinweis").textContent = "Zuschneiden ging nicht – es wird der ganze Tab aufgenommen."; } }
-    else $("rec-hinweis").textContent = "Dieser Browser kann nicht zuschneiden – bitte Chrome nehmen. Es wird der ganze Tab aufgenommen.";
-    if (!stream.getAudioTracks().length) $("rec-hinweis").textContent += " Achtung: ohne Ton – beim nächsten Mal „Tab-Audio teilen“ anhaken.";
-    const typ = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find((t) => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
-    rec = new MediaRecorder(stream, typ ? { mimeType: typ, videoBitsPerSecond: 8000000 } : undefined);
-    teile = [];
-    rec.ondataavailable = (e) => e.data.size && teile.push(e.data);
-    rec.onstop = () => {
-      stream.getTracks().forEach((t) => t.stop());
-      const blob = new Blob(teile, { type: rec.mimeType || "video/webm" }), url = URL.createObjectURL(blob), mp4 = /mp4/.test(blob.type);
-      const a = document.createElement("a"); a.href = url; a.download = `medat-${format}-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.${mp4 ? "mp4" : "webm"}`; a.click();
-      $("ergebnis").src = url; $("ergebnis").hidden = false;
-      $("rec-hinweis").textContent = `✓ Video gespeichert (${mp4 ? "MP4" : "WebM"}, ${(blob.size / 1048576).toFixed(1)} MB). Es liegt in deinen Downloads.`;
-      rec = null; clearInterval(uhr);
-      $("rec").hidden = false; $("stopp").hidden = true; $("rec-an").hidden = true; $("s1").classList.remove("aus"); $("s2").classList.remove("aus");
-    };
-    vt.onended = () => { if (rec && rec.state !== "inactive") rec.stop(); };
-    $("rec").hidden = true; $("stopp").hidden = false; $("rec-an").hidden = false; $("s1").classList.add("aus"); $("s2").classList.add("aus");
-    rec.start(1000); start = Date.now();
+    if (!S || !S.video) { $("rec-hinweis").textContent = "Die App im Rahmen ist noch nicht bereit."; return; }
+    if (!S.hatErklaerung()) { $("rec-hinweis").textContent = "Zuerst im Rahmen eine Frage falsch beantworten und LernBlick erklären lassen."; return; }
+    $("rec").disabled = true; $("rec-an").hidden = false; $("s1").classList.add("aus"); $("s2").classList.add("aus");
+    start = Date.now();
     uhr = setInterval(() => { const s = Math.floor((Date.now() - start) / 1000); $("rec-zeit").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }, 500);
-    for (const n of [3, 2, 1]) await karte(`<div class="zahl">${n}</div>`, 550);
-    if ($("mit-hook").checked && $("hook").value.trim()) await karte(`<div class="gross">${esc($("hook").value.trim())}</div>`, 3000);
-  };
-  $("stopp").onclick = async () => {
-    if (!rec) return;
-    $("stopp").disabled = true;
-    if ($("mit-schluss").checked && $("schluss").value.trim()) await karte(`<div class="gross">${esc($("schluss").value.trim())}<span class="klein">MedAT Trainer · LernBlick</span></div>`, 3000);
-    $("stopp").disabled = false;
-    if (rec && rec.state !== "inactive") rec.stop();
+    try {
+      const v = await S.video({ format, hook: $("hook").value, schluss: $("schluss").value, mitHook: $("mit-hook").checked, mitSchluss: $("mit-schluss").checked, status: (t) => { $("rec-was").textContent = t; } });
+      const url = URL.createObjectURL(v.blob), a = document.createElement("a"); a.href = url; a.download = v.name; a.click();
+      $("ergebnis").src = url; $("ergebnis").hidden = false;
+      $("rec-hinweis").textContent = `✓ Video fertig (${v.mp4 ? "MP4" : "WebM"}, ${(v.blob.size / 1048576).toFixed(1)} MB). Es liegt in deinen Downloads.`;
+    } catch (e) { $("rec-hinweis").textContent = "Das Video hat nicht geklappt: " + (e.message || e); }
+    clearInterval(uhr); $("rec").disabled = false; $("rec-an").hidden = true; $("s1").classList.remove("aus"); $("s2").classList.remove("aus");
   };
 
   // Hook, Caption, Hashtags zur letzten Erklärung im Rahmen
