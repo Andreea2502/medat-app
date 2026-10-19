@@ -153,6 +153,7 @@ const App = {
   },
 
   showScreen(id) {
+    if (id === 'screen-goodies' && CONFIG.CHEATSHEETS_AKTIV === false) id = 'screen-home';
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id)?.classList.add('active');
     window.scrollTo(0, 0);

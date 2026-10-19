@@ -44,7 +44,6 @@ const BEREICHE = {
   b3: { titel: "Lernplan bis zum MedAT", los: () => App.showScreen("screen-lernplan") },
   b4: { titel: "Prüfungsfallen-Lab (typische Denkfehler trainieren)", los: () => (typeof TrapLab !== "undefined" ? TrapLab.open() : null) },
   b5: { titel: "Simulationen (komplette MedAT-Simulation, Übersicht)", los: () => App.openSimOverview() },
-  b6: { titel: "Cheat-Sheets und Geschenke", los: () => App.showScreen("screen-goodies") },
   b7: { titel: "Statistik und Fortschritt", los: () => App.showScreen("screen-stats") },
   b8: { titel: "Schwächen-Analyse (welche Themen noch wackeln)", los: () => App.showScreen("screen-weakness") },
   b9: { titel: "PDF-Simulator (eigene Simulation zum Ausdrucken zusammenstellen)", los: () => (typeof PDFExport !== "undefined" ? PDFExport.openDialog() : null) },
@@ -62,6 +61,7 @@ async function katalog() {
   let sheets = [];
   try {
     if (typeof Auth !== "undefined" && Auth.supabase) {
+      if (CONFIG.CHEATSHEETS_AKTIV === false) throw 0;
       const { data } = await Auth.supabase.from("goodies").select("id,title,content_highlights,files");
       sheets = (data || []).map((g) => ({ id: g.id, titel: g.title, text: (Array.isArray(g.content_highlights) ? g.content_highlights : []).join(", ") }));
     }

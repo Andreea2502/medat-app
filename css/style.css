@@ -9746,3 +9746,8 @@ body.hide-nav .slide-menu-overlay { display: none !important; }
 /* Aufgeräumt (Okt 2026): ausgeblendete Funktionen bleiben im Code, sind aber nicht mehr sichtbar */
 .app-retired { display: none !important; }
 .home-quick-grid--3 { grid-template-columns: repeat(3, 1fr) !important; }
+
+/* Cheat-Sheets ausgeblendet (CONFIG.CHEATSHEETS_AKTIV = false) */
+html.ohne-cheatsheets [onclick*="screen-goodies"], html.ohne-cheatsheets #snav-goodies, html.ohne-cheatsheets #home-goodies-teaser { display: none !important; }
+html.ohne-cheatsheets .home-quick-grid { display: flex; }
+html.ohne-cheatsheets .home-quick-grid > .home-quick { flex: 1 1 0; min-width: 0; }

@@ -2,6 +2,8 @@
 // Exakte MedAT-H Testspezifikationen
 
 const CONFIG = {
+  // Cheat-Sheets (Bilder) vorerst ausgeblendet – Andreea, 19.10.2026. Auf true setzen, um sie zurückzuholen.
+  CHEATSHEETS_AKTIV: false,
   SUPABASE_URL: 'https://vbmhkdrpglezbznnwpws.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibWhrZHJwZ2xlemJ6bm53cHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwOTAzNzAsImV4cCI6MjA4NDY2NjM3MH0.zsrzk9VxlFaWo7wiAEoPqXoNhONmv85tOBYqu6BFhaE',
 
@@ -133,3 +135,5 @@ const CONFIG = {
     return sid;
   }
 };
+
+if (typeof document !== 'undefined' && CONFIG.CHEATSHEETS_AKTIV === false) document.documentElement.classList.add('ohne-cheatsheets');

@@ -54,6 +54,7 @@ const Goodies = {
   /** Show a teaser on the home screen if there's an unclaimed active goodie.
    *  Called from App.showScreen('screen-home') / home load. */
   async showHomeBanner() {
+    if (CONFIG.CHEATSHEETS_AKTIV === false) return;
     if (!Auth.isLoggedIn || !Auth.currentUser) return;
     const host = document.getElementById('home-goodies-teaser');
     if (!host) return;
