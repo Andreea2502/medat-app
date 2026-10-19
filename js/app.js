@@ -655,6 +655,7 @@ const App = {
       }
     }
 
+    this._medatZiel = new Date(medatDate.getTime());
     const now = new Date();
     const diffMs = medatDate - now;
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));

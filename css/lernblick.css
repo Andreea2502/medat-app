@@ -385,3 +385,12 @@ html.lb-pruefung #lb-fab, html.lb-pruefung #lb-wrong-btn, html.lb-pruefung #as-f
 /* Korrekturen auf dem eigenen Foto: grüne Handschrift wie mit dem Stift */
 @font-face { font-family: "LB Hand"; src: url("/assets/lernblick/caveat-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
 #lernblick-root text[data-teil*="korrektur"], #lernblick-root text[teil*="korrektur"] { font-family: "LB Hand", "Segoe Print", cursive !important; font-weight: 600 !important; letter-spacing: 0 !important; }
+
+/* Warten: Uhr statt Zwischenfragen */
+.lb-stage.waiting .lb-wq-box { display: none !important; }
+.lb-uhr { width: 64px; height: 64px; color: var(--lb-accent, #6b58d6); }
+.lb-uhr-gross { transform-origin: 32px 32px; animation: lb-uhr 2s linear infinite; }
+.lb-uhr-klein { transform-origin: 32px 32px; animation: lb-uhr 24s linear infinite; }
+@keyframes lb-uhr { to { transform: rotate(360deg); } }
+.lb-wait-status { font-size: 20px; font-weight: 600; color: var(--lb-ink, #1a1a2e); animation: lb-satz .5s ease; }
+@media (prefers-reduced-motion: reduce) { .lb-uhr-gross, .lb-uhr-klein { animation: none; } }
