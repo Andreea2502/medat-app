@@ -5007,7 +5007,7 @@ async function studioVorschau() {
   });
   if (z2) { g.fillStyle = "#c9c3ff"; const s2 = hoch ? 54 : 34; umbruch(z2, s2, W - 2 * pad).forEach((z) => { g.font = `700 ${s2}px Inter, Arial, sans-serif`; g.fillText(z, pad, y + s2 * 0.4); y += s2 * 1.25; }); }
   if (tafel) {
-    const tw_ = hoch ? W - 2 * pad : W * 0.46, th = tw_ * 0.6, tx_ = hoch ? pad : W - pad - tw_, ty = hoch ? Math.max(y + 60, H - th - 260) : H - th - pad;
+    const tw_ = hoch ? W - 2 * pad : W * 0.46, th = tw_ * 0.6, tx_ = hoch ? pad : W - pad - tw_, ty = hoch ? Math.min(y + 110, H - th - 260) : H - th - pad;
     g.save(); g.shadowColor = "rgba(0,0,0,.45)"; g.shadowBlur = 40; g.fillStyle = "#fff"; g.beginPath(); g.roundRect ? g.roundRect(tx_, ty, tw_, th, 24) : g.rect(tx_, ty, tw_, th); g.fill(); g.restore();
     g.save(); g.beginPath(); g.roundRect ? g.roundRect(tx_, ty, tw_, th, 24) : g.rect(tx_, ty, tw_, th); g.clip(); g.drawImage(tafel, tx_, ty, tw_, th); g.restore();
   }
