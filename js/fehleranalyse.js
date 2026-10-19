@@ -25,19 +25,26 @@ Fachlich exakt, Niveau Matura/MedAT. aufgaben = die Nummern aus der Liste.`;
     LernBlick.fehler({ bereich: BEREICH(f), text: f.frage, optionen: f.optionen, gewaehlt: f.gewaehlt, richtig: f.richtig, erklaerung: f.erklaerung },
       `Thema: ${thema || BEREICH(f)}${denkfehler ? '. Erkannter Denkfehler: ' + denkfehler : ''}`);
   }
+  // Jede falsche Aufgabe bekommt ihren eigenen Knopf (Andreea, 19.10.2026: „nicht nur ein vorgegebenes … für alles als Auswahl, was ich falsch hatte“)
   function karte(thema, liste, analyse) {
     const d = document.createElement('div'); d.className = 'fa-thema';
-    const video = liste.find((f) => !OHNE_VIDEO.test(f.typ));
     d.innerHTML = `<div class="fa-kopf"><b>${esc(thema)}</b><span class="fa-zahl">${liste.length} Fehler</span></div>
       ${analyse && analyse.denkfehler ? `<p class="fa-df">✗ ${esc(analyse.denkfehler)}</p>` : ''}
-      ${analyse && analyse.merke ? `<p class="fa-merke">💡 ${esc(analyse.merke)}</p>` : ''}
-      <details class="fa-fragen"><summary>Aufgaben ansehen</summary>${liste.map((f) => `<div class="fa-frage"><p>${esc(f.frage.slice(0, 300))}</p>${f.gewaehlt ? `<p class="fa-falsch">Deine Antwort: ${esc(f.gewaehlt)}</p>` : ''}${f.richtig ? `<p class="fa-richtig">Richtig: ${esc(f.richtig)}</p>` : ''}</div>`).join('')}</details>`;
-    if (video) {
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn-cta fa-video';
-      b.innerHTML = '🎬 Maßgeschneidertes Erklärvideo';
-      b.onclick = () => erklaere(video, thema, analyse && analyse.denkfehler);
-      d.appendChild(b);
-    } else d.insertAdjacentHTML('beforeend', '<p class="fa-hinweis">Für diesen Untertest gibt es Strategie-Tipps im Lern-Assistenten statt eines Erklärvideos.</p>');
+      ${analyse && analyse.merke ? `<p class="fa-merke">💡 ${esc(analyse.merke)}</p>` : ''}`;
+    const ul = document.createElement('div'); ul.className = 'fa-liste';
+    liste.forEach((f) => {
+      const z = document.createElement('div'); z.className = 'fa-frage';
+      z.innerHTML = `<p class="fa-ftext">${esc(f.frage.slice(0, 220))}${f.frage.length > 220 ? ' …' : ''}</p>${f.gewaehlt ? `<p class="fa-falsch">Deine Antwort: ${esc(f.gewaehlt)}</p>` : ''}${f.richtig ? `<p class="fa-richtig">Richtig: ${esc(f.richtig)}</p>` : ''}`;
+      if (!OHNE_VIDEO.test(f.typ)) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'btn-cta fa-video';
+        b.textContent = '🎬 Erklärvideo zu dieser Aufgabe';
+        b.onclick = () => erklaere(f, thema, analyse && analyse.denkfehler);
+        z.appendChild(b);
+      }
+      ul.appendChild(z);
+    });
+    d.appendChild(ul);
+    if (liste.every((f) => OHNE_VIDEO.test(f.typ))) d.insertAdjacentHTML('beforeend', '<p class="fa-hinweis">Für diesen Untertest gibt es Strategie-Tipps im Lern-Assistenten statt eines Erklärvideos.</p>');
     return d;
   }
   async function zeige(fehler, modus) {
