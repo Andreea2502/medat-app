@@ -36,11 +36,12 @@ const ERLAUBT = new Set([
   "gemini-3.1-flash-image", "gemini-3.1-flash-image-preview", "gemini-3.1-flash-lite-image",
   "gemini-3.1-flash-lite-image-preview", "gemini-2.5-flash-image",
 ]);
-const OPENAI_SIZE: Record<string, string> = { "3:4": "1024x1536", "4:3": "1536x1024", "1:1": "1024x1024" };
+const OPENAI_SIZE: Record<string, string> = { "3:4": "1024x1536", "4:3": "1536x1024", "1:1": "1024x1024", "16:9": "1536x1024" };
 const ORIENT: Record<string, [string, string]> = {
   hochformat: ["3:4", "PORTRAIT orientation (taller than wide, like an A4 page standing upright)."],
   querformat: ["4:3", "LANDSCAPE orientation (wider than tall)."],
   quadrat: ["1:1", "SQUARE format."],
+  breit: ["16:9", "WIDE LANDSCAPE orientation (16:9)."],
 };
 const TEXT_MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
 
@@ -92,8 +93,10 @@ Deno.serve(async (req: Request) => {
     const stilText = String(b.stil_text || "Hand-drawn sketchnote style on cream paper, black felt-tip lines, small color accents.").slice(0, 900);
     const inhalt = String(b.inhalt || "").slice(0, 1500);
     const [aspect, orientText] = ORIENT[b.orientation] || ORIENT.hochformat;
+    // Raster mit mehreren Abbildungen braucht mehr Pixel (jedes Feld wird einzeln groß gezeigt)
+    const groesse = b.groesse === "2K" ? "2K" : "1K";
     // Fertiger Inhalt (z. B. für Vorschaubilder) überspringt den Text-Schritt
-    let beschreibung = String(b.beschreibung || "").slice(0, 3000);
+    let beschreibung = String(b.beschreibung || "").slice(0, 5000);
 
     // ── 1. Inhalt planen ────────────────────────────────────────────
     if (!beschreibung) {
@@ -175,7 +178,7 @@ Antworte NUR mit der Beschreibung.`;
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             responseModalities: ["TEXT", "IMAGE"], temperature: 0.8,
-            ...(cfg ? { imageConfig: { aspectRatio: aspect, ...(m.startsWith("gemini-2.5") ? {} : { imageSize: "1K" }) } } : {}),
+            ...(cfg ? { imageConfig: { aspectRatio: aspect, ...(m.startsWith("gemini-2.5") ? {} : { imageSize: groesse }) } } : {}),
           },
         }),
       });

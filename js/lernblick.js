@@ -11,7 +11,7 @@ if (window.LernBlick) return;
 const BASE = (() => { try { return new URL("..", document.currentScript.src).href; } catch (e) { return "/"; } })();
 const $ = (id) => document.getElementById("lb-" + id);
 
-const LB_VERSION = "20261019o";
+const LB_VERSION = "20261019p";
 const EXTRAS = "\n\nMOLEKÜLE: Strukturformeln zeichnest du nie selbst mit Linien, sondern immer mit dem Baustein <molekuel> in der ZEICHNUNG (siehe unten). Ein Programm zeichnet daraus die exakte Strukturformel im Tafelstil.\n\nESELSBRÜCKEN: Wenn du eine Eselsbrücke oder einen Merksatz gibst, hänge NACH deinem Text zusätzlich eine Zeile an, damit sie gespeichert wird:\nESELSBRUECKE: Merksatz | wofür er gut ist\n\nTAFEL – du zeichnest wie eine Lehrkraft an der Tafel:\nTafel und Erklärung sind EINE Einheit. Alles, was du sagst (Zahlen, Kästchen, Flächen, Seiten, Formeln, Umformungen, Begriffe), steht auch an der Tafel. Nach Text und Tafel darf keine Frage offen bleiben. Wenn du von Kästchen sprichst, zeichne die Kästchen. Wenn du rechnest, schreib jeden Rechenschritt und jede Umformung als eigene Zeile an.\nZeichne, wann immer ein Bild hilft (Geometrie, Rechnen, Brüche, Zahlen, Graphen, Abläufe, Organe, Mechanismen). Format einer Tafel:\nZEICHNUNG:\n<svg viewBox='0 0 1000 600'> ... </svg>\nDer gesprochene Text zu einer Tafel steht direkt VOR ihrem ZEICHNUNG-Block. Abstand zum Rand mindestens 30.\n\nBAUKASTEN – benutze diese Bausteine, wo sie passen. Das Programm berechnet und zeichnet sie exakt, mit allen Kästchen, Zahlen und Beschriftungen:\n1. <dreieck-rw a='3' b='4' x='30' y='30' breite='550' hoehe='540'/> rechtwinkliges Dreieck: Kathete a unten (blau), Kathete b links (grün), Hypotenuse c (rot). Zeichnet automatisch die Quadrate über allen drei Seiten mit Einheitskästchen zum Abzählen und schreibt a² = 9, b² = 16, c² = 25 hinein. Optional quadrate='nein', kaestchen='nein', c-zeigen='nein' (wenn die Person c selbst finden soll).\n   Teile: kathete-a, kathete-b, hypotenuse, kurze-seite, lange-kathete, rechter-winkel, quadrat-a, quadrat-b, quadrat-c\n2. <gleichung x='620' y='90' zeilen='a² + b² = c²; 3² + 4² = c²; 9 + 16 = c²; 25 = c²; c = √25 = 5' notizen='; einsetzen; Quadrate ausrechnen; zusammenzählen; Wurzel ziehen'/> Rechenweg als Karte: Zeile für Zeile nummeriert, rechts grau was du tust, die letzte Zeile wird als Ergebnis grün hervorgehoben. Mehrere <gleichung> auf einer Tafel stapelt das Programm selbst untereinander.\n   Teile: zeile-1, zeile-2, … , ergebnis\n3. <kaestchen x='60' y='80' spalten='4' zeilen='3' gefuellt='12' farbe='#1f6fd1' zahlen='ja' beschriftung='3 · 4 = 12'/> Kästchengitter mit Seitenlängen zum Zählen, Malnehmen, Flächen.\n   Teile: gitter, gefuellt, kaestchen-1, kaestchen-2, … , breite, hoehe\n4. <bruch-kreis cx='280' cy='290' r='200' teile='4' gefuellt='1' farbe='#d62828' beschriftung='1/4'/> Kreis (Pizza) in gleiche Stücke.   Teile: ganzes, gefuellt, stueck-1, …\n5. <bruch-balken x='60' y='200' breite='500' hoehe='90' teile='5' gefuellt='2' beschriftung='2/5'/>   Teile: ganzes, gefuellt, stueck-1, …\n6. <zahlenstrahl x='60' y='300' laenge='860' von='0' bis='10' schritt='1' markiere='3; 7'/>   Teile: zahlenstrahl, punkt-3, punkt-7, zahl-5\n7. <koordinaten x='60' y='40' breite='520' hoehe='520' xmin='-5' xmax='5' ymin='-5' ymax='5' funktion='x^2; 2*x+1'/> Koordinatensystem mit exakt berechneten Graphen.   Teile: x-achse, y-achse, graph-1, graph-2\n8. <pfeil x1='600' y1='300' x2='800' y2='300' text='wird zu' teil='umwandlung'/>\n9. <molekuel id='m1' smiles='CNC[C@H](O)C1=CC=C([OH:1])C([OH:2])=C1' name='Adrenalin' x='20' y='70' breite='420' hoehe='450' teile='1=phenol-oh-1; 2=phenol-oh-2'/> exakte Strukturformel. Gültige SMILES verwenden. Ringe IMMER in Kekulé-Schreibweise mit Großbuchstaben und = (z. B. Benzol C1=CC=CC=C1, nicht c1ccccc1), damit die Doppelbindungen wie an der Tafel sichtbar sind. Ladungen mit eckigen Klammern ([O-], [NH2+], [Cu+2], [Fe+3]). Atome, über die du sprichst, bekommen im SMILES eine Nummer ([OH:1], [O-:2], [NH:3], [C:4](=O), [N+:5]) und in teile='1=name; 2=name' einen Namen. Auf das ganze Molekül zeigst du mit seiner id oder seinem Namen in Kleinbuchstaben ohne Umlaute (z. B. [[m1|Adrenalin]]).\n   Teile: m1 (ganzes Molekül), die Namen aus teile=, außerdem m1-1, m1-2 … für die nummerierten Atome\n10. <bogenpfeil von='m1:1' nach='m1:3' text='e⁻' teil='elektronenpaar-1'/> gebogener Pfeil von Atom zu Atom (Elektronen, Angriff, Ringschluss). Für abgehende Teilchen ohne Ziel: <bogenpfeil von='m1:1' richtung='oben-rechts' laenge='90' text='H⁺' teil='proton-1-geht'/> (Richtungen: oben, unten, links, rechts, oben-links, oben-rechts, unten-links, unten-rechts).\n11. <titel text='Schritt 1: Oxidation der Hydroxygruppen'/> Überschrift oben links an der Tafel.\n12. <zahlenfolge zahlen='2; 5; 4; 7; 6; 9; ?; ?' boegen='+3; −1; +3; −1; +3; −1; +3' x='40' y='300' breite='920'/> Zahlenfolge in Kästchen, oben jeder Rechenschritt als Bogen, Lücken als ?. Für zwei verschränkte Folgen zusätzlich boegen2='…' (Schritt von jeder Zahl zur übernächsten, unten).\n   Teile: zahl-1 …, bogen-1 …, bogen2-1 …, luecke, muster, muster-2\n13. <venn a='Chirurgen' b='Ärzte' c='Läufer' cx='300' cy='330' r='150' leer='a; ac' kreuz='bc|abc'/> Mengenkreise für Implikationen (c weglassen bei zwei Mengen). Bereiche heißen nach den Mengen, in denen sie GENAU liegen: a, b, c, ab, ac, bc, abc. leer = laut Prämissen leere Bereiche, sie werden schraffiert: 'Alle A sind B' → leer='a; ac'. 'Kein A ist B' → leer='ab; abc'. 'Einige A sind B' → kreuz='ab', oder auf die Grenze 'ab|abc', wenn offen ist, ob es auch in C liegt. Rechts daneben mit text die Prämissen und die geprüften Schlussfolgerungen (✓ / ✗).\n   Teile: kreis-a, kreis-b, kreis-c, leer, kreuz, bereich-ab, bereich-bc …\n14. <buchstaben gemischt='NERGAT' wort='GARTEN'/> Wortflüssigkeit: oben die gemischten Buchstaben, Linien zu ihrem Platz im Lösungswort, der erste Buchstabe rot.\n   Teile: gemischt, loesung, erster-buchstabe, buchstabe-1 …\n15. <zusammensetzen ziel='kreis' teile='5' seed='3'/> Figuren zusammensetzen: links die verstreuten, gedrehten Teile, rechts gestrichelt die Zielfigur (kreis, halbkreis, dreieck, quadrat, rechteck, fuenfeck, sechseck, achteck). Zeigst du im Text auf [[zusammensetzen|…]], gleiten die Teile an ihren Platz.\n   Teile: stueck-1 …, ziel, zusammensetzen\n16. <vergessenskurve tage='30' wiederholungen='1; 3; 7; 14'/> Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen.\n   Teile: ohne-wiederholung, mit-wiederholung, wiederholung-1 …\n17. <gedaechtnispalast raeume='Eingang: Türschild mit dem Namen; Küche: Torte mit dem Geburtsdatum; Bad: Blutgruppe als Badeschaum; …'/> Gedächtnispalast als Grundriss mit Rundgang und einem Merkbild je Raum (höchstens 8 Räume).\n   Teile: raum-1 …, weg\nDie Bausteine 12 bis 17 brauchen meist die ganze Tafel; nur venn lässt rechts Platz für Text.\n\nREAKTIONEN UND MECHANISMEN erklärst du SCHRITT FÜR SCHRITT, so wie Pharmazie- und Medizinstudierende es nachvollziehen müssen:\n- Pro Schritt eine eigene ZEICHNUNG (mehrere ZEICHNUNG-Blöcke hintereinander, 2 bis 5). Jede beginnt mit <titel text='Schritt n: …'/>.\n- Aufbau jedes Schritts: links das Ausgangsmolekül (x='20' breite='420'), in der Mitte ein <pfeil x1='450' y1='300' x2='560' y2='300' text='Reagenz/Bedingung'/>, rechts das Produkt (x='570' breite='410'). Abgehende Teilchen (H⁺, H₂O, e⁻) mit bogenpfeil zeigen, neue Bindungen und Elektronenwege ebenfalls mit bogenpfeil.\n- Benenne und nummeriere die Atome, die sich verändern (abgespaltene Protonen bzw. ihre OH-Gruppen, entstehende Ladungen, der angreifende Stickstoff, die neue Bindung), damit du im Text genau darauf zeigen kannst.\n- Ionen und Reagenzien (z. B. Kupferion) zeichnest du als eigenes kleines <molekuel> mit id, damit man im Text darauf zeigen kann.\n- Im Text schreibst du passend **Schritt 1: …**, **Schritt 2: …** und zeigst in jedem Satz mit [[name|…]] auf genau das, worüber du sprichst. Die Tafel wechselt dann automatisch zum richtigen Schritt.\nNur wenn es wirklich keinen Baustein und keine Schablone gibt, zeichnest du selbst mit line, polyline, polygon, path, circle, ellipse, rect und text (font-size 24 bis 34, text-anchor='middle'). Gib jedem wichtigen Element einen Namen mit teil='name', z. B. teil='zellkern'.\n\nZEIGEN – das Wichtigste: Wenn du im Text über einen Teil der Tafel sprichst, markiere ihn so: [[teilname|sichtbarer Text]]. Beispiel: Schau dir [[kurze-seite|die kurze Seite a]] an. Das [[quadrat-a|blaue Quadrat darunter]] hat 3 · 3 = 9 Kästchen. Genau dieser Teil leuchtet dann an der Tafel auf, während du darüber sprichst. Markiere in jedem Satz, der sich auf die Tafel bezieht, den passenden Teil. Nutze nur Teilnamen, die es an deiner Tafel wirklich gibt.\n\nSo sieht es aus:\n- Moderner, ruhiger Stil: klare Linien, Flächen nur zart eingefärbt (fill mit einer Farbe, ohne fill-style). Wenig Text, viel Luft.\n- Farben: #1e293b dunkel, #dc2626 rot, #2563eb blau, #16a34a grün, #eab308 gelb, #ea580c orange, #7c3aed lila, #db2777 rosa, #8b5a2b braun. Nenne im Text dieselben Farben, die an der Tafel stehen.\n- Reihenfolge der Elemente = Reihenfolge deiner Erklärung (zuerst das Bild, dann die Rechnung).\n- Rechne alle Zahlen korrekt. Text und Tafel zeigen dieselben Zahlen.\n- Keine Styles, keine Skripte, keine Bilder. Wenn eine Zeichnung nichts bringt, lass ZEICHNUNG ganz weg.";
 
 // ================= kleine Helfer =================
@@ -77,6 +77,7 @@ function stellenUmrechnen(text) {
 }
 function repairAnswer(text) {
   text = String(text);
+  if (lb.upload && lb.upload.nurBild && lb.upload.panels) return stellenUmrechnen(text.replace(/^[ \t]*BILDZEICHNUNG:?[ \t]*$/gmi, "").replace(/BILDZEICHNUNG\s*:\s*(?:```[a-z]*\s*)?<svg[\s\S]*?<\/svg>\s*(?:```)?\s*/gi, "").replace(/BILDZEICHNUNG\s*:\s*(?:```[a-z]*\s*)?<svg[\s\S]*$/i, ""));
   const St = lb.upload && lb.upload.nurBild && lb.upload.stellen;
   if (St && St.length >= 2) {
     const H = Math.round(1000 * lb.upload.h / lb.upload.w), fertig = St.map((x) => `<stelle box='${x.box.join(" ")}' teil='${x.teil}'/>`).join("\n");
@@ -2833,15 +2834,15 @@ Danach zeigst du an der Tafel (ZEICHNUNG) Schritt für Schritt, wie es richtig g
   if (lb.upload && lb.upload.nurBild) {
     const Hb = Math.round(1000 * lb.upload.h / lb.upload.w);
     return `${LB_ROLE}\n\nBILD ZU DEINEM FEHLER („${lb.upload.title}“): Eine Bild-KI hat gerade ein Lehrbuch-Bild genau zum Denkfehler der Person gezeichnet. Du erklärst NUR an diesem Bild – wie eine Lehrkraft, die mit dem Stift aufs Bild zeigt.
-${(lb.upload.stellen || []).length >= 2 ? `Diese Stellen im Bild hat das Programm schon genau gefunden und markiert sie, sobald du darauf zeigst:\n${lb.upload.stellen.map((x) => `- ${x.teil}: „${x.label}“`).join("\n")}\nSchreibe KEINE BILDZEICHNUNG – zeige nur im Text mit [[stelle-n|…]] auf diese Stellen. Fehlt dir eine wichtige Stelle, darfst du sie zusätzlich so markieren: ` : ""}Schreibe ${(lb.upload.stellen || []).length >= 2 ? "dafür" : ""} GANZ AM ANFANG
+${lb.upload.panels ? `Das Bild besteht aus ${lb.upload.panels.length} Abbildungen, die NACHEINANDER groß gezeigt werden. Das Programm hat die Stellen darin schon genau gefunden und markiert sie, sobald du darauf zeigst:\n${lb.upload.panels.map((pn, i) => `Abbildung ${i + 1} („${pn.titel.replace(/^\d+ · /, "")}“): ganze Abbildung = ${pn.ganz}${pn.stellen.length ? "; " + pn.stellen.map((x) => `${x.teil} = „${x.label}“`).join(", ") : ""}`).join("\n")}\nGeh die Abbildungen der Reihe nach durch: zu jeder 1 bis 2 Sätze. JEDER Satz zeigt mit [[…|…]] auf eine Stelle oder mit [[bild-n|…]] auf die ganze Abbildung, über die du gerade sprichst – so wechselt die Anzeige automatisch. Der Satz „Darum ist die richtige Antwort …“ und der Merksatz zeigen auf die letzte Abbildung (bzw. die Abbildung „Merke“). Insgesamt höchstens ${lb.upload.panels.length <= 2 ? 7 : 9} Sätze. Schreibe KEINE BILDZEICHNUNG und nicht das Wort BILDZEICHNUNG.\n` : ""}${!lb.upload.panels && (lb.upload.stellen || []).length >= 2 ? `Diese Stellen im Bild hat das Programm schon genau gefunden und markiert sie, sobald du darauf zeigst:\n${lb.upload.stellen.map((x) => `- ${x.teil}: „${x.label}“`).join("\n")}\nSchreibe KEINE BILDZEICHNUNG – zeige nur im Text mit [[stelle-n|…]] auf diese Stellen. Fehlt dir eine wichtige Stelle, darfst du sie zusätzlich so markieren: ` : ""}${lb.upload.panels ? "" : `Schreibe ${(lb.upload.stellen || []).length >= 2 ? "dafür" : ""} GANZ AM ANFANG
 BILDZEICHNUNG:
 <svg viewBox='0 0 1000 ${Hb}'> … </svg>
 mit 3 bis 5 Markierungen, NUR mit diesem Baustein:
 <stelle box='ymin xmin ymax xmax' text='höchstens 3 Wörter' teil='stelle-1'/>
 box ist der Rahmen um genau das gemeinte Objekt bzw. die gemeinte Beschriftung im Bild, im Format [ymin, xmin, ymax, xmax], jeder Wert von 0 bis 1000 (relativ zu Höhe und Breite des Bildes) – so wie bei der Objekterkennung. Suche jede Stelle genau im Bild. text nur, wenn dort im Bild noch keine Beschriftung steht.
-KEINE Tafel: kein ZEICHNUNG-Block, keine Bausteine.
+`}KEINE Tafel: kein ZEICHNUNG-Block, keine Bausteine.
 SO ERKLÄRST DU (wird vorgelesen):
-- Höchstens 7 kurze Sätze, je höchstens 18 Wörter. Einfache Sprache, wie für eine 17-Jährige, die das Thema schon einmal gehört hat. Fachbegriffe nur, wenn sie im Bild stehen oder für die Aufgabe nötig sind – und dann sofort in Alltagsworten erklärt.
+- ${lb.upload.panels ? "Satzanzahl siehe oben" : "Höchstens 7 kurze Sätze"}, je höchstens 16 Wörter. Kein Begrüßungs- oder Trostsatz („Hallo“, „Kein Problem“) – der erste Satz ist sofort der Denkfehler. Einfache Sprache, wie für eine 17-Jährige, die das Thema schon einmal gehört hat. Fachbegriffe nur, wenn sie im Bild stehen oder für die Aufgabe nötig sind – und dann sofort in Alltagsworten erklärt.
 - Satz 1: „Du bist davon ausgegangen, dass …“ (genau ihr Denkfehler).
 - Dann Satz für Satz durchs Bild, jeder Satz zeigt mit [[stelle-n|…]] auf genau eine Stelle. Nur, was den Denkfehler auflöst – nicht das ganze Thema, keine Mechanismen, keine Formeln, die nicht im Bild stehen.
 - Vorletzter Satz: Darum ist die richtige Antwort … .
@@ -3151,79 +3152,139 @@ async function analyseMistake() {
 // ---------- Bild-Erklärung zum Denkfehler (Andreea, 19.10.2026) ----------
 // „Ein Bild, wo auf diesem Bild alles hergezeigt wird, basierend auf diesem Fehler … dauert vielleicht länger, aber ist wirklich maßgeschneidert.“
 // 1. Die KI plant EIN Lehrbuch-Bild, das genau diesen Denkfehler auflöst  2. das Bildmodell zeichnet es  3. LernBlick erklärt kurz und einfach NUR daran.
-const BILD_PLAN = `Du bist eine erfahrene MedAT-Lehrkraft und planst EIN Lehrbuch-Bild, das einer Person genau ihren Denkfehler bei einer Aufgabe zeigt. Das Bild soll so klar sein, dass man die richtige Antwort SIEHT.
-Regeln:
-- Ein Bild, eine Aussage. Nur, was den Denkfehler auflöst – nicht das ganze Thema.
-- Zeichne, wie es wirklich aussieht: Biologie anatomisch bzw. histologisch richtig (Organe, Gewebe, Zellen, Synapse, Keimblätter …). Chemie als anschauliche Szene (Reaktionsgefäß, Teilchen, Thermometer, eine Waage/Wippe für das Gleichgewicht) – keine Reaktionsmechanismen, höchstens EINE kurze Gleichung. Physik als einfacher Versuchsaufbau oder ein klares Diagramm.
-- Kreisläufe und Flüsse (Blutkreislauf, Lungen- und Körperkreislauf, Hormonachsen): als klares Schema – Organe als einfache Formen, Gefäße als dicke rote (sauerstoffreich) und blaue (sauerstoffarm) Pfeile, jede Herzhälfte eindeutig beschriftet – kein realistisches Herz-Innenleben (Bild-KIs vertauschen dort die Seiten).
-- Wenn ein Vorher/Nachher oder „falsch gedacht / richtig“ hilft: links klein und grau, was die Person dachte (rot durchgestrichen), rechts groß, wie es wirklich ist.
-- Höchstens 6 Beschriftungen, je 1–3 Wörter, NUR Deutsch (Herz, nicht Heart), richtig geschrieben. Im Bild keine absoluten Aussagen (einzige, immer), wenn es Ausnahmen gibt.
+// Mehrere Abbildungen in EINEM Bild (Andreea, 19.10.2026): „ein großes Bild … wo 4 verschiedene Abbildungen drauf sind,
+// die alle zum gleichen Thema etwas erklären – mal nur 2, je nachdem, was das Thema braucht“. Die Bild-KI zeichnet ein Raster,
+// das Programm schneidet die Felder aus, und LernBlick erklärt Feld für Feld (jedes Feld eine eigene Tafel).
+const BILD_PLAN = `Du bist eine erfahrene MedAT-Lehrkraft und planst die Abbildungen, die einer Person genau ihren Denkfehler bei einer Aufgabe auflösen. Am Ende SIEHT man, warum die richtige Antwort stimmt.
+Plane 1 bis 4 Abbildungen – so viele, wie das Thema wirklich braucht (eine einfache Verwechslung: 1–2, ein Ablauf oder Mechanismus: 3–4). Jede Abbildung zeigt etwas ANDERES und hat ihre passende Darstellungsart, z. B.:
+- Querschnitt / Längsschnitt (Gewebe, Organ, Zelle, Synapse, Keimblätter) – anatomisch bzw. histologisch richtig
+- Schema (Kreisläufe, Hormonachsen, Regelkreise: Organe als einfache Formen, rote = sauerstoffreich, blaue = sauerstoffarm, jede Herzhälfte beschriftet – kein realistisches Herz-Innenleben)
+- Diagramm / Kurve (Achsen beschriftet, z. B. Gleichgewicht, Enzymkinetik, Aktionspotenzial)
+- Ablauf in Schritten (jede Abbildung ein Schritt)
+- Versuchsaufbau / Schaltplan (Physik, Chemie)
+- Vergleich „du dachtest“ (grau, rot durchgestrichen) gegen „so ist es“
+Regeln für alle Abbildungen: Nur, was den Denkfehler auflöst. Höchstens 4 Beschriftungen pro Abbildung, je 1–3 Wörter, NUR Deutsch (Herz, nicht Heart). Chemie ohne Reaktionsmechanismen, höchstens EINE kurze Gleichung. Keine absoluten Aussagen (nur, einzige, immer), wenn es Ausnahmen gibt.
 Antworte NUR mit JSON:
-{"titel":"höchstens 6 Wörter","bild":"genaue Beschreibung, was wo gezeichnet wird (Mitte, links, rechts, oben, unten), welche Pfeile wohin zeigen und was sie bedeuten","beschriftungen":["…"],"merksatz":"höchstens 12 Wörter, fachlich exakt, passt auf keine falsche Antwort"}`;
+{"titel":"höchstens 6 Wörter","abbildungen":[{"titel":"höchstens 4 Wörter","art":"Querschnitt|Schema|Diagramm|Schritt|Versuchsaufbau|Vergleich","bild":"genaue Beschreibung, was wo gezeichnet wird und welche Pfeile wohin zeigen","beschriftungen":["…"]}],"merksatz":"höchstens 12 Wörter, fachlich exakt, passt auf keine falsche Antwort"}`;
 const BILD_PRUEFEN = `Du bist eine strenge Fachlektorin für Lehrbuch-Abbildungen (Medizin, Biologie, Chemie, Physik). Gehe SYSTEMATISCH vor:
 1. Liste JEDE Beschriftung im Bild auf und beschreibe genau, worauf ihre Linie bzw. ihr Platz zeigt (Farbe, Lage, welche Struktur).
 2. Prüfe für jede: Ist das fachlich die richtige Struktur? Achtung bei Seiten: Im Herzbild liegt die linke Herzhälfte im Bild RECHTS und führt sauerstoffreiches (rotes) Blut; blau = sauerstoffarm = rechte Herzhälfte. Steht eine Beschriftung bei etwas, zu dem sie nicht passt (z. B. ein Ergebnis-Text neben einer Flamme)?
-3. Prüfe Pfeilrichtungen, Schaltpläne, Gleichungen, Kippen von Waagen usw. auf Sinn.
+3. Prüfe Pfeilrichtungen, Kurven, Achsen, Schaltpläne, Gleichungen, Kippen von Waagen usw. auf Sinn.
 4. Doppelte oder überlappende Beschriftungen, verdoppelte Wörter, Tippfehler, englische Wörter?
+5. Sind die Felder des Rasters sauber getrennt (jedes Feld mit Rahmen, Nummer und Überschrift)?
 Nur was eine Person verwirren oder Falsches lehren würde, ist ein Fehler.
 Antworte am Ende NUR mit JSON (die Liste aus Schritt 1 gehört mit hinein): {"beschriftungen":[{"text":"…","zeigt_auf":"…","richtig":true|false}],"ok": true|false, "fehler": ["kurz und konkret, was falsch ist und wie es richtig wäre"]}`;
 const BILD_STELLEN = `Detect the requested items in the image (each is a label text or the object it names). Output a JSON list where each entry contains the 2D bounding box in "box_2d" as [ymin, xmin, ymax, xmax] normalized to 0-1000 and the requested text in "label". Leave out items you cannot find. Output only the JSON.`;
+const BILD_FELDER = `Detect the framed panels of this image grid (each panel has a border, a number badge and a heading). Output a JSON list where each entry contains the 2D bounding box in "box_2d" as [ymin, xmin, ymax, xmax] normalized to 0-1000 and the panel number as "label" ("1", "2", …). Output only the JSON.`;
+const bildJson = (t) => { const s = String(t || "").replace(/^```(?:json)?\s*|\s*```$/g, ""); const a = s.indexOf("["), b = s.lastIndexOf("]"); return a >= 0 && b > a ? JSON.parse(s.slice(a, b + 1)) : []; };
+const bildHolen = (src) => new Promise((ok, no) => { const x = new Image(); x.onload = () => ok(x); x.onerror = no; x.src = src; });
+// Markierungen (Objekterkennung 0–1000) als Ellipsen in den Koordinaten eines Bildes der Breite 1000
+function stellenSvg(stellen, w, h, ganz) {
+  const H = Math.round(1000 * h / w);
+  return `<svg viewBox='0 0 1000 ${H}'>` + (ganz ? `<rect x='0' y='0' width='1000' height='${H}' fill='none' stroke='none' teil='${ganz}'/>` : "") + stellen.map((x) => {
+    const [y1, x1, y2, x2] = x.box, yy1 = y1 * H / 1000, yy2 = y2 * H / 1000;
+    const cx = (x1 + x2) / 2, cy = (yy1 + yy2) / 2, rx = Math.max(22, (x2 - x1) / 2 + 14), ry = Math.max(18, (yy2 - yy1) / 2 + 12);
+    return `<ellipse cx='${cx.toFixed(0)}' cy='${cy.toFixed(0)}' rx='${rx.toFixed(0)}' ry='${ry.toFixed(0)}' fill='none' stroke='#e11d48' stroke-width='5' teil='${x.teil}'/>`;
+  }).join("") + "</svg>";
+}
 async function bildErklaerung(m) {
   const f = lb.ctx && lb.ctx.frage; if (!f) return;
   $("tips").hidden = true;
   const box = el("div", "lb-mistake");
   if (m && m.denkfehler) box.appendChild(el("p", "lb-mistake-err", "✗ " + m.denkfehler));
-  box.appendChild(el("p", "lb-muted", "Ich zeichne dir ein Bild genau zu diesem Fehler – das dauert etwa 30 Sekunden …"));
+  box.appendChild(el("p", "lb-muted", "Ich zeichne dir Bilder genau zu diesem Fehler – das dauert etwa 30–40 Sekunden …"));
   $("chat").replaceChildren(box);
-  startWait(); setWaitStatus("Ich zeichne dir ein Bild genau zu deinem Fehler – etwa 30 Sekunden …");
-  let plan, d;
+  startWait(); setWaitStatus("Ich plane die Abbildungen zu deinem Fehler …");
+  let plan, d, N, layout;
   try {
     const r = await callFn("lernblick-chat", { system_prompt: BILD_PLAN, messages: [{ role: "user", content: contextText(lb.ctx) + (m && m.denkfehler ? `\nERKANNTER DENKFEHLER: ${m.denkfehler}` : "") }], kurz: true });
     plan = quizJson(r.response);
-    if (!plan || !plan.bild) throw new Error("kein Plan");
-    const labels = (plan.beschriftungen || []).slice(0, 6).join(", ");
+    const abb = (plan && plan.abbildungen || []).filter((a) => a && a.bild).slice(0, 4);
+    if (!abb.length) throw new Error("kein Plan");
+    plan.abbildungen = abb; N = abb.length;
+    // Raster: 1 = ein Bild · 2 = nebeneinander (16:9) · 3 = 2×2 mit Merksatz-Feld · 4 = 2×2
+    layout = N === 1 ? null : N === 2 ? "2 Felder nebeneinander (1 Zeile, 2 Spalten)" : "4 Felder im Quadrat (2 Zeilen, 2 Spalten)";
+    const ort = ["links oben", "rechts oben", "links unten", "rechts unten"], ort2 = ["links", "rechts"];
+    const felder = abb.map((a, i) => `FELD ${i + 1} (${N === 2 ? ort2[i] : ort[i]}) – Nummer ${i + 1}, Überschrift „${a.titel || ""}“, ${a.art || "Abbildung"}: ${a.bild}\nBeschriftungen in Feld ${i + 1}: ${(a.beschriftungen || []).slice(0, 4).join(", ")}.`);
+    if (N === 3) felder.push(`FELD 4 (rechts unten) – Nummer 4, Überschrift „Merke“: nur der Merksatz groß und gut lesbar auf hellgrünem Grund: „${plan.merksatz || ""}“`);
     let vermeide = "";
     for (let versuch = 0; versuch < 2; versuch++) {
-    d = await callFn("lernblick-bild", {
-      thema: plan.titel || (f.bereich || "MedAT"), art_label: "Lehrbuch-Bild", orientation: "querformat",
-      art_regeln: "- Ein großes, klares Lehrbuch-Bild, fachlich exakt. Nichts Überflüssiges.\n- Beschriftungen waagerecht, gut lesbar, an dünnen Linien genau zur gemeinten Stelle.\n- Pfeile eindeutig. Viel Luft.",
-      beschreibung: `${plan.bild}${vermeide}\nBeschriftungen: ${labels}.\nÜberschrift oben links: ${plan.titel || ""}. Jede Beschriftung im Bild auf Deutsch – kein englisches Wort (z. B. Herz statt Heart).${plan.merksatz ? `\nUnten ein schmaler grüner Streifen mit dem Merksatz: „${plan.merksatz}“` : ""}\nSonst kein Text.`,
-      stil_text: "Style: high-quality medical/science textbook illustration, clean confident outlines, soft natural colors, white background, labels in a clean sans-serif. Simple, calm, easy to understand at a glance.",
-    });
-    if (!d || !d.image_base64) throw new Error((d && d.error) || "kein Bild");
-    // Bild-KIs vertauschen Beschriftungen oder zeichnen fachlich Falsches: eine zweite KI prüft das Bild, bei Fehlern wird einmal neu gezeichnet
-    if (versuch === 1) break;
-    setWaitStatus("Ich prüfe das Bild auf Fehler …");
-    try {
-      const pr = await callFn("lernblick-chat", { system_prompt: BILD_PRUEFEN, messages: [{ role: "user", content: `GEPLANT:\n${plan.bild}\nBeschriftungen: ${labels}\nAUFGABE: ${f.text || ""}\nRichtig: ${f.richtig || ""}` }], image: d.image_base64 });
-      const j = quizJson(pr.response);
-      if (j && j.ok === false && (j.fehler || []).length) { vermeide = `\nACHTUNG, beim letzten Versuch war falsch – unbedingt vermeiden: ${j.fehler.slice(0, 5).join("; ")}`; setWaitStatus("Im Bild war ein Fehler – ich zeichne es noch einmal richtig …"); continue; }
-    } catch (e) { /* Prüfung nicht möglich: Bild trotzdem nehmen */ }
-    break;
+      setWaitStatus(versuch ? "Im Bild war ein Fehler – ich zeichne es noch einmal richtig …" : `Ich zeichne ${N === 1 ? "das Bild" : N + " Abbildungen"} zu deinem Fehler – etwa 20–30 Sekunden …`);
+      d = await callFn("lernblick-bild", N === 1 ? {
+        thema: plan.titel || (f.bereich || "MedAT"), art_label: "Lehrbuch-Bild", orientation: "querformat", groesse: "2K",
+        art_regeln: "- Ein großes, klares Lehrbuch-Bild, fachlich exakt. Nichts Überflüssiges.\n- Beschriftungen waagerecht, gut lesbar, an dünnen Linien genau zur gemeinten Stelle.\n- Pfeile eindeutig. Viel Luft.",
+        beschreibung: `${abb[0].bild}${vermeide}\nBeschriftungen: ${(abb[0].beschriftungen || []).join(", ")}.\nÜberschrift oben links: ${plan.titel || abb[0].titel || ""}. Jede Beschriftung im Bild auf Deutsch – kein englisches Wort.${plan.merksatz ? `\nUnten ein schmaler grüner Streifen mit dem Merksatz: „${plan.merksatz}“` : ""}\nSonst kein Text.`,
+        stil_text: "Style: high-quality medical/science textbook illustration, clean confident outlines, soft natural colors, white background, labels in a clean sans-serif. Simple, calm, easy to understand at a glance.",
+      } : {
+        thema: plan.titel || (f.bereich || "MedAT"), art_label: "Lehrbuch-Tafel mit mehreren Abbildungen", orientation: N === 2 ? "breit" : "quadrat", groesse: "2K",
+        art_regeln: `- EIN Bild als Raster aus ${N === 3 ? 4 : N} gleich großen Feldern: ${layout}. Zwischen den Feldern breite weiße Zwischenräume.\n- Jedes Feld hat einen dünnen grauen Rahmen, oben links eine kleine Nummer im Kreis und daneben eine kurze Überschrift. Jedes Feld ist eine eigene, in sich vollständige Abbildung.\n- Kein Gesamttitel, kein Text außerhalb der Felder. Beschriftungen waagerecht, groß und gut lesbar, an dünnen Linien genau zur gemeinten Stelle.`,
+        beschreibung: felder.join("\n\n") + vermeide + "\nJede Beschriftung auf Deutsch – kein englisches Wort.",
+        stil_text: "Style: high-quality medical/science textbook illustration panels, clean confident outlines, soft natural colors, white background, labels in a clean sans-serif, consistent style across all panels.",
+      });
+      if (!d || !d.image_base64) throw new Error((d && d.error) || "kein Bild");
+      // Bild-KIs vertauschen Beschriftungen oder zeichnen fachlich Falsches: eine zweite KI prüft, bei Fehlern wird einmal neu gezeichnet
+      if (versuch === 1) break;
+      setWaitStatus("Ich prüfe die Abbildungen auf Fehler …");
+      try {
+        const pr = await callFn("lernblick-chat", { system_prompt: BILD_PRUEFEN, messages: [{ role: "user", content: `GEPLANT:\n${abb.map((a, i) => `Feld ${i + 1}: ${a.bild} (Beschriftungen: ${(a.beschriftungen || []).join(", ")})`).join("\n")}\nAUFGABE: ${f.text || ""}\nRichtig: ${f.richtig || ""}` }], image: d.image_base64 });
+        const j = quizJson(pr.response);
+        if (j && j.ok === false && (j.fehler || []).length) { vermeide = `\nACHTUNG, beim letzten Versuch war falsch – unbedingt vermeiden: ${j.fehler.slice(0, 5).join("; ")}`; continue; }
+      } catch (e) { /* Prüfung nicht möglich: Bild trotzdem nehmen */ }
+      break;
     }
   } catch (e) {
     endWait();
     setStatus("Das Bild hat gerade nicht geklappt – ich erkläre es dir an der Tafel.");
     return ask(m ? `${WRONG_ASK}\n(Hintergrund – erkannter Denkfehler: ${m.denkfehler || ""}. Schon richtig: ${m.richtig_erkannt || ""})` : WRONG_ASK);
   }
-  const url = await kiStempel(`data:${d.mime_type || "image/jpeg"};base64,${d.image_base64}`);
-  const src = await new Promise((ok, no) => { const x = new Image(); x.onload = () => ok(x); x.onerror = no; x.src = url; });
-  const k = Math.min(1, 1400 / Math.max(src.width, src.height)), c = document.createElement("canvas");
-  c.width = Math.round(src.width * k); c.height = Math.round(src.height * k);
-  c.getContext("2d").drawImage(src, 0, 0, c.width, c.height);
-  const dataUrl = c.toDataURL("image/jpeg", 0.88), titel = plan.titel || "Dein Fehler im Bild";
-  // Die Stellen im fertigen Bild genau finden lassen (Objekterkennung) – dann sitzen die Markierungen wirklich drauf
-  let stellen = [];
+  setWaitStatus("Fast fertig – ich suche die Stellen in den Abbildungen …");
+  const roh = `data:${d.mime_type || "image/jpeg"};base64,${d.image_base64}`, src = await bildHolen(roh);
+  // 1. Felder finden (Objekterkennung, sonst gleichmäßig teilen)
+  const gleich = (i) => N === 1 ? [0, 0, 1000, 1000] : N === 2 ? [0, i * 500, 1000, (i + 1) * 500] : [Math.floor(i / 2) * 500, (i % 2) * 500, (Math.floor(i / 2) + 1) * 500, (i % 2 + 1) * 500];
+  let rahmen = abb0(N).map(gleich);
+  function abb0(n) { return Array.from({ length: n === 1 ? 1 : n }, (_, i) => i); }
+  const klein = (() => { const k = Math.min(1, 1600 / Math.max(src.width, src.height)), c = document.createElement("canvas"); c.width = Math.round(src.width * k); c.height = Math.round(src.height * k); c.getContext("2d").drawImage(src, 0, 0, c.width, c.height); return c.toDataURL("image/jpeg", 0.88).split(",")[1]; })();
+  if (N > 1) {
+    try {
+      const r = await callFn("lernblick-chat", { system_prompt: BILD_FELDER, messages: [{ role: "user", content: `There are ${N === 3 ? 4 : N} panels.` }], image: klein, kurz: true });
+      const gef = bildJson(r.response).filter((x) => Array.isArray(x.box_2d) && x.box_2d.length === 4);
+      const neu = rahmen.map((g, i) => { const x = gef.find((y) => String(y.label).replace(/\D/g, "") === String(i + 1)); const b = x && x.box_2d.map(Number); return b && b[2] - b[0] > 200 && b[3] - b[1] > 200 ? b : g; });
+      rahmen = neu;
+    } catch (e) { /* gleichmäßig */ }
+  }
+  // 2. Beschriftungen finden (im ganzen Bild) und dem Feld zuordnen
+  const liste = []; plan.abbildungen.forEach((a, i) => (a.beschriftungen || []).slice(0, 4).forEach((t) => liste.push({ feld: N === 1 ? 0 : i, label: t })));
+  let treffer = [];
   try {
-    setWaitStatus("Fast fertig – ich suche die Stellen im Bild …");
-    const r = await callFn("lernblick-chat", { system_prompt: BILD_STELLEN, messages: [{ role: "user", content: "Detect these items:\n" + (plan.beschriftungen || []).slice(0, 6).map((x, i) => `${i + 1}. ${x}`).join("\n") }], image: dataUrl.split(",")[1], kurz: true });
-    const j = JSON.parse(String(r.response || "").replace(/^```(?:json)?\s*|\s*```$/g, "").replace(/^[^\[]*/, "").replace(/[^\]]*$/, ""));
-    stellen = (Array.isArray(j) ? j : []).filter((x) => x && Array.isArray(x.box_2d) && x.box_2d.length === 4 && x.label).slice(0, 6).map((x, i) => ({ teil: "stelle-" + (i + 1), label: String(x.label).slice(0, 60), box: x.box_2d.map(Number) }));
-  } catch (e) { stellen = []; }
-  lb.upload = { dataUrl, w: c.width, h: c.height, fresh: true, kind: "grafik", nurBild: true, title: titel, stellen };
-  lb.shot = dataUrl; lb.shotW = c.width; lb.shotH = c.height; lb.anchorText = ""; anchors = {};
+    const r = await callFn("lernblick-chat", { system_prompt: BILD_STELLEN, messages: [{ role: "user", content: "Detect these items:\n" + liste.map((x, i) => `${i + 1}. ${x.label}${N > 1 ? ` (in panel ${x.feld + 1})` : ""}`).join("\n") }], image: klein, kurz: true });
+    treffer = bildJson(r.response).filter((x) => x && Array.isArray(x.box_2d) && x.box_2d.length === 4 && x.label);
+  } catch (e) { treffer = []; }
+  // 3. Felder ausschneiden (mit KI-Hinweis), Stellen in Feld-Koordinaten umrechnen
+  let nr = 0; const panels = [];
+  for (let i = 0; i < rahmen.length; i++) {
+    const [y1, x1, y2, x2] = rahmen[i], rand = 8;
+    const sx = Math.max(0, x1 - rand) * src.width / 1000, sy = Math.max(0, y1 - rand) * src.height / 1000, sw = Math.min(1000, x2 + rand) * src.width / 1000 - sx, sh = Math.min(1000, y2 + rand) * src.height / 1000 - sy;
+    const c = document.createElement("canvas"), k = Math.min(1, 1400 / Math.max(sw, sh)); c.width = Math.round(sw * k); c.height = Math.round(sh * k);
+    c.getContext("2d").drawImage(src, sx, sy, sw, sh, 0, 0, c.width, c.height);
+    const gestempelt = await kiStempel(c.toDataURL("image/jpeg", 0.9)), gi = await bildHolen(gestempelt);
+    const stellen = [];
+    treffer.forEach((t) => {
+      // Gleiche Beschriftung in mehreren Feldern (z. B. „Lungenvene“): das Feld nehmen, in dem der Fund wirklich liegt
+      const name = String(t.label).toLowerCase().replace(/\s*\(in panel \d+\)\s*$/, ""), [ty1, tx1, ty2, tx2] = t.box_2d.map(Number), my = (ty1 + ty2) / 2, mx = (tx1 + tx2) / 2;
+      const drin = (k) => { const r = rahmen[k]; return r && my >= r[0] && my <= r[2] && mx >= r[1] && mx <= r[3]; };
+      const kand = liste.filter((x) => x.label.toLowerCase() === name), l = kand.find((x) => drin(x.feld)) || (N === 1 ? kand[0] : null);
+      if (!l || l.feld !== i || !drin(i) && N > 1) return;
+      const [a, b, cc, dd] = t.box_2d.map(Number), fy = (v) => ((v - Math.max(0, y1 - rand)) / (Math.min(1000, y2 + rand) - Math.max(0, y1 - rand))) * 1000 * c.height / gi.height, fx = (v) => ((v - Math.max(0, x1 - rand)) / (Math.min(1000, x2 + rand) - Math.max(0, x1 - rand))) * 1000;
+      stellen.push({ teil: "stelle-" + (++nr), label: l.label, box: [fy(a), fx(b), fy(cc), fx(dd)] });
+    });
+    const ab = plan.abbildungen[i];
+    panels.push({ ganz: "bild-" + (i + 1), dataUrl: gestempelt, w: gi.width, h: gi.height, titel: N === 1 ? (plan.titel || "Dein Fehler im Bild") : `${i + 1} · ${ab ? ab.titel || ab.art || "" : "Merke"}`, stellen });
+  }
+  const ganz = await kiStempel(`data:image/jpeg;base64,${klein}`), gz = await bildHolen(ganz);
+  lb.upload = { dataUrl: ganz, w: gz.width, h: gz.height, fresh: true, kind: "grafik", nurBild: true, title: plan.titel || "Dein Fehler im Bild", panels };
+  lb.shot = ganz; lb.shotW = gz.width; lb.shotH = gz.height; lb.anchorText = ""; anchors = {};
   endWait();
-  ask(`Erklär mir meinen Fehler an diesem Bild – kurz und einfach.${m && m.denkfehler ? `\n(Hintergrund – erkannter Denkfehler: ${m.denkfehler}. Schon richtig: ${m.richtig_erkannt || ""})` : ""}${plan.merksatz ? `\n(Merksatz im Bild: ${plan.merksatz})` : ""}`);
+  ask(`Erklär mir meinen Fehler an diesen Abbildungen – kurz und einfach.${m && m.denkfehler ? `\n(Hintergrund – erkannter Denkfehler: ${m.denkfehler}. Schon richtig: ${m.richtig_erkannt || ""})` : ""}${plan.merksatz ? `\n(Merksatz: ${plan.merksatz})` : ""}`);
 }
 // Gesprächsstarter (ersetzt das frühere KI-Lern-Studio): sofort fragen oder Satzanfang vorgeben
 const STARTERS = [
@@ -3752,7 +3813,8 @@ function presentAnswer(text, o) {
     renderStrip(); updateStageNav();
   } else if (okSvgs.length || mols.length || upload) {
     const firstIdx = cur.boards.length;
-    if (upload) cur.boards.push({ upload: upload.dataUrl, uw: upload.w, uh: upload.h, svg: (upload.kind ? imgSvg : fotoMarken(imgSvg, upload)) || null, overlay: true, mols: [], q: o.q, titel: upload.kind === "sheet" ? "Cheat-Sheet: " + upload.title : upload.kind === "grafik" ? upload.title : "Dein Bild", teile: imgSvg ? teileOf(imgSvg, allRefs) : [] });
+    if (upload && upload.panels) upload.panels.forEach((pn) => cur.boards.push({ upload: pn.dataUrl, uw: pn.w, uh: pn.h, svg: stellenSvg(pn.stellen, pn.w, pn.h, pn.ganz), overlay: true, mols: [], q: o.q, titel: pn.titel, teile: [pn.ganz, ...pn.stellen.map((x) => x.teil)] }));
+    else if (upload) cur.boards.push({ upload: upload.dataUrl, uw: upload.w, uh: upload.h, svg: (upload.kind ? imgSvg : fotoMarken(imgSvg, upload)) || null, overlay: true, mols: [], q: o.q, titel: upload.kind === "sheet" ? "Cheat-Sheet: " + upload.title : upload.kind === "grafik" ? upload.title : "Dein Bild", teile: imgSvg ? teileOf(imgSvg, allRefs) : [] });
     if (!okSvgs.length && mols.length) cur.boards.push({ svg: null, mols, q: o.q, teile: mols.map((m) => slug(m.name)) });
     okSvgs.forEach((sv, k) => cur.boards.push({ svg: sv, mols: k === 0 ? mols : [], q: o.q, titel: titleOf(sv), teile: teileOf(sv, allRefs), side: isSide(k) }));
     answerBoards = [firstIdx, cur.boards.length - 1];
@@ -5167,7 +5229,7 @@ const HOOK_ARTEN = [
   "Geständnis in Ich-Form („Ich war mir 100 % sicher – und lag falsch“)",
   "Direkte Frage an die Zuschauer, die man im Kopf sofort beantwortet (und meist falsch)",
   "Provokante Behauptung, die zuerst falsch klingt",
-  "Zahl oder Statistik („8 von 10 tippen hier B“)",
+  "Kurze Wette an die Zuschauer („Wetten, du tippst hier B?“) – NIE erfundene Zahlen oder Statistiken",
   "Warnung vor einer Falle im MedAT („Diese Antwort kostet dich Punkte“)",
   "Mini-Rätsel: Zuschauer sollen vor der Auflösung selbst tippen („Pausier und tipp: A oder B?“)",
   "Mythos gegen Wahrheit („Venen = sauerstoffarm? Nicht immer.“)",
@@ -5181,7 +5243,7 @@ async function studioPaket() {
   // Jedes Video anders (Andreea, 19.10.2026: „immer andere Hooks, andere Captions“): Hook-Art reihum, letzte Hooks nicht wiederholen
   let alt = []; try { alt = JSON.parse(localStorage.getItem("lb-studio-hooks") || "[]"); } catch (e) {}
   const art = HOOK_ARTEN[(alt.length + Math.floor(Math.random() * 3)) % HOOK_ARTEN.length];
-  const extra = `\n\nHOOK-ART DIESMAL: ${art}\nDer Hook muss fachlich stimmen – lieber eine Frage oder ein Geständnis als eine falsche Behauptung.\nCAPTION: andere Satzanfänge und ein anderer Aufbau als sonst; nicht mit „Kennst du das“ oder „POV“ beginnen, außer die Hook-Art verlangt es.\nSCHLUSS: jedes Mal anders formuliert (z. B. eine Frage an die Zuschauer, eine Aufforderung zum Speichern, ein Ausblick aufs nächste Video) – nicht „Damit dir das im MedAT nicht passiert – folge für mehr“.${alt.length ? `\nDiese Hooks gab es schon – nichts davon wiederholen, auch nicht sinngemäß:\n${alt.slice(-12).map((h) => "- " + h).join("\n")}` : ""}`;
+  const extra = `\n\nHOOK-ART DIESMAL: ${art}\nDer Hook muss fachlich stimmen – lieber eine Frage oder ein Geständnis als eine falsche Behauptung. Keine erfundenen Zahlen („8 von 10 …“), keine Statistiken ohne Quelle.\nCAPTION: andere Satzanfänge und ein anderer Aufbau als sonst; nicht mit „Kennst du das“ oder „POV“ beginnen, außer die Hook-Art verlangt es.\nSCHLUSS: jedes Mal anders formuliert (z. B. eine Frage an die Zuschauer, eine Aufforderung zum Speichern, ein Ausblick aufs nächste Video) – nicht „Damit dir das im MedAT nicht passiert – folge für mehr“.${alt.length ? `\nDiese Hooks gab es schon – nichts davon wiederholen, auch nicht sinngemäß:\n${alt.slice(-12).map((h) => "- " + h).join("\n")}` : ""}`;
   const d = await callFn("lernblick-chat", { system_prompt: STUDIO_PAKET, messages: [{ role: "user", content: inhalt + extra }], kurz: true });
   const P = quizJson(d.response);
   try { localStorage.setItem("lb-studio-hooks", JSON.stringify([...alt, P.hook, ...(P.hooks_alt || [])].filter(Boolean).slice(-30))); } catch (e) {}
@@ -5437,6 +5499,8 @@ async function studioVideo(o = {}) {
   if (VID.laeuft) throw new Error("Es läuft schon ein Video.");
   if (!lastBody || !narr || !narr.sents || !narr.sents.length) throw new Error("Zuerst im Rahmen eine Erklärung von LernBlick laufen lassen.");
   if (!(lb.speak && lb.natural)) throw new Error("Das Video braucht die natürliche Stimme. Schalte sie in LernBlick ein und lass die Erklärung einmal laufen.");
+  // Läuft die Erklärung noch (Stimme), sofort anhalten – sonst wäre sie während Hook und Frage im Video zu hören und der Anfang doppelt
+  stopWalk(); narr.stopped = true; studio.ende = null;
   ensureJobs(narr);
   narr.parts.forEach((p) => { if (!p.audio) loadPart(narr, p); });
   const t0 = Date.now(); o.status && o.status("Ich hole die Stimme …");
