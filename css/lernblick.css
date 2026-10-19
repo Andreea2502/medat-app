@@ -484,3 +484,8 @@ html.lb-studio .lb-stage-main .board { overflow: hidden; }
 html.lb-studio-16x9 .lb-stage-main .board { width: min(100%, calc((100cqh - 200px) * 1.6667)); }
 html.lb-studio-9x16 .lb-stage-main .board { width: min(100%, calc((100cqh - 300px) * 1.6667)); }
 html.lb-studio .lb-taphint { display: none !important; }
+/* Handy hochkant: die Tafel bekommt mehr Höhe, die Kamera zoomt auf die gezeigte Stelle (studioZoom) */
+@media (max-width: 640px) and (orientation: portrait) {
+  #lernblick-root .lb-stage-main .board:not(.side):has(> svg) { height: min(56vh, 520px); overflow: hidden; }
+  #lernblick-root .lb-stage-main .board:not(.side) > svg { width: 100%; height: 100%; }
+}

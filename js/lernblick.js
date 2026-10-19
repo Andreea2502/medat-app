@@ -11,7 +11,7 @@ if (window.LernBlick) return;
 const BASE = (() => { try { return new URL("..", document.currentScript.src).href; } catch (e) { return "/"; } })();
 const $ = (id) => document.getElementById("lb-" + id);
 
-const LB_VERSION = "20261019j";
+const LB_VERSION = "20261019k";
 const EXTRAS = "\n\nMOLEKÜLE: Strukturformeln zeichnest du nie selbst mit Linien, sondern immer mit dem Baustein <molekuel> in der ZEICHNUNG (siehe unten). Ein Programm zeichnet daraus die exakte Strukturformel im Tafelstil.\n\nESELSBRÜCKEN: Wenn du eine Eselsbrücke oder einen Merksatz gibst, hänge NACH deinem Text zusätzlich eine Zeile an, damit sie gespeichert wird:\nESELSBRUECKE: Merksatz | wofür er gut ist\n\nTAFEL – du zeichnest wie eine Lehrkraft an der Tafel:\nTafel und Erklärung sind EINE Einheit. Alles, was du sagst (Zahlen, Kästchen, Flächen, Seiten, Formeln, Umformungen, Begriffe), steht auch an der Tafel. Nach Text und Tafel darf keine Frage offen bleiben. Wenn du von Kästchen sprichst, zeichne die Kästchen. Wenn du rechnest, schreib jeden Rechenschritt und jede Umformung als eigene Zeile an.\nZeichne, wann immer ein Bild hilft (Geometrie, Rechnen, Brüche, Zahlen, Graphen, Abläufe, Organe, Mechanismen). Format einer Tafel:\nZEICHNUNG:\n<svg viewBox='0 0 1000 600'> ... </svg>\nDer gesprochene Text zu einer Tafel steht direkt VOR ihrem ZEICHNUNG-Block. Abstand zum Rand mindestens 30.\n\nBAUKASTEN – benutze diese Bausteine, wo sie passen. Das Programm berechnet und zeichnet sie exakt, mit allen Kästchen, Zahlen und Beschriftungen:\n1. <dreieck-rw a='3' b='4' x='30' y='30' breite='550' hoehe='540'/> rechtwinkliges Dreieck: Kathete a unten (blau), Kathete b links (grün), Hypotenuse c (rot). Zeichnet automatisch die Quadrate über allen drei Seiten mit Einheitskästchen zum Abzählen und schreibt a² = 9, b² = 16, c² = 25 hinein. Optional quadrate='nein', kaestchen='nein', c-zeigen='nein' (wenn die Person c selbst finden soll).\n   Teile: kathete-a, kathete-b, hypotenuse, kurze-seite, lange-kathete, rechter-winkel, quadrat-a, quadrat-b, quadrat-c\n2. <gleichung x='620' y='90' zeilen='a² + b² = c²; 3² + 4² = c²; 9 + 16 = c²; 25 = c²; c = √25 = 5' notizen='; einsetzen; Quadrate ausrechnen; zusammenzählen; Wurzel ziehen'/> Rechenweg als Karte: Zeile für Zeile nummeriert, rechts grau was du tust, die letzte Zeile wird als Ergebnis grün hervorgehoben. Mehrere <gleichung> auf einer Tafel stapelt das Programm selbst untereinander.\n   Teile: zeile-1, zeile-2, … , ergebnis\n3. <kaestchen x='60' y='80' spalten='4' zeilen='3' gefuellt='12' farbe='#1f6fd1' zahlen='ja' beschriftung='3 · 4 = 12'/> Kästchengitter mit Seitenlängen zum Zählen, Malnehmen, Flächen.\n   Teile: gitter, gefuellt, kaestchen-1, kaestchen-2, … , breite, hoehe\n4. <bruch-kreis cx='280' cy='290' r='200' teile='4' gefuellt='1' farbe='#d62828' beschriftung='1/4'/> Kreis (Pizza) in gleiche Stücke.   Teile: ganzes, gefuellt, stueck-1, …\n5. <bruch-balken x='60' y='200' breite='500' hoehe='90' teile='5' gefuellt='2' beschriftung='2/5'/>   Teile: ganzes, gefuellt, stueck-1, …\n6. <zahlenstrahl x='60' y='300' laenge='860' von='0' bis='10' schritt='1' markiere='3; 7'/>   Teile: zahlenstrahl, punkt-3, punkt-7, zahl-5\n7. <koordinaten x='60' y='40' breite='520' hoehe='520' xmin='-5' xmax='5' ymin='-5' ymax='5' funktion='x^2; 2*x+1'/> Koordinatensystem mit exakt berechneten Graphen.   Teile: x-achse, y-achse, graph-1, graph-2\n8. <pfeil x1='600' y1='300' x2='800' y2='300' text='wird zu' teil='umwandlung'/>\n9. <molekuel id='m1' smiles='CNC[C@H](O)C1=CC=C([OH:1])C([OH:2])=C1' name='Adrenalin' x='20' y='70' breite='420' hoehe='450' teile='1=phenol-oh-1; 2=phenol-oh-2'/> exakte Strukturformel. Gültige SMILES verwenden. Ringe IMMER in Kekulé-Schreibweise mit Großbuchstaben und = (z. B. Benzol C1=CC=CC=C1, nicht c1ccccc1), damit die Doppelbindungen wie an der Tafel sichtbar sind. Ladungen mit eckigen Klammern ([O-], [NH2+], [Cu+2], [Fe+3]). Atome, über die du sprichst, bekommen im SMILES eine Nummer ([OH:1], [O-:2], [NH:3], [C:4](=O), [N+:5]) und in teile='1=name; 2=name' einen Namen. Auf das ganze Molekül zeigst du mit seiner id oder seinem Namen in Kleinbuchstaben ohne Umlaute (z. B. [[m1|Adrenalin]]).\n   Teile: m1 (ganzes Molekül), die Namen aus teile=, außerdem m1-1, m1-2 … für die nummerierten Atome\n10. <bogenpfeil von='m1:1' nach='m1:3' text='e⁻' teil='elektronenpaar-1'/> gebogener Pfeil von Atom zu Atom (Elektronen, Angriff, Ringschluss). Für abgehende Teilchen ohne Ziel: <bogenpfeil von='m1:1' richtung='oben-rechts' laenge='90' text='H⁺' teil='proton-1-geht'/> (Richtungen: oben, unten, links, rechts, oben-links, oben-rechts, unten-links, unten-rechts).\n11. <titel text='Schritt 1: Oxidation der Hydroxygruppen'/> Überschrift oben links an der Tafel.\n12. <zahlenfolge zahlen='2; 5; 4; 7; 6; 9; ?; ?' boegen='+3; −1; +3; −1; +3; −1; +3' x='40' y='300' breite='920'/> Zahlenfolge in Kästchen, oben jeder Rechenschritt als Bogen, Lücken als ?. Für zwei verschränkte Folgen zusätzlich boegen2='…' (Schritt von jeder Zahl zur übernächsten, unten).\n   Teile: zahl-1 …, bogen-1 …, bogen2-1 …, luecke, muster, muster-2\n13. <venn a='Chirurgen' b='Ärzte' c='Läufer' cx='300' cy='330' r='150' leer='a; ac' kreuz='bc|abc'/> Mengenkreise für Implikationen (c weglassen bei zwei Mengen). Bereiche heißen nach den Mengen, in denen sie GENAU liegen: a, b, c, ab, ac, bc, abc. leer = laut Prämissen leere Bereiche, sie werden schraffiert: 'Alle A sind B' → leer='a; ac'. 'Kein A ist B' → leer='ab; abc'. 'Einige A sind B' → kreuz='ab', oder auf die Grenze 'ab|abc', wenn offen ist, ob es auch in C liegt. Rechts daneben mit text die Prämissen und die geprüften Schlussfolgerungen (✓ / ✗).\n   Teile: kreis-a, kreis-b, kreis-c, leer, kreuz, bereich-ab, bereich-bc …\n14. <buchstaben gemischt='NERGAT' wort='GARTEN'/> Wortflüssigkeit: oben die gemischten Buchstaben, Linien zu ihrem Platz im Lösungswort, der erste Buchstabe rot.\n   Teile: gemischt, loesung, erster-buchstabe, buchstabe-1 …\n15. <zusammensetzen ziel='kreis' teile='5' seed='3'/> Figuren zusammensetzen: links die verstreuten, gedrehten Teile, rechts gestrichelt die Zielfigur (kreis, halbkreis, dreieck, quadrat, rechteck, fuenfeck, sechseck, achteck). Zeigst du im Text auf [[zusammensetzen|…]], gleiten die Teile an ihren Platz.\n   Teile: stueck-1 …, ziel, zusammensetzen\n16. <vergessenskurve tage='30' wiederholungen='1; 3; 7; 14'/> Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen.\n   Teile: ohne-wiederholung, mit-wiederholung, wiederholung-1 …\n17. <gedaechtnispalast raeume='Eingang: Türschild mit dem Namen; Küche: Torte mit dem Geburtsdatum; Bad: Blutgruppe als Badeschaum; …'/> Gedächtnispalast als Grundriss mit Rundgang und einem Merkbild je Raum (höchstens 8 Räume).\n   Teile: raum-1 …, weg\nDie Bausteine 12 bis 17 brauchen meist die ganze Tafel; nur venn lässt rechts Platz für Text.\n\nREAKTIONEN UND MECHANISMEN erklärst du SCHRITT FÜR SCHRITT, so wie Pharmazie- und Medizinstudierende es nachvollziehen müssen:\n- Pro Schritt eine eigene ZEICHNUNG (mehrere ZEICHNUNG-Blöcke hintereinander, 2 bis 5). Jede beginnt mit <titel text='Schritt n: …'/>.\n- Aufbau jedes Schritts: links das Ausgangsmolekül (x='20' breite='420'), in der Mitte ein <pfeil x1='450' y1='300' x2='560' y2='300' text='Reagenz/Bedingung'/>, rechts das Produkt (x='570' breite='410'). Abgehende Teilchen (H⁺, H₂O, e⁻) mit bogenpfeil zeigen, neue Bindungen und Elektronenwege ebenfalls mit bogenpfeil.\n- Benenne und nummeriere die Atome, die sich verändern (abgespaltene Protonen bzw. ihre OH-Gruppen, entstehende Ladungen, der angreifende Stickstoff, die neue Bindung), damit du im Text genau darauf zeigen kannst.\n- Ionen und Reagenzien (z. B. Kupferion) zeichnest du als eigenes kleines <molekuel> mit id, damit man im Text darauf zeigen kann.\n- Im Text schreibst du passend **Schritt 1: …**, **Schritt 2: …** und zeigst in jedem Satz mit [[name|…]] auf genau das, worüber du sprichst. Die Tafel wechselt dann automatisch zum richtigen Schritt.\nNur wenn es wirklich keinen Baustein und keine Schablone gibt, zeichnest du selbst mit line, polyline, polygon, path, circle, ellipse, rect und text (font-size 24 bis 34, text-anchor='middle'). Gib jedem wichtigen Element einen Namen mit teil='name', z. B. teil='zellkern'.\n\nZEIGEN – das Wichtigste: Wenn du im Text über einen Teil der Tafel sprichst, markiere ihn so: [[teilname|sichtbarer Text]]. Beispiel: Schau dir [[kurze-seite|die kurze Seite a]] an. Das [[quadrat-a|blaue Quadrat darunter]] hat 3 · 3 = 9 Kästchen. Genau dieser Teil leuchtet dann an der Tafel auf, während du darüber sprichst. Markiere in jedem Satz, der sich auf die Tafel bezieht, den passenden Teil. Nutze nur Teilnamen, die es an deiner Tafel wirklich gibt.\n\nSo sieht es aus:\n- Moderner, ruhiger Stil: klare Linien, Flächen nur zart eingefärbt (fill mit einer Farbe, ohne fill-style). Wenig Text, viel Luft.\n- Farben: #1e293b dunkel, #dc2626 rot, #2563eb blau, #16a34a grün, #eab308 gelb, #ea580c orange, #7c3aed lila, #db2777 rosa, #8b5a2b braun. Nenne im Text dieselben Farben, die an der Tafel stehen.\n- Reihenfolge der Elemente = Reihenfolge deiner Erklärung (zuerst das Bild, dann die Rechnung).\n- Rechne alle Zahlen korrekt. Text und Tafel zeigen dieselben Zahlen.\n- Keine Styles, keine Skripte, keine Bilder. Wenn eine Zeichnung nichts bringt, lass ZEICHNUNG ganz weg.";
 
 // ================= kleine Helfer =================
@@ -1304,6 +1304,15 @@ function compNet(A) {
   for (let it = 0; it < order.length; it++) edges.forEach((e) => { if (fwd(e) && level[e.b] < level[e.a] + 1) level[e.b] = level[e.a] + 1; });
   const horiz = /rechts|horizontal/i.test(String(A("richtung") || ""));
   const layers = []; order.forEach((k) => { (layers[level[k]] = layers[level[k]] || []).push(k); });
+  // Reihenfolge innerhalb der Ebenen so wählen, dass sich möglichst wenige Pfeile kreuzen (Mittelwert der Nachbarn, mehrere Durchgänge)
+  // – Andreea, 19.10.2026: „alles so kreuz und quer“
+  const idx = (k) => { const ly = layers[level[k]]; return ly.indexOf(k) / Math.max(1, ly.length - 1); };
+  const fwdE = edges.filter((e) => order.indexOf(e.a) < order.indexOf(e.b));
+  const mitte = (k, nb) => { const v = nb.map(idx); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : idx(k); };
+  for (let pass = 0; pass < 4; pass++) {
+    for (let li = 1; li < layers.length; li++) { const m = {}; layers[li].forEach((k) => (m[k] = mitte(k, fwdE.filter((e) => e.b === k && level[e.a] < li).map((e) => e.a)))); layers[li].sort((a, b) => m[a] - m[b]); }
+    for (let li = layers.length - 2; li >= 0; li--) { const m = {}; layers[li].forEach((k) => (m[k] = mitte(k, fwdE.filter((e) => e.a === k && level[e.b] > li).map((e) => e.b)))); layers[li].sort((a, b) => m[a] - m[b]); }
+  }
   const L = layers.length, x0 = 50, y0 = 100, W = 900, H = 470, out = [], pos = {};
   layers.forEach((ly, li) => ly.forEach((k, j) => {
     const a = (li + 0.5) / L, b = (j + 0.5) / ly.length;
@@ -1313,6 +1322,26 @@ function compNet(A) {
   const sizes = {};
   order.forEach((k, i) => { const col = level[k] === 0 ? C.red : PALE[(i + level[k]) % PALE.length]; const r = boxText(pos[k][0], pos[k][1], nodes[k].label, { w: boxW, size: 22, chars: Math.max(8, Math.round(boxW / 12)), color: col, teil: `knoten ${k} ${keyOf(nodes[k].label)}` }); sizes[k] = r; });
   const boxes = []; order.forEach((k) => boxes.push(...sizes[k].out));
+  // Kantenbeschriftungen: Platz suchen, der weder andere Beschriftungen noch Kästchen überdeckt
+  const belegt = order.map((k) => ({ x1: pos[k][0] - sizes[k].w / 2 - 4, x2: pos[k][0] + sizes[k].w / 2 + 4, y1: pos[k][1] - sizes[k].h / 2 - 4, y2: pos[k][1] + sizes[k].h / 2 + 4 }));
+  const ueber = (a) => belegt.reduce((s, b) => s + Math.max(0, Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)) * Math.max(0, Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1)), 0);
+  let ueberLinieF = () => 0;
+  const beschrifte = (sx, sy, ex, ey, text, te, eigene) => {
+    const w = tw(text, 18) + 10, h = 24;
+    let best = null;
+    const steil = Math.abs(ey - sy) > Math.abs(ex - sx) * 0.6;
+    // neben der Linie, nicht auf ihr: bei steilen Pfeilen rechts oder links daneben, bei flachen darüber oder darunter
+    const seiten = steil ? [[w / 2 + 12, 0], [-w / 2 - 12, 0]] : [[0, -18], [0, 20]];
+    outer: for (const t of [0.5, 0.38, 0.62, 0.28, 0.72]) for (const [dx, dy] of seiten) {
+      const cx = sx + (ex - sx) * t + dx, cy = sy + (ey - sy) * t + dy, rc = { x1: cx - w / 2, x2: cx + w / 2, y1: cy - h / 2, y2: cy + h / 2 };
+      const o = ueber(rc) + ueberLinieF(rc, eigene) + (rc.x1 < 30 || rc.x2 > 970 ? 1e6 : 0);
+      if (!best || o < best.o) best = { cx, cy, rc, o };
+      if (!o) break outer;
+    }
+    belegt.push(best.rc);
+    out.push(S("text", { x: best.cx, y: best.cy + 6, "font-size": 18, fill: "#7b3fc4", "text-anchor": "middle", stroke: "#ffffff", "stroke-width": 6, "paint-order": "stroke", "stroke-linejoin": "round", teil: te }, text));
+  };
+  const labels = [];
   edges.forEach((e, i) => {
     const [ax, ay] = pos[e.a], [bx, by] = pos[e.b], ha = sizes[e.a].h / 2 + 4, hb = sizes[e.b].h / 2 + 4, wa = sizes[e.a].w / 2 + 4, wb = sizes[e.b].w / 2 + 4;
     const back = !fwd(e);
@@ -1330,7 +1359,22 @@ function compNet(A) {
     }
     const [sx, sy] = clip(ax, ay, bx, by, wa, ha), [ex, ey] = clip(bx, by, ax, ay, wb, hb);
     if (e.type === "-") out.push(ln(sx, sy, ex, ey, C.ink, 3, te, true)); else out.push(...arrowLine(sx, sy, ex, ey, C.ink, 3, te, e.type === "<>"));
-    if (e.label) { const flat = Math.abs(ey - sy) < 30; out.push(tx((sx + ex) / 2 + (flat ? 0 : 10), (sy + ey) / 2 + (flat ? -16 : 6), e.label, { size: 19, fill: "#7b3fc4", anchor: flat ? "middle" : "start", teil: te })); }
+    if (e.label) labels.push([sx, sy, ex, ey, e.label, te, e]);
+  });
+  // Andere Pfeile sind auch Hindernisse (Beschriftung soll keinen fremden Pfeil überdecken)
+  const linien = labels.map(([sx, sy, ex, ey]) => [sx, sy, ex, ey]);
+  const ueberLinie = (rc, eigene) => linien.reduce((n, l) => { if (l === eigene) return n; for (let t = 0; t <= 1; t += 0.05) { const x = l[0] + (l[2] - l[0]) * t, y = l[1] + (l[3] - l[1]) * t; if (x > rc.x1 && x < rc.x2 && y > rc.y1 && y < rc.y2) n += 400; } return n; }, 0);
+  ueberLinieF = ueberLinie;
+  const ein = {}; edges.forEach((e) => { ein[e.b] = (ein[e.b] || 0) + 1; });
+  labels.forEach((l, i) => {
+    const e = l[6];
+    // Hat das Ziel nur diesen einen Pfeil: Beschriftung direkt unter das Ziel-Kästchen (eindeutig, nichts kreuzt)
+    if (!horiz && e && ein[e.b] === 1 && level[e.b] === L - 1) {
+      const [bx, by] = pos[e.b], zeilen = wrapWords(l[4], Math.max(10, Math.round(sizes[e.b].w / 9)), 2);
+      zeilen.forEach((z, k) => out.push(S("text", { x: bx, y: by + sizes[e.b].h / 2 + 24 + k * 21, "font-size": 17, fill: "#7b3fc4", "text-anchor": "middle", teil: l[5] }, z)));
+      return;
+    }
+    beschrifte(l[0], l[1], l[2], l[3], l[4], l[5], linien[i]);
   });
   return [...out, ...boxes];
 }
@@ -2872,7 +2916,7 @@ function buildUI() {
   $("end-weiter").onclick = () => { $("endbar").hidden = true; ask("Weiter: Erklär mir den nächsten wichtigen Punkt zu diesem Thema – Schritt für Schritt an der Tafel."); };
   $("end-quiz").onclick = () => { $("endbar").hidden = true; startQuiz(); };
   // Weg 2 auf Wunsch: wer es nach der Tafel noch nicht verstanden hat, bekommt eine genaue Abbildung (Andreea, 19.10.2026)
-  $("end-skizze").onclick = () => { $("endbar").hidden = true; ask("Ich habe es noch nicht ganz verstanden. Zeichne mir genau diesen Ablauf als Profi-Skizze (eine genaue Abbildung mit allen wichtigen Beschriftungen) und erkläre sie Schritt für Schritt – wieder genau anhand meines Denkfehlers."); };
+  $("end-skizze").onclick = () => { $("endbar").hidden = true; ask("Ich habe es noch nicht ganz verstanden. PROFI-SKIZZE: Zeichne genau dieses Thema als EINE große, genaue Abbildung mit dem Baustein <abbildung motiv='…' begriffe='…'/> (wie eine Lehrbuch-Abbildung, höchstens 6 Beschriftungen, KEIN <netz>, keine Kästchen mit Pfeilen) und erkläre sie Schritt für Schritt, wo was im Bild liegt – wieder genau anhand meines Denkfehlers."); };
   $("end-neu").onclick = () => { $("endbar").hidden = true; closeStage(); setTimeout(() => $("q").focus(), 50); };
   $("reshot").onclick = async () => { lb.upload = null; await takeShot(true); };
   $("toggle-draw").onclick = () => { drawHidden = !drawHidden; $("imgdraw").style.visibility = drawHidden ? "hidden" : "visible"; $("toggle-draw").textContent = drawHidden ? "Zeichnung einblenden" : "Zeichnung ausblenden"; };
@@ -2908,7 +2952,7 @@ function buildUI() {
   $("prev").onclick = () => { if (curBoard > 0) navTo(curBoard - 1); };
   $("next").onclick = () => { if (curBoard < cur.boards.length - 1) navTo(curBoard + 1); };
   $("sreplay").onclick = replayExplain;
-  $("studio-btn").onclick = () => (studio.an ? studioAus() : studioEin());
+  $("studio-btn").onclick = () => window.open(new URL("studio.html", BASE).href, "_blank");
   $("sstop").onclick = () => { stopWalk(); if (narr) narr.stopped = true; endWait(); revealAll(); };
   const stageAsk = () => { const v = $("sq").value.trim(); if (v) { $("sq").value = ""; ask(v); } };
   $("ssend").onclick = stageAsk;
@@ -4248,7 +4292,7 @@ function updateQCard() {
 }
 function openStage(mode) {
   updateQCard();
-  $("studio-btn").hidden = !istAdmin();
+  $("studio-btn").hidden = !istAdmin() || window.top !== window;   // in der Studio-Aufnahme selbst nicht zeigen
   const st = $("stage");
   if (st.hidden) {
     $("stage-main").append($("mols"), $("board"));
@@ -5037,9 +5081,9 @@ function studioZeigePaket() {
   studioVorschau();
 }
 // Vorschaubild: groß der Hook-Kern, ein Stichwort gelb, darunter die wichtigste Tafel – nicht überladen
-async function studioVorschau() {
-  const c = $("studio-vorschau"), P = studio.paket; if (!c || !P) return;
-  const hoch = studio.format === "9x16", W = hoch ? 1080 : 1280, H = hoch ? 1920 : 720; c.width = W; c.height = H;
+async function studioVorschau(cv, Pp, fmt) {
+  const c = cv || $("studio-vorschau"), P = Pp || studio.paket; if (!c || !P) return;
+  const hoch = (fmt || studio.format) === "9x16", W = hoch ? 1080 : 1280, H = hoch ? 1920 : 720; c.width = W; c.height = H;
   const g = c.getContext("2d");
   const grad = g.createLinearGradient(0, 0, W, H); grad.addColorStop(0, "#15122b"); grad.addColorStop(1, "#2b1d5c"); g.fillStyle = grad; g.fillRect(0, 0, W, H);
   // Tafel als Bild
@@ -5082,16 +5126,23 @@ async function studioVorschau() {
   }
   if (hoch) { g.fillStyle = "#ffffff"; g.font = "700 44px Inter, Arial, sans-serif"; g.fillText("❌ → ✅  So passiert dir das nicht", pad, H - 120); }
 }
-// Hochformat: die Tafel ist dort klein – beim Erklären zoomt die Kamera sanft auf die Stelle, auf die gerade gezeigt wird
+// Hochformat (Handy hochkant, Studio-Rahmen 9:16): die Tafel ist dort klein – beim Erklären fährt die Kamera sanft
+// auf die Stelle, auf die gerade gezeigt wird, und wieder zurück aufs ganze Bild (Andreea: „die Handyansicht zeigt nicht alles“)
+const HOCHKANT = matchMedia("(max-width: 640px) and (orientation: portrait)");
 function studioZoom(svg, ziel) {
-  if (!svg) return;
-  const an = studio.an && studio.format === "9x16" && studio.laeuft;
-  if (!an || !ziel) { if (svg.style.transform) svg.style.transform = "scale(1)"; return; }
-  const vb = svg.viewBox.baseVal, [cx, cy, w, h] = ziel;
-  const k = Math.max(1, Math.min(1.75, 0.8 * vb.width / Math.max(w, 1), 0.8 * vb.height / Math.max(h, 1)));
+  if (!svg || svg.closest(".side")) return;
+  const an = HOCHKANT.matches || (studio.an && studio.format === "9x16" && studio.laeuft);
+  svg.style.transformOrigin = "0 0";
   svg.style.transition = "transform .9s cubic-bezier(.3,.1,.2,1)";
-  svg.style.transformOrigin = `${((cx - vb.x) / vb.width * 100).toFixed(1)}% ${((cy - vb.y) / vb.height * 100).toFixed(1)}%`;
-  svg.style.transform = `scale(${k.toFixed(2)})`;
+  if (!an || !ziel) { if (svg.style.transform) svg.style.transform = "translate(0px, 0px) scale(1)"; return; }
+  const vb = svg.viewBox.baseVal, cw = svg.clientWidth, ch = svg.clientHeight; if (!cw || !ch) return;
+  const s = Math.min(cw / vb.width, ch / vb.height), ox = (cw - vb.width * s) / 2, oy = (ch - vb.height * s) / 2;
+  const [cx, cy, w, h] = ziel, px = ox + (cx - vb.x) * s, py = oy + (cy - vb.y) * s;
+  const k = Math.max(1, Math.min(2.0, (0.8 * cw) / Math.max(w * s, 1), (0.7 * ch) / Math.max(h * s, 1)));
+  if (k < 1.15) { svg.style.transform = "translate(0px, 0px) scale(1)"; return; }
+  // Ausschnitt so verschieben, dass die Stelle in der Mitte steht, ohne über den Rand der Tafel hinauszufahren
+  const tx = Math.min(0, Math.max(cw - cw * k, cw / 2 - px * k)), ty = Math.min(0, Math.max(ch - ch * k, ch / 2 - py * k));
+  svg.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${k.toFixed(2)})`;
 }
 function studioKarte(html, ms) {
   return new Promise((ok) => {
@@ -5317,7 +5368,9 @@ function init() {
   setInterval(() => { const a = document.getElementById("screen-auth"); $("fab").style.display = a && visible(a) ? "none" : ""; }, 700);
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
-window.LernBlick = { film: (m) => filmAbspielen(m), studio: () => studioEin(), fehler: (f, z) => fehlerErklaeren(f, z), kurz: (sys, text) => callFn("lernblick-chat", { system_prompt: sys, messages: [{ role: "user", content: text }], kurz: true }).then((d) => d.response || ""), open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), foto: async (file) => { await openPanel({}); if (!lb.open) return; await pickUpload(file); ask(); }, blaetter: async (q) => { await ladeBlaetter(); return passendeBlaetter(q).map((b) => b.id); }, showSummary: (d) => openSummary(d) };
+window.LernBlick = { film: (m) => filmAbspielen(m), studio: () => studioEin(),
+  // Für die Studio-Seite (studio.html), die die App in einem Handy- oder Laptop-Rahmen zeigt
+  _studio: { paket: () => studioPaket(), frage: () => studioFrage(), vorschau: (c, p, f) => studioVorschau(c, p, f), hatErklaerung: () => !!(narr && narr.sents && narr.sents.length), titel: () => { const t = cur.turns[cur.turns.length - 1]; return t ? cleanAsk(t.ask || t.q || "") : ""; } }, fehler: (f, z) => fehlerErklaeren(f, z), kurz: (sys, text) => callFn("lernblick-chat", { system_prompt: sys, messages: [{ role: "user", content: text }], kurz: true }).then((d) => d.response || ""), open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), foto: async (file) => { await openPanel({}); if (!lb.open) return; await pickUpload(file); ask(); }, blaetter: async (q) => { await ladeBlaetter(); return passendeBlaetter(q).map((b) => b.id); }, showSummary: (d) => openSummary(d) };
 // Nur für den automatischen Prüfstand (wird im normalen Betrieb nie gesetzt)
 if (window.__LB_BENCH) window.LernBlick._bench = {
   state: () => ({ turns: cur.turns.length, busy: lb.busy, boards: cur.boards.map((b) => ({ titel: b.titel || "", teile: b.teile || [], svg: !!b.svg })), answerBoards, sents: narr ? narr.sents : [], boardOf: narr ? narr.boardOf : [], segs: answerSegs, anchors: Object.keys(anchors), imgTeile: [...document.querySelectorAll("#lb-imgdraw [data-teil]")].flatMap((e) => e.getAttribute("data-teil").split(/\s+/)), status: $("status").textContent }),
