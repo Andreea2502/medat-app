@@ -372,3 +372,12 @@ a.lb-tip { text-decoration: none; display: inline-block; }
 .lb-quiz-r { font-weight: 600; }
 .lb-quiz-btns { display: flex; flex-wrap: wrap; gap: 6px; }
 .lb-quiz-sum { margin: 0; font-weight: 700; }
+
+/* Prüfungsmodus: Simulation und Allergieausweise (Einprägen/Abruf) – keine KI-Hilfe */
+html.lb-pruefung #lb-fab, html.lb-pruefung #lb-wrong-btn, html.lb-pruefung #as-fab { display: none !important; }
+
+/* Cheat-Sheet-Seite mit markiertem Bereich */
+.lb-blatt-wrap { position: relative; }
+.lb-blatt-wrap img { display: block; width: 100%; height: auto; }
+.lb-blatt-mark { position: absolute; border: 3px solid #d62828; border-radius: 10px; box-shadow: 0 0 0 9999px rgba(26,26,46,0.28); pointer-events: none; animation: lb-blatt-puls 1.6s ease-in-out 3; }
+@keyframes lb-blatt-puls { 50% { border-color: #f5c542; } }
