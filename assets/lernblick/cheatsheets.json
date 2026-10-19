@@ -1,5 +1,5 @@
 {
- "stand": "Entwurf 18.10.2026 – 2 von 6 Blättern des BIO Package, zur Freigabe durch Andreea",
+ "stand": "19.10.2026 – alle Cheat-Sheet-Seiten beschrieben",
  "zweck": "LernBlick kennt jedes Cheat-Sheet vorab: wann es passt (stichworte, ausloeser), was wo steht (bereiche mit Lage im Bild als Anteil 0–1: x, y, breite, hoehe). So kann er im Gespräch das richtige Blatt hervorholen, genau den passenden Bereich zeigen und markieren.",
  "blaetter": [
   {
@@ -139,7 +139,8 @@
     "IPSP entsteht durch Cl⁻-Einstrom ODER K⁺-Ausstrom",
     "Curare und Botulinumtoxin führen beide zu schlaffer Lähmung, aber an verschiedenen Stellen (Rezeptor vs. Ausschüttung)"
    ],
-   "hinweise": []
+   "hinweise": [],
+   "pruefhinweise": []
   },
   {
    "id": "blutgruppen",
@@ -267,6 +268,4004 @@
    "hinweise": [
     "Fehler im Blatt, Bereich 3 (Transfusionstabelle): In der Zeile „Empfänger 0“ stehen vier Häkchen. Richtig ist: Empfänger 0 verträgt nur Spender 0 (✓ ✗ ✗ ✗). Die Zeilen A, B und AB stimmen.",
     "Bereich 6 markiert alle Sätze mit einem roten ✗, obwohl die meisten Aussagen richtig sind. Gemeint ist „Achtung, Falle“ – beim Erklären sagt LernBlick das so dazu."
+   ],
+   "pruefhinweise": [
+    "Transfusionstabelle: In der Zeile für Empfänger 0 stehen bei allen Spendern Häkchen. Richtig ist: Empfänger 0 verträgt nur Erythrozyten von Spender 0."
+   ]
+  },
+  {
+   "id": "hormonachsen",
+   "goodie": "BIO Package",
+   "datei": "b2d89d12-faba-4297-b7fb-0bb392e41655_CBF7910E-80AD-4113-A29D-FE7DBD276517.png",
+   "titel": "Hypothalamus-Hypophysen-Achsen & Regelkreise",
+   "fach": "Biologie · Endokrinologie",
+   "kurz": "Die vier Hormonachsen (HPA, HPT, HPG, GH) mit Releasing-Hormonen, Hypophysenhormonen und Endhormonen, dazu Hypophysenhinterlappen (ADH, Oxytocin), das Prinzip der negativen Rückkopplung, eine Merktabelle, drei Krankheitsbilder, Merksätze und Prüfungsfallen.",
+   "stichworte": [
+    "Hypothalamus",
+    "Hypophyse",
+    "Hypophysenvorderlappen",
+    "Adenohypophyse",
+    "Hypophysenhinterlappen",
+    "Neurohypophyse",
+    "Releasing-Hormon",
+    "tropische Hormone",
+    "negative Rückkopplung",
+    "negatives Feedback",
+    "CRH",
+    "ACTH",
+    "Cortisol",
+    "TRH",
+    "TSH",
+    "Schilddrüsenhormone",
+    "GnRH",
+    "LH",
+    "FSH",
+    "GHRH",
+    "Somatostatin",
+    "Wachstumshormon",
+    "GH",
+    "IGF-1",
+    "ADH",
+    "Vasopressin",
+    "Oxytocin",
+    "Cushing-Syndrom",
+    "Hypothyreose",
+    "Akromegalie"
+   ],
+   "ausloeser": [
+    "Fragen zu Hormonachsen oder welche Drüse welches Hormon steuert",
+    "Verwechslung Hypophysenvorderlappen und -hinterlappen",
+    "Regelkreis- oder Feedback-Aufgaben (was passiert, wenn ein Hormon steigt oder fällt?)",
+    "Krankheitsbilder Cushing, Hypothyreose, Akromegalie",
+    "Wirkung von ADH oder Oxytocin"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Überblick",
+     "lage": {
+      "x": 0.018,
+      "y": 0.113,
+      "breite": 0.964,
+      "hoehe": 0.089
+     },
+     "inhalt": "Der Hypothalamus ist die Schaltzentrale des endokrinen Systems und steuert über Releasing-/Inhibiting-Hormone die Hypophyse. Die Hypophyse reguliert periphere Drüsen und Organe über tropische Hormone. Rückkopplung sichert Homöostase. Fünf Symbole: Hypothalamus (Releasing-/Inhibiting-Hormone) · Hypophyse Vorderlappen (Adenohypophyse) · Hypophyse Hinterlappen (Neurohypophyse) · Zielorgane (periphere Drüsen/Organe) · Negatives Feedback (Rückkopplung)."
+    },
+    {
+     "nr": "2a",
+     "titel": "HPA-Achse (Stressachse)",
+     "lage": {
+      "x": 0.02,
+      "y": 0.231,
+      "breite": 0.225,
+      "hoehe": 0.231
+     },
+     "inhalt": "CRH (Corticotropin-Releasing-Hormon) → ACTH (Adrenocorticotropes Hormon) → Cortisol (Nebennierenrinde); gestrichelter Pfeil mit Minus von Cortisol zurück zu CRH. Wirkung: Stressreaktion, Stoffwechsel, Immunmodulation."
+    },
+    {
+     "nr": "2b",
+     "titel": "HPT-Achse (Schilddrüsenachse)",
+     "lage": {
+      "x": 0.249,
+      "y": 0.231,
+      "breite": 0.234,
+      "hoehe": 0.231
+     },
+     "inhalt": "TRH (Thyreotropin-Releasing-Hormon) → TSH (Thyreotropes Hormon) → T3/T4 (Schilddrüse); negatives Feedback von T3/T4 zurück zu TRH. Wirkung: Stoffwechsel, Wärmeproduktion, Wachstum, Entwicklung."
+    },
+    {
+     "nr": "2c",
+     "titel": "HPG-Achse (Gonadenachse)",
+     "lage": {
+      "x": 0.488,
+      "y": 0.231,
+      "breite": 0.234,
+      "hoehe": 0.231
+     },
+     "inhalt": "GnRH (Gonadotropin-Releasing-Hormon) → LH/FSH (Luteinisierendes Hormon / Follikelstimulierendes Hormon) → Sexualhormone (Gonaden): Testosteron, Östrogene, Progesteron; negatives Feedback zurück zu GnRH. Wirkung: Reproduktion, sekundäre Geschlechtsmerkmale."
+    },
+    {
+     "nr": "2d",
+     "titel": "GH-Achse (Wachstumsachse)",
+     "lage": {
+      "x": 0.728,
+      "y": 0.231,
+      "breite": 0.249,
+      "hoehe": 0.231
+     },
+     "inhalt": "GHRH (GH-Releasing-Hormon) + Somatostatin (GH-Inhibiting-Hormon) → GH (Wachstumshormon) → IGF-1 (Leber & Gewebe); negatives Feedback von IGF-1 zurück zum Hypothalamus. Wirkung: Wachstum, Zellproliferation, Proteinsynthese."
+    },
+    {
+     "nr": 3,
+     "titel": "Hypophyse Hinterlappen (neurohypophysäre Hormone)",
+     "lage": {
+      "x": 0.018,
+      "y": 0.477,
+      "breite": 0.48,
+      "hoehe": 0.156
+     },
+     "inhalt": "ADH (Vasopressin) → Niere (Sammelrohr) → ↑ Wasserrückresorption, ↓ Diurese, ↑ Blutdruck. Oxytocin → Uterus & Mamma → Uteruskontraktionen (Geburt), Milchejektion (Laktation)."
+    },
+    {
+     "nr": 4,
+     "titel": "Negativer Feedback – das Prinzip",
+     "lage": {
+      "x": 0.508,
+      "y": 0.477,
+      "breite": 0.474,
+      "hoehe": 0.156
+     },
+     "inhalt": "Schema: Hypothalamus → (Releasing-/Inhibiting-Hormon) → Hypophyse Vorderlappen → (Tropes Hormon, z. B. ACTH, TSH, LH/FSH, GH) → Zielorgan → Hormon (z. B. Cortisol, T3/T4, Sexualhormone, IGF-1). Kasten Negativer Feedback: Endhormon hemmt Hypothalamus und Hypophyse (gestrichelte Pfeile mit Minus zu beiden Ebenen)."
+    },
+    {
+     "nr": 5,
+     "titel": "Merktabelle – wichtige Hormone & Wirkungen",
+     "lage": {
+      "x": 0.018,
+      "y": 0.639,
+      "breite": 0.964,
+      "hoehe": 0.16
+     },
+     "inhalt": "Spalten: Achse/Hormon · auslösendes Signal (aus Hypothalamus) · Hypophyse Vorderlappen · Zielorgan · Hauptwirkung. HPA-Achse: CRH · ACTH · Nebennierenrinde · Cortisolproduktion: Stress, Stoffwechsel, Entzündungshemmung. HPT-Achse: TRH · TSH · Schilddrüse · T3/T4-Produktion: Stoffwechsel, Wärme, Wachstum, Entwicklung. HPG-Achse: GnRH · LH/FSH · Gonaden (Hoden/Eierstöcke) · Sexualhormone & Gametogenese: Reproduktion, Merkmalsausprägung. GH-Achse: GHRH (+ Somatostatin hemmt) · GH · Leber & Gewebe · IGF-1-Freisetzung: Wachstum, Proteinaufbau, Zellteilung. Hinterlappen: − (neuronale Steuerung) · − · Niere / Uterus, Mamma · ADH: Wasserhaushalt; Oxytocin: Geburt, Laktation."
+    },
+    {
+     "nr": 6,
+     "titel": "Klinisch relevant",
+     "lage": {
+      "x": 0.018,
+      "y": 0.807,
+      "breite": 0.381,
+      "hoehe": 0.125
+     },
+     "inhalt": "Cushing-Syndrom (↑ Cortisol): Ursachen ACTH-Adenom, Nebennierenadenom, exogenes Steroid; Symptome Stammfettsucht, Hypertonie, Hyperglykämie, Striae. Hypothyreose (↓ T3/T4): Symptome Müdigkeit, Kälteintoleranz, Gewichtszunahme, Bradykardie, trockene Haut, Obstipation. Akromegalie (↑ GH / IGF-1 bei Erwachsenen): Ursache GH-Adenom; Symptome Vergrößerung von Händen, Füßen, Gesichtszügen, Arthropathie, Hyperhidrose."
+    },
+    {
+     "nr": 7,
+     "titel": "Eselsbrücken (Merksätze)",
+     "lage": {
+      "x": 0.408,
+      "y": 0.807,
+      "breite": 0.256,
+      "hoehe": 0.125
+     },
+     "inhalt": "„CRH–ACTH–Cortisol: Chaos Erzeugt Stress.“ (Merke die Reihenfolge der Stressachse.) · „GnRH macht Gender.“ (Über FSH/LH steuert es unsere Gonaden.)"
+    },
+    {
+     "nr": 8,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.674,
+      "y": 0.807,
+      "breite": 0.308,
+      "hoehe": 0.125
+     },
+     "inhalt": "Verwechsle Hypophyse Vorder- und Hinterlappen nicht: Vorderlappen = tropische Hormone, Hinterlappen = ADH & Oxytocin. · Feedback immer negativ (bis auf Ausnahme: Östrogen → LH-Peak kurz vor Ovulation). · GHRH stimuliert, Somatostatin hemmt GH."
+    },
+    {
+     "nr": 9,
+     "titel": "Schlusszeile",
+     "lage": {
+      "x": 0.018,
+      "y": 0.936,
+      "breite": 0.964,
+      "hoehe": 0.06
+     },
+     "inhalt": "Alle Achsen im Kopf – Punkte im MedAT garantiert."
+    }
+   ],
+   "pruefungsfallen": [
+    "Hinterlappen bildet ADH und Oxytocin nicht selbst, sondern speichert und gibt sie ab; er hat kein Releasing-Hormon (neuronale Steuerung)",
+    "Feedback ist negativ – einzige genannte Ausnahme: Östrogen löst den LH-Peak vor der Ovulation aus (positives Feedback)",
+    "Somatostatin hemmt GH, GHRH stimuliert",
+    "Cushing kann ACTH-abhängig (Adenom der Hypophyse) oder ACTH-unabhängig (Nebennierenadenom, exogene Steroide) sein"
+   ],
+   "hinweise": [
+    "Das Blatt sagt „tropische Hormone“; im deutschen Lehrbuch heißen sie meist „glandotrope Hormone“ – LernBlick nennt beide Begriffe."
+   ],
+   "pruefhinweise": [
+    "Bereich 4: Der gestrichelte Pfeil zwischen dem Endhormon und dem Kasten „Negativer Feedback“ hat seine Spitze beim Endhormon; die Rückkopplung geht aber vom Endhormon aus zu Hypothalamus und Hypophyse, die Pfeilrichtung ist dort also missverständlich."
+   ]
+  },
+  {
+   "id": "gen-zum-protein",
+   "goodie": "BIO Package",
+   "datei": "052b11c1-75d9-4ed0-b55a-5cab6bdcd9ba_B878F199-C25D-4517-9BA2-14E2631A01A4.png",
+   "titel": "Vom Gen zum Protein: DNA → RNA → Protein",
+   "fach": "Biologie · Molekularbiologie (mit Teilen Endokrinologie und Immunologie)",
+   "kurz": "Zentrales Dogma mit Transkription, Splicing und Translation, DNA-Aufbau, DNA/RNA-Vergleich und genetischem Code; das Blatt enthält zusätzlich die vier Hormonachsen, Hypophysenhinterlappen, eine Hormon-Merktabelle, drei Krankheitsbilder und IgM/IgG.",
+   "stichworte": [
+    "zentrales Dogma",
+    "Proteinbiosynthese",
+    "Transkription",
+    "RNA-Polymerase",
+    "TATA-Box",
+    "Template-Strang",
+    "prä-mRNA",
+    "mRNA",
+    "Splicing",
+    "Intron",
+    "Exon",
+    "alternatives Splicing",
+    "Translation",
+    "Ribosom",
+    "tRNA",
+    "Anticodon",
+    "Codon",
+    "Start-Codon",
+    "AUG",
+    "Methionin",
+    "Stop-Codon",
+    "genetischer Code",
+    "degeneriert",
+    "Triplett",
+    "Nukleotid",
+    "Basenpaarung",
+    "antiparallel",
+    "Uracil",
+    "DNA vs RNA",
+    "IgG"
+   ],
+   "ausloeser": [
+    "Fragen zu Transkription, Splicing oder Translation und wo sie ablaufen",
+    "Unterschiede DNA und RNA (Zucker, Basen, Strang)",
+    "Aufgaben zum genetischen Code, Start- und Stop-Codons, Codon/Anticodon",
+    "Basenpaarung und 5′→3′-Richtung",
+    "Verwechslung Intron/Exon"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Überblick – zentrales Dogma",
+     "lage": {
+      "x": 0.018,
+      "y": 0.109,
+      "breite": 0.964,
+      "hoehe": 0.132
+     },
+     "inhalt": "DNA (Zellkern) → Transkription (RNA-Polymerase) → prä-mRNA (Zellkern) → Splicing (Introns raus) → mRNA (Zellkern → Export) → Translation (Ribosom) → Protein (Zytoplasma, Ribosomen). Klammern: Zellkern (DNA bis Splicing), Zytoplasma (mRNA bis Protein). Infokasten oben rechts (themenfremd): Der Hypothalamus ist die Schaltzentrale des endokrinen Systems. Er steuert die Hypophyse, die wiederum periphere Drüsen reguliert. Regelkreise sichern stabile Hormonspiegel (Homöostase)."
+    },
+    {
+     "nr": "2a",
+     "titel": "HPA-Achse (Stressachse)",
+     "lage": {
+      "x": 0.02,
+      "y": 0.267,
+      "breite": 0.218,
+      "hoehe": 0.181
+     },
+     "inhalt": "Hypothalamus CRH → Hypophyse (VL) ACTH → Nebennierenrinde Cortisol; roter Rückkopplungspfeil mit Minus zurück zum Hypothalamus. Funktion: Stressreaktion, Stoffwechsel, Immunsuppression."
+    },
+    {
+     "nr": "2b",
+     "titel": "HPT-Achse (Schilddrüsenachse)",
+     "lage": {
+      "x": 0.252,
+      "y": 0.267,
+      "breite": 0.229,
+      "hoehe": 0.181
+     },
+     "inhalt": "Hypothalamus TRH → Hypophyse (VL) TSH → Schilddrüse; negatives Feedback zurück. Funktion: Stoffwechsel, Wärmeproduktion, Wachstum, Entwicklung."
+    },
+    {
+     "nr": "2c",
+     "titel": "HPG-Achse (Gonadenachse)",
+     "lage": {
+      "x": 0.493,
+      "y": 0.267,
+      "breite": 0.229,
+      "hoehe": 0.181
+     },
+     "inhalt": "Hypothalamus GnRH → Hypophyse (VL) LH/FSH → Gonaden → Sexualhormone (Testosteron, Östrogen, Progesteron); negatives Feedback zurück. Funktion: Reproduktion, sekundäre Geschlechtsmerkmale, Zyklus/Spermatogenese."
+    },
+    {
+     "nr": "2d",
+     "titel": "GH-Achse (Wachstumsachse)",
+     "lage": {
+      "x": 0.734,
+      "y": 0.267,
+      "breite": 0.242,
+      "hoehe": 0.181
+     },
+     "inhalt": "Hypothalamus GHRH, darunter Somatostatin → Hypophyse (VL) GH → Leber & Gewebe IGF-1; negatives Feedback zurück. Funktion: Wachstum, Zellteilung, Proteinsynthese, Lipolyse."
+    },
+    {
+     "nr": 3,
+     "titel": "Hypophyse Hinterlappen (neurohypophysäre Hormone)",
+     "lage": {
+      "x": 0.018,
+      "y": 0.451,
+      "breite": 0.269,
+      "hoehe": 0.158
+     },
+     "inhalt": "ADH (Vasopressin): Ziel Niere (Sammelrohre); Wirkung ↑ Wasserrückresorption, ↓ Diurese, ↑ Blutvolumen. Oxytocin: Ziel Uterus, Mamma; Wirkung Wehenkontraktionen, Milchejektion (Laktation)."
+    },
+    {
+     "nr": 4,
+     "titel": "Merktabelle – Hormone im Überblick",
+     "lage": {
+      "x": 0.293,
+      "y": 0.451,
+      "breite": 0.359,
+      "hoehe": 0.158
+     },
+     "inhalt": "Spalten Hormon · auslösendes Signal (Hypothalamus) · Zielorgan · Wirkung. CRH · CRH · Hypophyse (VL) · ↑ ACTH-Freisetzung. ACTH · CRH · Nebennierenrinde · ↑ Cortisol. TRH · TRH · Hypophyse (VL) · ↑ TSH-Freisetzung. TSH · TRH · Schilddrüse · ↑ T3/T4. GnRH · GnRH · Hypophyse (VL) · ↑ LH & FSH. LH/FSH · GnRH · Gonaden · ↑ Sexualhormone, Gametenbildung. GHRH (+) / Somatostatin (−) · (leer) · Hypophyse (VL) · ↑ GH. GH · GHRH (+) · Leber & Gewebe · ↑ IGF-1, Wachstum."
+    },
+    {
+     "nr": 5,
+     "titel": "Klinisch relevant",
+     "lage": {
+      "x": 0.66,
+      "y": 0.451,
+      "breite": 0.321,
+      "hoehe": 0.158
+     },
+     "inhalt": "Cushing-Syndrom (↑ Cortisol): Symptome Stammfettsucht, Mondgesicht, Bluthochdruck, Hyperglykämie; Ursachen z. B. ACTH-Adenom, exogenes Glukokortikoid. Hypothyreose (↓ T3/T4): Symptome Müdigkeit, Kälteintoleranz, Gewichtszunahme, Bradykardie; Ursachen z. B. Jodmangel, Hashimoto-Thyreoiditis. Akromegalie (↑ GH / IGF-1): Symptome Vergrößerung von Händen, Füßen, Gesicht, Kopfschmerzen, Diabetes; Ursache GH-produzierendes Adenom."
+    },
+    {
+     "nr": 6,
+     "titel": "Antikörper-Typen (humorale Immunität)",
+     "lage": {
+      "x": 0.018,
+      "y": 0.613,
+      "breite": 0.332,
+      "hoehe": 0.106
+     },
+     "inhalt": "IgM (Beschriftung darunter: „Vasopresin“): erste Antikörper bei Erstkontakt, Pentamer → hohe Avidität, nicht plazentagängig. IgG (sekundär): bei Zweitkontakt dominant, Monomer → hohe Spezifität, plazentagängig → Gefahr bei Rhesus-Inkompatibilität."
+    },
+    {
+     "nr": 7,
+     "titel": "Vergleich DNA vs. RNA",
+     "lage": {
+      "x": 0.356,
+      "y": 0.613,
+      "breite": 0.317,
+      "hoehe": 0.106
+     },
+     "inhalt": "Zucker: DNA Desoxyribose, RNA Ribose. Basen: DNA A, T, G, C; RNA A, U, G, C. Struktur: DNA doppelsträngig, RNA meist einzelsträngig. Stabilität: DNA sehr stabil, RNA weniger stabil. Funktion: DNA Speicherung der Erbinformation, RNA Übertragung & Umsetzung der Information."
+    },
+    {
+     "nr": 8,
+     "titel": "Eselsbrücken (Merksätze)",
+     "lage": {
+      "x": 0.681,
+      "y": 0.613,
+      "breite": 0.301,
+      "hoehe": 0.106
+     },
+     "inhalt": "„Intron raus, Exon bleibt exprimiert.“ (Introns werden beim Splicing entfernt, Exons bleiben und werden exprimiert.) · „AUG = Anfang, U statt T in RNA.“ (AUG ist das Start-Codon (Methionin), Uracil (U) ersetzt Thymin (T) in RNA.)"
+    },
+    {
+     "nr": 9,
+     "titel": "DNA-Aufbau (kurz & knapp)",
+     "lage": {
+      "x": 0.018,
+      "y": 0.724,
+      "breite": 0.326,
+      "hoehe": 0.129
+     },
+     "inhalt": "Nukleotid = Phosphat + Desoxyribose + Base. Basenpaare: A–T (2 H-Brücken), G–C (3 H-Brücken). Antiparallel: ein Strang 5′→3′, der andere 3′→5′. Doppelhelix, rechtsgängig. Basen: Adenin (Purin), Guanin (Purin), Thymin (Pyrimidin), Cytosin (Pyrimidin). Zeichnung einer Doppelhelix mit Strangenden-Beschriftung oben 5′ und 3′, unten 3′ und 3′."
+    },
+    {
+     "nr": 10,
+     "titel": "Transkription – Schritt für Schritt",
+     "lage": {
+      "x": 0.349,
+      "y": 0.724,
+      "breite": 0.304,
+      "hoehe": 0.129
+     },
+     "inhalt": "1 RNA-Polymerase bindet am Promotor (z. B. TATA-Box). 2 DNA wird lokal geöffnet (Transkriptionsblase). 3 Template-Strang wird 3′→5′ abgelesen. 4 mRNA wird 5′→3′ synthetisiert (komplementär: A↔U, T↔A, G↔C, C↔G). 5 Produkt: prä-mRNA (enthält Introns + Exons). Zeichnung: RNA-Polymerase auf der DNA, prä-mRNA (5′→3′) tritt aus."
+    },
+    {
+     "nr": 11,
+     "titel": "Splicing – wichtige Punkte",
+     "lage": {
+      "x": 0.659,
+      "y": 0.724,
+      "breite": 0.322,
+      "hoehe": 0.129
+     },
+     "inhalt": "Introns (nicht-kodierend) werden entfernt. Exons (kodierend) werden zusammengefügt → reife mRNA. Alternatives Splicing: unterschiedliche Exonkombinationen → ein Gen kann mehrere Proteine codieren. Schema: prä-mRNA Exon 1 – Intron A – Exon 2 – Intron B – Exon 3 → reife mRNA 5′ Exon 1 Exon 2 Exon 3 3′ → Export ins Zytoplasma."
+    },
+    {
+     "nr": 12,
+     "titel": "Translation – Schritt für Schritt",
+     "lage": {
+      "x": 0.018,
+      "y": 0.857,
+      "breite": 0.646,
+      "hoehe": 0.104
+     },
+     "inhalt": "1 Ribosom besteht aus kleiner (40S) und großer (60S) Untereinheit. 2 mRNA bindet an die kleine Untereinheit (Start am AUG). 3 Initiator-tRNA (Met) bindet ans Start-Codon im P-Platz. 4 Elongation: tRNAs bringen Aminosäuren (Anticodon → Codon); Peptidbindung im Peptidyltransferase-Zentrum (rRNA). 5 Translokation: Ribosom rückt 5′→3′ weiter. 6 Termination: Stop-Codon (UAA, UAG oder UGA) → Freisetzungsfaktoren lösen Polypeptidkette frei. Zeichnung: mRNA (5′→3′) mit Codons AUG, GCU, UUC, AAA, UGA über einem Ribosom (40S + 60S) mit vier tRNAs, Plätze P und A beschriftet, Beschriftungen tRNA mit Aminosäure und Polypeptidkette."
+    },
+    {
+     "nr": 13,
+     "titel": "Genetischer Code (Merkbox)",
+     "lage": {
+      "x": 0.67,
+      "y": 0.857,
+      "breite": 0.312,
+      "hoehe": 0.104
+     },
+     "inhalt": "Triplett-Code: 3 Basen = 1 Codon = 1 Aminosäure. Start-Codon: AUG (Methionin). Stop-Codons: UAA, UAG, UGA. Code ist universell (fast alle Organismen gleich), nicht überlappend, kommalos (ohne Trennzeichen), degeneriert (meist mehrere Codons pro AA)."
+    },
+    {
+     "nr": 14,
+     "titel": "Schlusszeile",
+     "lage": {
+      "x": 0.018,
+      "y": 0.964,
+      "breite": 0.964,
+      "hoehe": 0.033
+     },
+     "inhalt": "Gen → Protein wie im Schlaf – Punkte im MedAT gesichert."
+    }
+   ],
+   "pruefungsfallen": [
+    "Template-Strang wird 3′→5′ gelesen, mRNA wird 5′→3′ gebaut",
+    "In RNA steht Uracil statt Thymin: A paart mit U",
+    "Splicing findet im Zellkern statt, erst die reife mRNA wird exportiert",
+    "AUG ist Start-Codon und codiert Methionin; UAA, UAG, UGA codieren keine Aminosäure",
+    "Degeneriert heißt: mehrere Codons für eine Aminosäure, nicht umgekehrt"
+   ],
+   "hinweise": [
+    "Das Blatt heißt „Vom Gen zum Protein“, enthält in Bereich 1 (Infokasten) und den Bereichen 2 bis 6 aber Endokrinologie und Antikörper; das passt eher zu den Blättern Hormonachsen und Blutgruppen. LernBlick zieht dieses Blatt bei Hormonfragen nur nachrangig heran."
+   ],
+   "pruefhinweise": [
+    "Bereich 6: Unter IgM steht „(Vasopresin)“ – das ist falsch, Vasopressin ist das Hormon ADH und hat mit IgM nichts zu tun (analog zu IgG müsste dort „primär“ stehen).",
+    "Bereich 9: Die Doppelhelix ist unten an beiden Strängen mit 3′ beschriftet; bei antiparallelen Strängen muss unten 3′ und 5′ stehen.",
+    "Bereich 4: Für CRH, TRH und GnRH ist als auslösendes Signal das Hormon selbst eingetragen, bei GHRH/Somatostatin ist das Feld leer – diese Spalte ist für die hypothalamischen Hormone nicht sinnvoll.",
+    "Bereich 2d: Somatostatin steht ohne Minuszeichen in der Pfeilkette direkt unter GHRH, als ob es GH fördert; es hemmt die GH-Ausschüttung (so auch in Bereich 4 mit (−) markiert).",
+    "Bereich 12: Die Ribosom-Zeichnung zeigt vier tRNAs gleichzeitig im Ribosom und nur P- und A-Platz; ein Ribosom hat E-, P- und A-Platz, besetzt sind höchstens zwei bis drei tRNAs, und die Polypeptidkette ist nicht zu sehen, obwohl sie beschriftet ist.",
+    "Bereich 1: Der Infokasten über Hypothalamus und Hypophyse gehört inhaltlich nicht zum zentralen Dogma."
+   ]
+  },
+  {
+   "id": "mendel-stammbaum",
+   "goodie": "BIO Package",
+   "datei": "3dc02398-8650-4165-843b-38a8eca13d44_71178341-5808-4BC1-8F3A-A58227E938FC.png",
+   "titel": "Mendelsche Regeln & Stammbaumanalyse",
+   "fach": "Biologie · Genetik",
+   "kurz": "Die drei Mendelschen Regeln mit Zahlenverhältnissen, ein Punnett-Quadrat Aa × Aa, eine Tabelle der Erbgänge mit Stammbaumhinweisen und Beispielen, fünf Erkennungsregeln für Stammbäume, Geschlechtschromosomen mit Klinefelter und Turner, Prüfungsfallen und zwei Merksätze.",
+   "stichworte": [
+    "Mendel",
+    "Mendelsche Regeln",
+    "Uniformitätsregel",
+    "Spaltungsregel",
+    "Unabhängigkeitsregel",
+    "reinerbig",
+    "homozygot",
+    "heterozygot",
+    "F2-Generation",
+    "3:1",
+    "1:2:1",
+    "9:3:3:1",
+    "dihybrid",
+    "Punnett-Quadrat",
+    "Genotyp",
+    "Phänotyp",
+    "dominant",
+    "rezessiv",
+    "Kodominanz",
+    "autosomal dominant",
+    "autosomal rezessiv",
+    "X-chromosomal rezessiv",
+    "Erbgang",
+    "Stammbaum",
+    "Stammbaumanalyse",
+    "Konduktorin",
+    "Mukoviszidose",
+    "Hämophilie",
+    "Klinefelter",
+    "Turner"
+   ],
+   "ausloeser": [
+    "Stammbaumaufgabe: welcher Erbgang liegt vor?",
+    "Kreuzungsaufgaben mit Zahlenverhältnissen (3:1, 1:2:1, 9:3:3:1)",
+    "Wahrscheinlichkeit für kranke Söhne oder Töchter bei X-chromosomalen Erbgängen",
+    "Verwechslung Genotyp/Phänotyp oder Kodominanz/unvollständige Dominanz",
+    "Fragen zu Klinefelter- oder Turner-Syndrom"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Die 3 Mendelschen Regeln",
+     "lage": {
+      "x": 0.02,
+      "y": 0.112,
+      "breite": 0.598,
+      "hoehe": 0.191
+     },
+     "inhalt": "1 Uniformitätsregel: Kreuzt man zwei reinerbige Eltern, ist die gesamte F₁-Generation phänotypisch gleich (Bild: gelb × grün → nur gelbe Erbsen). Merksatz: F₁ immer gleich. 2 Spaltungsregel: Kreuzt man die F₁ untereinander, spalten die Merkmale in F₂ im Verhältnis 3:1 (dominant : rezessiv) bzw. 1:2:1 (kodominant) (Bild: drei gelbe : eine grüne). Merksatz: 3:1 (dominant) / 1:2:1 (kodominant). 3 Unabhängigkeitsregel: Bei dihybrider Kreuzung assortieren die Allele verschiedener Gene unabhängig → F₂-Verhältnis 9:3:3:1 (Bild: vier Erbsentypen 9 : 3 : 3 : 1). Merksatz: 9:3:3:1 in F₂."
+    },
+    {
+     "nr": 2,
+     "titel": "Punnett-Quadrat – Beispiel (Aa × Aa)",
+     "lage": {
+      "x": 0.619,
+      "y": 0.112,
+      "breite": 0.36,
+      "hoehe": 0.191
+     },
+     "inhalt": "Ausfüllanleitung: 1 Gameten der Eltern bestimmen (A und a). 2 Ein Elternteil oben, der andere links. 3 Felder kombinieren. 4 Genotypen zählen → Verhältnis ableiten. Quadrat: oben ♂ A | a, links ♀ A, a; Felder AA, Aa, Aa, aa (aa rot). Genotypverhältnis 1 AA : 2 Aa : 1 aa. Phänotypverhältnis (dominant : rezessiv) 3 : 1."
+    },
+    {
+     "nr": 3,
+     "titel": "Erbgänge im Überblick",
+     "lage": {
+      "x": 0.02,
+      "y": 0.312,
+      "breite": 0.786,
+      "hoehe": 0.285
+     },
+     "inhalt": "Spalten Erbgang · Merkmale · Stammbaumhinweise · Beispiel. Autosomal dominant: ein mutiertes Allel reicht für Ausprägung; Betroffene in jeder Generation, beide Geschlechter gleich häufig betroffen, Vater-zu-Sohn-Übertragung möglich; Polydaktylie, Huntington-Krankheit. Autosomal rezessiv: Krankheit nur bei zwei rezessiven Allelen; häufig Generationen übersprungen, beide Geschlechter gleich häufig, gesunde Eltern mit kranken Kindern möglich, Verwandtenehen ↑ Risiko; Mukoviszidose, Phenylketonurie (PKU). X-chromosomal rezessiv: Mutation auf X, Männer (XY) erkranken häufiger; vorwiegend Männer betroffen, keine Vater-zu-Sohn-Übertragung, betroffener Vater → alle Töchter Trägerinnen, Konduktorin-Mutter → 50 % Söhne betroffen; Hämophilie A, Rot-Grün-Blindheit. X-chromosomal dominant: ein mutiertes X reicht für Ausprägung; beide Geschlechter betroffen (Frauen häufiger), kein Vater-zu-Sohn, betroffener Vater → alle Töchter betroffen, keine Söhne betroffen; Rachitis heredit., X-chromosomale Hypophosphatämie. Kodominanz: beide Allele werden gleich stark ausgeprägt; Heterozygote zeigen beide Merkmale, 1:2:1-Verhältnis in F₂; AB0-Blutgruppen (IᴬIᴮ = AB)."
+    },
+    {
+     "nr": "3b",
+     "titel": "Legende Stammbaumsymbole",
+     "lage": {
+      "x": 0.816,
+      "y": 0.355,
+      "breite": 0.152,
+      "hoehe": 0.18
+     },
+     "inhalt": "Gefülltes Quadrat = männlich betroffen. Gefüllter Kreis = weiblich betroffen. Leeres Quadrat = männlich gesund. Leerer Kreis = weiblich gesund. Halb gefüllter Kreis = Konduktorin (Trägerin). Raute = Geschlecht unbekannt."
+    },
+    {
+     "nr": 4,
+     "titel": "Stammbaumanalyse – 5 Erkennungsregeln",
+     "lage": {
+      "x": 0.02,
+      "y": 0.604,
+      "breite": 0.537,
+      "hoehe": 0.171
+     },
+     "inhalt": "1 Sind beide Geschlechter gleich häufig betroffen? Ja → autosomal | Nein → X-chromosomal möglich. 2 Vater-zu-Sohn-Übertragung vorhanden? Ja → autosomal | Nein → X-chromosomal. 3 Tritt das Merkmal in jeder Generation auf? Ja → eher dominant | Nein → eher rezessiv. 4 Gesunde Eltern mit betroffenen Kindern? Ja → rezessiver Erbgang wahrscheinlich. 5 Betroffener Vater – alle Töchter betroffen? Ja → X-chromosomal dominant. Betroffener Vater (gedruckt „Wuter“) – keine Söhne betroffen? Ja → X-chromosomal (dominant oder rezessiv). Beispielstammbaum: gesunde Eltern (Quadrat, Kreis); Kinder: betroffener Sohn, Konduktorin-Tochter (Pfeil: Konduktorin (Trägerin)), gesunder Sohn, gesunde Tochter."
+    },
+    {
+     "nr": 5,
+     "titel": "Vererbung des Geschlechts",
+     "lage": {
+      "x": 0.559,
+      "y": 0.604,
+      "breite": 0.421,
+      "hoehe": 0.171
+     },
+     "inhalt": "♀ XX: weiblich, zwei X-Chromosomen; Eizellen tragen immer ein X. ♂ XY: männlich, ein X- und ein Y-Chromosom; Spermien tragen X oder Y. Klinefelter 47, XXY: Männer mit einem zusätzlichen X-Chromosom; Merkmale groß, Gynäkomastie, oft Fertilitätsstörung. Turner 45, X0: Frauen mit nur einem X-Chromosom; Merkmale klein, webbed neck, oft Infertilität."
+    },
+    {
+     "nr": 6,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.02,
+      "y": 0.781,
+      "breite": 0.547,
+      "hoehe": 0.137
+     },
+     "inhalt": "Träger (Konduktor:innen) zeigen das Merkmal nicht, können es aber an Nachkommen weitergeben. · X-chromosomal rezessiv: Männer erkranken häufiger, da sie nur ein X-Chromosom besitzen. · Nicht jede Generation mit Betroffenen = rezessiv, es kann auch X-chromosomal sein. · Kodominanz ≠ unvollständige Dominanz! Beide Allele werden vollständig exprimiert. Beispielstammbaum: Mutter Konduktorin, Vater gesund; Kinder: betroffener Sohn, Konduktorin-Tochter, gesunder Sohn, gesunde Tochter. Unterschrift: X-rezessiv: betroffener Sohn, Mutter Konduktorin."
+    },
+    {
+     "nr": 7,
+     "titel": "Eselsbrücken (Merksätze)",
+     "lage": {
+      "x": 0.574,
+      "y": 0.781,
+      "breite": 0.405,
+      "hoehe": 0.137
+     },
+     "inhalt": "„Dominant = reicht einer, rezessiv = braucht beide.“ (Ein dominantes Allel genügt, rezessiv nur bei zwei Kopien.) · „X-rezessiv: Söhne krank, Töchter tragen.“ (Söhne bekommen ihr X von der Mutter. Trägerin-Mutter → 50 % kranke Söhne.)"
+    },
+    {
+     "nr": 8,
+     "titel": "Schlusszeile",
+     "lage": {
+      "x": 0.02,
+      "y": 0.923,
+      "breite": 0.96,
+      "hoehe": 0.073
+     },
+     "inhalt": "Stammbäume lesen wie ein Profi – Punkte im MedAT gesichert."
+    }
+   ],
+   "pruefungsfallen": [
+    "Phänotyp 3:1, Genotyp 1:2:1 bei Aa × Aa",
+    "Vater-zu-Sohn-Übertragung schließt X-chromosomal aus",
+    "Betroffener Vater bei X-dominant: alle Töchter betroffen, kein Sohn",
+    "Konduktorin-Mutter bei X-rezessiv: 50 % der Söhne krank, 50 % der Töchter Trägerinnen",
+    "Kodominanz (beide Allele voll, AB0) ist nicht dasselbe wie unvollständige (intermediäre) Dominanz"
+   ],
+   "hinweise": [
+    "Im Titel von Bereich 2 steht „Punnet“; richtig geschrieben heißt es Punnett-Quadrat."
+   ],
+   "pruefhinweise": [
+    "Bereich 4, Regel 2: „Nein → X-chromosomal“ ist zu streng – fehlende Vater-zu-Sohn-Übertragung schließt autosomale Erbgänge nicht aus, nur vorhandene Vater-zu-Sohn-Übertragung schließt X-chromosomal aus (Regel 1 sagt richtig „möglich“).",
+    "Bereich 4, Regel 5: „Betroffener Wuter“ ist ein Tippfehler für „Betroffener Vater“.",
+    "Bereich 6, dritter Punkt: „Nicht jede Generation mit Betroffenen = rezessiv, es kann auch X-chromosomal sein“ ist unklar formuliert, weil X-chromosomal rezessiv selbst rezessiv ist; gemeint ist wohl, dass übersprungene Generationen nicht automatisch autosomal-rezessiv bedeuten.",
+    "Bereich 4: Im Beispielstammbaum mit betroffenem Sohn und Konduktorin-Tochter ist die Mutter als gesund ohne Trägerinnenmarkierung gezeichnet, obwohl sie bei X-rezessivem Erbgang Konduktorin sein müsste (anders als im Stammbaum in Bereich 6)."
+   ]
+  },
+  {
+   "id": "mitose-meiose",
+   "goodie": "BIO Package",
+   "datei": "9638ba9d-7b0b-4d17-a1c6-30f94169cf24_B28CA860-6C58-4C2C-B8A8-F66D5BC3190C.png",
+   "titel": "Mitose vs. Meiose: Phasen, Checkpoints & häufige Prüfungsfallen",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Zellzyklus mit G0, G1, S, G2 und M, die Mitosephasen, Meiose I und II im Vergleich, Crossing-over, die drei Checkpoints mit wichtigen Molekülen, eine Vergleichstabelle Mitose/Meiose, Prüfungsfallen und zwei Merksätze.",
+   "stichworte": [
+    "Mitose",
+    "Meiose",
+    "Zellzyklus",
+    "S-Phase",
+    "DNA-Replikation",
+    "Prophase",
+    "Metaphase",
+    "Anaphase",
+    "Telophase",
+    "Zytokinese",
+    "Metaphaseplatte",
+    "Spindelapparat",
+    "Schwesterchromatiden",
+    "homologe Chromosomen",
+    "Crossing-over",
+    "Chiasma",
+    "Pachytän",
+    "Rekombination",
+    "Reduktionsteilung",
+    "Äquationsteilung",
+    "haploid",
+    "diploid",
+    "Ploidiegrad",
+    "Checkpoint",
+    "p53",
+    "Cyclin",
+    "CDK",
+    "Non-Disjunction",
+    "Aneuploidie",
+    "Trisomie 21"
+   ],
+   "ausloeser": [
+    "Fragen zu Mitose- oder Meiosephasen und was in welcher Phase passiert",
+    "Verwechslung Meiose I und Meiose II (Homologe vs. Schwesterchromatiden)",
+    "Ploidiegrad und Anzahl der Tochterzellen bestimmen",
+    "Crossing-over, Non-Disjunction, Trisomie 21",
+    "Zellzyklus-Checkpoints, p53, Cycline/CDKs, Krebs"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Zellzyklus – Überblick",
+     "lage": {
+      "x": 0.012,
+      "y": 0.118,
+      "breite": 0.384,
+      "hoehe": 0.195
+     },
+     "inhalt": "Kreisdiagramm mit Segmenten G1, S, S (DNA-Replikation), M (Mitose); grüner Pfeil aus G1 zur G0. G0 Ruhephase: Zellen verlassen den Zellzyklus vorübergehend oder dauerhaft (z. B. Neuronen). Legende: G1 Zellwachstum, Proteinsynthese, Organellenvermehrung. S DNA-Replikation (Chromosomen werden verdoppelt). G2 Vorbereitung auf Mitose, Fehlerkontrolle. M Zellteilung (Mitose oder Meiose)."
+    },
+    {
+     "nr": 2,
+     "titel": "Mitose – Phasen in Kurzform",
+     "lage": {
+      "x": 0.405,
+      "y": 0.118,
+      "breite": 0.581,
+      "hoehe": 0.195
+     },
+     "inhalt": "Prophase: Chromosomen kondensieren, Kernhülle löst sich auf, Spindel bildet sich. Metaphase: Chromosomen in Äquatorialebene (Metaphaseplatte) angeordnet. Anaphase: Schwesterchromatiden trennen sich und wandern zu entgegengesetzten Polen. Telophase: neue Kernhüllen bilden sich, Chromosomen entspiralisieren. Zytokinese: Zellplasma teilt sich → zwei Tochterzellen entstehen. Ergebnis: 2 diploide, genetisch identische Tochterzellen (2n → 2n)."
+    },
+    {
+     "nr": "3a",
+     "titel": "Meiose I – Reduktionsteilung (Homologe Trennung)",
+     "lage": {
+      "x": 0.02,
+      "y": 0.342,
+      "breite": 0.396,
+      "hoehe": 0.182
+     },
+     "inhalt": "Prophase I: homologe Chromosomen paaren sich (Synapsis), Crossing-over in Chiasmata! Metaphase I: Bivalente in Äquatorialebene angeordnet (Zufallsorientierung). Anaphase I: homologe Chromosomen trennen sich, Schwesterchromatiden bleiben zusammen. Telophase I + Zytokinese: zwei haploide Zellen (n) mit noch verdoppelten Chromosomen entstehen."
+    },
+    {
+     "nr": "3b",
+     "titel": "Die Kernunterschiede",
+     "lage": {
+      "x": 0.42,
+      "y": 0.342,
+      "breite": 0.148,
+      "hoehe": 0.179
+     },
+     "inhalt": "Homologe Trennung · Crossing-over (nur in Prophase I!) · Reduktion des Ploidiegrades (2n → n)."
+    },
+    {
+     "nr": "3c",
+     "titel": "Meiose II – Äquationsteilung (Schwesterchromatid-Trennung)",
+     "lage": {
+      "x": 0.574,
+      "y": 0.342,
+      "breite": 0.405,
+      "hoehe": 0.179
+     },
+     "inhalt": "Prophase II: Spindel bildet sich erneut, Kernhülle (falls vorhanden) löst sich auf. Metaphase II: Chromosomen ordnen sich in Äquatorialebene an. Anaphase II: Schwesterchromatiden trennen sich und wandern zu den Polen. Telophase II + Zytokinese: vier haploide, genetisch verschiedene Tochterzellen entstehen. Ergebnis: 4 haploide, genetisch verschiedene Tochterzellen (2n → n)."
+    },
+    {
+     "nr": 4,
+     "titel": "Crossing-over – 3 wichtige Punkte",
+     "lage": {
+      "x": 0.014,
+      "y": 0.55,
+      "breite": 0.304,
+      "hoehe": 0.158
+     },
+     "inhalt": "1 Wann? In der Prophase I (Pachytän). 2 Wo? Zwischen Nicht-Schwesterchromatiden homologer Chromosomen (Chiasmata). 3 Warum wichtig? Erhöht die genetische Vielfalt durch Austausch von DNA-Abschnitten (Rekombination). Bild: zwei homologe Chromosomen (blau, rot) mit ausgetauschten Abschnitten."
+    },
+    {
+     "nr": 5,
+     "titel": "Checkpoints – Qualitätskontrolle",
+     "lage": {
+      "x": 0.322,
+      "y": 0.55,
+      "breite": 0.459,
+      "hoehe": 0.158
+     },
+     "inhalt": "Spalten Checkpoint · worauf wird geprüft? · wichtige Moleküle · Folge bei Problem. G1/S-Checkpoint: DNA-Schäden? Zellgröße und -bedingungen ausreichend? · p53, Rb, Cyclin D/CDK4/6 · Zellzyklus-Stopp, Reparatur oder Einleitung der Apoptose. G2/M-Checkpoint: Ist die DNA-Replikation vollständig und fehlerfrei? DNA-Schäden? · p53, ATM/ATR, Cyclin B/CDK1 · Zellzyklus-Stopp, Reparatur oder Apoptose. Spindel-Checkpoint (Metaphase): Sind alle Chromosomen korrekt mit der Spindel verbunden und unter Spannung? · MAD2, BUBR1, APC/C · Übergang in Anaphase wird verhindert, bis alle korrekt angehängt sind."
+    },
+    {
+     "nr": "5b",
+     "titel": "Was passiert bei Checkpoint-Versagen?",
+     "lage": {
+      "x": 0.787,
+      "y": 0.55,
+      "breite": 0.199,
+      "hoehe": 0.158
+     },
+     "inhalt": "Unkontrollierte Zellteilung → Akkumulation von Mutationen → Krebsentstehung (Bild einer Tumorzelle)."
+    },
+    {
+     "nr": 6,
+     "titel": "Mitose vs. Meiose – im Vergleich",
+     "lage": {
+      "x": 0.014,
+      "y": 0.712,
+      "breite": 0.561,
+      "hoehe": 0.201
+     },
+     "inhalt": "Spalten Kriterium · Mitose · Meiose I · Meiose II. Ort: somatische Zellen (alle Körperzellen) · Keimdrüsen (Hoden, Ovarien) · Keimdrüsen. Zweck: Wachstum, Reparatur, Zellerneuerung · Bildung haploider Zellen, genetische Vielfalt · Trennung der Schwesterchromatiden. Anzahl Teilungen: 1 · 1. Teilung (Reduktion) · 2. Teilung (Äquation). Ploidiegrad: 2n → 2n (bleibt gleich) · 2n → n (Reduktion) · n → n (bleibt haploid). Crossing-over: nein · ja (in Prophase I) · nein. Trennung in der Anaphase: Schwesterchromatiden · homologe Chromosomen · Schwesterchromatiden. Anzahl Tochterzellen: 2 · 2 · 4 (gesamt nach Meiose II). Tochterzellen: diploid, genetisch identisch · haploid, Chromosomen noch doppelt · haploid, genetisch verschieden."
+    },
+    {
+     "nr": 7,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.586,
+      "y": 0.712,
+      "breite": 0.398,
+      "hoehe": 0.13
+     },
+     "inhalt": "Meiose I ≠ Meiose II: Meiose I Trennung homologer Chromosomen (Reduktion), Meiose II Trennung der Schwesterchromatiden (Äquation). Crossing-over in Prophase I, nicht in II: nur in der Prophase I (Pachytän) – nicht in Meiose II! Non-Disjunction (Nicht-Trennung): Fehler bei Trennung der Chromosomen → Aneuploidie, z. B. Trisomie 21 (Down-Syndrom); Bild drei Chromosomen 21."
+    },
+    {
+     "nr": 8,
+     "titel": "Eselsbrücken (Merksätze)",
+     "lage": {
+      "x": 0.586,
+      "y": 0.845,
+      "breite": 0.398,
+      "hoehe": 0.068
+     },
+     "inhalt": "„Mitose macht mehr vom Gleichen.“ → Eine Zelle wird zu zwei gleichen Kopien. · „Meiose macht Verschiedenes – für Sex.“ → Vielfalt für die Fortpflanzung."
+    },
+    {
+     "nr": 9,
+     "titel": "Schlusszeile",
+     "lage": {
+      "x": 0.014,
+      "y": 0.918,
+      "breite": 0.973,
+      "hoehe": 0.078
+     },
+     "inhalt": "Keine Verwechslung mehr – Punkte im MedAT gesichert."
+    }
+   ],
+   "pruefungsfallen": [
+    "In der Anaphase I trennen sich Homologe, in Anaphase II und Mitose die Schwesterchromatiden",
+    "Nach Meiose I sind die Zellen schon haploid, die Chromosomen bestehen aber noch aus zwei Chromatiden",
+    "Crossing-over nur in Prophase I (Pachytän), zwischen Nicht-Schwesterchromatiden",
+    "Mitose: 2n → 2n, zwei identische Zellen; Meiose: 2n → n, vier verschiedene Zellen",
+    "Non-Disjunction führt zu Aneuploidie, z. B. Trisomie 21"
+   ],
+   "hinweise": [],
+   "pruefhinweise": [
+    "Bereich 1: Das Zellzyklus-Rad zeigt zweimal S (einmal „S“, einmal „S (DNA-Replikation)“) und kein G2-Segment; das Segment zwischen S und M müsste G2 heißen, die Legende rechts nennt G2 richtig."
+   ]
+  },
+  {
+   "id": "saeuren-basen",
+   "goodie": "MedAT Säure/Base Cheat Sheet",
+   "datei": "802175ce-b85a-42bf-ad22-34d26731321d_Sa_uren_Basen.png",
+   "titel": "Säuren & Basen – alles auf einen Blick",
+   "fach": "Chemie · Säure-Base-Chemie",
+   "kurz": "Überblick über Säure-Base-Definitionen, Säure- und Basenstärke, pH/pOH, pH-Skala, Alltagsbeispiele, Reaktionstypen, Puffer mit Henderson-Hasselbalch, Titration mit Indikatoren, pKs/pKb-Tabelle, amphotere Stoffe, Löslichkeitsregeln, Eselsbrücken und Konstanten.",
+   "stichworte": [
+    "Säure",
+    "Base",
+    "Arrhenius",
+    "Brønsted-Lowry",
+    "Lewis",
+    "Protonendonator",
+    "Protonenakzeptor",
+    "konjugierte Base",
+    "konjugierte Säure",
+    "Säurestärke",
+    "Dissoziationsgrad",
+    "pH-Wert",
+    "pOH",
+    "pKw",
+    "pKs",
+    "pKb",
+    "Neutralisation",
+    "Puffer",
+    "Henderson-Hasselbalch",
+    "Titration",
+    "Äquivalenzpunkt",
+    "Indikator",
+    "Phenolphthalein",
+    "Methylorange",
+    "Bromthymolblau",
+    "amphoter",
+    "Ampholyt",
+    "Löslichkeitsregeln",
+    "Fällungsreaktion",
+    "Blutpuffer"
+   ],
+   "ausloeser": [
+    "Rechnen mit pH, pOH, [H₃O⁺] oder [OH⁻]",
+    "Fragen zu Säure-Base-Definitionen oder konjugierten Säure-Base-Paaren",
+    "Pufferberechnung oder Henderson-Hasselbalch-Gleichung",
+    "Titrationskurve, Äquivalenzpunkt oder Wahl des Indikators",
+    "Einordnen, ob eine Säure oder Base stark oder schwach ist (pKs/pKb-Werte)"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Definitionen",
+     "lage": {
+      "x": 0.008,
+      "y": 0.068,
+      "breite": 0.303,
+      "hoehe": 0.244
+     },
+     "inhalt": "ARRHENIUS (in Wasser): Säure bildet H₃O⁺(aq), Base bildet OH⁻(aq). HCl + H₂O → H₃O⁺ + Cl⁻; NaOH → Na⁺ + OH⁻. BRØNSTED-LOWRY (Protonentheorie): Säure = Protonen-Donator (H⁺), Base = Protonen-Akzeptor (H⁺). HA + B ⇌ A⁻ + BH⁺ (Säure, Base, konj. Base, konj. Säure). LEWIS (Elektronenpaar-Theorie): Säure = Elektronenpaar-Akzeptor, Base = Elektronenpaar-Donator. BF₃ + :NH₃ → F₃B←NH₃."
+    },
+    {
+     "nr": 2,
+     "titel": "Stärke von Säuren & Basen",
+     "lage": {
+      "x": 0.008,
+      "y": 0.318,
+      "breite": 0.303,
+      "hoehe": 0.203
+     },
+     "inhalt": "Stärke ∝ Dissoziationsgrad (in Wasser). SÄUREN (stark → schwach): HClO₄ > HI > HBr > HCl > H₂SO₄ > HNO₃ > H₃O⁺ > HSO₄⁻ > H₃PO₄ > HF > CH₃COOH > H₂CO₃ > H₂S > HCN > H₂O. BASEN (stark → schwach): LiOH > NaOH > KOH > RbOH > CsOH > Ca(OH)₂ > Sr(OH)₂ > Ba(OH)₂ > NH₃ > Aminen > H₂O. MERKE: Nach unten in einer Gruppe ↑ Stärke; nach rechts in einer Periode ↓ Stärke."
+    },
+    {
+     "nr": 3,
+     "titel": "pH, pOH & pKw",
+     "lage": {
+      "x": 0.008,
+      "y": 0.526,
+      "breite": 0.248,
+      "hoehe": 0.167
+     },
+     "inhalt": "Formeln (bei 25 °C): [H₃O⁺] = 10^−pH mol/L; pH = −log[H₃O⁺]; [OH⁻] = 10^−pOH mol/L; pOH = −log[OH⁻]; pKw = pH + pOH = 14,00; [H₃O⁺] · [OH⁻] = 1,0 · 10⁻¹⁴. Beispiele: pH 1 → sauer → [H₃O⁺] = 10⁻¹ = 0,1 M; pH 7 → neutral → [H₃O⁺] = 10⁻⁷ = 10⁻⁷ M; pH 13 → basisch → [OH⁻] = 10⁻¹ = 0,1 M."
+    },
+    {
+     "nr": 4,
+     "titel": "pH-Skala",
+     "lage": {
+      "x": 0.008,
+      "y": 0.698,
+      "breite": 0.334,
+      "hoehe": 0.152
+     },
+     "inhalt": "0 (sehr sauer) bis 14 (sehr basisch), Farbskala 0–14 mit Pfeil sauer – neutral – basisch. Beispiele: Magensäure 1–2, Zitronensaft 2, Tomate 4, Kaffee 5, Milch 6–7, Wasser 7, Blut 7,4, Seife 10, Ammoniak 11, Abflussreiniger 13–14. MERKE: pH < 7 sauer | pH = 7 neutral | pH > 7 basisch. Jede Änderung um 1 pH-Einheit = 10-fache Änderung der [H₃O⁺]!"
+    },
+    {
+     "nr": 5,
+     "titel": "Säuren & Basen im Alltag",
+     "lage": {
+      "x": 0.32,
+      "y": 0.07,
+      "breite": 0.375,
+      "hoehe": 0.203
+     },
+     "inhalt": "SÄUREN: Zitronensäure (Zitronen), Essigsäure (Essig), Kohlensäure (Sprudel; gedruckt „Kohensäure“), Milchsäure (Joghurt), Magensäure (HCl), Ameisensäure (Ameisenstich). BASEN: Natriumhydroxid (Abflussreiniger), Ammoniak (Reiniger), Backpulver (Natriumhydrogencarbonat), Seife (Fette + Lauge), Kalkwasser (Ca(OH)₂), Zahnpasta (leicht basisch)."
+    },
+    {
+     "nr": 6,
+     "titel": "Reaktionen",
+     "lage": {
+      "x": 0.32,
+      "y": 0.279,
+      "breite": 0.375,
+      "hoehe": 0.252
+     },
+     "inhalt": "NEUTRALISATION (Säure + Base → Salz + Wasser): HCl + NaOH → NaCl + H₂O; H₂SO₄ + 2 KOH → K₂SO₄ + 2 H₂O. NETTO-IONISCHE GLEICHUNG: H₃O⁺ + OH⁻ → 2 H₂O. PUFFERREAKTION (schwache Säure + konjugierte Base): CH₃COOH + CH₃COO⁻ ⇌ CH₃COO⁻ + CH₃COOH → pH ändert sich nur wenig! GASENTWICKLUNG (Säure + Carbonat): 2 HCl + CaCO₃ → CaCl₂ + H₂O + CO₂↑. FÄLLUNGSREAKTION (Säure/Base + Salzlösung): AgNO₃ + NaCl → AgCl↓ + NaNO₃."
+    },
+    {
+     "nr": 7,
+     "titel": "Pufferlösungen",
+     "lage": {
+      "x": 0.705,
+      "y": 0.068,
+      "breite": 0.287,
+      "hoehe": 0.286
+     },
+     "inhalt": "Puffer = Lösung, die pH-Wert gegen Zugabe von kleinen Mengen Säure/Base stabil hält. Zusammensetzung: schwache Säure + konjugierte Base; schwache Base + konjugierte Säure. HENDERSON-HASSELBALCH-GLEICHUNG: pH = pKa + log([A⁻]/[HA]); pOH = pKb + log([BH⁺]/[B]). Eigenschaften: pH bleibt bei Verdünnung nahezu konstant; geringe pH-Änderung bei Zugabe von Säure/Base; wichtig in Biologie & Technik (z. B. Blutpuffer). Beispiele: Essigsäure/Acetat-Puffer, Phosphat-Puffer (im Blut), Ammoniak/Ammonium-Puffer."
+    },
+    {
+     "nr": 8,
+     "titel": "Titration",
+     "lage": {
+      "x": 0.705,
+      "y": 0.359,
+      "breite": 0.287,
+      "hoehe": 0.243
+     },
+     "inhalt": "Prinzip: Bestimmung der Konzentration einer Säure/Base durch Reaktion mit einer Maßlösung. Äquivalenzpunkt: Stoffmengenverhältnis nach Reaktionsgleichung! Titrationskurve (starke Säure + starke Base): pH (0 bis über 7) gegen zugegebene Base (mL), steiler Sprung, Äquivalenzpunkt bei pH = 7 markiert. Indikatoren (Umschlagbereich): Methylorange pH 3,1–4,4 (rot → gelb); Bromthymolblau pH 6,0–7,6 (gelb → blau); Phenolphthalein pH 8,2–10,0 (farblos → pink)."
+    },
+    {
+     "nr": 9,
+     "titel": "Wichtige Säuren & Basen (Tabelle)",
+     "lage": {
+      "x": 0.256,
+      "y": 0.537,
+      "breite": 0.439,
+      "hoehe": 0.236
+     },
+     "inhalt": "Wichtige Säuren (Säure, Formel, Stärke, pKa ca.): Perchlorsäure HClO₄ stark −10; Iodwasserstoffsäure HI stark −10; Salzsäure HCl stark −6; Schwefelsäure (1. Prot.) H₂SO₄ stark −3; Salpetersäure HNO₃ stark −1,4; Hydronium-Ion H₃O⁺ −1,7; Hydrogensulfat-Ion HSO₄⁻ 1,9; Phosphorsäure (1. Prot.) H₃PO₄ 2,1; Flusssäure HF 3,2; Essigsäure CH₃COOH 4,76; Kohlensäure H₂CO₃ 6,35; Schwefelwasserstoff H₂S 7,0; Blausäure HCN 9,2; Wasser H₂O 15,7. Wichtige Basen (Base, Formel, Stärke, pKb ca.; Spaltenkopf unscharf gedruckt): Natriumhydroxid NaOH stark −1,7; Kaliumhydroxid KOH stark −1,7; Bariumhydroxid Ba(OH)₂ stark −1,4; Calciumhydroxid Ca(OH)₂ stark −1,2; Ammoniak NH₃ schwach 4,75; Methylamin CH₃NH₂ schwach 3,4; Anilin (C₆H₅NH₂, Indizes unscharf) schwach 9,4; Pyridin (C₅H₅N, Indizes unscharf) schwach 8,8; Hydroxid-Ion OH⁻ 15,7; Wasser (als Base) H₂O 15,7."
+    },
+    {
+     "nr": 10,
+     "titel": "Amphotere Stoffe",
+     "lage": {
+      "x": 0.705,
+      "y": 0.607,
+      "breite": 0.287,
+      "hoehe": 0.204
+     },
+     "inhalt": "Können als Säure UND Base reagieren. Beispiele mit Strukturskizzen: H₂O – Säure: H₂O + H₂O ⇌ H₃O⁺ + OH⁻; Base: H₂O + HCl ⇌ H₃O⁺ + Cl⁻. HCO₃⁻ – „Säure“: HCO₃⁻ + H₂O ⇌ H₂CO₃ + OH⁻; „Base“: HCO₃⁻ + H₂O ⇌ CO₃²⁻ + H₃O⁺. HSO₄⁻ – „Säure“: HSO₄⁻ + H₂O ⇌ H₂SO₄ + OH⁻; „Base“: HSO₄⁻ + H₂O ⇌ SO₄²⁻ + H₃O⁺ (Beschriftungen bei HCO₃⁻ und HSO₄⁻ vertauscht, siehe Prüfhinweise)."
+    },
+    {
+     "nr": 11,
+     "titel": "Löslichkeitsregeln (für Ionenverbindungen)",
+     "lage": {
+      "x": 0.005,
+      "y": 0.853,
+      "breite": 0.337,
+      "hoehe": 0.147
+     },
+     "inhalt": "Immer löslich (Ausnahmen selten): alle Nitrate (NO₃⁻); alle Natrium-, Kalium-, Ammoniumsalze (Na⁺, K⁺, NH₄⁺); alle Acetate (CH₃COO⁻); alle Chlorate (ClO₃⁻) und Perchlorate (ClO₄⁻). Meist unlöslich (Ausnahmen beachten!): Carbonate (CO₃²⁻), außer mit Alkaliionen & NH₄⁺; Phosphate (gedruckt PO₄²⁻), außer mit Alkaliionen & NH₄⁺; Sulfide (S²⁻), außer mit Alkaliionen & NH₄⁺; Hydroxide (OH⁻), außer mit Alkaliionen & stärker basischen Erdalkalien (Ca²⁺, Sr²⁺, Ba²⁺); Silberhalogenide (AgCl, AgBr, AgI)."
+    },
+    {
+     "nr": 12,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.347,
+      "y": 0.778,
+      "breite": 0.352,
+      "hoehe": 0.218
+     },
+     "inhalt": "Starke Säuren merken: „Clara Hilft So Netten Schülern“ – HClO₄ – HI – HBr – HCl – H₂SO₄ – HNO₃. Starke Basen merken: „LiNaKBaCa – starke Hydra“ – LiOH – NaOH – KOH – Ba(OH)₂ – Ca(OH)₂. pH-Merkregel: „SAUer: pH klein, BASisch: pH fein!“ Neutralisation: „Säure + Base → Salz + Wasser – das ist doch nasser Spaß!“ Puffer merken: „HA + A⁻ hält den pH in Balance!“"
+    },
+    {
+     "nr": 13,
+     "titel": "Wichtige Konstanten (25 °C)",
+     "lage": {
+      "x": 0.705,
+      "y": 0.815,
+      "breite": 0.287,
+      "hoehe": 0.078
+     },
+     "inhalt": "Kw = [H₃O⁺][OH⁻] = 1,0 · 10⁻¹⁴; pKw = 14,00; R = 8,314 J·mol⁻¹·K⁻¹; T = 298 K; F = 96485 C·mol⁻¹."
+    },
+    {
+     "nr": 14,
+     "titel": "Zusammenfassung",
+     "lage": {
+      "x": 0.705,
+      "y": 0.897,
+      "breite": 0.287,
+      "hoehe": 0.099
+     },
+     "inhalt": "Säuren spenden Protonen (H⁺). Basen nehmen Protonen auf. pH < 7 sauer, pH = 7 neutral, pH > 7 basisch. Starke Säuren/Basen dissoziieren vollständig. Puffer halten den pH stabil. Neutralisation: Säure + Base → Salz + Wasser. Immer die Netto-Ionische Gleichung betrachten!"
+    }
+   ],
+   "pruefhinweise": [
+    "Bereich 2: Die Basenreihe ist innerhalb der Gruppen verkehrt herum; die Hydroxidbasizität nimmt in einer Gruppe nach unten zu (CsOH > RbOH > KOH > NaOH > LiOH, Ba(OH)₂ > Sr(OH)₂ > Ca(OH)₂), was auch der eigenen Merke-Regel „nach unten in einer Gruppe ↑ Stärke“ widerspricht.",
+    "Bereich 2: Die Merke-Regel „nach rechts in einer Periode ↓ Stärke“ stimmt für Säuren nicht; die Acidität der Wasserstoffverbindungen nimmt in einer Periode nach rechts zu (CH₄ < NH₃ < H₂O < HF), die Regel gilt nur für Hydroxid-Basen.",
+    "Bereich 2 und 9 widersprechen sich: Bereich 2 reiht HNO₃ vor H₃O⁺, in der Tabelle hat HNO₃ aber pKa −1,4 und H₃O⁺ −1,7 (also H₃O⁺ formal die stärkere Säure).",
+    "Bereich 9: Beim Hydroxid-Ion steht pKb 15,7; als Base ist OH⁻ sehr stark (pKb ≈ −1,7); 15,7 ist der pKb von Wasser bzw. der pKa von H₂O.",
+    "Bereich 10: Bei HCO₃⁻ und HSO₄⁻ sind die Beschriftungen vertauscht; in HCO₃⁻ + H₂O ⇌ H₂CO₃ + OH⁻ wirkt HCO₃⁻ als Base, in HCO₃⁻ + H₂O ⇌ CO₃²⁻ + H₃O⁺ als Säure (dasselbe bei HSO₄⁻).",
+    "Bereich 10: Die Strukturskizzen sind falsch; bei HCO₃⁻ fehlt das Kohlenstoffatom (O–O–O-Kette), bei HSO₄⁻ sind nur zwei O-Atome und zwei H-Atome am S gezeichnet statt vier O-Atome und ein H.",
+    "Bereich 10: Bei H₂O ist die Autoprotolyse H₂O + H₂O ⇌ H₃O⁺ + OH⁻ nur mit „Säure“ beschriftet, obwohl darin ein Wassermolekül als Säure und eines als Base wirkt; zudem ist HSO₄⁻ als Base (→ H₂SO₄ + OH⁻) in Wasser praktisch bedeutungslos.",
+    "Bereich 11: Phosphat ist als PO₄²⁻ gedruckt; richtig ist PO₄³⁻.",
+    "Bereich 5: Tippfehler „Kohensäure“ statt Kohlensäure.",
+    "Bereich 6: Die gezeigte Pufferreaktion CH₃COOH + CH₃COO⁻ ⇌ CH₃COO⁻ + CH₃COOH ist eine Nullreaktion und zeigt die Pufferwirkung nicht; die Pufferwirkung zeigt sich erst bei Zugabe von H₃O⁺ (zu CH₃COO⁻) oder OH⁻ (zu CH₃COOH).",
+    "Bereich 12: Der Merksatz „Clara Hilft So Netten Schülern“ hat fünf Wörter für sechs Säuren und passt in den Anfangsbuchstaben nicht eindeutig zur Reihe darunter."
+   ]
+  },
+  {
+   "id": "mitochondrien-mc-fallen",
+   "goodie": "Prüfungsfallen Mitochondrien",
+   "datei": "80be6b0c-3ca6-4266-bb30-eec298492533_Mitochondrien_Pru_fungsfallen.png",
+   "titel": "Mitochondrien – MC-Prüfungsfallen",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "8 Multiple-Choice-Fragen im MedAT-Stil mit starken Distraktoren zu Mitochondrien: ATP-Synthase, Citratzyklus, Atmungskette, mtDNA, Endosymbiontentheorie, Erythrozyten, Apoptose und β-Oxidation, mit Lösungen, Prüfungsfallen und Merksatz.",
+   "stichworte": [
+    "Mitochondrium",
+    "Mitochondrien",
+    "ATP-Synthase",
+    "oxidative Phosphorylierung",
+    "innere Mitochondrienmembran",
+    "äußere Mitochondrienmembran",
+    "Intermembranraum",
+    "Matrix",
+    "Mitochondrienmatrix",
+    "Citratzyklus",
+    "Zitronensäurezyklus",
+    "Atmungskette",
+    "Elektronentransportkette",
+    "Protonengradient",
+    "NADH",
+    "Sauerstoff",
+    "mtDNA",
+    "mitochondriale DNA",
+    "maternale Vererbung",
+    "Endosymbiontentheorie",
+    "70S-Ribosomen",
+    "Erythrozyt",
+    "Apoptose",
+    "Cytochrom c",
+    "β-Oxidation",
+    "Fettsäureabbau",
+    "Acetyl-CoA",
+    "Zellatmung"
+   ],
+   "ausloeser": [
+    "Frage, wo ein Stoffwechselschritt im Mitochondrium abläuft (Matrix, innere Membran, Intermembranraum)",
+    "Verwechslung von Ort des Citratzyklus und der Atmungskette",
+    "Fragen zu mtDNA, Vererbung oder Endosymbiontentheorie",
+    "Apoptose und Cytochrom c",
+    "Zellen ohne Mitochondrien oder Ort der β-Oxidation"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Frage 1 – ATP-Synthase",
+     "lage": {
+      "x": 0.007,
+      "y": 0.081,
+      "breite": 0.485,
+      "hoehe": 0.164
+     },
+     "inhalt": "Welche Struktur trägt die ATP-Synthase, die bei der oxidativen Phosphorylierung ATP bildet? A Äußere Mitochondrienmembran · B Innere Mitochondrienmembran · C Intermembranraum · D Mitochondrienmatrix · E Keine Antwortmöglichkeit. Bild: aufgeschnittenes Mitochondrium mit grünen ATP-Synthasen auf der inneren Membran. Lösung B."
+    },
+    {
+     "nr": 2,
+     "titel": "Frage 2 – Ort des Citratzyklus",
+     "lage": {
+      "x": 0.501,
+      "y": 0.081,
+      "breite": 0.488,
+      "hoehe": 0.164
+     },
+     "inhalt": "Wo läuft der Citratzyklus überwiegend ab? A Im Cytosol · B An der äußeren Mitochondrienmembran · C In der Mitochondrienmatrix · D Im Intermembranraum · E Keine Antwortmöglichkeit. Bild: Kreislaufpfeile in der Matrix. Lösung C."
+    },
+    {
+     "nr": 3,
+     "titel": "Frage 3 – Atmungskette",
+     "lage": {
+      "x": 0.007,
+      "y": 0.25,
+      "breite": 0.485,
+      "hoehe": 0.177
+     },
+     "inhalt": "Welche Aussage zur Atmungskette ist korrekt? A Sie findet im Cytoplasma statt · B Sie pumpt Protonen in die Matrix · C Sie ist an der inneren Mitochondrienmembran lokalisiert · D NADH ist der finale Elektronenakzeptor · E Keine Antwortmöglichkeit. Bild: Membrankomplexe, H⁺ werden nach oben gepumpt, Elektronenfluss von NADH zu O₂. Lösung C."
+    },
+    {
+     "nr": 4,
+     "titel": "Frage 4 – mitochondriale DNA",
+     "lage": {
+      "x": 0.501,
+      "y": 0.25,
+      "breite": 0.488,
+      "hoehe": 0.177
+     },
+     "inhalt": "Welche Aussage über mitochondriale DNA trifft zu? A Sie ist linear und im Zellkern gespeichert · B Sie wird ausschließlich vom Vater vererbt · C Sie codiert für alle mitochondrialen Proteine · D Sie liegt frei im Intermembranraum · E Keine Antwortmöglichkeit. Bild: ringförmige DNA-Moleküle in der Matrix. Lösung E."
+    },
+    {
+     "nr": 5,
+     "titel": "Frage 5 – Endosymbiontentheorie",
+     "lage": {
+      "x": 0.007,
+      "y": 0.432,
+      "breite": 0.485,
+      "hoehe": 0.164
+     },
+     "inhalt": "Welches Merkmal stützt die Endosymbiontentheorie der Mitochondrien besonders? A Sie besitzen 80S-Ribosomen wie im Cytoplasma · B Sie entstehen de novo aus dem Golgi-Apparat · C Sie besitzen eigene DNA und bakterienähnliche Ribosomen · D Sie enthalten Chlorophyll · E Keine Antwortmöglichkeit. Bild: Mitochondrium mit Lupen auf ringförmige DNA und Ribosomen. Lösung C."
+    },
+    {
+     "nr": 6,
+     "titel": "Frage 6 – Zelle ohne Mitochondrien",
+     "lage": {
+      "x": 0.501,
+      "y": 0.432,
+      "breite": 0.488,
+      "hoehe": 0.164
+     },
+     "inhalt": "Welche Zelle besitzt im reifen Zustand typischerweise keine Mitochondrien? A Hepatozyt · B Spermium · C Neuron · D Erythrozyt · E Keine Antwortmöglichkeit. Bild: rotes Blutkörperchen neben durchgestrichenem Mitochondrium. Lösung D."
+    },
+    {
+     "nr": 7,
+     "titel": "Frage 7 – Apoptose",
+     "lage": {
+      "x": 0.007,
+      "y": 0.601,
+      "breite": 0.485,
+      "hoehe": 0.159
+     },
+     "inhalt": "Welche mitochondriale Veränderung spielt eine zentrale Rolle bei der Einleitung der Apoptose? A Freisetzung von Cytochrom c in das Cytosol · B Einbau von Ribosomen in die äußere Membran · C Auflösung des Zellkerns durch ATP-Synthase · D Bildung von Lysosomen in der Matrix · E Keine Antwortmöglichkeit. Bild: Mitochondrium, aus dem violette Partikel austreten. Lösung A."
+    },
+    {
+     "nr": 8,
+     "titel": "Frage 8 – β-Oxidation",
+     "lage": {
+      "x": 0.501,
+      "y": 0.601,
+      "breite": 0.488,
+      "hoehe": 0.159
+     },
+     "inhalt": "Welche Aussage zur β-Oxidation ist korrekt? A Sie läuft ausschließlich im Zellkern ab · B Sie findet nur im Lysosom statt · C Sie ist ein Prozess der äußeren Mitochondrienmembran · D Sie liefert kein Acetyl-CoA · E Keine Antwortmöglichkeit. Bild: Fettsäure → β-Oxidation → Acetyl-CoA in der Matrix. Lösung E."
+    },
+    {
+     "nr": 9,
+     "titel": "Lösungen & Prüfungsfallen",
+     "lage": {
+      "x": 0.007,
+      "y": 0.767,
+      "breite": 0.986,
+      "hoehe": 0.128
+     },
+     "inhalt": "1 B: ATP-Synthase sitzt auf der inneren Membran. 2 C: Citratzyklus läuft in der Matrix. 3 C: Atmungskette liegt an der inneren Membran. 4 E: mtDNA ist ringförmig, meist maternal und liegt in der Matrix; A–D sind falsch. 5 C: Eigene DNA + bakterienähnliche Ribosomen stützen Endosymbiose. 6 D: Reife Erythrozyten besitzen keine Mitochondrien. 7 A: Cytochrom-c-Freisetzung ist ein Apoptose-Signal. 8 E: β-Oxidation liefert Acetyl-CoA und läuft nicht in Zellkern/Lysosom/äußerer Membran."
+    },
+    {
+     "nr": 10,
+     "titel": "Prüfungsfallen merken!",
+     "lage": {
+      "x": 0.007,
+      "y": 0.902,
+      "breite": 0.758,
+      "hoehe": 0.076
+     },
+     "inhalt": "Matrix ≠ innere Membran · mtDNA ≠ alle Proteine · Erythrozyt ohne Mitochondrien · β-Oxidation ≠ Zellkern (je mit kleinem Bild)."
+    },
+    {
+     "nr": 11,
+     "titel": "Merksatz",
+     "lage": {
+      "x": 0.771,
+      "y": 0.902,
+      "breite": 0.222,
+      "hoehe": 0.076
+     },
+     "inhalt": "Bei Mitochondrien ist Funktion oft ortsgebunden: Matrix, innere Membran, Intermembranraum."
+    }
+   ],
+   "pruefungsfallen": [
+    "Matrix ≠ innere Membran: Citratzyklus in der Matrix, Atmungskette und ATP-Synthase an der inneren Membran",
+    "mtDNA codiert nicht alle mitochondrialen Proteine",
+    "Reife Erythrozyten haben keine Mitochondrien",
+    "β-Oxidation läuft in der Matrix, nicht im Zellkern, Lysosom oder an der äußeren Membran"
+   ],
+   "pruefhinweise": []
+  },
+  {
+   "id": "genetischer-code-mc-fallen",
+   "goodie": "Prüfungsfallen Molekulargenetik",
+   "datei": "2ac652d2-0336-4488-9b8f-fd20a351d5c5_Genetischer_Code.png",
+   "titel": "Genetischer Code – MC-Prüfungsfallen",
+   "fach": "Biologie · Molekulargenetik",
+   "kurz": "8 Multiple-Choice-Fragen im MedAT-Stil zu den Eigenschaften des genetischen Codes: Triplett, Codon-Bedeutung, Degeneration, Eindeutigkeit, Stopp- und Startcodons, nicht überlappend, Universalität, mit Lösungen, Prüfungsfallen und Merksatz.",
+   "stichworte": [
+    "genetischer Code",
+    "Codon",
+    "Basentriplett",
+    "Triplett",
+    "Anticodon",
+    "mRNA",
+    "tRNA",
+    "Aminosäure",
+    "Stoppcodon",
+    "UAA",
+    "UAG",
+    "UGA",
+    "Startcodon",
+    "AUG",
+    "Methionin",
+    "degeneriert",
+    "Degeneration",
+    "redundant",
+    "eindeutig",
+    "nicht überlappend",
+    "kommafrei",
+    "Leserahmen",
+    "universell",
+    "Universalität",
+    "Translation"
+   ],
+   "ausloeser": [
+    "Fragen zu Eigenschaften des genetischen Codes (degeneriert, eindeutig, universell, nicht überlappend)",
+    "Verwechslung von degeneriert und eindeutig",
+    "Stopp- oder Startcodons nennen",
+    "Verwechslung Codon (mRNA) und Anticodon (tRNA)",
+    "Leserahmen und Triplett-Einteilung einer mRNA"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Frage 1 – Codon",
+     "lage": {
+      "x": 0.009,
+      "y": 0.082,
+      "breite": 0.488,
+      "hoehe": 0.168
+     },
+     "inhalt": "Welche Aussage beschreibt den genetischen Code korrekt? A Ein Codon besteht aus zwei Basen · B Ein Codon besteht aus drei Basen · C Ein Codon besteht aus vier Aminosäuren · D Ein Codon liegt immer auf der tRNA · E Keine Antwortmöglichkeit. Bild: mRNA mit Klammer „Codon (Basentriplett)“ über drei Basen. Lösung B."
+    },
+    {
+     "nr": 2,
+     "titel": "Frage 2 – Was ein Codon codiert",
+     "lage": {
+      "x": 0.502,
+      "y": 0.082,
+      "breite": 0.488,
+      "hoehe": 0.168
+     },
+     "inhalt": "Was codiert ein Codon normalerweise? A Eine Aminosäure oder ein Stoppsignal · B Immer genau ein Protein · C Eine komplette DNA-Doppelhelix · D Ein Ribosom · E Keine Antwortmöglichkeit. Bild: Codon auf mRNA G A U → Aminosäure oder Stoppsignal (STOP-Schild). Lösung A."
+    },
+    {
+     "nr": 3,
+     "titel": "Frage 3 – Degeneration",
+     "lage": {
+      "x": 0.009,
+      "y": 0.254,
+      "breite": 0.488,
+      "hoehe": 0.174
+     },
+     "inhalt": "Welche Aussage zur Degeneration des genetischen Codes ist korrekt? A Mehrere Codons können für dieselbe Aminosäure codieren · B Ein Codon codiert gleichzeitig mehrere verschiedene Aminosäuren · C Der genetische Code verändert sich bei jeder Translation · D Jedes Codon codiert für ein eigenes Ribosom · E Keine Antwortmöglichkeit. Bild: verschiedene Codons GCU, GCC, GCA, GCG → eine Aminosäure. Lösung A."
+    },
+    {
+     "nr": 4,
+     "titel": "Frage 4 – Eindeutigkeit",
+     "lage": {
+      "x": 0.502,
+      "y": 0.254,
+      "breite": 0.488,
+      "hoehe": 0.174
+     },
+     "inhalt": "Welche Aussage zur Eindeutigkeit des genetischen Codes trifft zu? A Ein Codon kann beliebig viele Aminosäuren codieren · B Ein Codon codiert in der Regel eindeutig für eine Aminosäure oder ein Stoppsignal · C Ein Codon besteht aus Proteinen · D Ein Codon wird erst nach der Translation gebildet · E Keine Antwortmöglichkeit. Bild: Codon auf mRNA A C U → genau eine Aminosäure oder Stoppsignal. Lösung B."
+    },
+    {
+     "nr": 5,
+     "titel": "Frage 5 – Stoppcodons",
+     "lage": {
+      "x": 0.009,
+      "y": 0.433,
+      "breite": 0.488,
+      "hoehe": 0.148
+     },
+     "inhalt": "Welche Codons sind Stoppcodons? A AUG, UAA, UAG · B UAA, UAG, UGA · C UUU, UUC, UUA · D GGU, GGC, GGA · E Keine Antwortmöglichkeit. Bild: mRNA (Ausschnitt) mit UAA, UAG, UGA jeweils mit STOP-Schild. Lösung B."
+    },
+    {
+     "nr": 6,
+     "titel": "Frage 6 – Startcodon",
+     "lage": {
+      "x": 0.502,
+      "y": 0.433,
+      "breite": 0.488,
+      "hoehe": 0.148
+     },
+     "inhalt": "Welche Aussage zum Startcodon ist korrekt? A AUG ist meist das Startcodon und codiert für Methionin · B UGA ist immer das Startcodon · C Startcodons bestehen aus DNA-Basen mit Thymin · D Das Startcodon liegt auf der tRNA · E Keine Antwortmöglichkeit. Bild: Ribosom an mRNA (5′ → 3′), Startcodon AUG markiert. Lösung A."
+    },
+    {
+     "nr": 7,
+     "titel": "Frage 7 – nicht überlappend",
+     "lage": {
+      "x": 0.009,
+      "y": 0.586,
+      "breite": 0.488,
+      "hoehe": 0.152
+     },
+     "inhalt": "Was bedeutet „nicht überlappend“ beim genetischen Code? A Eine Base kann gleichzeitig zu zwei Codons gehören · B Codons werden in getrennten Dreiergruppen gelesen · C Codons werden rückwärts gelesen · D Codons bestehen aus überlappenden Aminosäuren · E Keine Antwortmöglichkeit. Bild: mRNA (5′ → 3′) in Dreiergruppen AUG GCU UAC GGA, Pfeil „Leserahmen“. Lösung B."
+    },
+    {
+     "nr": 8,
+     "titel": "Frage 8 – Universalität",
+     "lage": {
+      "x": 0.502,
+      "y": 0.586,
+      "breite": 0.488,
+      "hoehe": 0.152
+     },
+     "inhalt": "Welche Aussage zur Universalität des genetischen Codes ist korrekt? A Der genetische Code ist bei allen Lebewesen völlig verschieden · B Der genetische Code ist weitgehend universell, mit wenigen Ausnahmen · C Nur Menschen verwenden Codons · D Prokaryoten besitzen keinen genetischen Code · E Keine Antwortmöglichkeit. Bild: Bakterium, Pflanze, Tierzelle, Mensch um „gleicher Codon-Code“. Lösung B."
+    },
+    {
+     "nr": 9,
+     "titel": "Lösungen & Prüfungsfallen",
+     "lage": {
+      "x": 0.009,
+      "y": 0.743,
+      "breite": 0.621,
+      "hoehe": 0.179
+     },
+     "inhalt": "1 B – Ein Codon besteht aus drei Basen. 2 A – Ein Codon codiert meist eine Aminosäure oder ein Stoppsignal. 3 A – Mehrere Codons können für dieselbe Aminosäure codieren. 4 B – Ein Codon ist in der Regel eindeutig einer Aminosäure oder einem Stoppsignal zugeordnet. 5 B – UAA, UAG und UGA sind Stoppcodons. 6 A – AUG ist meist das Startcodon und codiert für Methionin. 7 B – Nicht überlappend bedeutet: Codons werden in getrennten Dreiergruppen gelesen. 8 B – Der genetische Code ist weitgehend universell, aber nicht absolut ausnahmslos."
+    },
+    {
+     "nr": 10,
+     "titel": "Prüfungsfallen merken!",
+     "lage": {
+      "x": 0.635,
+      "y": 0.743,
+      "breite": 0.355,
+      "hoehe": 0.179
+     },
+     "inhalt": "Codons bestehen aus 3 Basen, nicht aus 3 Aminosäuren · Codon liegt auf der mRNA, Anticodon auf der tRNA · AUG ist Startcodon und codiert für Methionin · UAA, UAG und UGA sind Stoppcodons · degeneriert bedeutet: mehrere Codons können dieselbe Aminosäure codieren · eindeutig bedeutet: ein Codon codiert normalerweise nicht mehrere Aminosäuren · nicht überlappend bedeutet: Basen werden in Dreiergruppen gelesen · der genetische Code ist weitgehend universell, aber es gibt Ausnahmen."
+    },
+    {
+     "nr": 11,
+     "titel": "Merksatz",
+     "lage": {
+      "x": 0.009,
+      "y": 0.927,
+      "breite": 0.981,
+      "hoehe": 0.066
+     },
+     "inhalt": "Drei Basen ergeben ein Codon – eindeutig gelesen, oft mehrfach codiert und fast überall gleich."
+    }
+   ],
+   "pruefungsfallen": [
+    "Codons bestehen aus 3 Basen, nicht aus 3 Aminosäuren",
+    "Codon liegt auf der mRNA, Anticodon auf der tRNA",
+    "degeneriert (mehrere Codons, eine Aminosäure) nicht mit eindeutig (ein Codon, eine Aminosäure) verwechseln",
+    "AUG ist Startcodon (Methionin), UAA, UAG, UGA sind Stoppcodons",
+    "Der Code ist weitgehend, aber nicht ausnahmslos universell"
+   ],
+   "pruefhinweise": []
+  },
+  {
+   "id": "rna-prozessierung-mc-fallen",
+   "goodie": "Prüfungsfallen Molekulargenetik",
+   "datei": "a4c3b63c-c872-476e-b061-e64097a2de75_RNA-Prozessierung.png",
+   "titel": "RNA-Prozessierung – MC-Prüfungsfallen",
+   "fach": "Biologie · Molekulargenetik",
+   "kurz": "8 Multiple-Choice-Fragen im MedAT-Stil zur Reifung der prä-mRNA bei Eukaryoten: Capping, Polyadenylierung, Spleißen, alternatives Spleißen, Introns und Exons, Unterschied zu Prokaryoten, mit Lösungen, Prüfungsfallen und Merksatz.",
+   "stichworte": [
+    "RNA-Prozessierung",
+    "mRNA-Reifung",
+    "prä-mRNA",
+    "hnRNA",
+    "reife mRNA",
+    "5′-Cap",
+    "Capping",
+    "Kappe",
+    "Poly-A-Schwanz",
+    "Polyadenylierung",
+    "3′-Ende",
+    "Spleißen",
+    "Splicing",
+    "Spleißosom",
+    "Intron",
+    "Exon",
+    "alternatives Spleißen",
+    "mRNA-Varianten",
+    "Zellkern",
+    "Kernexport",
+    "Eukaryoten",
+    "Prokaryoten",
+    "Kopplung Transkription Translation",
+    "posttranskriptionell"
+   ],
+   "ausloeser": [
+    "Fragen zu den Schritten der mRNA-Reifung (Cap, Poly-A, Spleißen)",
+    "Verwechslung Intron und Exon",
+    "Funktion von 5′-Cap oder Poly-A-Schwanz",
+    "alternatives Spleißen oder warum ein Gen mehrere Proteine liefern kann",
+    "Unterschiede Eukaryoten und Prokaryoten bei der RNA-Prozessierung"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Frage 1 – RNA-Prozessierung allgemein",
+     "lage": {
+      "x": 0.014,
+      "y": 0.075,
+      "breite": 0.481,
+      "hoehe": 0.185
+     },
+     "inhalt": "Welche Aussage zur RNA-Prozessierung bei Eukaryoten trifft zu? A Sie findet nach der Translation statt · B Sie macht aus prä-mRNA eine reife mRNA · C Sie findet ausschließlich im Cytoplasma statt · D Sie entfernt alle Exons aus der RNA · E Keine Antwortmöglichkeit. Bild: Zellkern mit prä-mRNA, Pfeil hinaus zur reifen mRNA mit Cap und AAAAAAA-Schwanz. Lösung B."
+    },
+    {
+     "nr": 2,
+     "titel": "Frage 2 – Drei Prozessierungsschritte",
+     "lage": {
+      "x": 0.5,
+      "y": 0.075,
+      "breite": 0.485,
+      "hoehe": 0.185
+     },
+     "inhalt": "Welche drei Schritte gehören typischerweise zur Prozessierung der prä-mRNA? A Replikation, Transkription, Translation · B Capping, Polyadenylierung, Spleißen · C Primerbildung, Elongation, DNA-Reparatur · D Zellteilung, Chromosomenpaarung, Crossing-over · E Keine Antwortmöglichkeit. Bild: prä-mRNA → 5′-Cap → Introns entfernt → Poly-A-Schwanz. Lösung B."
+    },
+    {
+     "nr": 3,
+     "titel": "Frage 3 – 5′-Cap",
+     "lage": {
+      "x": 0.014,
+      "y": 0.265,
+      "breite": 0.481,
+      "hoehe": 0.152
+     },
+     "inhalt": "Welche Funktion hat die 5′-Cap-Struktur? A Sie markiert Introns für den Abbau · B Sie schützt die mRNA und hilft bei Export und Translation · C Sie ersetzt das Startcodon AUG · D Sie codiert für die erste Aminosäure des Proteins · E Keine Antwortmöglichkeit. Bild: 5′-Cap mit methylierter Base (CH₃) am mRNA-Anfang. Lösung B."
+    },
+    {
+     "nr": 4,
+     "titel": "Frage 4 – Poly-A-Schwanz",
+     "lage": {
+      "x": 0.5,
+      "y": 0.265,
+      "breite": 0.485,
+      "hoehe": 0.152
+     },
+     "inhalt": "Welche Aussage zum Poly-A-Schwanz ist korrekt? A Er besteht aus vielen Adenin-Nukleotiden am 3′-Ende · B Er wird am 5′-Ende der DNA angebaut · C Er besteht aus Thymin-Basen · D Er entfernt Stoppcodons aus der mRNA · E Keine Antwortmöglichkeit. Bild: mRNA mit A-Kette, beschriftet „Poly-A-Schwanz (3′-Ende)“. Lösung A."
+    },
+    {
+     "nr": 5,
+     "titel": "Frage 5 – Spleißen",
+     "lage": {
+      "x": 0.014,
+      "y": 0.421,
+      "breite": 0.481,
+      "hoehe": 0.176
+     },
+     "inhalt": "Welche Aussage zum Spleißen trifft zu? A Exons werden entfernt, Introns bleiben erhalten · B Introns werden entfernt, Exons bleiben erhalten · C Spleißen findet nur bei Prokaryoten statt · D Spleißen wandelt RNA wieder in DNA um · E Keine Antwortmöglichkeit. Bild: Spleißosom an prä-mRNA, „Intron wird entfernt“, darunter „gespleißte mRNA (Exons verbunden)“. Lösung B."
+    },
+    {
+     "nr": 6,
+     "titel": "Frage 6 – Alternatives Spleißen",
+     "lage": {
+      "x": 0.5,
+      "y": 0.421,
+      "breite": 0.485,
+      "hoehe": 0.176
+     },
+     "inhalt": "Was bedeutet alternatives Spleißen? A Aus einer prä-mRNA können verschiedene mRNA-Varianten entstehen · B DNA wird direkt in Protein übersetzt · C Alle Introns werden in Proteine umgewandelt · D Ein Ribosom entscheidet, welche Exons entfernt werden · E Keine Antwortmöglichkeit. Bild: eine prä-mRNA → mRNA-Variante 1, 2 und 3. Lösung A."
+    },
+    {
+     "nr": 7,
+     "titel": "Frage 7 – Introns und Exons",
+     "lage": {
+      "x": 0.014,
+      "y": 0.602,
+      "breite": 0.481,
+      "hoehe": 0.18
+     },
+     "inhalt": "Welche Aussage beschreibt Introns und Exons korrekt? A Introns sind immer proteincodierend · B Exons bleiben meist in der reifen mRNA erhalten · C Exons werden grundsätzlich vollständig abgebaut · D Introns sind identisch mit Codons · E Keine Antwortmöglichkeit. Bild: Exon 1 – Intron 1 – Exon 2 – Intron 2 – Exon 3 → reife mRNA (nach Spleißen) aus drei Exons; Legende: grün = Exons (bleiben erhalten), violett = Introns (werden entfernt). Lösung B."
+    },
+    {
+     "nr": 8,
+     "titel": "Frage 8 – Prokaryoten vs. Eukaryoten",
+     "lage": {
+      "x": 0.5,
+      "y": 0.602,
+      "breite": 0.485,
+      "hoehe": 0.18
+     },
+     "inhalt": "Welche Aussage zur RNA-Prozessierung bei Prokaryoten und Eukaryoten ist korrekt? A Prokaryoten besitzen typischerweise keine prä-mRNA-Prozessierung wie Eukaryoten · B Eukaryoten übersetzen prä-mRNA direkt im Zellkern · C Prokaryoten entfernen Introns immer durch Spleißen · D Die Polyadenylierung findet nur während der DNA-Replikation statt · E Keine Antwortmöglichkeit. Bild: Eukaryote Zelle (Zellkern: prä-mRNA → Prozessierung (Cap, Spleißen, Polyadenylierung) → reife mRNA → Cytoplasma) neben prokaryoter Zelle (kein Zellkern, Transkription und Translation gekoppelt). Lösung A."
+    },
+    {
+     "nr": 9,
+     "titel": "Lösungen & Prüfungsfallen",
+     "lage": {
+      "x": 0.014,
+      "y": 0.788,
+      "breite": 0.452,
+      "hoehe": 0.205
+     },
+     "inhalt": "1 B – RNA-Prozessierung macht aus prä-mRNA eine reife mRNA. 2 B – Capping, Polyadenylierung und Spleißen sind zentrale Prozessierungsschritte. 3 B – Die 5′-Cap schützt die mRNA und unterstützt Export und Translation. 4 A – Der Poly-A-Schwanz besteht aus vielen Adenin-Nukleotiden am 3′-Ende. 5 B – Introns werden entfernt, Exons bleiben erhalten. 6 A – Alternatives Spleißen ermöglicht mehrere mRNA-Varianten aus einer prä-mRNA. 7 B – Exons bleiben meist in der reifen mRNA erhalten. 8 A – Prokaryoten haben typischerweise keine eukaryotenartige prä-mRNA-Prozessierung."
+    },
+    {
+     "nr": 10,
+     "titel": "Prüfungsfallen merken!",
+     "lage": {
+      "x": 0.493,
+      "y": 0.788,
+      "breite": 0.493,
+      "hoehe": 0.132
+     },
+     "inhalt": "RNA-Prozessierung passiert bei Eukaryoten vor der Translation · prä-mRNA wird im Zellkern prozessiert · 5′-Cap sitzt am 5′-Ende · Poly-A-Schwanz sitzt am 3′-Ende · Introns werden entfernt, Exons bleiben erhalten · alternatives Spleißen erzeugt verschiedene mRNA-Varianten · reife mRNA wird aus dem Zellkern ins Cytoplasma exportiert · Prokaryoten koppeln Transkription und Translation eher direkt."
+    },
+    {
+     "nr": 11,
+     "titel": "Merksatz",
+     "lage": {
+      "x": 0.491,
+      "y": 0.924,
+      "breite": 0.478,
+      "hoehe": 0.067
+     },
+     "inhalt": "Cap vorne, Poly-A hinten, Introns raus, Exons rein – so wird aus prä-mRNA eine reife mRNA."
+    }
+   ],
+   "pruefungsfallen": [
+    "Introns werden entfernt, Exons bleiben erhalten – nicht umgekehrt",
+    "5′-Cap am 5′-Ende, Poly-A-Schwanz am 3′-Ende der mRNA (nicht der DNA)",
+    "Prozessierung im Zellkern, vor der Translation",
+    "Prokaryoten haben keine eukaryotenartige prä-mRNA-Prozessierung, Transkription und Translation sind gekoppelt"
+   ],
+   "pruefhinweise": [
+    "Bereich 5: Die Abbildung der „gespleißten mRNA (Exons verbunden)“ enthält noch violette Segmente, obwohl Violett in Bereich 7 als Farbe der Introns (werden entfernt) definiert ist.",
+    "Bereich 6: Die mRNA-Varianten enthalten ebenfalls violette (Intron-farbige) Segmente und lassen sich in ihrer Abfolge nicht aus der gezeigten prä-mRNA ableiten; die Grafik zeigt das Prinzip daher nur ungenau."
+   ]
+  },
+  {
+   "id": "transkription-mc-fallen",
+   "goodie": "Prüfungsfallen Molekulargenetik",
+   "datei": "3bdea740-18f1-4d0d-aaa1-caf1abd1eb16_Transkription.png",
+   "titel": "Transkription – MC-Prüfungsfallen",
+   "fach": "Biologie · Molekulargenetik",
+   "kurz": "8 Multiple-Choice-Fragen im MedAT-Stil zur Transkription: Primer, Promotor und TATA-Box, prä-mRNA, Basenpaarung, codogener Strang, RNA-Polymerase, Spleißen und Prokaryoten vs. Eukaryoten, mit Lösungen, Prüfungsfallen und Merksatz.",
+   "stichworte": [
+    "Transkription",
+    "RNA-Polymerase",
+    "Promotor",
+    "TATA-Box",
+    "codogener Strang",
+    "Matrizenstrang",
+    "template strand",
+    "nicht-codogener Strang",
+    "coding strand",
+    "Sinnstrang",
+    "komplementär",
+    "Basenpaarung",
+    "Uracil",
+    "Thymin",
+    "5′→3′",
+    "Leserichtung",
+    "Phosphodiesterbindung",
+    "rNTPs",
+    "prä-mRNA",
+    "Spleißen",
+    "Spleißosom",
+    "Intron",
+    "Exon",
+    "Prokaryoten",
+    "Eukaryoten",
+    "Kopplung Transkription Translation",
+    "Primer"
+   ],
+   "ausloeser": [
+    "Fragen zu Ablauf oder Ort der Transkription",
+    "Verwechslung codogener und nicht-codogener Strang",
+    "Leserichtung und Syntheserichtung der RNA-Polymerase (3′→5′ lesen, 5′→3′ bauen)",
+    "Basenpaarung DNA–RNA mit Uracil",
+    "Unterschiede der Transkription bei Prokaryoten und Eukaryoten"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Frage 1 – Transkription bei Eukaryoten",
+     "lage": {
+      "x": 0.011,
+      "y": 0.074,
+      "breite": 0.483,
+      "hoehe": 0.176
+     },
+     "inhalt": "Welche Aussage zur Transkription bei Eukaryoten trifft zu? A Die RNA-Polymerase benötigt einen Primer · B Die Transkription findet ausschließlich im Cytoplasma statt · C Die RNA wird komplementär zum codogenen DNA-Strang synthetisiert · D Thymin wird während der Transkription in die RNA eingebaut · E Keine Antwortmöglichkeit. Bild: Zellkern, RNA-Polymerase an der DNA (5′ links, 3′ rechts), rote RNA tritt mit 5′-Ende aus. Lösung C."
+    },
+    {
+     "nr": 2,
+     "titel": "Frage 2 – Promotor",
+     "lage": {
+      "x": 0.502,
+      "y": 0.074,
+      "breite": 0.485,
+      "hoehe": 0.176
+     },
+     "inhalt": "Welche Funktion besitzt der Promotor hauptsächlich? A Er codiert die Aminosäuresequenz eines Proteins · B Er dient als Bindungsstelle für die RNA-Polymerase · C Er beendet die Translation · D Er entfernt Introns aus der prä-mRNA · E Keine Antwortmöglichkeit. Bild: DNA mit markierter TATA-Box, RNA-Polymerase bindet daneben. Lösung B."
+    },
+    {
+     "nr": 3,
+     "titel": "Frage 3 – prä-mRNA und mRNA",
+     "lage": {
+      "x": 0.011,
+      "y": 0.255,
+      "breite": 0.483,
+      "hoehe": 0.174
+     },
+     "inhalt": "Welche Aussage über prä-mRNA und mRNA ist korrekt? A Introns bleiben in der reifen mRNA vollständig erhalten · B Die prä-mRNA enthält nur codierende Sequenzen · C Exons werden beim Spleißen entfernt · D Die prä-mRNA wird vor der Translation prozessiert · E Keine Antwortmöglichkeit. Bild: prä-mRNA (Exon – Intron – Exon) → Spliceosom → reife mRNA. Lösung D."
+    },
+    {
+     "nr": 4,
+     "titel": "Frage 4 – Basenpaarung",
+     "lage": {
+      "x": 0.502,
+      "y": 0.255,
+      "breite": 0.485,
+      "hoehe": 0.174
+     },
+     "inhalt": "Welche Basenpaarung tritt während der Transkription auf? A Adenin paart mit Thymin in der RNA · B Cytosin paart mit Uracil · C Guanin paart mit Cytosin · D Adenin paart mit Guanin · E Keine Antwortmöglichkeit. Bild: DNA (codogener Strang) G, C, A gepaart mit RNA C, G, U. Lösung C."
+    },
+    {
+     "nr": 5,
+     "titel": "Frage 5 – codogener Strang",
+     "lage": {
+      "x": 0.011,
+      "y": 0.433,
+      "breite": 0.483,
+      "hoehe": 0.174
+     },
+     "inhalt": "Welche Aussage beschreibt den codogenen Strang korrekt? A Er besitzt dieselbe Basensequenz wie die entstehende RNA, außer Thymin statt Uracil · B Er wird von der RNA-Polymerase als Vorlage abgelesen · C Er entspricht dem nicht transkribierten DNA-Strang · D Er wird bei Eukaryoten nach der Transkription zerstört · E Keine Antwortmöglichkeit. Bild: Doppelhelix, blau = nicht-codogener Strang (coding strand), rot = codogener Strang (template strand), Beschriftung zweimal 3′. Lösung B."
+    },
+    {
+     "nr": 6,
+     "titel": "Frage 6 – RNA-Polymerase",
+     "lage": {
+      "x": 0.502,
+      "y": 0.433,
+      "breite": 0.485,
+      "hoehe": 0.174
+     },
+     "inhalt": "Welche Aussage zur RNA-Polymerase ist richtig? A Sie synthetisiert RNA ausschließlich in 3′→5′-Richtung · B Sie liest den codogenen Strang in 5′→3′-Richtung ab · C Sie verknüpft Nukleotide über Phosphodiesterbindungen · D Sie ersetzt während der Transkription Uracil durch Thymin · E Keine Antwortmöglichkeit. Bild: RNA-Polymerase auf der DNA (3′ links, 5′ rechts), codogener Strang (template), RNA mit 5′-Ende tritt aus, NTPs (rNTPs) werden eingebaut. Lösung C."
+    },
+    {
+     "nr": 7,
+     "titel": "Frage 7 – Spleißen",
+     "lage": {
+      "x": 0.011,
+      "y": 0.612,
+      "breite": 0.483,
+      "hoehe": 0.18
+     },
+     "inhalt": "Welche Aussage zum Spleißen trifft zu? A Introns werden aus der prä-mRNA entfernt · B Exons werden vollständig abgebaut · C Das Spleißen findet ausschließlich bei Prokaryoten statt · D Die Translation beginnt vor dem Spleißen im Zellkern · E Keine Antwortmöglichkeit. Bild: prä-mRNA (Exon – Intron – Exon – Exon) → Spleißosom, Intron wird abgetrennt → gespleißte mRNA aus drei Exons. Lösung A."
+    },
+    {
+     "nr": 8,
+     "titel": "Frage 8 – Prokaryoten vs. Eukaryoten",
+     "lage": {
+      "x": 0.502,
+      "y": 0.612,
+      "breite": 0.485,
+      "hoehe": 0.18
+     },
+     "inhalt": "Welche Aussage zur Transkription bei Prokaryoten und Eukaryoten ist korrekt? A Bei Prokaryoten erfolgt die Transkription ausschließlich im Zellkern · B Bei Eukaryoten können Transkription und Translation gleichzeitig stattfinden · C Prokaryoten besitzen keine RNA-Polymerase · D Bei Prokaryoten können Transkription und Translation gekoppelt sein · E Keine Antwortmöglichkeit. Bild: Prokaryote Zelle (kein Zellkern; DNA, mRNA) und Eukaryote Zelle (mit Zellkern; Ribosomen, mRNA). Lösung D."
+    },
+    {
+     "nr": 9,
+     "titel": "Lösungen & Prüfungsfallen",
+     "lage": {
+      "x": 0.011,
+      "y": 0.798,
+      "breite": 0.496,
+      "hoehe": 0.191
+     },
+     "inhalt": "1 C – RNA wird komplementär zum codogenen DNA-Strang synthetisiert. 2 B – Der Promotor ist die Bindungsstelle der RNA-Polymerase. 3 D – Die prä-mRNA wird vor der Translation prozessiert und gespleißt. 4 C – Guanin paart mit Cytosin. 5 B – Der codogene Strang dient als Vorlage der RNA-Synthese. 6 C – RNA-Polymerase bildet Phosphodiesterbindungen zwischen Nukleotiden. 7 A – Introns werden entfernt, Exons bleiben erhalten. 8 D – Bei Prokaryoten können Transkription und Translation gleichzeitig stattfinden."
+    },
+    {
+     "nr": 10,
+     "titel": "Prüfungsfallen merken!",
+     "lage": {
+      "x": 0.515,
+      "y": 0.798,
+      "breite": 0.239,
+      "hoehe": 0.191
+     },
+     "inhalt": "codogener vs. nicht-codogener Strang nicht verwechseln · RNA enthält Uracil statt Thymin · RNA-Synthese erfolgt immer 5′→3′ · Exons bleiben erhalten, Introns werden entfernt · Transkription und Translation sind nur bei Prokaryoten gekoppelt."
+    },
+    {
+     "nr": 11,
+     "titel": "Merksatz",
+     "lage": {
+      "x": 0.761,
+      "y": 0.798,
+      "breite": 0.225,
+      "hoehe": 0.191
+     },
+     "inhalt": "Die RNA liest den codogenen Strang und baut komplementär in 5′→3′ ihre eigene Sequenz auf."
+    }
+   ],
+   "pruefungsfallen": [
+    "codogener (Vorlage, template) und nicht-codogener Strang (coding strand, gleiche Sequenz wie RNA mit T statt U) nicht verwechseln",
+    "RNA enthält Uracil statt Thymin",
+    "RNA-Synthese erfolgt immer 5′→3′, der codogene Strang wird 3′→5′ gelesen",
+    "RNA-Polymerase braucht keinen Primer",
+    "Transkription und Translation sind nur bei Prokaryoten gekoppelt"
+   ],
+   "pruefhinweise": [
+    "Bereich 5: In der Doppelhelix sind beide Strangenden nur mit 3′ beschriftet, ein 5′-Ende fehlt; die antiparallele Orientierung von codogenem und nicht-codogenem Strang ist so nicht ablesbar.",
+    "Bereich 11: Der Merksatz sagt „Die RNA liest den codogenen Strang“; genau genommen liest die RNA-Polymerase den codogenen Strang (in 3′→5′-Richtung) und baut die RNA in 5′→3′ auf."
+   ]
+  },
+  {
+   "id": "mc-translation",
+   "goodie": "Prüfungsfallen Molekulargenetik",
+   "datei": "dbb19fc0-90c3-44e5-b3de-51c64f9fd755_Translation.png",
+   "titel": "Translation – MC-Prüfungsfallen",
+   "fach": "Biologie · Molekulargenetik",
+   "kurz": "8 Multiple-Choice-Fragen mit starken Distraktoren zur Translation: Ort, tRNA, Codon/Anticodon, Start- und Stoppcodons, Ribosom, Leserichtung und Prokaryoten vs. Eukaryoten – mit Lösungen, Prüfungsfallen und Merksatz.",
+   "stichworte": [
+    "Translation",
+    "Proteinbiosynthese",
+    "Ribosom",
+    "große Untereinheit",
+    "kleine Untereinheit",
+    "mRNA",
+    "tRNA",
+    "rRNA",
+    "Aminosäure",
+    "Codon",
+    "Anticodon",
+    "komplementäre Basenpaarung",
+    "Startcodon",
+    "AUG",
+    "Methionin",
+    "Stoppcodon",
+    "UAA",
+    "UAG",
+    "UGA",
+    "Freisetzungsfaktor",
+    "E-Stelle",
+    "P-Stelle",
+    "A-Stelle",
+    "Leserichtung",
+    "5'→3'",
+    "N-Terminus",
+    "C-Terminus",
+    "Polypeptidkette",
+    "Kopplung von Transkription und Translation",
+    "Prokaryoten"
+   ],
+   "ausloeser": [
+    "MC-Training oder Wiederholung zur Translation vor dem MedAT",
+    "Verwechslung von Codon (mRNA) und Anticodon (tRNA)",
+    "Unsicherheit bei Start- und Stoppcodons oder deren Funktion",
+    "falsche Antwort zur Leserichtung 5'→3' oder zur Wachstumsrichtung N→C",
+    "Frage, wo Translation bei Prokaryoten und Eukaryoten stattfindet"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Frage 1: Welche Aussage zur Translation trifft zu?",
+     "lage": {
+      "x": 0.019,
+      "y": 0.084,
+      "breite": 0.476,
+      "hoehe": 0.184
+     },
+     "inhalt": "A Die Translation findet bei Eukaryoten im Zellkern statt. B Die Translation übersetzt die Basensequenz der mRNA in eine Aminosäuresequenz. C Während der Translation wird DNA in RNA umgeschrieben. D Die Translation benötigt keine Ribosomen. E Keine Antwortmöglichkeit. Bild: Ribosom mit Beschriftungen große Untereinheit, kleine Untereinheit, mRNA (5' links, 3' rechts), wachsende Polypeptidkette, zwei tRNAs."
+    },
+    {
+     "nr": 2,
+     "titel": "Frage 2: Welche Struktur bringt die passende Aminosäure zum Ribosom?",
+     "lage": {
+      "x": 0.502,
+      "y": 0.084,
+      "breite": 0.479,
+      "hoehe": 0.184
+     },
+     "inhalt": "A mRNA. B rRNA. C tRNA. D DNA-Polymerase. E Keine Antwortmöglichkeit. Bild: tRNA in Kleeblattform mit Aminosäure oben und Anticodon unten (Buchstaben U und C sichtbar)."
+    },
+    {
+     "nr": 3,
+     "titel": "Frage 3: Welche Aussage über Codon und Anticodon ist korrekt?",
+     "lage": {
+      "x": 0.019,
+      "y": 0.274,
+      "breite": 0.476,
+      "hoehe": 0.171
+     },
+     "inhalt": "A Das Codon befindet sich auf der tRNA. B Das Anticodon befindet sich auf der mRNA. C Codon und Anticodon paaren komplementär. D Codon und Anticodon bestehen immer aus vier Basen. E Keine Antwortmöglichkeit. Bild: tRNA mit Anticodon UAC paart mit Codon AUG auf der mRNA (5' links, 3' rechts), Beschriftung Codon (auf mRNA)."
+    },
+    {
+     "nr": 4,
+     "titel": "Frage 4: Was ist das Startcodon der Translation?",
+     "lage": {
+      "x": 0.502,
+      "y": 0.274,
+      "breite": 0.479,
+      "hoehe": 0.171
+     },
+     "inhalt": "A UAA. B UAG. C AUG. D UGA. E Keine Antwortmöglichkeit. Bild: Ribosom auf mRNA, Codon AUG grün markiert als Startcodon, Pfeil Richtung 3'."
+    },
+    {
+     "nr": 5,
+     "titel": "Frage 5: Welche Aussage zu Stoppcodons ist richtig?",
+     "lage": {
+      "x": 0.019,
+      "y": 0.451,
+      "breite": 0.476,
+      "hoehe": 0.172
+     },
+     "inhalt": "A Stoppcodons codieren immer für Methionin. B Stoppcodons werden von tRNAs mit Aminosäuren erkannt. C Stoppcodons beenden die Translation. D Stoppcodons starten die Proteinsynthese. E Keine Antwortmöglichkeit. Bild: Ribosom mit Polypeptidkette, Freisetzungsfaktor am Stoppcodon UAA."
+    },
+    {
+     "nr": 6,
+     "titel": "Frage 6: Welche Aussage beschreibt das Ribosom korrekt?",
+     "lage": {
+      "x": 0.502,
+      "y": 0.451,
+      "breite": 0.479,
+      "hoehe": 0.172
+     },
+     "inhalt": "A Es besteht aus einer kleinen und einer großen Untereinheit. B Es synthetisiert DNA aus RNA. C Es entfernt Introns aus der prä-mRNA. D Es ersetzt Uracil durch Thymin. E Keine Antwortmöglichkeit. Bild: Ribosom mit Beschriftungen große Untereinheit, kleine Untereinheit, mRNA-Kanal, Bindungsstellen E P A (von 5' nach 3')."
+    },
+    {
+     "nr": 7,
+     "titel": "Frage 7: Welche Aussage zur Leserichtung ist korrekt?",
+     "lage": {
+      "x": 0.019,
+      "y": 0.628,
+      "breite": 0.476,
+      "hoehe": 0.173
+     },
+     "inhalt": "A Das Ribosom liest die mRNA in 3'→5'-Richtung. B Die mRNA wird in 5'→3'-Richtung abgelesen. C Die Polypeptidkette wird vom C-Terminus zum N-Terminus aufgebaut. D Die Translation läuft rückwärts vom Stoppcodon zum Startcodon. E Keine Antwortmöglichkeit. Bild: Ribosom mit wachsender Polypeptidkette, Beschriftungen C-Terminus (am freien Kettenende) und N-Terminus, Pfeil Leserichtung der mRNA: 5'→3'."
+    },
+    {
+     "nr": 8,
+     "titel": "Frage 8: Welche Aussage zur Translation bei Prokaryoten und Eukaryoten ist korrekt?",
+     "lage": {
+      "x": 0.502,
+      "y": 0.628,
+      "breite": 0.479,
+      "hoehe": 0.173
+     },
+     "inhalt": "A Bei Prokaryoten kann Translation bereits während der Transkription beginnen. B Bei Eukaryoten findet Translation im Zellkern statt. C Prokaryoten besitzen keine Ribosomen. D Eukaryoten koppeln Transkription und Translation im Zellkern. E Keine Antwortmöglichkeit. Bild: Prokaryote Zelle (DNA, mRNA, Ribosom) – Transkription und Translation gekoppelt; Eukaryote Zelle (Zellkern (Transkription), mRNA, Ribosom (Translation)) – Transkription im Zellkern, Translation im Cytoplasma."
+    },
+    {
+     "nr": 9,
+     "titel": "Lösungen & Prüfungsfallen",
+     "lage": {
+      "x": 0.019,
+      "y": 0.81,
+      "breite": 0.36,
+      "hoehe": 0.162
+     },
+     "inhalt": "1. B – Die Translation übersetzt mRNA-Information in eine Aminosäuresequenz. 2. C – Die tRNA bringt die passende Aminosäure zum Ribosom. 3. C – Codon und Anticodon paaren komplementär. 4. C – AUG ist das Startcodon und codiert für Methionin. 5. C – Stoppcodons beenden die Translation. 6. A – Ribosomen bestehen aus kleiner und großer Untereinheit. 7. B – Die mRNA wird in 5'→3'-Richtung abgelesen. 8. A – Bei Prokaryoten können Transkription und Translation gekoppelt sein."
+    },
+    {
+     "nr": 10,
+     "titel": "Prüfungsfallen merken!",
+     "lage": {
+      "x": 0.379,
+      "y": 0.81,
+      "breite": 0.313,
+      "hoehe": 0.162
+     },
+     "inhalt": "Translation ist Proteinsynthese, nicht RNA-Synthese · Codon liegt auf der mRNA, Anticodon auf der tRNA · AUG ist Startcodon und codiert für Methionin · UAA, UAG und UGA sind Stoppcodons · mRNA wird 5'→3' gelesen · Polypeptide wachsen vom N-Terminus zum C-Terminus · Prokaryoten können Transkription und Translation koppeln · Eukaryoten trennen Transkription im Zellkern und Translation im Cytoplasma"
+    },
+    {
+     "nr": 11,
+     "titel": "Merksatz",
+     "lage": {
+      "x": 0.697,
+      "y": 0.81,
+      "breite": 0.284,
+      "hoehe": 0.162
+     },
+     "inhalt": "Die mRNA wird am Ribosom in 5'→3' gelesen – tRNAs bringen Aminosäuren, bis ein Stoppcodon die Kette beendet. Bild: tRNA an mRNA (5' links, 3' rechts) mit Ribosom."
+    }
+   ],
+   "pruefungsfallen": [
+    "Translation ist Proteinsynthese, nicht RNA-Synthese",
+    "Codon liegt auf der mRNA, Anticodon auf der tRNA",
+    "UAA, UAG und UGA sind Stoppcodons; AUG ist Startcodon (Methionin)",
+    "Polypeptide wachsen vom N-Terminus zum C-Terminus",
+    "Nur Prokaryoten koppeln Transkription und Translation"
+   ],
+   "hinweise": [
+    "Die richtigen Lösungen stehen in Bereich 9: 1B, 2C, 3C, 4C, 5C, 6A, 7B, 8A."
+   ],
+   "pruefhinweise": [
+    "Bereich 7: Im Bild ist das freie Ende der wachsenden Kette als C-Terminus und die Seite am Ribosom als N-Terminus beschriftet – das ist vertauscht: das freie Ende ist der N-Terminus, der C-Terminus hängt an der tRNA im Ribosom (widerspricht auch Bereich 10 „N-Terminus zum C-Terminus“).",
+    "Bereiche 1 und 6: Der Pfeil „kleine Untereinheit“ zeigt auf den oberen Körper (große Untereinheit); die kleine Untereinheit ist der untere Teil unter der mRNA.",
+    "Bereiche 2 und 3: Die tRNA ist mit vier Anticodon-Stäbchen gezeichnet (nur drei beschriftet bzw. in Bereich 2 nur U und C lesbar); das kann zur falschen Option D „vier Basen“ verleiten – ein Anticodon hat drei Basen.",
+    "Bereich 1: Im Bild tritt eine wachsende Polypeptidkette unten aus der kleinen Untereinheit aus, zusätzlich zu einer Kette oben; die Kette verlässt das Ribosom durch die große Untereinheit."
+   ]
+  },
+  {
+   "id": "mc-genregulation",
+   "goodie": "Prüfungsfallen Molekulargenetik",
+   "datei": "bc494bcd-bfe2-45b8-bb14-7a94f817444e_Genregulation.png",
+   "titel": "Genregulation – MC-Prüfungsfallen",
+   "fach": "Biologie · Molekulargenetik",
+   "kurz": "8 Multiple-Choice-Fragen mit starken Distraktoren zur Genregulation: Operon, Repressor/Operator, Enhancer, Silencer, Aktivatoren und Transkriptionsfaktoren, Ebenen der Genregulation – mit Lösungen, Prüfungsfallen und Merksatz.",
+   "stichworte": [
+    "Genregulation",
+    "Genexpression",
+    "Operon",
+    "lac-Operon",
+    "Promotor",
+    "Operator",
+    "Strukturgene",
+    "lacZ",
+    "lacY",
+    "lacA",
+    "Repressor",
+    "Aktivator",
+    "Transkriptionsfaktor",
+    "Enhancer",
+    "Silencer",
+    "Mediator-Komplex",
+    "RNA-Polymerase",
+    "RNA-Polymerase II",
+    "DNA-Schleife",
+    "polycistronische mRNA",
+    "Prokaryoten",
+    "Eukaryoten",
+    "Chromatin-Modifikation",
+    "Transkriptions-Initiation",
+    "RNA-Prozessierung",
+    "Spleißen",
+    "mRNA-Export",
+    "mRNA-Stabilität",
+    "Protein-Modifikation",
+    "Genhemmung"
+   ],
+   "ausloeser": [
+    "MC-Training oder Wiederholung zur Genregulation vor dem MedAT",
+    "Verwechslung von Operon und Enhancer bzw. Operator und Promotor",
+    "falsche Antwort zur Wirkung von Repressor oder Aktivator",
+    "Frage, ob Enhancer/Silencer Proteine oder DNA-Sequenzen sind",
+    "Frage nach den Ebenen, auf denen Genexpression reguliert wird"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Frage 1: Welche Aussage zur Genregulation trifft zu?",
+     "lage": {
+      "x": 0.009,
+      "y": 0.067,
+      "breite": 0.483,
+      "hoehe": 0.182
+     },
+     "inhalt": "A Gene sind immer gleich stark aktiv. B Genregulation steuert, ob und wie stark ein Gen exprimiert wird. C Genregulation findet nur nach der Translation statt. D Genregulation kommt nur bei Prokaryoten vor. E Keine Antwortmöglichkeit. Bild: Zellkern mit Aktives Gen (stark exprimiert), Inaktives Gen (schwach exprimiert), mRNA."
+    },
+    {
+     "nr": 2,
+     "titel": "Frage 2: Welche Aussage zum Operon ist korrekt?",
+     "lage": {
+      "x": 0.5,
+      "y": 0.067,
+      "breite": 0.49,
+      "hoehe": 0.182
+     },
+     "inhalt": "A Ein Operon ist typisch für viele Prokaryoten und umfasst Promotor, Operator und Strukturgene. B Ein Operon ist ein Ribosom im Zellkern. C Ein Operon ist dasselbe wie ein Enhancer. D Operons kommen typischerweise nur in tierischen Zellen vor. E Keine Antwortmöglichkeit. Bild: lac-Operon mit Promotor, Operator, Strukturgene lacZ, lacY, lacA; RNA-Polymerase am Promotor."
+    },
+    {
+     "nr": 3,
+     "titel": "Frage 3: Was passiert, wenn ein Repressor an den Operator bindet?",
+     "lage": {
+      "x": 0.009,
+      "y": 0.255,
+      "breite": 0.483,
+      "hoehe": 0.181
+     },
+     "inhalt": "A Die Transkription wird meist gehemmt. B Die Translation startet sofort. C Die DNA wird repliziert. D Der Poly-A-Schwanz wird verlängert. E Keine Antwortmöglichkeit. Bild: Repressor sitzt auf dem Operator zwischen Promotor und Strukturgene; RNA-Polymerase wird blockiert (rotes X)."
+    },
+    {
+     "nr": 4,
+     "titel": "Frage 4: Welche Aussage beschreibt einen Enhancer richtig?",
+     "lage": {
+      "x": 0.5,
+      "y": 0.255,
+      "breite": 0.49,
+      "hoehe": 0.181
+     },
+     "inhalt": "A Ein Enhancer ist eine regulatorische DNA-Sequenz, die die Transkription verstärken kann. B Ein Enhancer entfernt Introns aus der prä-mRNA. C Ein Enhancer ist immer Teil eines Ribosoms. D Ein Enhancer stoppt grundsätzlich jede Genexpression. E Keine Antwortmöglichkeit. Bild: DNA-Schleife, Enhancer mit Aktivatoren, Mediator-Komplex, RNA-Polymerase II am Promotor."
+    },
+    {
+     "nr": 5,
+     "titel": "Frage 5: Welche Aussage zum Silencer ist korrekt?",
+     "lage": {
+      "x": 0.009,
+      "y": 0.441,
+      "breite": 0.483,
+      "hoehe": 0.184
+     },
+     "inhalt": "A Ein Silencer ist eine DNA-Sequenz, die die Genexpression hemmen kann. B Ein Silencer ist ein Startcodon. C Ein Silencer ist ein Enzym der DNA-Replikation. D Ein Silencer erzeugt direkt mRNA. E Keine Antwortmöglichkeit. Bild: DNA-Schleife, Silencer mit Repressoren, Promotor, RNA-Polymerase II blockiert (rotes X)."
+    },
+    {
+     "nr": 6,
+     "titel": "Frage 6: Worin liegt ein wichtiger Unterschied zwischen Operon und Enhancer/Silencer?",
+     "lage": {
+      "x": 0.5,
+      "y": 0.441,
+      "breite": 0.49,
+      "hoehe": 0.184
+     },
+     "inhalt": "A Operons sind ein typisches Regulationsprinzip vieler Prokaryoten, Enhancer und Silencer spielen vor allem bei Eukaryoten eine große Rolle. B Enhancer kommen nur bei Bakterien vor. C Silencer sind Bestandteile der Zellmembran. D Operons funktionieren nur bei der Translation. E Keine Antwortmöglichkeit. Bild: Prokaryote (Operon) mit Strukturgene und polycistronische mRNA; Eukaryote (Enhancer/Silencer) mit Enhancer, Silencer, Promotor, mRNA."
+    },
+    {
+     "nr": 7,
+     "titel": "Frage 7: Welche Aussage zu Aktivatoren und Transkriptionsfaktoren ist richtig?",
+     "lage": {
+      "x": 0.009,
+      "y": 0.63,
+      "breite": 0.483,
+      "hoehe": 0.196
+     },
+     "inhalt": "A Aktivatoren können an regulatorische DNA-Sequenzen binden und die Transkription fördern. B Transkriptionsfaktoren sind identisch mit tRNA. C Aktivatoren schneiden Introns aus der RNA. D Transkriptionsfaktoren bauen den Zellkern ab. E Keine Antwortmöglichkeit. Bild: DNA-Schleife mit Aktivator, Mediator-Komplex, RNA-Polymerase II am Promotor, mRNA."
+    },
+    {
+     "nr": 8,
+     "titel": "Frage 8: Welche Aussage zur Genregulation ist im Prüfungskontext korrekt?",
+     "lage": {
+      "x": 0.5,
+      "y": 0.63,
+      "breite": 0.49,
+      "hoehe": 0.196
+     },
+     "inhalt": "A Genregulation kann auf verschiedenen Ebenen stattfinden, besonders wichtig ist häufig die Regulation der Transkription. B Genregulation bedeutet ausschließlich DNA-Replikation. C Enhancer und Silencer sind Proteine des Cytoskeletts. D Repressoren fördern grundsätzlich immer die Transkription. E Keine Antwortmöglichkeit. Bild Ebenen der Genregulation (von oben nach unten): Chromatin-Modifikation → Transkriptions-Initiation → RNA-Prozessierung (Exon – Intron – Exon – Intron – Exon) → mRNA-Export → mRNA-Stabilität → Translation → Protein-Modifikation & Abbau."
+    },
+    {
+     "nr": 9,
+     "titel": "Lösungen & Prüfungsfallen",
+     "lage": {
+      "x": 0.009,
+      "y": 0.832,
+      "breite": 0.381,
+      "hoehe": 0.164
+     },
+     "inhalt": "1. B – Genregulation steuert, ob und wie stark ein Gen exprimiert wird. 2. A – Operons bestehen typischerweise aus Promotor, Operator und Strukturgenen und sind vor allem bei Prokaryoten wichtig. 3. A – Bindet ein Repressor an den Operator, wird die Transkription meist gehemmt. 4. A – Ein Enhancer kann die Transkription verstärken. 5. A – Ein Silencer kann die Genexpression hemmen. 6. A – Operons sind typisch für viele Prokaryoten, Enhancer und Silencer besonders wichtig bei Eukaryoten. 7. A – Aktivatoren und andere Transkriptionsfaktoren können die Transkription fördern. 8. A – Genregulation kann auf mehreren Ebenen erfolgen, besonders oft bei der Transkription."
+    },
+    {
+     "nr": 10,
+     "titel": "Prüfungsfallen merken!",
+     "lage": {
+      "x": 0.4,
+      "y": 0.832,
+      "breite": 0.297,
+      "hoehe": 0.164
+     },
+     "inhalt": "Operon nicht mit Enhancer verwechseln · Operator ist Bindestelle für regulatorische Proteine im Operon · Repressor hemmt meist die Transkription · Aktivator fördert meist die Transkription · Enhancer verstärkt, Silencer hemmt · Enhancer und Silencer sind DNA-Sequenzen, keine Enzyme · Operons sind typisch für viele Prokaryoten · Enhancer können weit vom Gen entfernt liegen und trotzdem wirken · DNA-Schleifenbildung ist bei eukaryotischer Regulation wichtig"
+    },
+    {
+     "nr": 11,
+     "titel": "Merksatz",
+     "lage": {
+      "x": 0.709,
+      "y": 0.832,
+      "breite": 0.277,
+      "hoehe": 0.164
+     },
+     "inhalt": "Operon bei Prokaryoten, Enhancer und Silencer oft bei Eukaryoten – Aktivatoren schalten hoch, Repressoren bremsen runter."
+    }
+   ],
+   "pruefungsfallen": [
+    "Operon nicht mit Enhancer verwechseln",
+    "Operator ist Bindestelle für regulatorische Proteine, Promotor Bindestelle der RNA-Polymerase",
+    "Enhancer und Silencer sind DNA-Sequenzen, keine Enzyme oder Proteine",
+    "Enhancer können weit vom Gen entfernt liegen und über DNA-Schleifen wirken"
+   ],
+   "hinweise": [
+    "Die richtigen Lösungen stehen in Bereich 9: 1B, sonst überall A (2A bis 8A)."
+   ],
+   "pruefhinweise": [
+    "Bereich 2: Das Promotor-Element im lac-Operon-Bild trägt die unleserliche Aufschrift „ProstZ“ statt einer sinnvollen Beschriftung.",
+    "Bereich 6: Die Beschriftungen in der Prokaryoten-Zelle (über und unter dem Operon) sind unleserlich bzw. verstümmelt; lesbar sind nur „Strukturgene“ und „polycistronische mRNA“.",
+    "Bereich 8: Die Beschriftung der Gene im Bild „Transkriptions-Initiation“ ist unleserlich."
+   ]
+  },
+  {
+   "id": "zellmembran",
+   "goodie": "Zellorganellen",
+   "datei": "dfd24f5e-3d07-4837-b6d3-a84b9fedeb62_D7D55CEB-F200-4D14-879E-2D423EC81ACA.png",
+   "titel": "Zellmembran – Aufbau, Funktion & Prüfungswissen",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Aufbau der Zellmembran nach dem Fluid-Mosaik-Modell mit beschriftetem Querschnitt, Hauptfunktionen, sechs Transportprozessen (Diffusion bis Exocytose), Vergleichstabelle, Spezialmechanismen, Begriffen, Prüfungsfallen und Eselsbrücken.",
+   "stichworte": [
+    "Zellmembran",
+    "Plasmamembran",
+    "Biomembran",
+    "Phospholipid-Doppelschicht",
+    "Lipiddoppelschicht",
+    "amphiphil",
+    "hydrophil",
+    "hydrophob",
+    "Fluid-Mosaik-Modell",
+    "integrale Proteine",
+    "periphere Proteine",
+    "Cholesterin",
+    "Glykoprotein",
+    "Glykolipid",
+    "Kanalprotein",
+    "Carrierprotein",
+    "Rezeptorprotein",
+    "selektive Permeabilität",
+    "einfache Diffusion",
+    "erleichterte Diffusion",
+    "Osmose",
+    "aktiver Transport",
+    "Na⁺/K⁺-Pumpe",
+    "Endocytose",
+    "Exocytose",
+    "Vesikel",
+    "Konzentrationsgradient",
+    "Signaltransduktion",
+    "Membranpotenzial",
+    "Fluidität"
+   ],
+   "ausloeser": [
+    "Fragen zum Aufbau der Zellmembran oder zum Fluid-Mosaik-Modell",
+    "Verwechslung von passivem und aktivem Transport oder von Kanal und Carrier",
+    "Unsicherheit, welche Stoffe frei durch die Lipiddoppelschicht diffundieren",
+    "Fragen zu Endocytose und Exocytose",
+    "Frage nach Funktion von Cholesterin oder Kohlenhydraten in der Membran"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Aufbau / Überblick",
+     "lage": {
+      "x": 0.019,
+      "y": 0.104,
+      "breite": 0.209,
+      "hoehe": 0.218
+     },
+     "inhalt": "Phospholipid-Doppelschicht (amphiphil) · Fluid-Mosaik-Modell · integrale & periphere Proteine · Cholesterin = Stabilität & Fluidität · Kohlenhydrate = Zell-Zell-Erkennung"
+    },
+    {
+     "nr": 2,
+     "titel": "Hauptfunktionen",
+     "lage": {
+      "x": 0.019,
+      "y": 0.334,
+      "breite": 0.209,
+      "hoehe": 0.144
+     },
+     "inhalt": "Abgrenzung der Zelle · selektive Permeabilität · Stofftransport · Zellkommunikation · Verankerung des Cytoskeletts"
+    },
+    {
+     "nr": "2b",
+     "titel": "Membranquerschnitt (Hauptbild)",
+     "lage": {
+      "x": 0.232,
+      "y": 0.101,
+      "breite": 0.758,
+      "hoehe": 0.362
+     },
+     "inhalt": "Oben Extrazellulärraum, unten Zytosol (Intrazellulärraum). Beschriftungen: Glykoprotein (Kohlenhydratkette an Protein) · Glykolipid (Kohlenhydratkette an Lipid) · Kanalprotein (öffnet eine Pore) · Carrierprotein (bindet & ändert Konformation) · Rezeptorprotein (bindet Signalstoff) · peripheres Protein (auf Membranoberfläche) · Cholesterin (zwischen Lipiden). Rechts: hydrophile Köpfe (außen), hydrophobe Schwänze (nach innen), hydrophile Köpfe (innen). Legende: hydrophiler Kopf (wasserliebend), hydrophober Schwanz (wassermeidend)."
+    },
+    {
+     "nr": 3,
+     "titel": "Prozesse / Abläufe",
+     "lage": {
+      "x": 0.019,
+      "y": 0.49,
+      "breite": 0.959,
+      "hoehe": 0.193
+     },
+     "inhalt": "1. Einfache Diffusion (passiv, entlang Konzentrationsgradient): Kleine, unpolare Moleküle passieren direkt die Lipiddoppelschicht. 2. Erleichterte Diffusion (über Kanal/Carrier): Transport durch Kanal- oder Carrierproteine, entlang des Konzentrationsgradienten. 3. Osmose (Wassertransport): H₂O; Wasser bewegt sich entlang des Wasserpotenzialgefälles. 4. Aktiver Transport (gegen Gradienten, ATP nötig): Transport gegen den Konzentrationsgradienten unter ATP-Verbrauch. 5. Endocytose (Aufnahme von Stoffen): Einstülpung der Membran bildet Vesikel im Zellinneren. 6. Exocytose (Abgabe von Stoffen): Vesikel verschmilzt mit der Membran und gibt Inhalt nach außen ab."
+    },
+    {
+     "nr": 4,
+     "titel": "Vergleich / Tabelle",
+     "lage": {
+      "x": 0.019,
+      "y": 0.694,
+      "breite": 0.444,
+      "hoehe": 0.129
+     },
+     "inhalt": "Spalten Transportart, Energiebedarf, Richtung, Beispiel. Diffusion: nein, mit Gradient, O₂, CO₂. Erleichterte Diffusion: nein, mit Gradient, Glucose (Carrier). Aktiver Transport: ja (ATP), gegen Gradient, Na⁺/K⁺-Pumpe."
+    },
+    {
+     "nr": 5,
+     "titel": "Spezialmechanismus",
+     "lage": {
+      "x": 0.471,
+      "y": 0.694,
+      "breite": 0.245,
+      "hoehe": 0.144
+     },
+     "inhalt": "Fluidität der Membran abhängig von: Temperatur, Cholesteringehalt, Fettsäurezusammensetzung · Signaltransduktion über Rezeptorproteine · Membranpotenzial durch Ionenverteilung"
+    },
+    {
+     "nr": 6,
+     "titel": "Wichtige Begriffe",
+     "lage": {
+      "x": 0.725,
+      "y": 0.694,
+      "breite": 0.256,
+      "hoehe": 0.205
+     },
+     "inhalt": "Bildkarten: amphiphil · selektiv permeabel · Konzentrationsgradient · Carrierprotein · Kanalprotein · Rezeptor · Vesikel"
+    },
+    {
+     "nr": 7,
+     "titel": "Prüfungsfallen",
+     "lage": {
+      "x": 0.019,
+      "y": 0.834,
+      "breite": 0.318,
+      "hoehe": 0.111
+     },
+     "inhalt": "Diffusion ≠ aktiver Transport · Osmose betrifft nur Wasser · Carrier ≠ Kanal (Mechanismus unterschiedlich!) · Cholesterin ist kein Transportprotein · „passiv“ heißt kein ATP, nicht „kein Protein“"
+    },
+    {
+     "nr": 8,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.346,
+      "y": 0.844,
+      "breite": 0.37,
+      "hoehe": 0.102
+     },
+     "inhalt": "Phospho liebt Wasser, Fettschwanz hasst es → amphiphil · Passiv = mit dem Strom, Aktiv = gegen den Strom (ATP hilft) · Carrier tragen, Kanäle lassen durchfließen"
+    },
+    {
+     "nr": 9,
+     "titel": "Fußzeile",
+     "lage": {
+      "x": 0.019,
+      "y": 0.956,
+      "breite": 0.962,
+      "hoehe": 0.034
+     },
+     "inhalt": "Zellmembran verstehen statt auswendig lernen – Bio-Prüfung ready"
+    }
+   ],
+   "pruefungsfallen": [
+    "Diffusion ist kein aktiver Transport; passiv heißt kein ATP, nicht kein Protein (erleichterte Diffusion nutzt Proteine)",
+    "Carrier und Kanal arbeiten unterschiedlich: Carrier bindet und ändert Konformation, Kanal bildet eine Pore",
+    "Cholesterin ist kein Transportprotein, sondern reguliert Stabilität und Fluidität",
+    "Nur kleine, unpolare Moleküle wie O₂ und CO₂ diffundieren direkt durch die Lipiddoppelschicht"
+   ],
+   "hinweise": [
+    "Bereich 7 markiert alle Sätze mit einem roten ✗, obwohl die Aussagen richtig sind; gemeint ist „Achtung, Falle“."
+   ],
+   "pruefhinweise": [
+    "Bereich 2b: Die Beschriftungslinie „Carrierprotein“ endet auf einem Phospholipidkopf zwischen Kanalprotein und Rezeptorprotein, nicht auf einem Protein; ein eindeutig als Carrier erkennbares Protein ist nicht zugeordnet.",
+    "Bereich 7: Die richtigen Merksätze sind mit einem roten ✗ markiert, was wie „falsch“ gelesen werden kann."
+   ]
+  },
+  {
+   "id": "mitochondrium",
+   "goodie": "Zellorganellen",
+   "datei": "c295cf04-d782-4137-8e59-b2dfd38a0a01_D0399298-D85F-45AB-ABC3-76553241D4BA.png",
+   "titel": "Mitochondrium – Aufbau, Funktion & Wissenswertes",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Aufbau des Mitochondriums mit beschriftetem Schnittbild, Funktionen, Zellatmung mit ATP-Bilanz, eigenes Genom, Vergleich mit dem Chloroplasten, Fakten, Prüfungsfallen, Eselsbrücken und klinische Bedeutung.",
+   "stichworte": [
+    "Mitochondrium",
+    "Mitochondrien",
+    "Kraftwerk der Zelle",
+    "äußere Membran",
+    "innere Membran",
+    "Intermembranraum",
+    "Cristae",
+    "Matrix",
+    "Porine",
+    "Doppelmembran",
+    "mtDNA",
+    "70S-Ribosomen",
+    "ATP-Synthase",
+    "Zellatmung",
+    "Glykolyse",
+    "Citratzyklus",
+    "Atmungskette",
+    "oxidative Phosphorylierung",
+    "Protonengradient",
+    "NADH",
+    "FADH₂",
+    "ATP-Bilanz",
+    "Endosymbiontentheorie",
+    "Chloroplast",
+    "maternale Vererbung",
+    "Apoptose",
+    "Cytochrom c",
+    "UCP1",
+    "Thermogenese",
+    "Calcium-Speicher"
+   ],
+   "ausloeser": [
+    "Fragen zum Aufbau von Mitochondrien (Membranen, Cristae, Matrix)",
+    "Unsicherheit, wo Glykolyse, Citratzyklus und Atmungskette stattfinden",
+    "Fragen zur ATP-Ausbeute pro Glucose",
+    "Fragen zur Endosymbiontentheorie oder zum Vergleich Mitochondrium – Chloroplast",
+    "Fragen zur mitochondrialen DNA und mütterlichen Vererbung"
+   ],
+   "bereiche": [
+    {
+     "nr": 0,
+     "titel": "Kopf und Farblegende",
+     "lage": {
+      "x": 0.012,
+      "y": 0.0,
+      "breite": 0.977,
+      "hoehe": 0.086
+     },
+     "inhalt": "Mitochondrium – Aufbau, Funktion & Wissenswertes – MedAT Cheat Sheet. Farblegende: blau Zellstruktur & Überblick, grün Funktionen, orange Energie & Stoffwechsel, violett Proteinverarbeitung, rot Prüfungsfallen, gelb Eselsbrücken."
+    },
+    {
+     "nr": 1,
+     "titel": "Mitochondrium auf einen Blick",
+     "lage": {
+      "x": 0.012,
+      "y": 0.091,
+      "breite": 0.667,
+      "hoehe": 0.324
+     },
+     "inhalt": "Schnittbild mit Beschriftungen. Äußere Membran: glatt, enthält Porine (Kanäle) → durchlässig für kleine Moleküle. Intermembranraum: Raum zwischen äußerer und innerer Membran. Innere Membran: stark gefaltet zu Cristae → Ort der Atmungskette und ATP-Synthase. Cristae: Einstülpungen der inneren Membran → vergrößern die Oberfläche. Matrix: Innere Grundsubstanz mit Enzymen, mtDNA, Ribosomen → Ort des Citratzyklus und weiterer Reaktionen. Eigene DNA: zirkulär, ähnlich bakterieller DNA. Ribosomen (70S): für die Synthese mitochondrialer Proteine. ATP-Synthase: in der inneren Membran → produziert ATP. Transportproteine: regulieren den Import und Export von Stoffen."
+    },
+    {
+     "nr": 2,
+     "titel": "Funktionen des Mitochondriums",
+     "lage": {
+      "x": 0.687,
+      "y": 0.091,
+      "breite": 0.302,
+      "hoehe": 0.326
+     },
+     "inhalt": "ATP-Produktion: Hauptort der Zellatmung und oxidativen Phosphorylierung → produziert den Großteil des ATP der Zelle. Zellatmung: Citratzyklus (Matrix) und Atmungskette (innere Membran) wandeln Nährstoffe in Energie (ATP) um. Ca²⁺-Speicherung: Puffert und speichert Calcium-Ionen → wichtig für Signalübertragung und Zellfunktionen. Apoptose-Regulation: Beteiligung an programmiertem Zelltod durch Freisetzung von Cytochrom c. Wärmeproduktion: In braunem Fettgewebe Entkopplung der Atmungskette → Wärme statt ATP (UCP1/ Thermogenese). Eigene Proteinsynthese: Dank eigener DNA und Ribosomen können einige Proteine selbst hergestellt werden."
+    },
+    {
+     "nr": 3,
+     "titel": "Energiegewinnung: Zellatmung im Mitochondrium",
+     "lage": {
+      "x": 0.012,
+      "y": 0.422,
+      "breite": 0.43,
+      "hoehe": 0.206
+     },
+     "inhalt": "1. Glykolyse (Cytoplasma): Glukose → 2 Pyruvat → 2 ATP (netto). 2. Citratzyklus (Matrix): Acetyl-CoA treten ein → CO₂, NADH, FADH₂, 2 ATP (GTP). 3. Atmungskette & oxidative Phosphorylierung (innere Membran): Komplexe I, II, III, IV und ATP-Synthase, H⁺-Pfeile über den Komplexen, O₂ → H₂O an Komplex IV, ATP an der ATP-Synthase; NADH, FADH₂ liefern Elektronen → Protonengradient treibt ATP-Synthase an; ~28–34 ATP. Gesamt: ~30–32 ATP pro Glukosemolekül (je nach Zelltyp)."
+    },
+    {
+     "nr": 4,
+     "titel": "Aufbau im Detail",
+     "lage": {
+      "x": 0.449,
+      "y": 0.423,
+      "breite": 0.305,
+      "hoehe": 0.208
+     },
+     "inhalt": "Äußere Membran: mit Porinen, relativ permeabel. Intermembranraum: enthält Enzyme und Proteine (z. B. für Fettsäureabbau). Innere Membran: sehr selektiv, enthält: Atmungskette-Komplexe I–IV, ATP-Synthase (Komplex V), Carrierproteine. Cristae: Einstülpungen erhöhen die Oberfläche (bis zum 10-fachen). Matrix: Enthält Enzyme für Citratzyklus, Fettsäureabbau, mtDNA, Ribosomen (70S), tRNA, u. a."
+    },
+    {
+     "nr": 5,
+     "titel": "Eigenes Genom",
+     "lage": {
+      "x": 0.76,
+      "y": 0.423,
+      "breite": 0.229,
+      "hoehe": 0.208
+     },
+     "inhalt": "mtDNA (zirkulär): ca. 16.569 Basenpaare · kodiert 13 Proteine der Atmungskette · 22 tRNAs · 2 rRNAs. Weitergabe: Fast ausschließlich mütterlich (über die Eizelle)."
+    },
+    {
+     "nr": 6,
+     "titel": "Vergleich: Mitochondrium – Chloroplast",
+     "lage": {
+      "x": 0.012,
+      "y": 0.635,
+      "breite": 0.396,
+      "hoehe": 0.21
+     },
+     "inhalt": "Tabelle Merkmal / Mitochondrium / Chloroplast. Vorkommen: Tierzellen, Pflanzenzellen, Pilzzellen, Protisten / Pflanzenzellen, Algen. Hauptfunktion: Zellatmung, ATP-Produktion / Photosynthese. Eigene DNA: ja (kreisförmig) / ja (kreisförmig). Ribosomen: 70S (bakterienähnlich) / 70S (bakterienähnlich). Doppelmembran: ja / ja. Energieproduktion: ATP (Abbau von Nährstoffen) / Zucker (Aufbau von Nährstoffen). Endosymbiontentheorie: Ursprünglich aerobes Bakterium / Ursprünglich Cyanobakterium. Darunter Bilder Mitochondrium und Chloroplast."
+    },
+    {
+     "nr": 7,
+     "titel": "Wichtige Fakten",
+     "lage": {
+      "x": 0.412,
+      "y": 0.635,
+      "breite": 0.248,
+      "hoehe": 0.212
+     },
+     "inhalt": "Größe: ca. 0,5–1,0 µm lang, 0,2–0,5 µm breit · Anzahl: stark variabel – abhängig vom Energiebedarf der Zelle · Form: meist länglich/ovoid, dynamisch (Fusion und Spaltung) · Dynamik: Mitochondrien fusionieren und teilen sich → Anpassung an Zellbedarf und Stress · Hoher Energiebedarf = viele Mitochondrien (z. B. Herzmuskelzellen, Skelettmuskelzellen) · Mitochondriopathien: Mutationen in mtDNA oder Kern-DNA → Erkrankungen (z. B. MELAS, Leber'sche Optikusatrophie, Kearns-Sayre). Merke dir: Mitochondrien sind die „Kraftwerke“ der Zelle – ohne sie keine Energie für Leben und Leistung!"
+    },
+    {
+     "nr": 8,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.666,
+      "y": 0.635,
+      "breite": 0.322,
+      "hoehe": 0.212
+     },
+     "inhalt": "Mitochondrien besitzen eine Doppelmembran (nicht verwechseln mit z. B. Lysosomen – nur eine Membran). · Mitochondrien haben eigene DNA und Ribosomen (70S, bakterienähnlich). · ATP-Synthese findet an der inneren Membran statt (nicht in der Matrix!). · Sauerstoff wird erst in der Atmungskette (Komplex IV) als letzter Elektronenakzeptor benötigt. · Mitochondrien stammen laut Endosymbiontentheorie von aeroben Bakterien ab (gedruckt „aercodes“). · Nicht alle Proteine werden im Mitochondrium hergestellt – die meisten kommen aus dem Cytoplasma und werden importiert."
+    },
+    {
+     "nr": 9,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.012,
+      "y": 0.851,
+      "breite": 0.455,
+      "hoehe": 0.109
+     },
+     "inhalt": "„Mito = Motor“ → liefert Energie, bringt die Zelle in Bewegung. · „Doppelt gemacht = doppelt effektiv“ → doppelte Membran für maximale Energieausbeute. · „Cristae = Kristalle der Energie“ → Falten = mehr Oberfläche = mehr ATP. · „Ohne O₂ kein Go“ → Sauerstoff ist der finale Elektronenakzeptor. · „Mitochondrien = Kraftwerke“ → produzieren Strom (ATP) für alle Zellprozesse."
+    },
+    {
+     "nr": 10,
+     "titel": "Klinische Bedeutung",
+     "lage": {
+      "x": 0.473,
+      "y": 0.851,
+      "breite": 0.516,
+      "hoehe": 0.109
+     },
+     "inhalt": "Ischämie: Sauerstoffmangel schädigt Mitochondrien → ATP-Mangel → Zellschaden. · Neurodegenerative Erkrankungen: gestörte Mitochondrienfunktion (z. B. Parkinson, Alzheimer). · Diabetes Typ 2: verminderte mitochondriale Funktion in Muskel- und Fettzellen. · Krebs: veränderte mitochondriale Stoffwechselwege (Warburg-Effekt: vermehrte Glykolyse)."
+    },
+    {
+     "nr": 11,
+     "titel": "Fußzeile",
+     "lage": {
+      "x": 0.012,
+      "y": 0.965,
+      "breite": 0.977,
+      "hoehe": 0.031
+     },
+     "inhalt": "Mitochondrien verstehen statt auswendig lernen – MedAT ready"
+    }
+   ],
+   "pruefungsfallen": [
+    "Mitochondrien haben eine Doppelmembran, Lysosomen nur eine",
+    "ATP-Synthese an der inneren Membran, nicht in der Matrix",
+    "Glykolyse läuft im Cytoplasma, nicht im Mitochondrium",
+    "O₂ wird erst an Komplex IV als letzter Elektronenakzeptor gebraucht",
+    "Die meisten mitochondrialen Proteine sind kernkodiert und werden importiert"
+   ],
+   "hinweise": [],
+   "pruefhinweise": [
+    "Bereich 3: Über Komplex II ist ein H⁺-Pfeil gezeichnet, als würde er Protonen pumpen; Komplex II (Succinat-Dehydrogenase) pumpt keine Protonen, nur I, III und IV.",
+    "Bereich 3: Die Teilwerte ergeben 2 + 2 + 28–34 = 32–38 ATP, die Gesamtzeile nennt aber ~30–32 ATP; die Zahlen passen nicht zusammen.",
+    "Bereich 4: Der Fettsäureabbau (β-Oxidation) wird dem Intermembranraum zugeordnet; er findet in der Matrix statt, wie Bereich 4 selbst unter Matrix angibt.",
+    "Bereich 7: Die Größenangabe 0,5–1,0 µm lang ist zu klein; üblich sind ca. 0,5–1 µm Durchmesser und etwa 1–10 µm Länge.",
+    "Bereich 8: Tippfehler „aercodes“ statt „aeroben“ Bakterien."
+   ]
+  },
+  {
+   "id": "ribosomen",
+   "goodie": "Zellorganellen",
+   "datei": "5077ca83-bb3b-4dc6-b17a-811a2302d369_1C21E5FC-70C6-4EE0-8ACD-E943AC444207.png",
+   "titel": "Ribosomen – Aufbau, Funktion & Wissenswertes",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Aufbau der Ribosomen (70S/80S mit Untereinheiten, rRNAs und Proteinzahlen), freie und gebundene Ribosomen, Ablauf der Translation mit E-, P- und A-Stelle, Vorkommen, Proteinziel, Energiebedarf, Eselsbrücken, Prüfungsfallen und Schnellzusammenfassung.",
+   "stichworte": [
+    "Ribosom",
+    "Ribosomen",
+    "große Untereinheit",
+    "kleine Untereinheit",
+    "70S",
+    "80S",
+    "30S",
+    "50S",
+    "40S",
+    "60S",
+    "rRNA",
+    "16S rRNA",
+    "18S rRNA",
+    "23S rRNA",
+    "28S rRNA",
+    "5,8S rRNA",
+    "5S rRNA",
+    "Svedberg-Einheit",
+    "Peptidyltransferase",
+    "Proteinbiosynthese",
+    "Translation",
+    "Initiation",
+    "Elongation",
+    "Termination",
+    "E-Stelle",
+    "P-Stelle",
+    "A-Stelle",
+    "freie Ribosomen",
+    "raues ER",
+    "Polysom"
+   ],
+   "ausloeser": [
+    "Fragen zu 70S- vs. 80S-Ribosomen und ihren Untereinheiten",
+    "Unsicherheit, warum 30S + 50S = 70S ergibt (Svedberg-Einheit)",
+    "Fragen zu freien vs. gebundenen Ribosomen und dem Ziel der Proteine",
+    "Fragen zu E-, P- und A-Stelle oder den Phasen der Translation",
+    "Frage, ob Mitochondrien und Chloroplasten eigene Ribosomen haben"
+   ],
+   "bereiche": [
+    {
+     "nr": 0,
+     "titel": "Kopf und Farblegende",
+     "lage": {
+      "x": 0.014,
+      "y": 0.0,
+      "breite": 0.973,
+      "hoehe": 0.091
+     },
+     "inhalt": "Ribosomen – Aufbau, Funktion & Wissenswertes – MedAT Cheat Sheet. Farblegende: blau Zellstruktur & Überblick, grün Funktionen, orange Energie & Stoffwechsel, violett Proteinverarbeitung, rot Prüfungsfallen, gelb Eselsbrücken."
+    },
+    {
+     "nr": 1,
+     "titel": "Ribosomen auf einen Blick",
+     "lage": {
+      "x": 0.014,
+      "y": 0.099,
+      "breite": 0.627,
+      "hoehe": 0.269
+     },
+     "inhalt": "Ribosomen sind die Orte der Proteinsynthese. Sie kommen frei im Cytoplasma oder am rauen ER vor. Bild mit Beschriftungen: Große Untereinheit – enthält rRNA und Proteine, katalytische Aktivität (Peptidyltransferase). Kleine Untereinheit – bindet an mRNA und startet die Translation. Wachsende Polypeptidkette – entstehendes Protein. mRNA – Boten-RNA mit genetischer Information. Kasten Aufbau (Einheiten): Prokaryoten (70S) = 30S + 50S; Eukaryoten (80S) = 40S + 60S. Zusammensetzung: rRNA (ribosomale RNA), Proteine (r-Proteine)."
+    },
+    {
+     "nr": 2,
+     "titel": "Funktionen der Ribosomen",
+     "lage": {
+      "x": 0.646,
+      "y": 0.099,
+      "breite": 0.34,
+      "hoehe": 0.286
+     },
+     "inhalt": "Proteinbiosynthese: Ribosomen übersetzen die mRNA-Sequenz in eine Polypeptidkette (Translation). Hohe Präzision: Sicherstellung der korrekten Reihenfolge der Aminosäuren. Universell: Kommt in allen Zellen (Pro- & Eukaryoten) vor → essentiell für das Leben. Zelltyp-abhängig: Freie Ribosomen: Proteine für den Eigenbedarf der Zelle. Gebundene Ribosomen (am rER): Proteine für Sekretion, Membran oder Lysosomen. Effizient: Viele Ribosomen können gleichzeitig eine mRNA ablesen (Polysom)."
+    },
+    {
+     "nr": 3,
+     "titel": "Arten von Ribosomen",
+     "lage": {
+      "x": 0.014,
+      "y": 0.374,
+      "breite": 0.361,
+      "hoehe": 0.202
+     },
+     "inhalt": "Freie Ribosomen: frei im Cytoplasma; synthetisieren Proteine für den Eigenbedarf (z. B. Enzyme, Strukturproteine). Gebundene Ribosomen (am rauen ER): an der Cytosolseite des rauen ER; synthetisieren Proteine für Sekretion, Membranen oder Lysosomen."
+    },
+    {
+     "nr": 4,
+     "titel": "Proteinsynthese (Translation) – Überblick",
+     "lage": {
+      "x": 0.381,
+      "y": 0.391,
+      "breite": 0.605,
+      "hoehe": 0.186
+     },
+     "inhalt": "1. Initiation: Kleine Untereinheit bindet an mRNA und erkennt Startcodon (AUG). Initiator-tRNA bindet. Große Untereinheit lagert sich an. 2. Elongation: tRNAs liefern Aminosäuren. Peptidbindungen werden geknüpft (Peptidyltransferase der großen Untereinheit). Ribosom bewegt sich in 5'→3'-Richtung. 3. Termination: Stopcodon wird erkannt (Bild: Stoppcodon-Kasten). Polypeptid wird freigesetzt. Ribosom dissoziiert in seine Untereinheiten. Kasten Ribosomale Bindungsstellen: E (Exit): tRNA verlässt Ribosom; P (Peptidyl): Peptidbindung; A (Aminoacyl): neue Aminosäure bindet."
+    },
+    {
+     "nr": 5,
+     "titel": "Aufbau im Detail",
+     "lage": {
+      "x": 0.014,
+      "y": 0.583,
+      "breite": 0.416,
+      "hoehe": 0.219
+     },
+     "inhalt": "Eukaryotisches Ribosom (80S): 60S mit 28S rRNA, 5.8S rRNA, 5S rRNA, ~49 Proteine; 40S mit 18S rRNA, ~33 Proteine. Prokaryotisches Ribosom (70S): 50S mit 23S rRNA, 5S rRNA, ~34 Proteine; 30S mit 16S rRNA, ~21 Proteine. Hinweis: Svedberg-Einheit (S) beschreibt die Sedimentationsrate bei der Ultrazentrifugation, nicht die Größe. 70S ≠ 80S in der Größe!"
+    },
+    {
+     "nr": 6,
+     "titel": "Wo kommen Ribosomen vor?",
+     "lage": {
+      "x": 0.438,
+      "y": 0.583,
+      "breite": 0.268,
+      "hoehe": 0.219
+     },
+     "inhalt": "Prokaryoten: freie Ribosomen im Cytoplasma; oft in großen Mengen (10.000+ pro Zelle). Eukaryoten: frei im Cytoplasma; gebunden am rER; auch in Mitochondrien (70S) und Chloroplasten (70S)."
+    },
+    {
+     "nr": 7,
+     "titel": "Ribosomen & Proteinziel",
+     "lage": {
+      "x": 0.713,
+      "y": 0.583,
+      "breite": 0.273,
+      "hoehe": 0.219
+     },
+     "inhalt": "Freie Ribosomen: Proteine bleiben im Cytoplasma: z. B. Enzyme, Strukturproteine. Gebundene Ribosomen (rER): Proteine werden in ER-Lumen eingeschleust oder in die Membran eingebaut: z. B. sekretorische Proteine, Membranproteine, Lysosomenenzyme."
+    },
+    {
+     "nr": 8,
+     "titel": "Energie & Stoffwechsel",
+     "lage": {
+      "x": 0.014,
+      "y": 0.809,
+      "breite": 0.235,
+      "hoehe": 0.145
+     },
+     "inhalt": "Proteinbiosynthese benötigt Energie: ATP: Aktivierung der Aminosäuren (Beladung der tRNA) · GTP: Translokation, Initiation, Termination · Mol. Energie wird in chemischen Bindungen der Peptidkette gespeichert."
+    },
+    {
+     "nr": 9,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.256,
+      "y": 0.809,
+      "breite": 0.195,
+      "hoehe": 0.145
+     },
+     "inhalt": "„Ribosomen = Ribo → Protein!“ Übersetzen Ribo(mRNA) in Proteine. · „Zwei Untereinheiten – ein Ziel: Protein!“ · „Frei = für mich, gebunden = für draußen!“"
+    },
+    {
+     "nr": 10,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.459,
+      "y": 0.809,
+      "breite": 0.246,
+      "hoehe": 0.145
+     },
+     "inhalt": "Ribosomen sind KEINE Organellen, da sie keine Membran besitzen! · 70S (Prokaryoten) ≠ 80S (Eukaryoten). · Ribosomen im Mitochondrium und Chloroplasten sind 70S. · Nicht verwechseln: Transkription (DNA → RNA) findet im Zellkern statt, Translation (RNA → Protein) an Ribosomen!"
+    },
+    {
+     "nr": 11,
+     "titel": "Schnellzusammenfassung",
+     "lage": {
+      "x": 0.713,
+      "y": 0.809,
+      "breite": 0.273,
+      "hoehe": 0.145
+     },
+     "inhalt": "Ribosomen = Ort der Proteinsynthese. · Bestehen aus rRNA + Proteinen. · Frei im Cytoplasma oder am rER gebunden. · Prokaryoten: 70S (30S + 50S). · Eukaryoten: 80S (40S + 60S). · Viele Ribosomen an einer mRNA = Polysom. · Essentiell für alle lebenden Zellen!"
+    },
+    {
+     "nr": 12,
+     "titel": "Fußzeile",
+     "lage": {
+      "x": 0.014,
+      "y": 0.962,
+      "breite": 0.973,
+      "hoehe": 0.031
+     },
+     "inhalt": "Ribosomen verstehen statt auswendig lernen – MedAT ready"
+    }
+   ],
+   "pruefungsfallen": [
+    "30S + 50S = 70S und 40S + 60S = 80S: Svedberg-Werte addieren sich nicht",
+    "Ribosomen in Mitochondrien und Chloroplasten sind 70S",
+    "Freie Ribosomen: Proteine für das Cytoplasma; gebundene (rER): Sekretion, Membran, Lysosomen",
+    "Transkription im Zellkern, Translation an den Ribosomen"
+   ],
+   "hinweise": [],
+   "pruefhinweise": [
+    "Bereich 4: Im Termination-Bild stehen als Stoppcodons „UAA UAG / UAG UOA“ – UAG doppelt, „UOA“ gibt es nicht, UGA fehlt; richtig sind UAA, UAG, UGA.",
+    "Bereich 4: Im Elongation-Bild sind die Stellen mit „E E A“ beschriftet; die mittlere Stelle müsste P heißen (Reihenfolge E, P, A wie im Kasten Ribosomale Bindungsstellen).",
+    "Bereich 10: „Ribosomen sind KEINE Organellen“ ist definitionsabhängig; viele Lehrbücher führen Ribosomen als membranlose Zellorganellen – das Blatt stellt es als feste Regel dar."
+   ]
+  },
+  {
+   "id": "er-rau-und-glatt",
+   "goodie": "Zellorganellen",
+   "datei": "b19380d2-60b3-4daa-85ee-1ec7d7b9fe12_CB538C37-90D2-4C61-9B52-1F3F3666C92E.png",
+   "titel": "Raues und glattes Endoplasmatisches Retikulum (RER & SER)",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Doppelblatt: oben das raue ER (Aufbau, Funktionen, Proteinweg zum Golgi, Vorkommen, RER/SER-Tabelle, Prüfungsfallen, Eselsbrücken), unten das glatte ER mit Lipidbiosynthese, Entgiftung, Ca²⁺-Speicher und eigenem Vergleich.",
+   "stichworte": [
+    "Endoplasmatisches Retikulum",
+    "raues ER",
+    "RER",
+    "glattes ER",
+    "SER",
+    "Ribosomen",
+    "Zisternen",
+    "Tubuli",
+    "Lumen",
+    "Kernhülle",
+    "Kernpore",
+    "Proteinsynthese",
+    "Translation",
+    "co-translationale Translokation",
+    "Proteinfaltung",
+    "Chaperone",
+    "N-Glykosylierung",
+    "Disulfidbrücken",
+    "Qualitätskontrolle",
+    "ERAD",
+    "Transportvesikel",
+    "Golgi-Apparat",
+    "Lipidbiosynthese",
+    "Cholesterin",
+    "Steroidhormone",
+    "Entgiftung",
+    "Ca²⁺-Speicher",
+    "sarkoplasmatisches Retikulum",
+    "Glukose-6-Phosphatase",
+    "Plasmazellen"
+   ],
+   "ausloeser": [
+    "Fragen zu Aufbau oder Funktion von rauem und glattem ER",
+    "Verwechslung RER und SER (Ribosomen, Lipide, Entgiftung)",
+    "Weg eines sekretorischen Proteins vom Ribosom zum Golgi",
+    "Ca²⁺-Speicherung im Muskel oder Entgiftung in der Leber",
+    "Frage, in welchen Zellen RER oder SER besonders ausgeprägt ist"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "RER: Raues ER auf einen Blick",
+     "lage": {
+      "x": 0.01,
+      "y": 0.068,
+      "breite": 0.664,
+      "hoehe": 0.232
+     },
+     "inhalt": "3D-Zeichnung von Zisternen mit Ribosomen, übergehend in die Kernhülle. Ribosomen: auf der äußeren Membranoberfläche aufgelagert; Ort der Proteinsynthese. Zisternen: abgeflachte Membransäcke; bilden ein Netzwerk. Lumen: Innenraum der Zisternen; Ort für Faltung und erste Modifikation von Proteinen. Transportvesikel: knospen ab und transportieren Proteine zum Golgi-Apparat. Kernhülle: äußere Membran geht kontinuierlich in das raue ER über. Kernpore: Verbindung zwischen Zellkern und Cytoplasma. Kasten Charakteristika: Membrannetzwerk, mit Ribosomen besetzt; steht in direkter Verbindung mit der äußeren Kernmembran; bildet zusammen mit dem glatten ER das Endoplasmatische Retikulum."
+    },
+    {
+     "nr": 2,
+     "titel": "RER: Funktionen des rauen ER",
+     "lage": {
+      "x": 0.679,
+      "y": 0.068,
+      "breite": 0.312,
+      "hoehe": 0.232
+     },
+     "inhalt": "Proteinsynthese: Ribosomen synthetisieren Proteine für Sekretion, Membranen oder Lysosomen. Proteinfaltung: Unterstützung der Faltung durch Chaperone im ER-Lumen. Erste Modifikation: z. B. N-Glykosylierung, Disulfidbrückenbildung. Qualitätskontrolle: Fehlerhafte Proteine werden erkannt und ggf. abgebaut (ERAD). Transport von Proteinen: Weiterleitung in Transportvesikeln zum Golgi-Apparat. Biosynthese von Membranen: Lieferung von Membranbestandteilen für den Aufbau neuer Zellmembranen."
+    },
+    {
+     "nr": 3,
+     "titel": "RER: Proteinweg vom Ribosom zum Golgi",
+     "lage": {
+      "x": 0.01,
+      "y": 0.305,
+      "breite": 0.503,
+      "hoehe": 0.126
+     },
+     "inhalt": "Fünf Schritte mit Pfeilen: 1. Translation: Ribosom bindet an mRNA und beginnt mit der Proteinsynthese. → 2. Co-translationale Translokation: Das entstehende Protein wird über den Translokon ins ER-Lumen eingeführt. → 3. Faltung & Modifikation: Protein faltet sich, wird modifiziert und auf Funktionsfähigkeit geprüft. → 4. Transportvesikel: Vesikel transportiert das Protein zum Golgi-Apparat zur weiteren Verarbeitung. → 5. Golgi-Apparat: Weitere Modifikation, Sortierung und Versand an den Bestimmungsort."
+    },
+    {
+     "nr": 4,
+     "titel": "RER: Aufbau im Detail",
+     "lage": {
+      "x": 0.518,
+      "y": 0.305,
+      "breite": 0.232,
+      "hoehe": 0.126
+     },
+     "inhalt": "Schnittbild mit Beschriftungen: Ribosom (70S); Proteine im Lumen (gedruckt „Proteinaın“); Lumen; ER-Membran (Phospholipid-Doppelschicht); Cytoplasma."
+    },
+    {
+     "nr": 5,
+     "titel": "RER: Wo kommt das raue ER vor?",
+     "lage": {
+      "x": 0.754,
+      "y": 0.305,
+      "breite": 0.237,
+      "hoehe": 0.126
+     },
+     "inhalt": "In allen eukaryotischen Zellen. Besonders stark ausgeprägt in Zellen mit hoher Proteinsyntheseleistung, z. B.: Pankreas (Enzymproduktion), Plasmazellen (Antikörper), Hepatozyten (Plasmaproteine)."
+    },
+    {
+     "nr": 6,
+     "titel": "RER: RER vs. SER – Unterschiede",
+     "lage": {
+      "x": 0.01,
+      "y": 0.436,
+      "breite": 0.4,
+      "hoehe": 0.105
+     },
+     "inhalt": "Tabelle Merkmal | Raues ER (RER) | Glattes ER (SER). Ribosomen: vorhanden | nicht vorhanden. Struktur: abgeflachte Zisternen | röhrenförmiges Netzwerk. Hauptfunktion: Proteinsynthese & -verarbeitung | Lipidbiosynthese, Entgiftung, Ca²⁺-Speicher. Verbindung zum Kern: kontinuierlich | kontinuierlich. Ort: in allen eukaryotischen Zellen | in allen eukaryotischen Zellen."
+    },
+    {
+     "nr": 7,
+     "titel": "RER: Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.415,
+      "y": 0.436,
+      "breite": 0.288,
+      "hoehe": 0.105
+     },
+     "inhalt": "Raues ER ist NICHT der Ort der Proteinsynthese – das machen die Ribosomen! · Ribosomen sind fest am RER gebunden, nicht frei im Cytoplasma. · RER produziert KEINE Lipide – das ist Aufgabe des glatten ER. · Proteine im ER-Lumen sind nicht das gleiche wie Proteine in der Membran! · RER und SER sind funktionell, aber nicht räumlich getrennt – sie gehen ineinander über."
+    },
+    {
+     "nr": 8,
+     "titel": "RER: Eselsbrücken",
+     "lage": {
+      "x": 0.708,
+      "y": 0.436,
+      "breite": 0.283,
+      "hoehe": 0.105
+     },
+     "inhalt": "„Rau = Ribosomen = Proteine“ – Raues ER hat Ribosomen und macht Proteine. „Raues ER = Rüststraße“ – Proteine werden hier gebaut, gefaltet und weitertransportiert. „Vom Kern zum Golgi – RER ist die Zwischenstation“ – Proteine gehen durch das raue ER."
+    },
+    {
+     "nr": 9,
+     "titel": "SER: Glattes ER auf einen Blick",
+     "lage": {
+      "x": 0.01,
+      "y": 0.599,
+      "breite": 0.62,
+      "hoehe": 0.189
+     },
+     "inhalt": "Untere Blatthälfte, Überschrift gedruckt als „Rauttes Endoplasmatisches Retikulum (SER)“, gemeint glattes ER. 3D-Zeichnung eines Tubulinetzes neben dem Zellkern. Tubuli: röhrenförmige Membranstrukturen, bilden ein dynamisches Netzwerk. Lumen: Innenraum der Tubuli; Ort vieler enzymatischer Reaktionen. Ohne Ribosomen: Oberfläche ist glatt, deshalb „glattes ER“. Verbindung zum RER: kontinuierlicher Übergang vom rauen zum glatten ER. Kasten Charakteristika: Membrannetzwerk ohne Ribosomen; geht kontinuierlich aus dem rauen ER hervor; hochgradig dynamisch und anpassungsfähig."
+    },
+    {
+     "nr": 10,
+     "titel": "SER: Funktionen des glatten ER",
+     "lage": {
+      "x": 0.635,
+      "y": 0.599,
+      "breite": 0.356,
+      "hoehe": 0.189
+     },
+     "inhalt": "Lipidbiosynthese: Synthese von Phospholipiden, Cholesterin, Steroidhormonen und Triglyceriden. Entgiftung: Abbau und Entgiftung von Medikamenten, Drogen und Toxinen (v. a. in Leberzellen). Ca²⁺-Speicher: Speichert Calcium-Ionen und gibt sie bei Bedarf wieder frei (v. a. im sarkoplasmatischen Retikulum der Muskelzellen). Kohlenhydratstoffwechsel: Beteiligt an der Glukose-6-Phosphatase-Aktivität (Leber) und am Glykogenstoffwechsel. Membranbiosynthese: Lieferung von Membranlipiden für neue Zellmembranen und Organellen."
+    },
+    {
+     "nr": 11,
+     "titel": "SER: Lipidbiosynthese – Überblick",
+     "lage": {
+      "x": 0.01,
+      "y": 0.791,
+      "breite": 0.405,
+      "hoehe": 0.094
+     },
+     "inhalt": "1. Vorstufen: Acetyl-CoA → Mevalonat → Cholesterin. 2. Synthese im SER: Enzyme im glatten ER synthetisieren Lipide aus Vorstufen. 3. Lipide: Phospholipide, Cholesterin, Steroidhormone, Triglyceride. 4. Weitertransport: Lipide werden zu Membranen oder Lipoproteinen verpackt und transportiert."
+    },
+    {
+     "nr": 12,
+     "titel": "SER: Wo kommt das glatte ER vor?",
+     "lage": {
+      "x": 0.42,
+      "y": 0.791,
+      "breite": 0.264,
+      "hoehe": 0.102
+     },
+     "inhalt": "In allen eukaryotischen Zellen. Besonders stark ausgeprägt in: Leberzellen (Entgiftung, Lipidstoffwechsel); Steroidhormon-produzierenden Zellen (Nebennieren, Gonaden); Muskelzellen (sarkoplasmatisches Retikulum – Ca²⁺-Speicher); Zellen des Fettgewebes (Lipidbiosynthese)."
+    },
+    {
+     "nr": 13,
+     "titel": "SER: Aufbau im Detail",
+     "lage": {
+      "x": 0.688,
+      "y": 0.791,
+      "breite": 0.303,
+      "hoehe": 0.102
+     },
+     "inhalt": "Schnittbild eines Tubulus mit Beschriftungen: Membran (Phospholipid-Doppelschicht); Lumen (enzymatischer Reaktionsraum); Cytoplasma."
+    },
+    {
+     "nr": 14,
+     "titel": "SER: RER vs. SER – im Vergleich",
+     "lage": {
+      "x": 0.01,
+      "y": 0.889,
+      "breite": 0.361,
+      "hoehe": 0.091
+     },
+     "inhalt": "Tabelle Merkmal | Raues ER (RER) | Glattes ER (SER). Ribosomen: vorhanden | nicht vorhanden. Struktur: abgeflachte Zisternen | röhrenförmiges Netzwerk. Hauptfunktion: Proteinsynthese & -verarbeitung | Lipidbiosynthese, Entgiftung, Ca²⁺-Speicher. Ort: alle eukaryotischen Zellen | alle eukaryotischen Zellen. Verbindung: kontinuierlich mit der Kernhülle | kontinuierlich mit dem rauen ER."
+    },
+    {
+     "nr": 15,
+     "titel": "SER: Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.376,
+      "y": 0.897,
+      "breite": 0.298,
+      "hoehe": 0.083
+     },
+     "inhalt": "Glattes ER hat KEINE Ribosomen – sonst wäre es raues ER! · SER ist nicht nur in Leberzellen – es kommt in allen Zellen vor. · Entgiftung findet im glatten ER statt, nicht in den Lysosomen. · SER speichert Ca²⁺, aber nur im sarkoplasmatischen Retikulum der Muskelzellen. · Lipidbiosynthese ≠ Proteinsynthese! (Zeichen zwischen den Wörtern undeutlich gedruckt)"
+    },
+    {
+     "nr": 16,
+     "titel": "SER: Eselsbrücken",
+     "lage": {
+      "x": 0.679,
+      "y": 0.897,
+      "breite": 0.312,
+      "hoehe": 0.083
+     },
+     "inhalt": "„Glatt = keine Ribosomen“ – Deshalb sieht es glatt aus! „SER = Steroide, Entfetten, Retten (Ca²⁺)“ – Lipidbiosynthese, Entgiftung, Ca²⁺-Speicher. „Lipidfabrik und Entsorgungsanlage“ – Das ist die Hauptrolle des glatten ER. Fußzeile: Glattes ER verstehen statt auswendig lernen – MedAT ready."
+    }
+   ],
+   "pruefungsfallen": [
+    "Nicht das RER selbst, sondern die Ribosomen darauf synthetisieren Proteine",
+    "Glattes ER hat keine Ribosomen; Lipidsynthese und Entgiftung laufen im SER, nicht im RER oder in Lysosomen",
+    "RER und SER sind ein zusammenhängendes Membransystem, nur funktionell verschieden",
+    "Neue Proteine gehen Ribosom → RER-Lumen → Transportvesikel → Golgi"
+   ],
+   "hinweise": [
+    "Das Bild enthält zwei Blätter übereinander: Bereiche 1–8 sind das raue ER (oben, eigene Nummern 1–8), Bereiche 9–16 das glatte ER (unten, eigene Nummern 1–8)."
+   ],
+   "pruefhinweise": [
+    "Bereich 4: „Ribosom (70S)“ ist falsch – Ribosomen am rauen ER eukaryotischer Zellen sind 80S-Ribosomen; 70S haben Bakterien, Mitochondrien und Chloroplasten.",
+    "Bereich 6: In der Zeile „Verbindung zum Kern“ steht beim SER „kontinuierlich“ – das SER ist nicht direkt mit der Kernhülle verbunden, sondern über das RER; Bereich 14 sagt richtig „kontinuierlich mit dem rauen ER“.",
+    "Bereich 7: „Raues ER ist NICHT der Ort der Proteinsynthese“ widerspricht Bereich 2 und 6, die Proteinsynthese als Funktion bzw. Hauptfunktion des RER nennen; gemeint ist, dass die Ribosomen die Synthese ausführen.",
+    "Bereich 7: „RER produziert KEINE Lipide“ widerspricht Bereich 2 („Biosynthese von Membranen“) und ist überspitzt – auch das RER bildet Membranphospholipide; Hauptort der Lipidsynthese ist aber das SER.",
+    "Bereich 15: „SER speichert Ca²⁺, aber nur im sarkoplasmatischen Retikulum der Muskelzellen“ ist falsch – das ER aller Zellen ist Ca²⁺-Speicher; Bereich 10 sagt richtig „v. a. im sarkoplasmatischen Retikulum“.",
+    "Bereich 9: Die Überschrift der unteren Hälfte lautet „Rauttes Endoplasmatisches Retikulum (SER)“ – Druckfehler, gemeint ist „Glattes“.",
+    "Bereich 4: Beschriftung „Proteinaın im Lumen“ ist ein Druckfehler für „Proteine im Lumen“."
+   ]
+  },
+  {
+   "id": "er-glatt",
+   "goodie": "Zellorganellen",
+   "datei": "d5c0ab6b-f351-4f67-ab7f-daffe029c552_C5F084B9-D173-413D-BABB-1DF35EA616A9.png",
+   "titel": "Glattes Endoplasmatisches Retikulum (SER)",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Das glatte ER im Detail: Aufbau aus Tubuli ohne Ribosomen, fünf Funktionen, Lipidbiosynthese, sarkoplasmatisches Retikulum als Ca²⁺-Speicher, Vorkommen, SER/RER-Tabelle, Prüfungsfallen, Eselsbrücken, Klinik (Cytochrom P450, Alkohol, Maligne Hyperthermie) und Kurzfassung.",
+   "stichworte": [
+    "glattes ER",
+    "SER",
+    "glattes endoplasmatisches Retikulum",
+    "Tubuli",
+    "Röhrchen",
+    "ohne Ribosomen",
+    "Lipidbiosynthese",
+    "Phospholipide",
+    "Cholesterin",
+    "Steroidhormone",
+    "Triglyceride",
+    "Acetyl-CoA",
+    "Mevalonat",
+    "Entgiftung",
+    "Cytochrom P450",
+    "Biotransformation",
+    "Ca²⁺-Speicher",
+    "Calcium",
+    "sarkoplasmatisches Retikulum",
+    "Muskelkontraktion",
+    "Glukose-6-Phosphatase",
+    "Glykogenstoffwechsel",
+    "Leberzellen",
+    "Nebennierenrinde",
+    "Fettzellen",
+    "Alkoholabbau",
+    "Acetaldehyd",
+    "Maligne Hyperthermie",
+    "Membranbiogenese"
+   ],
+   "ausloeser": [
+    "Fragen zu Funktionen des glatten ER (Lipide, Entgiftung, Calcium)",
+    "Verwechslung SER mit RER, Golgi oder Lysosom",
+    "Fragen zum sarkoplasmatischen Retikulum und zur Muskelkontraktion",
+    "Medikamentenabbau, Cytochrom P450 oder Wechselwirkungen",
+    "Steroidhormonbildung in Nebenniere oder Gonaden"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Glattes ER auf einen Blick",
+     "lage": {
+      "x": 0.01,
+      "y": 0.088,
+      "breite": 0.63,
+      "hoehe": 0.278
+     },
+     "inhalt": "Text: Das glatte ER (SER) ist ein Membrannetzwerk ohne Ribosomen auf der Oberfläche. Es bildet ein dynamisches System aus Röhrchen und Tubuli, das sich durch das ganze Cytoplasma zieht. 3D-Zeichnung mit Beschriftungen: Tubuli – verzweigte Röhrchen bilden ein Netzwerk. Lumen – Innenraum des glatten ER. Membran – Phospholipid-Doppelschicht ohne Ribosomen. Verbindung zum RER – kontinuierlich mit dem rauen ER verbunden. Kasten Charakteristika: keine Ribosomen auf der Außenseite; bildet Röhrchen/Tubuli, keine abgeflachten Zisternen; kontinuierlich mit dem rauen ER verbunden; hoch dynamisch und anpassungsfähig."
+    },
+    {
+     "nr": 2,
+     "titel": "Funktionen des glatten ER",
+     "lage": {
+      "x": 0.646,
+      "y": 0.088,
+      "breite": 0.342,
+      "hoehe": 0.278
+     },
+     "inhalt": "Lipidbiosynthese: Synthese von Phospholipiden, Cholesterin, Steroidhormonen und Triglyceriden. Entgiftung: Abbau und Entgiftung von Medikamenten, Drogen und Toxinen durch Cytochrom-P450-Enzyme (v. a. in Leberzellen). Ca²⁺-Speicher: Speichert Calcium-Ionen und gibt sie bei Bedarf wieder frei (v. a. im sarkoplasmatischen Retikulum der Muskelzellen). Kohlenhydratstoffwechsel: Beteiligt am Glukose-6-Phosphatase-System (Leber) und am Glykogenstoffwechsel. Membranbiosynthese: Lieferung von Membranlipiden für neue Zellmembranen und Organellen."
+    },
+    {
+     "nr": 3,
+     "titel": "Lipidbiosynthese – Überblick",
+     "lage": {
+      "x": 0.01,
+      "y": 0.37,
+      "breite": 0.396,
+      "hoehe": 0.182
+     },
+     "inhalt": "1. Vorstufen: Acetyl-CoA ↓ Mevalonat ↓ Cholesterin. 2. Synthese: Im glatten ER werden Lipide synthetisiert. 3. Modifikation: Weiterverarbeitung zu komplexen Lipiden und Steroidhormonen. 4. Weitertransport: Lipide werden in Vesikel verpackt und zu ihrem Bestimmungsort transportiert. Leiste: Wichtige Lipide: Phospholipide · Cholesterin · Steroidhormone · Triglyceride."
+    },
+    {
+     "nr": 4,
+     "titel": "Ca²⁺-Speicher – sarkoplasmatisches Retikulum",
+     "lage": {
+      "x": 0.41,
+      "y": 0.37,
+      "breite": 0.371,
+      "hoehe": 0.182
+     },
+     "inhalt": "Eine spezialisierte Form des glatten ER in Muskelzellen. Zeichnung einer Muskelfaser im Querschnitt. SER (sarkoplasmatisches Retikulum) speichert Ca²⁺ im Lumen. Bei Reiz wird Ca²⁺ ins Cytoplasma freigesetzt. Ca²⁺ löst die Muskelkontraktion aus. Legende: blaue Kugel = Ca²⁺ = Calcium-Ionen."
+    },
+    {
+     "nr": 5,
+     "titel": "Wo kommt das glatte ER vor?",
+     "lage": {
+      "x": 0.789,
+      "y": 0.37,
+      "breite": 0.199,
+      "hoehe": 0.182
+     },
+     "inhalt": "Leberzellen (Entgiftung, Lipidstoffwechsel). Nebennierenrinde (Steroidhormonproduktion). Skelettmuskelzellen (sarkoplasmatisches Retikulum). Fettzellen (Lipidsynthese & -speicherung). In allen eukaryotischen Zellen in variabler Menge vorhanden."
+    },
+    {
+     "nr": 6,
+     "titel": "Aufbau im Detail",
+     "lage": {
+      "x": 0.01,
+      "y": 0.557,
+      "breite": 0.33,
+      "hoehe": 0.239
+     },
+     "inhalt": "Nahaufnahme von Tubuli mit Beschriftungen: Röhrchen (Tubuli) – verzweigtes Netzwerk. Lumen – Innenraum des glatten ER. Membran – Phospholipid-Doppelschicht. Verbindung zum RER – Übergangsbereiche ohne Ribosomen. Hinweiskasten: Das glatte ER besitzt keine Ribosomen auf der Außenseite. Daher wirkt seine Oberfläche „glatt“ (daher der Name)."
+    },
+    {
+     "nr": 7,
+     "titel": "SER vs. RER – Unterschiede",
+     "lage": {
+      "x": 0.344,
+      "y": 0.557,
+      "breite": 0.348,
+      "hoehe": 0.239
+     },
+     "inhalt": "Tabelle Merkmal | Glattes ER (SER) | Raues ER (RER). Ribosomen: keine | vorhanden. Struktur: Röhrchen/Tubuli | abgeflachte Zisternen. Hauptfunktionen: Lipidsynthese, Entgiftung, Ca²⁺-Speicher, KH-Stoffwechsel | Proteinsynthese, -modifikation, -transport. Oberfläche: glatt | rau (durch Ribosomen). Lumen: eher eng | eher weit. Vorkommen: v. a. in Leber, Muskel, Nebennieren, Fettgewebe | in allen Zellen stark ausgebildet. Verbindung: kontinuierlich mit RER verbunden | kontinuierlich mit SER verbunden. Darunter zwei Bilder: Glattes ER ↔ Raues ER."
+    },
+    {
+     "nr": 8,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.696,
+      "y": 0.557,
+      "breite": 0.292,
+      "hoehe": 0.239
+     },
+     "inhalt": "Ribosomen auf der Membran? → Dann ist es RER, nicht SER! · Entgiftung ≠ Aufgabe des Lysosoms – Entgiftung ist eine Hauptaufgabe des SER (v. a. in Leberzellen). · Ca²⁺-Speicher in Muskelzellen → Sarkoplasmatisches Retikulum (SER), nicht Golgi oder RER! · SER ist nicht nur in Leberzellen vorhanden – auch in Muskel-, Fett- und Steroid-produzierenden Zellen. · Nicht verwechseln: Lipidsynthese findet im SER statt, nicht im Golgi-Apparat."
+    },
+    {
+     "nr": 9,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.01,
+      "y": 0.801,
+      "breite": 0.295,
+      "hoehe": 0.158
+     },
+     "inhalt": "„SER macht FETT und entgiftet!“ – Lipide synthetisieren, Toxine neutralisieren. „SER speichert Ca²⁺ – Muskel kontrahiert!“ – Freisetzung von Calcium löst Kontraktion aus. „Leber = Schutzfilter“ – SER in Leberzellen entgiftet Blut. „Glatt verbunden, stark im Stoffwechsel!“ – Dynamisches Netzwerk für viele Aufgaben."
+    },
+    {
+     "nr": 10,
+     "titel": "Wissenswertes & klinische Bezüge",
+     "lage": {
+      "x": 0.311,
+      "y": 0.801,
+      "breite": 0.342,
+      "hoehe": 0.158
+     },
+     "inhalt": "Cytochrom P450-System (im SER der Leber): Beteiligt an der Biotransformation (gedruckt „Bitoransformation“) vieler Medikamente. Klinisch relevant: Wechselwirkungen von Arzneistoffen! Alkoholabbau beginnt im SER: Ethanol wird durch Enzyme des SER zu Acetaldehyd abgebaut. Erkrankungen der Nebennierenrinde: Defekte im SER können die Steroidhormonproduktion beeinträchtigen (z. B. bei bestimmten Enzymdefekten). Muskelkrankheiten: Störungen im sarkoplasmatischen Retikulum können zu Muskelschwäche und Krämpfen führen (z. B. Maligne Hyperthermie)."
+    },
+    {
+     "nr": 11,
+     "titel": "Schnellzusammenfassung",
+     "lage": {
+      "x": 0.659,
+      "y": 0.801,
+      "breite": 0.329,
+      "hoehe": 0.158
+     },
+     "inhalt": "Glattes ER = membranöse Röhrchen/Tubuli ohne Ribosomen. Hauptfunktionen: Lipidsynthese, Entgiftung, Ca²⁺-Speicher, KH-Stoffwechsel, Membranbiogenese. Vorkommen: Leber, Muskel, Nebennieren, Fettgewebe und in allen eukaryotischen Zellen. Kontinuierlich mit dem rauen ER verbunden. Essentiell für Stoffwechsel, Signalübertragung und Zellfunktion! Fußzeile: Verstehen statt auswendig lernen – das glatte ER im Überblick! MedAT ready."
+    }
+   ],
+   "pruefungsfallen": [
+    "Ribosomen auf der Membran bedeuten RER, nicht SER",
+    "Entgiftung ist Aufgabe des SER (Cytochrom P450), nicht des Lysosoms",
+    "Ca²⁺-Speicher im Muskel ist das sarkoplasmatische Retikulum, nicht Golgi oder RER",
+    "Lipidsynthese im SER, nicht im Golgi-Apparat"
+   ],
+   "hinweise": [],
+   "pruefhinweise": [
+    "Bereich 10: „Bitoransformation“ ist ein Druckfehler für „Biotransformation“.",
+    "Bereich 10: „Alkoholabbau beginnt im SER“ ist irreführend – der Hauptweg ist die Alkoholdehydrogenase im Cytosol; das SER (MEOS, Cytochrom P450 2E1) ist ein Nebenweg, der v. a. bei chronischem Konsum zunimmt.",
+    "Bereich 7: Beim RER steht „in allen Zellen stark ausgebildet“ – ungenau; stark ausgebildet ist das RER nur in Zellen mit hoher Proteinsynthese (z. B. Pankreas, Plasmazellen).",
+    "Bereich 1: „System aus Röhrchen und Tubuli“ ist eine Doppelung – Tubuli sind die Röhrchen."
+   ]
+  },
+  {
+   "id": "golgi-apparat",
+   "goodie": "Zellorganellen",
+   "datei": "74da4a85-9c6a-4f70-8330-3a45e9e665f9_59332420-2DCD-4D6A-A620-3B24B1CDA571.png",
+   "titel": "Golgi-Apparat (Golgi-Komplex)",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Aufbau des Golgi-Apparats mit cis- und trans-Seite, seine Funktionen, der Proteinweg vom rauen ER zum Zielort, Zielorte der Vesikel, Modifikationen, Einordnung neben anderen Organellen, Prüfungsfallen, Eselsbrücken, Klinik und Kurzfassung.",
+   "stichworte": [
+    "Golgi-Apparat",
+    "Golgi-Komplex",
+    "Dictyosom",
+    "Zisternen",
+    "cis-Seite",
+    "trans-Seite",
+    "cis-Golgi-Netzwerk",
+    "trans-Golgi-Netzwerk",
+    "Transportvesikel",
+    "sekretorische Vesikel",
+    "Exozytose",
+    "Sekretion",
+    "Sortierung",
+    "Verpackung",
+    "Glykosylierung",
+    "Phosphorylierung",
+    "Sulfatierung",
+    "proteolytische Spaltung",
+    "Prohormon",
+    "Lysosomen",
+    "primäre Lysosomen",
+    "Proteinweg",
+    "raues ER",
+    "I-Cell-Krankheit",
+    "Glykosylierungsstörungen",
+    "Postamt der Zelle"
+   ],
+   "ausloeser": [
+    "Fragen zu cis- und trans-Seite oder zur Richtung des Vesikelverkehrs",
+    "Weg eines sekretorischen Proteins vom ER zur Zellmembran",
+    "Verwechslung, ob der Golgi Proteine synthetisiert oder nur modifiziert",
+    "Entstehung von Lysosomen und I-Cell-Krankheit",
+    "Fragen zu Glykosylierung und anderen Proteinmodifikationen"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Golgi-Apparat auf einen Blick",
+     "lage": {
+      "x": 0.01,
+      "y": 0.09,
+      "breite": 0.643,
+      "hoehe": 0.257
+     },
+     "inhalt": "Text: Der Golgi-Apparat ist eine Membranstruktur, die Proteine und Lipide modifiziert, sortiert und in Vesikel verpackt. Er fungiert als „Verpackungs- und Versandzentrum“ der Zelle. 3D-Zeichnung mit Beschriftungen: cis-Seite (Eingangsseite) – empfängt Vesikel vom rauen ER. Zisternen (abgeflachte Säckchen) – Stapel flacher Membranscheibchen, Ort der Modifikation und Sortierung. trans-Seite (Ausgangsseite) – bildet Transportvesikel, die ihr Ziel in verschiedenen Bereichen der Zelle oder außerhalb der Zelle haben. Kasten Merkmale: Stapel abgeflachter Membransäckchen (Zisternen); Polarität: cis (Eingang) → trans (Ausgang); zahlreiche transportierende Vesikel an den Rändern."
+    },
+    {
+     "nr": 2,
+     "titel": "Funktionen des Golgi-Apparats",
+     "lage": {
+      "x": 0.659,
+      "y": 0.09,
+      "breite": 0.329,
+      "hoehe": 0.257
+     },
+     "inhalt": "Modifikation: z. B. Glykosylierung, Phosphorylierung, Sulfatierung von Proteinen und Lipiden. Sortierung: Erkennt Zielorte der Moleküle und leitet sie in die richtigen Vesikel. Verpackung & Versand: Verpackt Proteine/Lipide in Vesikel für den Transport zu ihrem Ziel. Bildung von Lysosomen: Golgi bildet primäre Lysosomen, die später Reifung erfahren. Sekretion: Bildet sekretorische Vesikel für die Exozytose (z. B. Enzyme, Hormone)."
+    },
+    {
+     "nr": 3,
+     "titel": "Proteinweg: von der Synthese zum Ziel",
+     "lage": {
+      "x": 0.01,
+      "y": 0.352,
+      "breite": 0.555,
+      "hoehe": 0.21
+     },
+     "inhalt": "Sechs Schritte mit Pfeilen: 1. Synthese am rauen ER: Proteine werden am rauen ER synthetisiert und in das ER-Lumen eingeschleust. → 2. Transportvesikel: Proteine werden in Transportvesikeln vom ER zum Golgi-Apparat gebracht. → 3. cis-Seite (Eingang): Vesikel verschmelzen mit der cis-Seite des Golgi und geben ihr Inhalt frei. → 4. Modifikation & Sortierung: Proteine/Lipide werden in den Zisternen modifiziert und nach ihrem Ziel sortiert. → 5. trans-Seite (Ausgang): Vesikel schnüren sich an der trans-Seite ab und transportieren die Fracht zum Zielort. → 6. Zielorte: Zellmembran, Lysosomen, Sekretbläschen (Exozytose), andere Organellen. Legende: Protein (violette Kugel), Vesikel (rosa Kugel), Modifikation (z. B. Zucker), Rezeptor (Y-Symbol)."
+    },
+    {
+     "nr": 4,
+     "titel": "Aufbau im Detail",
+     "lage": {
+      "x": 0.568,
+      "y": 0.352,
+      "breite": 0.42,
+      "hoehe": 0.21
+     },
+     "inhalt": "Zeichnung mit Beschriftungen: cis-Golgi-Netzwerk – empfängt Vesikel vom rauen ER. Zisternen – abgeflachte Membransäckchen. Transportvesikel – kommen zum Golgi oder verlassen ihn. Sekretorische Vesikel – gehen zur Zellmembran und verschmelzen bei der Exozytose. trans-Golgi-Netzwerk – bildet Vesikel für den Weitertransport."
+    },
+    {
+     "nr": 5,
+     "titel": "Zielorte der Vesikel",
+     "lage": {
+      "x": 0.01,
+      "y": 0.565,
+      "breite": 0.273,
+      "hoehe": 0.193
+     },
+     "inhalt": "Zellmembran: Vesikel verschmelzen mit der Plasmamembran → Exozytose (Sekretion nach außen). Lysosomen: Golgi liefert Enzyme und Membranproteine für die Bildung reifer Lysosomen. Andere Organellen: Transport von Proteinen/Lipiden zu Endosomen, Peroxisomen oder anderen Organellen (Bild zeigt Mitochondrium und Chloroplast)."
+    },
+    {
+     "nr": 6,
+     "titel": "Modifikationen im Golgi",
+     "lage": {
+      "x": 0.288,
+      "y": 0.565,
+      "breite": 0.288,
+      "hoehe": 0.193
+     },
+     "inhalt": "Glykosylierung: Anhängen von Zuckerketten an Proteine/Lipide → wichtig für Erkennung, Stabilität, Funktion. Phosphorylierung: Anheften von Phosphatgruppen → Aktivierung, Deaktivierung oder Sortiersignal. Sulfatierung: Anheften von Sulfatgruppen → wichtig für Signalübertragung und Zielsteuerung (Symbol SO₄). Proteolytische Spaltung: Spaltung von Vorstufenproteinen in aktive Formen (z. B. Prohormone → Hormone)."
+    },
+    {
+     "nr": 7,
+     "titel": "Vergleich & Einordnung",
+     "lage": {
+      "x": 0.583,
+      "y": 0.565,
+      "breite": 0.405,
+      "hoehe": 0.193
+     },
+     "inhalt": "Tabelle Organell | Hauptfunktion | Beispiel. Raues ER: Proteinsynthese & -erster Transport | Stapeln, Falten (Chaperone). Golgi-Apparat: Modifikation, Sortierung & Verpackung | Glykosylierung, Versand. Lysosomen: Abbau von Zellbestandteilen | Enzyme, Verdauung. Zellmembran: Abgrenzung & selektiver Transport | Aufnahme/Ausscheidung."
+    },
+    {
+     "nr": 8,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.01,
+      "y": 0.765,
+      "breite": 0.254,
+      "hoehe": 0.189
+     },
+     "inhalt": "Der Golgi-Apparat synthetisiert KEINE Proteine! → Das übernimmt das raue ER. · Nicht verwechseln: Modifikation & Sortierung finden im Golgi statt, nicht im ER-Lumen oder im Cytoplasma. · Lysosomen entstehen im Golgi, aber der Abbau findet in den Lysosomen statt. · cis- und trans-Seite nicht verwechseln: cis = Eingang (vom ER), trans = Ausgang (zu Zielorten). · Der Golgi-Apparat ist in allen eukaryotischen Zellen vorhanden (Pflanzen & Tiere)."
+    },
+    {
+     "nr": 9,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.271,
+      "y": 0.765,
+      "breite": 0.2,
+      "hoehe": 0.189
+     },
+     "inhalt": "„Golgi = Postamt der Zelle“ → modifiziert, sortiert und verschickt Pakete. „cis kommt rein, trans geht raus.“ „Golgi veredelt und verschickt – ER erzeugt und übergibt.“"
+    },
+    {
+     "nr": 10,
+     "titel": "Klinische Bezüge",
+     "lage": {
+      "x": 0.477,
+      "y": 0.765,
+      "breite": 0.271,
+      "hoehe": 0.189
+     },
+     "inhalt": "I-Cell-Krankheit: Fehlerhafte Enzymmodifikation im Golgi → Ansammlung von nicht abgebauten Stoffen in Lysosomen. Kongenitale Glykosylierungsstörungen: Fehler in der Glykosylierung im Golgi → Entwicklungsstörungen, neurologische Symptome. Bestimmte Krebszellen: Veränderte Glykosylierung im Golgi kann Tumorwachstum, Metastasierung und Immunevasion beeinflussen."
+    },
+    {
+     "nr": 11,
+     "titel": "Schnellzusammenfassung",
+     "lage": {
+      "x": 0.752,
+      "y": 0.765,
+      "breite": 0.236,
+      "hoehe": 0.189
+     },
+     "inhalt": "Der Golgi-Apparat modifiziert, sortiert und verpackt Proteine & Lipide. Er empfängt Vesikel vom ER (cis-Seite) und sendet Vesikel zu verschiedenen Zielorten (trans-Seite). Wichtige Modifikationen: Glykosylierung, Phosphorylierung, Sulfatierung, Spaltung. Bildet Lysosomen und sekretorische Vesikel. Zentrale Rolle im Proteinverkehr & in der Zellkommunikation! Fußzeile: Verstehen statt auswendig lernen – Golgi-Apparat verstehen, Zelle begreifen! MedAT ready."
+    }
+   ],
+   "pruefungsfallen": [
+    "Der Golgi synthetisiert keine Proteine, er modifiziert und sortiert sie",
+    "cis = Eingang vom ER, trans = Ausgang zu den Zielorten",
+    "Lysosomen entstehen am Golgi, abgebaut wird aber im Lysosom",
+    "Bei der I-Cell-Krankheit fehlt die richtige Markierung der Enzyme im Golgi, deshalb sammeln sich Stoffe in Lysosomen an"
+   ],
+   "hinweise": [],
+   "pruefhinweise": [
+    "Bereich 5: Peroxisomen werden als Zielort von Golgi-Vesikeln genannt und das Bild zeigt Mitochondrium und Chloroplast – Peroxisomen-, Mitochondrien- und Chloroplastenproteine werden aber posttranslational aus dem Cytosol importiert, nicht über Golgi-Vesikel geliefert.",
+    "Bereich 7: Beim rauen ER steht als Beispiel „Stapeln, Falten (Chaperone)“ – „Stapeln“ ist unklar, Zisternenstapel sind typisch für den Golgi, nicht eine Funktion des RER.",
+    "Bereich 8: „in allen eukaryotischen Zellen vorhanden“ ist überspitzt – reife Erythrozyten haben keinen Golgi-Apparat."
+   ]
+  },
+  {
+   "id": "lysosomen",
+   "goodie": "Zellorganellen",
+   "datei": "f8e9ec56-c73b-4d8d-a6cd-cd46571398e7_E9456E3F-2F0F-44CE-B8A9-17D275847F0E.png",
+   "titel": "Lysosomen – die Müllabfuhr der Zelle",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Lysosomen mit Aufbau, sauren Innenraum und Enzymen, ihren Funktionen, den drei Wegen zum Lysosom (Phagozytose, Endocytose, Autophagie), Abbauprodukten, Vorkommen in Zelltypen, Vergleich mit Peroxisomen, Prüfungsfallen, Merksätzen und Klinik.",
+   "stichworte": [
+    "Lysosomen",
+    "hydrolytische Enzyme",
+    "saure Hydrolasen",
+    "Proteasen",
+    "Lipasen",
+    "Nukleasen",
+    "Glykosidasen",
+    "Phosphatasen",
+    "pH 4,5–5,0",
+    "V-ATPase",
+    "Protonenpumpe",
+    "Mannose-6-Phosphat-Rezeptor",
+    "Autophagie",
+    "Mitophagie",
+    "Phagozytose",
+    "Phagosom",
+    "Phagolysosom",
+    "Endocytose",
+    "Endosom",
+    "Autophagosom",
+    "Autolysosom",
+    "Apoptose",
+    "Peroxisomen",
+    "Katalase",
+    "Akrosom",
+    "Osteoklasten",
+    "lytische Vakuole",
+    "Speicherkrankheiten",
+    "Tay-Sachs",
+    "Morbus Gaucher"
+   ],
+   "ausloeser": [
+    "Fragen zu Aufbau, pH-Wert oder Enzymen des Lysosoms",
+    "Verwechslung Lysosom und Peroxisom (Katalase, pH, Ursprung)",
+    "Ablauf von Phagozytose, Endocytose oder Autophagie",
+    "Lysosomale Speicherkrankheiten wie Tay-Sachs oder Morbus Gaucher",
+    "Frage, ob Pflanzenzellen Lysosomen haben"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Ein Blick",
+     "lage": {
+      "x": 0.025,
+      "y": 0.074,
+      "breite": 0.62,
+      "hoehe": 0.242
+     },
+     "inhalt": "Text: Lysosomen sind kleine, membranumhüllte Vesikel, die Verdauungsenzyme enthalten. Sie bauen Zellabfälle, alte Zellbestandteile und Krankheitserreger ab und recyceln sie – für eine saubere und gesunde Zelle. Schnittbild mit Beschriftungen: Membran – Phospholipid-Doppelschicht mit Membranproteinen. Innenraum (sauer) – H⁺-Pumpen halten pH niedrig (4,5–5,0) → optimale Aktivität der Enzyme. Hydrolytische Enzyme – z. B. Proteasen, Lipasen, Nukleasen, Glykosidasen, Phosphatasen, Phospholipasen. Transportproteine – für den Import von Abbauprodukten (Aminosäuren, Zucker, Fettsäuren) ins Cytoplasma. Leiste Typische Enzyme im Lysosom: Proteasen (Proteinabbau), Lipasen (Fettabbau), Nukleasen (DNA/RNA-Abbau), Glykosidasen (Zuckerabbau), Phosphatasen (Phosphatgruppen entfernen)."
+    },
+    {
+     "nr": 2,
+     "titel": "Funktionen",
+     "lage": {
+      "x": 0.654,
+      "y": 0.074,
+      "breite": 0.321,
+      "hoehe": 0.242
+     },
+     "inhalt": "Abbau von Zellbestandteilen: Verdauung von Makromolekülen, alten oder beschädigten Organellen und Zelltrümmern. Autophagie (Selbstverdauung): Abbau alter oder defekter Zellbestandteile, z. B. Mitochondrien (Mitophagie). Abwehr von Erregern: Verdauung von aufgenommenen Bakterien, Viren und Fremdpartikeln (Phagozytose). Recycling: Rückgewinnung und Wiederverwertung wertvoller Bausteine für die Zelle. Mitwirkung an Apoptose: Beteiligung am programmierten Zelltod durch Freisetzung lytischer Enzyme."
+    },
+    {
+     "nr": 3,
+     "titel": "Wege zum Lysosom",
+     "lage": {
+      "x": 0.025,
+      "y": 0.321,
+      "breite": 0.491,
+      "hoehe": 0.22
+     },
+     "inhalt": "Drei Spalten mit Pfeilfolgen. Phagozytose („Fressen“): Aufnahme von Partikeln oder Bakterien (gedruckt „noder“) → Phagosom → Fusion mit Lysosom → Phagolysosom → Abbau. Endocytose (Aufnahme von Stoffen): Ligand bindet an Rezeptor → Endosom → Fusion mit Lysosom → Endolysosom → Abbau. Autophagie (Selbstabbau): abgeschädigtes Mitochondrium wird umhüllt → Autophagosom → Fusion mit Lysosom → Autolysosom → Abbau & Recycling."
+    },
+    {
+     "nr": 4,
+     "titel": "Aufbau im Detail",
+     "lage": {
+      "x": 0.523,
+      "y": 0.321,
+      "breite": 0.451,
+      "hoehe": 0.22
+     },
+     "inhalt": "Schnittbild mit Beschriftungen: H⁺-Pumpe (V-ATPase) – pumpt Protonen (H⁺) nach innen → saurer pH. Innenraum (pH ~ 4,5–5,0) – optimales Milieu für die Enzymaktivität. Hydrolytische Enzyme – bauen Proteine, Lipide, Kohlenhydrate, Nukleinsäuren in ihre Bausteine ab. Membranproteine – Transport von Abbauprodukten nach außen. Glykoprotein / Rezeptor – Erkennung und Fusion mit Vesikeln (z. B. Mannose-6-Phosphat-Rezeptor)."
+    },
+    {
+     "nr": 5,
+     "titel": "Was wird abgebaut?",
+     "lage": {
+      "x": 0.025,
+      "y": 0.545,
+      "breite": 0.949,
+      "hoehe": 0.111
+     },
+     "inhalt": "Proteine → Aminosäuren. Lipide → Fettsäuren + Glycerin. Kohlenhydrate → Einfachzucker. Nukleinsäuren → Nukleotide. Alte Organellen → Bausteine (Recycling). Zelltrümmer → Abbauprodukte."
+    },
+    {
+     "nr": 6,
+     "titel": "Lysosomen in verschiedenen Zellen",
+     "lage": {
+      "x": 0.025,
+      "y": 0.662,
+      "breite": 0.505,
+      "hoehe": 0.144
+     },
+     "inhalt": "Makrophagen: viele Lysosomen zur Verdauung von Erregern. Neutrophile Granulozyten: Phagozytose & Abbau von Keimen. Knochenzellen: Abbau der Knochenmatrix (Resorption). Spermien: Akrosom (lysosomen-ähnliches Vesikel) zur Penetration der Eizelle. Pflanzenzellen: keine typischen Lysosomen → Funktion durch lytische Vakuolen übernommen."
+    },
+    {
+     "nr": 7,
+     "titel": "Lysosomen vs. Peroxisomen",
+     "lage": {
+      "x": 0.536,
+      "y": 0.662,
+      "breite": 0.439,
+      "hoehe": 0.144
+     },
+     "inhalt": "Tabelle Merkmal | Lysosomen | Peroxisomen. Ursprung: Golgi-Apparat | ER. Enzyme: hydrolytische Enzyme | oxidierende Enzyme (Oxidasen, Katalase). Hauptfunktion: Abbau von Makromolekülen und Organellen | Abbau von Fettsäuren, Entgiftung von H₂O₂. pH-Wert: sauer (~4,5–5,0) | neutral (~7,0). Enthalten Katalase?: nein | ja. Vorkommen: alle eukaryotischen Zellen (v. a. Tierzellen) | alle eukaryotischen Zellen."
+    },
+    {
+     "nr": 8,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.025,
+      "y": 0.812,
+      "breite": 0.296,
+      "hoehe": 0.139
+     },
+     "inhalt": "Lysosomen = Abbau, nicht Aufbau! · Hydrolytische Enzyme sind nur im sauren Milieu aktiv! · Lysosomen besitzen EINE Membran! · Lysosomen entstehen am Golgi-Apparat, nicht am rauen ER! · Pflanzenzellen haben keine typischen Lysosomen – dort übernehmen es lytische Vakuolen!"
+    },
+    {
+     "nr": 9,
+     "titel": "Wissenswertes (Merksätze)",
+     "lage": {
+      "x": 0.326,
+      "y": 0.812,
+      "breite": 0.294,
+      "hoehe": 0.139
+     },
+     "inhalt": "„Lysosom = Lysiert Sofort MÜLL.“ Merke: lysiert = auflösen, verdauen. „Lysosom = Müllabfuhr der Zelle.“ Räumt auf, recycelt und schützt. „Saures Inneres = starke Enzyme!“ Niedriger pH = Enzyme sind aktiv."
+    },
+    {
+     "nr": 10,
+     "titel": "Klinische Bezüge",
+     "lage": {
+      "x": 0.626,
+      "y": 0.812,
+      "breite": 0.348,
+      "hoehe": 0.139
+     },
+     "inhalt": "Lysosomale Speicherkrankheiten (z. B. Tay-Sachs, Morbus Gaucher) → Enzymdefekte → Stoffe werden nicht abgebaut und lagern sich an. Infektionsabwehr: Beeinträchtigte Lysosomenfunktion → erhöhte Infektanfälligkeit. Krebsforschung: Fehlregulation der Autophagie kann Tumorwachstum fördern oder hemmen. Fußzeile: Lysosomen verstehen, Zelle begreifen! Die Müllabfuhr, die Leben möglich macht."
+    }
+   ],
+   "pruefungsfallen": [
+    "Lysosomen bauen ab, sie bauen nichts auf",
+    "Lysosomen stammen vom Golgi, nicht direkt vom rauen ER",
+    "Katalase gehört ins Peroxisom, nicht ins Lysosom",
+    "Pflanzenzellen: lytische Vakuole statt typischer Lysosomen"
+   ],
+   "hinweise": [],
+   "pruefhinweise": [
+    "Bereich 1: „Transportproteine für den Import von Abbauprodukten … ins Cytoplasma“ ist missverständlich – aus Sicht des Lysosoms ist es ein Export; Bereich 4 sagt richtig „Transport von Abbauprodukten nach außen“.",
+    "Bereich 3: „noder Bakterien“ ist ein Druckfehler für „oder Bakterien“."
+   ]
+  },
+  {
+   "id": "zentriolen",
+   "goodie": "Zellorganellen",
+   "datei": "b44ece3c-faa6-45ab-9c65-cee2effde825_FE3964E4-D944-43C5-B53D-EF6F5BBA9B4A.png",
+   "titel": "Zentriolen: Aufbau, Funktion & Prüfungswissen",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Aufbau der Zentriolen (9×3 Mikrotubuli-Triplets, rechtwinkliges Paar, ohne Membran) im Zentrosom mit PCM, ihre Funktionen bei Spindelapparat, Zellteilung und Cilien/Flagellen, ein Ablauf in vier Schritten, Vergleichstabelle Zentriol/Zentrosom/Basalkörper, Prüfungsfallen und Eselsbrücken.",
+   "stichworte": [
+    "Zentriol",
+    "Zentriolen",
+    "Centriol",
+    "Zentrosom",
+    "Centrosom",
+    "perizentrioläres Material",
+    "PCM",
+    "Mikrotubuli",
+    "Mikrotubulus",
+    "Triplet",
+    "9×3",
+    "9+2",
+    "A-Tubulus",
+    "B-Tubulus",
+    "C-Tubulus",
+    "Spindelapparat",
+    "Spindelfasern",
+    "Mitose",
+    "Zellteilung",
+    "S-Phase",
+    "Zellpole",
+    "Basalkörper",
+    "Cilien",
+    "Flagellen",
+    "Geißel",
+    "Axonem",
+    "Mikrotubuli-Organisationszentrum",
+    "MTOC",
+    "nicht membranumhüllt",
+    "Tierzelle"
+   ],
+   "ausloeser": [
+    "Fragen zu Aufbau oder Funktion von Zentriolen, Zentrosom oder Basalkörper",
+    "Verwechslung Zentriol und Zentrosom",
+    "Verwechslung 9×3 (Zentriol, Basalkörper) und 9+2 (Axonem von Cilien/Flagellen)",
+    "Fragen zur Bildung des Spindelapparats in der Mitose",
+    "Frage, ob Pflanzenzellen Zentriolen haben oder ob Zentriolen eine Membran besitzen"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Aufbau / Überblick",
+     "lage": {
+      "x": 0.017,
+      "y": 0.103,
+      "breite": 0.229,
+      "hoehe": 0.246
+     },
+     "inhalt": "Zylinderförmige Organellen · aus Mikrotubuli aufgebaut · 9×3 Triplets · paarweise im rechten Winkel · Teil des Zentrosoms · nicht membranumhüllt. Jeder Punkt mit kleinem Symbolbild."
+    },
+    {
+     "nr": "1b",
+     "titel": "Zentrosom (Zentriolenpaar + PCM) – Abbildung",
+     "lage": {
+      "x": 0.256,
+      "y": 0.101,
+      "breite": 0.493,
+      "hoehe": 0.345
+     },
+     "inhalt": "3D-Zeichnung zweier Zentriolen in einer Wolke aus PCM. Beschriftungen: Zentriol 1 (Längsansicht) · Zentriol 2 (Querschnittsansicht) · perizentrioläres Material (PCM) umgibt das Paar und nucleiert Mikrotubuli · Zentriolenpaar rechtwinklig zueinander · ohne Membran."
+    },
+    {
+     "nr": "1c",
+     "titel": "Querschnitt und Legende",
+     "lage": {
+      "x": 0.749,
+      "y": 0.106,
+      "breite": 0.234,
+      "hoehe": 0.303
+     },
+     "inhalt": "Querschnitt: 9×3 Mikrotubuli-Triplets, ringförmig angeordnet, Beschriftungen Mikrotubuli-Triplet und Verbindende Proteine. Legende: A-Tubulus, B-Tubulus, C-Tubulus, Verbindende Proteine (gelbe Stäbe)."
+    },
+    {
+     "nr": 2,
+     "titel": "Hauptfunktionen",
+     "lage": {
+      "x": 0.017,
+      "y": 0.36,
+      "breite": 0.229,
+      "hoehe": 0.229
+     },
+     "inhalt": "Organisation von Mikrotubuli · Bildung des Spindelapparats · wichtige Rolle bei der Zellteilung · Ausgangspunkt für Basalkörper · Beteiligung an Cilien/Flagellen-Bildung."
+    },
+    {
+     "nr": 3,
+     "titel": "Prozesse / Abläufe",
+     "lage": {
+      "x": 0.258,
+      "y": 0.461,
+      "breite": 0.721,
+      "hoehe": 0.181
+     },
+     "inhalt": "Vier Schritte mit Pfeilen: 1. Verdopplung in der S-Phase – Zentriolen werden dupliziert → 2. Wanderung zu den Zellpolen – Zentrosomen bewegen sich zu entgegengesetzten Zellpolen → 3. Organisation der Spindelfasern in der Mitose – Mikrotubuli wachsen aus, bilden den Spindelapparat und erfassen Chromosomen → 4. Basalkörper → Grundlage für Cilien/Flagellen – Zentriolen werden zu Basalkörpern und nucleieren Cilien/Flagellen."
+    },
+    {
+     "nr": 4,
+     "titel": "Vergleich / Tabelle",
+     "lage": {
+      "x": 0.017,
+      "y": 0.651,
+      "breite": 0.379,
+      "hoehe": 0.168
+     },
+     "inhalt": "Spalten Struktur, Merkmal, Funktion. Zentriol: 9×3 Mikrotubuli, ohne Membran – organisiert Mikrotubuli. Zentrosom: Zentriolen + PCM (perizentrioläres Material) – Mikrotubuli-Organisationszentrum. Basalkörper: strukturell ähnlich dem Zentriol – verankert Cilien/Flagellen."
+    },
+    {
+     "nr": 5,
+     "titel": "Spezialwissen",
+     "lage": {
+      "x": 0.408,
+      "y": 0.651,
+      "breite": 0.267,
+      "hoehe": 0.176
+     },
+     "inhalt": "Typisch in Tierzellen · höhere Pflanzen besitzen meist keine klassischen Zentriolen · perizentrioläres Material (PCM) nucleiert Mikrotubuli · wichtig für geordnete Chromosomenverteilung."
+    },
+    {
+     "nr": 6,
+     "titel": "Wichtige Begriffe",
+     "lage": {
+      "x": 0.686,
+      "y": 0.651,
+      "breite": 0.293,
+      "hoehe": 0.211
+     },
+     "inhalt": "Bildkacheln ohne Erklärungstext: Mikrotubulus · Triplet · Zentrosom · PCM (perizentrioläres Material) · Spindelapparat · Basalkörper · Cilien · Flagellen."
+    },
+    {
+     "nr": "6b",
+     "titel": "Prüfungsfallen",
+     "lage": {
+      "x": 0.017,
+      "y": 0.827,
+      "breite": 0.324,
+      "hoehe": 0.115
+     },
+     "inhalt": "Zentriol ≠ Zentrosom · Zentriolen sind nicht membranumhüllt · 9×3 gilt für Zentriolen, nicht 9+2 · 9+2 gehört zum Axonem von Cilien/Flagellen · nicht jede eukaryotische Zelle besitzt klassische Zentriolen."
+    },
+    {
+     "nr": "6c",
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.354,
+      "y": 0.834,
+      "breite": 0.321,
+      "hoehe": 0.111
+     },
+     "inhalt": "Zentriol = Zylinder aus 9 Dreiergruppen · Zentrosom = Ort, an dem Zentriolen wohnen · 9×3 → 9+2: 9×3 bei Zentriolen, 9+2 bei beweglichen Cilien."
+    },
+    {
+     "nr": "6d",
+     "titel": "Merksatz-Leiste",
+     "lage": {
+      "x": 0.019,
+      "y": 0.949,
+      "breite": 0.96,
+      "hoehe": 0.042
+     },
+     "inhalt": "Zentriolen verstehen – Mitose & Mikrotubuli auf einen Blick."
+    }
+   ],
+   "pruefungsfallen": [
+    "Zentriol ist nicht dasselbe wie Zentrosom (Zentrosom = Zentriolenpaar + PCM)",
+    "Zentriolen haben keine Membran",
+    "Zentriol und Basalkörper: 9×3; Axonem beweglicher Cilien/Flagellen: 9+2",
+    "Höhere Pflanzen besitzen meist keine klassischen Zentriolen"
+   ],
+   "hinweise": [
+    "Bereich 6b: Die Sätze sind mit einem roten ✗ markiert, obwohl die Aussagen selbst richtig sind. Gemeint ist „Achtung, Falle“ – beim Erklären sagt LernBlick das so dazu."
+   ],
+   "pruefhinweise": [
+    "Bereich 1c: In der Legende haben B-Tubulus und C-Tubulus dieselbe Farbe, die drei Tubuli eines Triplets sind im Querschnitt daher nicht unterscheidbar.",
+    "Bereich 1b: Am offenen Ende von Zentriol 2 zeigt die 3D-Zeichnung einen Ring aus einzelnen Röhren statt erkennbarer Dreiergruppen; für den 9×3-Aufbau gilt die Querschnittsskizze in Bereich 1c.",
+    "Bereich 1b: Tippfehler „Querschniitsansicht“ statt „Querschnittsansicht“."
+   ]
+  },
+  {
+   "id": "peroxisomen",
+   "goodie": "Zellorganellen",
+   "datei": "f7302384-7b52-4e91-934d-ea073ab39351_4247F255-3C4A-4594-B323-2A8A48E0331F.png",
+   "titel": "Peroxisomen – die Entgifter & Entsorger der Zelle",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Aufbau und Funktionen der Peroxisomen (Entgiftung, Abbau sehr langkettiger Fettsäuren, Lipidstoffwechsel), die Katalase-Reaktion und die H₂O₂-bildende Oxidase-Reaktion, Entstehung, Abbau, Zusammenspiel mit ER und Mitochondrien, Prüfungsfallen und klinische Bezüge (Zellweger, ALD, Rhizomelie-Chondrodysplasie).",
+   "stichworte": [
+    "Peroxisom",
+    "Peroxisomen",
+    "Microbody",
+    "Katalase",
+    "Oxidase",
+    "Oxidasen",
+    "Wasserstoffperoxid",
+    "H₂O₂",
+    "Entgiftung",
+    "Beta-Oxidation",
+    "sehr langkettige Fettsäuren",
+    "Fettsäureabbau",
+    "Lipidstoffwechsel",
+    "Plasmalogene",
+    "Gallensäuren",
+    "Einfachmembran",
+    "Matrix",
+    "oxidativer Stress",
+    "Autophagie",
+    "Autophagosom",
+    "Teilung",
+    "Leberzellen",
+    "Photorespiration",
+    "Zellweger-Syndrom",
+    "Zellweger-Spektrum",
+    "Adrenoleukodystrophie",
+    "ALD",
+    "Rhizomelie-Chondrodysplasia punctata",
+    "Organellen"
+   ],
+   "ausloeser": [
+    "Fragen zu Aufbau oder Funktion der Peroxisomen",
+    "Reaktionsgleichung der Katalase oder Herkunft des H₂O₂",
+    "Verwechslung Peroxisom mit Lysosom oder Mitochondrium (DNA, Ribosomen, Fettsäureabbau)",
+    "Frage nach Entstehung bzw. Vermehrung von Peroxisomen",
+    "Peroxisomale Erkrankungen (Zellweger, Adrenoleukodystrophie)"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Ein Blick",
+     "lage": {
+      "x": 0.025,
+      "y": 0.081,
+      "breite": 0.686,
+      "hoehe": 0.168
+     },
+     "inhalt": "Peroxisomen sind kleine, kugelige, membranumhüllte Organellen, die zahlreiche oxidierende Enzyme enthalten. Sie entgiften schädliche Stoffe, bauen Fettsäuren ab und spielen eine wichtige Rolle im Lipidstoffwechsel. Aufgeschnittene Abbildung mit Beschriftungen: Einfachmembran – schützt das Peroxisom und reguliert den Stoffaustausch · Matrix – wässrige Grundsubstanz mit Enzymen · Oxidasen & Katalasen – enzymatische Proteine für Entgiftung und Abbauprozesse."
+    },
+    {
+     "nr": 2,
+     "titel": "Aufbau",
+     "lage": {
+      "x": 0.725,
+      "y": 0.081,
+      "breite": 0.247,
+      "hoehe": 0.168
+     },
+     "inhalt": "Kleine, kugelige Organellen (0,1–1,0 µm) · Einfachmembran begrenzt das Peroxisom · Matrix mit oxidierenden Enzymen (v. a. Oxidasen, Katalase) · keine eigene DNA oder Ribosomen."
+    },
+    {
+     "nr": 3,
+     "titel": "Funktionen",
+     "lage": {
+      "x": 0.025,
+      "y": 0.257,
+      "breite": 0.297,
+      "hoehe": 0.232
+     },
+     "inhalt": "Entgiften schädlicher Stoffe: z. B. Abbau von Wasserstoffperoxid (H₂O₂) zu Wasser und Sauerstoff · Abbau von Fettsäuren: Beta-Oxidation sehr langkettiger Fettsäuren · Lipidstoffwechsel: Beteiligung an der Synthese von Plasmalogenen und Gallensäuren · Zellschutz: Schutz vor oxidativem Stress und Zellschäden."
+    },
+    {
+     "nr": 4,
+     "titel": "Wichtiger Prozess: Entgiftung von Wasserstoffperoxid",
+     "lage": {
+      "x": 0.336,
+      "y": 0.257,
+      "breite": 0.327,
+      "hoehe": 0.232
+     },
+     "inhalt": "2 H₂O₂ (Wasserstoffperoxid) → (Katalase) → 2 H₂O (Wasser) + O₂ (Sauerstoff). Kasten darunter: Oxidasen erzeugen H₂O₂ bei Abbauprozessen: Substrat + O₂ → (Oxidase) → H₂O₂ + Produkt."
+    },
+    {
+     "nr": 5,
+     "titel": "Entstehung & Verteilung",
+     "lage": {
+      "x": 0.674,
+      "y": 0.257,
+      "breite": 0.298,
+      "hoehe": 0.232
+     },
+     "inhalt": "Entstehen durch Wachstum und Teilung bereits vorhandener Peroxisomen · vor allem in Leber-, Nieren- und Pflanzenzellen häufig · Zahl und Größe abhängig vom Zelltyp und Stoffwechselzustand. Kasten Merke dir: Peroxisomen entstehen nicht neu aus dem ER oder Golgi, sondern nur durch Teilung bestehender Peroxisomen."
+    },
+    {
+     "nr": 6,
+     "titel": "Abbau & Recycling",
+     "lage": {
+      "x": 0.025,
+      "y": 0.498,
+      "breite": 0.297,
+      "hoehe": 0.16
+     },
+     "inhalt": "Beschädigte Peroxisomen werden über die Autophagie abgebaut (→ Peroxisomen im Autophagosom) · Bestandteile werden recycelt und wiederverwendet."
+    },
+    {
+     "nr": 7,
+     "titel": "Zusammenspiel mit anderen Organellen",
+     "lage": {
+      "x": 0.336,
+      "y": 0.498,
+      "breite": 0.636,
+      "hoehe": 0.16
+     },
+     "inhalt": "Drei Kacheln mit Pfeilen: Glattes ER – Synthese von Lipidvorstufen → Peroxisom – Abbau von Fettsäuren, Entgiftung ↔ Mitochondrien – weiterer Abbau von Fettsäuren (Beta-Oxidation). Ein zusätzlicher unterer Pfeil zeigt von den Mitochondrien zum Peroxisom."
+    },
+    {
+     "nr": 8,
+     "titel": "Besondere Merkmale",
+     "lage": {
+      "x": 0.025,
+      "y": 0.666,
+      "breite": 0.293,
+      "hoehe": 0.17
+     },
+     "inhalt": "Enthalten Katalase – einzigartig unter Organellen · können sehr unterschiedliche Enzyme enthalten (je nach Zelltyp) · wichtig für Entgiftung und Schutz vor Zellschäden · Störungen führen zu Stoffwechselerkrankungen (z. B. Zellweger-Spektrum)."
+    },
+    {
+     "nr": 9,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.335,
+      "y": 0.666,
+      "breite": 0.32,
+      "hoehe": 0.17
+     },
+     "inhalt": "Peroxisomen besitzen KEINE DNA und KEINE Ribosomen · entstehen NICHT neu aus dem ER oder Golgi-Apparat · H₂O₂ wird in Peroxisomen abgebaut, nicht in Mitochondrien · Peroxisomen teilen sich selbstständig."
+    },
+    {
+     "nr": 10,
+     "titel": "Wissenswertes",
+     "lage": {
+      "x": 0.669,
+      "y": 0.666,
+      "breite": 0.304,
+      "hoehe": 0.17
+     },
+     "inhalt": "Viele Abbauprozesse finden besonders in Leberzellen statt · in Pflanzen zusätzlich Beteiligung an der Photorespiration · defekte Peroxisomen können zu schweren Erkrankungen führen."
+    },
+    {
+     "nr": 11,
+     "titel": "Klinische Bezüge",
+     "lage": {
+      "x": 0.025,
+      "y": 0.845,
+      "breite": 0.947,
+      "hoehe": 0.098
+     },
+     "inhalt": "Zellweger-Spektrum-Störungen: genetische Defekte in Peroxisomen-Funktionen → schwere Entwicklungsstörungen, Organfehlfunktionen · Adrenoleukodystrophie (ALD): gestörter Abbau sehr langkettiger Fettsäuren → Nervenschäden, Bewegungsstörungen · Rhizomelie-Chondrodysplasie Punctata: Fehler im Plasmalogen-Stoffwechsel → Skelettveränderungen, Entwicklungsstörungen."
+    },
+    {
+     "nr": "11b",
+     "titel": "Merksatz-Leiste",
+     "lage": {
+      "x": 0.025,
+      "y": 0.95,
+      "breite": 0.947,
+      "hoehe": 0.041
+     },
+     "inhalt": "Peroxisomen – kleine Organellen mit großer Wirkung: Entgiftung, Stoffwechsel & Zellschutz!"
+    }
+   ],
+   "pruefungsfallen": [
+    "Peroxisomen haben keine eigene DNA und keine Ribosomen",
+    "Katalase spaltet H₂O₂ zu Wasser und Sauerstoff; Oxidasen erzeugen H₂O₂",
+    "In Peroxisomen werden sehr langkettige Fettsäuren abgebaut, der weitere Abbau läuft in den Mitochondrien",
+    "Einfachmembran, nicht Doppelmembran"
+   ],
+   "hinweise": [],
+   "pruefhinweise": [
+    "Bereich 5 (Merke dir) und Bereich 9: Die Aussage, Peroxisomen entstünden nur durch Teilung und nie neu aus dem ER, ist nach heutigem Lehrbuchstand zu absolut; sie vermehren sich zwar meist durch Wachstum und Teilung, können aber auch de novo aus ER-abgeleiteten Vorläufervesikeln entstehen.",
+    "Bereich 9: „H₂O₂ wird in Peroxisomen abgebaut, nicht in Mitochondrien“ ist zu absolut; auch Mitochondrien und Cytosol bauen H₂O₂ ab (z. B. über Glutathionperoxidase), typisch für das Peroxisom ist die Katalase.",
+    "Bereich 7: Der untere Pfeil zeigt von den Mitochondrien zum Peroxisom, obwohl die angekürzten Fettsäuren vom Peroxisom zu den Mitochondrien weitergegeben werden; die Pfeilrichtung ist unklar.",
+    "Bereich 7: Die Abbildung unter „Glattes ER“ zeigt gestapelte, gebogene Zisternen und sieht eher wie ein Golgi-Apparat aus.",
+    "Bereich 8: Tippfehler „unterschießliche“ statt „unterschiedliche“; Bereich 9: Tippfehler „stelbstständig“ statt „selbstständig“."
+   ]
+  },
+  {
+   "id": "zellmembran-2",
+   "goodie": "Zellorganellen",
+   "datei": "2a5a20d8-7147-4a2e-8726-b868aaf89188_5540598A-37A8-45A5-80B5-40CEF40B3CBA.png",
+   "titel": "Zellmembran: Aufbau, Transport & Mechanismen",
+   "fach": "Biologie · Zellbiologie",
+   "kurz": "Fluid-Mosaik-Modell der Zellmembran mit allen Bauteilen, Semipermeabilität, Überblick und Vergleichstabelle der Transportarten (Diffusion, erleichterte Diffusion, Osmose, aktiver Transport mit Na⁺/K⁺-Pumpe, Endo- und Exocytose), Prüfungsfallen, Eselsbrücken und klinische Bezüge.",
+   "stichworte": [
+    "Zellmembran",
+    "Plasmamembran",
+    "Biomembran",
+    "Fluid-Mosaik-Modell",
+    "Phospholipid-Doppelschicht",
+    "Lipiddoppelschicht",
+    "hydrophil",
+    "hydrophob",
+    "Cholesterin",
+    "Glykoproteine",
+    "Kanalprotein",
+    "Carrierprotein",
+    "peripheres Protein",
+    "Semipermeabilität",
+    "selektiv durchlässig",
+    "Diffusion",
+    "erleichterte Diffusion",
+    "Osmose",
+    "passiver Transport",
+    "aktiver Transport",
+    "Konzentrationsgradient",
+    "Natrium-Kalium-Pumpe",
+    "Na⁺/K⁺-Pumpe",
+    "Na⁺/K⁺-ATPase",
+    "ATP",
+    "Endocytose",
+    "Exocytose",
+    "Vesikeltransport",
+    "Lipophilie"
+   ],
+   "ausloeser": [
+    "Fragen zum Aufbau der Membran oder zum Fluid-Mosaik-Modell",
+    "Verwechslung passiver und aktiver Transport oder Kanal- und Carrierprotein",
+    "Fragen zur Osmose und in welche Richtung Wasser strömt",
+    "Fragen zur Natrium-Kalium-Pumpe (3 Na⁺ raus, 2 K⁺ rein)",
+    "Welche Moleküle die Membran frei passieren können"
+   ],
+   "bereiche": [
+    {
+     "nr": 1,
+     "titel": "Aufbau der Zellmembran (Fluid-Mosaik-Modell)",
+     "lage": {
+      "x": 0.023,
+      "y": 0.075,
+      "breite": 0.648,
+      "hoehe": 0.252
+     },
+     "inhalt": "3D-Zeichnung, oben Extrazellulärer Raum. Phospholipid-Doppelschicht: hydrophiler Kopf (wasserliebend), hydrophober Schwanz (wasserabweisend) · Cholesterin sorgt für Stabilität und reguliert die Fluidität · Kanalprotein bildet Poren für Ionen und wasserlösliche Moleküle · Carrierprotein bindet Stoffe und ändert Form für Transport · peripheres Protein an der Oberfläche, für Struktur & Enzyme · Glykoproteine: Zell-Erkennung, Kommunikation."
+    },
+    {
+     "nr": 6,
+     "titel": "Semipermeabilität",
+     "lage": {
+      "x": 0.682,
+      "y": 0.075,
+      "breite": 0.293,
+      "hoehe": 0.252
+     },
+     "inhalt": "Selektiv durchlässig. Kleine, unpolare Moleküle (z. B. O₂, CO₂) passieren leicht · große, polare oder geladene Moleküle benötigen Transportproteine · sehr große Moleküle (z. B. Proteine) passieren nicht."
+    },
+    {
+     "nr": 2,
+     "titel": "Transportarten – Überblick",
+     "lage": {
+      "x": 0.023,
+      "y": 0.333,
+      "breite": 0.476,
+      "hoehe": 0.144
+     },
+     "inhalt": "Schema Transport durch die Zellmembran, drei Äste: passiver Transport (ohne Energie) – entlang des Konzentrationsgradienten · aktiver Transport (mit Energie/ATP) – gegen den Konzentrationsgradienten · Vesikeltransport (mit Energie/ATP) – durch Vesikel in oder aus der Zelle."
+    },
+    {
+     "nr": 4,
+     "titel": "Aktiver Transport (mit ATP)",
+     "lage": {
+      "x": 0.512,
+      "y": 0.333,
+      "breite": 0.463,
+      "hoehe": 0.175
+     },
+     "inhalt": "Gegen den Konzentrationsgradienten – benötigt Energie (ATP). Beispiel Natrium-Kalium-Pumpe: Zeichnung mit 3 Na⁺, 2 K⁺, ATP → ADP + Pᵢ. Transport gegen den Gradienten · 3 Na⁺ raus, 2 K⁺ rein · wichtig für Zellpotenzial, Nervenleitung und Zellvolumen."
+    },
+    {
+     "nr": 3,
+     "titel": "Passiver Transport (ohne Energie)",
+     "lage": {
+      "x": 0.023,
+      "y": 0.484,
+      "breite": 0.476,
+      "hoehe": 0.181
+     },
+     "inhalt": "Diffusion: direkte Diffusion durch die Lipiddoppelschicht · erleichterte Diffusion: Transport über Kanal- oder Carrierproteine · Osmose (H₂O): Wassertransport durch semipermeable Membran · alle drei entlang des Gradienten. Merke: Passiver Transport benötigt KEINE Energie (ATP). Immer entlang des Gradienten!"
+    },
+    {
+     "nr": 5,
+     "titel": "Vesikeltransport (mit ATP)",
+     "lage": {
+      "x": 0.512,
+      "y": 0.515,
+      "breite": 0.463,
+      "hoehe": 0.15
+     },
+     "inhalt": "Endocytose: Aufnahme von Stoffen in die Zelle – Membran stülpt sich ein, Vesikel entsteht. Exocytose: Abgabe von Stoffen nach außen – Vesikel verschmilzt mit der Membran und entleert Inhalt."
+    },
+    {
+     "nr": 7,
+     "titel": "Vergleich der Transportarten",
+     "lage": {
+      "x": 0.023,
+      "y": 0.671,
+      "breite": 0.476,
+      "hoehe": 0.157
+     },
+     "inhalt": "Tabelle Prozess, Energie, Richtung, Beispiel: Diffusion – ✗ – mit Gradient – O₂, CO₂ · erleichterte Diffusion (Kanal/Carrier) – ✗ – mit Gradient – Glukose (Carrier) · aktiver Transport – ✓ – gegen Gradient – Na⁺/K⁺-Pumpe · Endocytose – ✓ – nach innen – Aufnahme von Makromolekülen · Exocytose – ✓ – nach außen – Ausschüttung von Hormonen."
+    },
+    {
+     "nr": 8,
+     "titel": "Häufige Prüfungsfallen",
+     "lage": {
+      "x": 0.512,
+      "y": 0.671,
+      "breite": 0.463,
+      "hoehe": 0.157
+     },
+     "inhalt": "Diffusion ≠ aktiver Transport: Diffusion verläuft immer entlang, aktiver Transport gegen den Gradienten · Osmose = nur Wasser! Nur Wasser diffundiert osmotisch, gelöste Stoffe nicht · aktiver Transport braucht immer ATP: ohne Energie kein Transport gegen den Gradienten · Carrier vs. Kanalproteine nicht verwechseln: Kanal bildet Poren, Carrier bindet Stoff und ändert Form · semipermeabel ≠ komplett durchlässig: die Membran lässt nur bestimmte Stoffe passieren."
+    },
+    {
+     "nr": 9,
+     "titel": "Eselsbrücken",
+     "lage": {
+      "x": 0.023,
+      "y": 0.834,
+      "breite": 0.476,
+      "hoehe": 0.125
+     },
+     "inhalt": "„Passiv = mit dem Strom treiben.“ Immer entlang des Gradienten, ohne Energie · „Aktiv = gegen den Strom schwimmen (ATP nötig).“ Gegen den Gradient = nur mit Energie möglich · „Osmose = Wasser will Gleichgewicht.“ Wasser wandert dorthin, wo es weniger gelöste Stoffe gibt · „Membran = Türsteher der Zelle.“ Sie entscheidet, wer rein darf und wer nicht."
+    },
+    {
+     "nr": 10,
+     "titel": "Klinische Bezüge",
+     "lage": {
+      "x": 0.512,
+      "y": 0.834,
+      "breite": 0.463,
+      "hoehe": 0.125
+     },
+     "inhalt": "Natrium-Kalium-Pumpe: wichtig für Nervenleitung, Muskelkontraktion und Zellvolumen · Wirkstoffe: müssen oft Membran passieren → Lipophilie entscheidend! · Wasserhaushalt: Störungen der Osmose führen zu Zellschwellung oder Schrumpfung."
+    },
+    {
+     "nr": "10b",
+     "titel": "Merksatz-Leiste",
+     "lage": {
+      "x": 0.023,
+      "y": 0.965,
+      "breite": 0.951,
+      "hoehe": 0.026
+     },
+     "inhalt": "Zellmembran verstehen statt auswendig lernen – MedAT ready!"
+    }
+   ],
+   "pruefungsfallen": [
+    "Bei der Osmose wandert Wasser zur Seite mit der höheren Konzentration gelöster Stoffe",
+    "Na⁺/K⁺-Pumpe: 3 Na⁺ nach außen, 2 K⁺ nach innen, unter ATP-Verbrauch",
+    "Erleichterte Diffusion braucht Transportproteine, aber keine Energie",
+    "Kanal bildet Poren, Carrier bindet den Stoff und ändert seine Form"
+   ],
+   "hinweise": [
+    "Bereich 9 enthält einen fachlichen Fehler bei der Osmose (siehe pruefhinweise); LernBlick erklärt die Richtung beim Zeigen dieses Bereichs richtig."
+   ],
+   "pruefhinweise": [
+    "Bereich 9: Fehler bei der Osmose-Eselsbrücke – Wasser wandert nicht dorthin, wo es weniger gelöste Stoffe gibt, sondern zur Seite mit mehr gelösten Stoffen (höhere Osmolarität, weniger freies Wasser).",
+    "Bereich 4: In der Zeichnung der Natrium-Kalium-Pumpe zeigen die Pfeile für 3 Na⁺ und 2 K⁺ beide in dieselbe Richtung nach oben, obwohl laut Text Na⁺ hinaus- und K⁺ hineintransportiert wird.",
+    "Bereich 8 (und Bereich 2): „Aktiver Transport braucht immer ATP“ gilt nur für primär aktiven Transport; sekundär aktiver Transport (z. B. Na⁺-Glukose-Symport) nutzt einen Ionengradienten statt direkt ATP – richtig wäre „braucht immer Energie“."
    ]
   }
  ]

@@ -2826,9 +2826,14 @@ const normWort = (x) => String(x || "").toLowerCase().replace(/[⁺⁻⁰¹²³�
 function passendeBlaetter(text) {
   const t = " " + normWort(text) + " ";
   if (t.trim().length < 3) return [];
+  const tok = t.trim().split(" ").filter((w) => w.length >= 5);
   return BLAETTER.map((b) => {
     let p = 0;
-    [b.titel, ...(b.stichworte || [])].forEach((w) => { const n = normWort(w); if (n.length >= 3 && t.includes(n.length <= 4 ? " " + n + " " : n)) p += n.length > 8 ? 2 : 1; });
+    [b.titel, ...(b.stichworte || [])].forEach((w) => {
+      const n = normWort(w); if (n.length < 2) return;
+      if (t.includes(n.length <= 4 ? " " + n + " " : n)) p += n.length >= 3 ? 2 : 1;
+      else if (tok.some((x) => n.split(" ").some((y) => y.length >= 5 && (y.startsWith(x) || x.startsWith(y))))) p += 1;
+    });
     return { b, p };
   }).filter((x) => x.p >= 2).sort((a, c) => c.p - a.p).slice(0, 2).map((x) => x.b);
 }
@@ -4284,7 +4289,7 @@ function init() {
   setInterval(() => { const a = document.getElementById("screen-auth"); $("fab").style.display = a && visible(a) ? "none" : ""; }, 700);
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
-window.LernBlick = { open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), showSummary: (d) => openSummary(d) };
+window.LernBlick = { open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), blaetter: async (q) => { await ladeBlaetter(); return passendeBlaetter(q).map((b) => b.id); }, showSummary: (d) => openSummary(d) };
 // Nur für den automatischen Prüfstand (wird im normalen Betrieb nie gesetzt)
 if (window.__LB_BENCH) window.LernBlick._bench = {
   state: () => ({ turns: cur.turns.length, busy: lb.busy, boards: cur.boards.map((b) => ({ titel: b.titel || "", teile: b.teile || [], svg: !!b.svg })), answerBoards, sents: narr ? narr.sents : [], boardOf: narr ? narr.boardOf : [], segs: answerSegs, anchors: Object.keys(anchors), imgTeile: [...document.querySelectorAll("#lb-imgdraw [data-teil]")].flatMap((e) => e.getAttribute("data-teil").split(/\s+/)), status: $("status").textContent }),
