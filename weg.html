@@ -66,8 +66,8 @@
 
   const NEU = `
     <ul class="neu">
-      <li><div class="ic">🧑‍🏫</div><div><b>LernBlick – dein Tutor an der Tafel</b><span>Er erklärt mit Stimme und zeichnet live: Operon, Synapse, Hormonachsen, Verdünnungen – Schritt für Schritt.</span></div></li>
-      <li><div class="ic">🎯</div><div><b>Erklärt genau deinen Denkfehler</b><span>Nicht allgemein, sondern: „Du bist davon ausgegangen, dass … – darum stimmt es nicht.“</span></div></li>
+      <li><div class="ic">🧑‍🏫</div><div><b>LernBlick – deine Fehler an der Tafel erklärt</b><span>Mit Stimme und live gezeichnet: Operon, Synapse, Hormonachsen, Verdünnungen – Schritt für Schritt.</span></div></li>
+      <li><div class="ic">🎯</div><div><b>Genau dein Denkfehler</b><span>Nicht allgemein, sondern: „Du bist davon ausgegangen, dass … – darum stimmt es nicht.“</span></div></li>
       <li><div class="ic">📸</div><div><b>Foto hochladen</b><span>Aufgabe aus dem Buch oder Mitschrift abfotografieren – LernBlick erklärt sie dir.</span></div></li>
       <li><div class="ic">📊</div><div><b>Fehler-Analyse nach jeder Prüfung</b><span>Welche Themen dir noch fehlen – mit maßgeschneidertem Erklärvideo pro Thema.</span></div></li>
       <li><div class="ic">🎬</div><div><b>Dein Lernarchiv</b><span>Jede Erklärung bleibt gespeichert: nochmal ansehen, anhören, zusammenfassen, ausdrucken.</span></div></li>
@@ -138,9 +138,10 @@
   function weiterFrage() {
     zeig(`
       <div class="gross">💪</div>
-      <h2>Schön, dass du weitermachst!</h2>
-      <p style="text-align:center">Der MedAT Trainer hat ein neues Gesicht – und einen Tutor, der dir an der Tafel erklärt, was du falsch gemacht hast. Teste 14 Tage lang alles kostenlos, ohne Zahlungsdaten.</p>
+      <h2>Schön, dass du dabei bleibst!</h2>
+      <p style="text-align:center">Der MedAT Trainer hat ein neues Gesicht – und erklärt dir jetzt an der Tafel genau den Fehler, den du gemacht hast. Teste 14 Tage lang alles kostenlos, ohne Zahlungsdaten.</p>
       <div class="box"><h3>Das ist neu</h3>${NEU}</div>
+      <div class="box"><h3>Was sich ändert</h3><p style="font-size:.9rem;margin:0">Die alten Zugänge gibt es nicht mehr. Ab jetzt gibt es den MedAT Trainer als <b>Monatsabo um 14,90 €</b> (monatlich kündbar) oder als <b>MedAT-Pass um 99 €</b> bis zum MedAT 2027. Einloggen kannst du dich weiterhin – ohne Abo oder Probezeit bleibt die App aber gesperrt.</p></div>
       <label class="haken"><input type="checkbox" id="mails"> <span>Ja, ich möchte gelegentlich Lerntipps und Neuigkeiten zum MedAT Trainer per E-Mail bekommen. Abmelden geht jederzeit.</span></label>
       <button class="knopf gelb" id="start">14 Tage Probezeit starten</button>`);
     document.getElementById('start').onclick = async (ev) => {
