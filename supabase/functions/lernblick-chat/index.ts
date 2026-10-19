@@ -114,7 +114,7 @@ Deno.serve(async (req: Request) => {
       system_instruction: { parts: [{ text: system_prompt + GRUNDREGEL }] },
       contents,
       // kurz: schnelle Analyse (Denkfehler, Gesprächsaufhänger) – ohne Nachdenk-Phase, wenige Wörter
-      generationConfig: kurz ? { temperature: 0.3, maxOutputTokens: 800, thinkingConfig: { thinkingBudget: 0 } } : { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
+      generationConfig: kurz ? { temperature: 0.3, maxOutputTokens: 4000, thinkingConfig: { thinkingBudget: 0 } } : { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
     });
 
     let lastError = "";
