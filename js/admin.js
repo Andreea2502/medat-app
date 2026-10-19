@@ -360,6 +360,7 @@ const Admin = {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Simulationen <span class="adm-tab-badge">${this._simulations.length}</span>
         </button>
+        <button class="adm-tab" data-tab="lernfilme">🎬 Erklärungen</button>
         <button class="adm-tab" data-tab="goodies">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
           Cheat Sheets
@@ -723,6 +724,9 @@ const Admin = {
       </div>
 
       <!-- GOODIES TAB (delegated to AdminGoodies module) -->
+      <!-- LERNBLICK-ERKLÄRUNGEN ALLER NUTZER (Qualitätskontrolle, Andreea 19.10.2026) -->
+      <div id="adm-tab-lernfilme" class="adm-tab-content"><div class="adm-card"><div class="adm-card-header">Alle LernBlick-Erklärungen</div><div id="adm-lernfilme">Wird geladen …</div></div></div>
+
       <div id="adm-tab-goodies" class="adm-tab-content">
         <div id="agd-root">
           <div style="text-align:center;padding:2rem;color:var(--text-muted)">Klicke den "Cheat Sheets"-Tab, um Goodies zu verwalten.</div>
@@ -904,6 +908,23 @@ const Admin = {
   },
 
   // ===== EVENT BINDINGS =====
+  // Alle gespeicherten Erklärungen (Tafeln + Stimme) aller Nutzer: ansehen, prüfen, ins Studio
+  async _renderLernfilme() {
+    const box = document.getElementById('adm-lernfilme'); if (!box) return;
+    const esc = (t) => String(t || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    try {
+      const { data, error } = await Auth.supabase.rpc('admin_lernfilme', { p_limit: 300 });
+      if (error) throw error;
+      this._lernfilme = data || [];
+      if (!this._lernfilme.length) { box.innerHTML = '<p style="color:var(--text-muted)">Noch keine Erklärungen gespeichert.</p>'; return; }
+      box.innerHTML = `<div style="overflow:auto"><table class="adm-table"><thead><tr><th>Datum</th><th>Nutzer</th><th>Thema</th><th>Frage</th><th></th></tr></thead><tbody>${this._lernfilme.map((f, i) => `<tr>
+        <td style="white-space:nowrap">${new Date(f.created_at).toLocaleString('de-AT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+        <td>${esc(f.email)}</td><td>${esc((f.title || '').replace(/^🎬\s*/, ''))}</td><td style="max-width:320px">${esc((f.frage_text || '').slice(0, 140))}</td>
+        <td style="white-space:nowrap"><button class="btn-secondary" data-lf="${i}">▶ Ansehen</button></td></tr>`).join('')}</tbody></table></div>`;
+      box.querySelectorAll('[data-lf]').forEach((b) => (b.onclick = () => { const f = this._lernfilme[+b.dataset.lf]; if (window.LernBlick && LernBlick.film) LernBlick.film(f.conversation_data); }));
+    } catch (e) { box.innerHTML = `<p style="color:#dc2626">Konnte nicht geladen werden: ${esc(e.message || e)}</p>`; }
+  },
+
   _bindAdminEvents() {
     // Tab switching
     document.querySelectorAll('.adm-tab').forEach(tab => {
@@ -913,6 +934,7 @@ const Admin = {
         tab.classList.add('active');
         document.getElementById('adm-tab-' + tab.dataset.tab)?.classList.add('active');
         // Lazy-load goodies admin when its tab is opened
+        if (tab.dataset.tab === 'lernfilme') this._renderLernfilme();
         if (tab.dataset.tab === 'goodies' && typeof AdminGoodies !== 'undefined') {
           AdminGoodies.render();
         }

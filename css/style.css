@@ -9751,3 +9751,23 @@ body.hide-nav .slide-menu-overlay { display: none !important; }
 html.ohne-cheatsheets [onclick*="screen-goodies"], html.ohne-cheatsheets #snav-goodies, html.ohne-cheatsheets #home-goodies-teaser { display: none !important; }
 html.ohne-cheatsheets .home-quick-grid { display: flex; }
 html.ohne-cheatsheets .home-quick-grid > .home-quick { flex: 1 1 0; min-width: 0; }
+
+/* Fehler-Analyse auf dem Ergebnis-Bildschirm (Andreea, 19.10.2026) */
+.fa-box { margin: 1.2rem auto; max-width: 720px; display: grid; gap: .7rem; text-align: left; }
+.fa-box[hidden] { display: none; }
+.fa-titel { margin: 0; font-size: 1.1rem; }
+.fa-muster { margin: 0; color: var(--text-muted); line-height: 1.5; }
+.fa-themen { display: grid; gap: .7rem; }
+.fa-thema { background: var(--card-bg, #fff); border: 1px solid var(--border, #e5e2da); border-left: 4px solid #e11d48; border-radius: 14px; padding: .9rem 1rem; display: grid; gap: .45rem; }
+.fa-kopf { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+.fa-zahl { font-size: .8rem; color: var(--text-muted); white-space: nowrap; }
+.fa-df { margin: 0; color: #b91c1c; font-weight: 600; line-height: 1.45; }
+.fa-merke { margin: 0; line-height: 1.45; }
+.fa-fragen summary { cursor: pointer; font-size: .85rem; color: var(--text-muted); }
+.fa-frage { border-top: 1px dashed var(--border, #e5e2da); padding: .5rem 0; font-size: .88rem; }
+.fa-frage p { margin: .15rem 0; }
+.fa-falsch { color: #b91c1c; } .fa-richtig { color: #15803d; }
+.fa-video { justify-self: start; }
+.fa-hinweis { margin: 0; font-size: .82rem; color: var(--text-muted); }
+.fa-video { border: 0; border-radius: 12px; padding: .6rem 1rem; background: #1a1a2e; color: #f5c542; font-weight: 700; font-size: .92rem; cursor: pointer; }
+.fa-video:hover { filter: brightness(1.15); }

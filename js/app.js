@@ -4067,6 +4067,8 @@ const App = {
           b.disabled = true;
         });
         if (!isCorrect) btn.classList.add('incorrect');
+        // Für die Fehler-Analyse am Ende: was stand zur Wahl, was wurde gewählt, was war richtig
+        this._antwortInfo = { optionen: indexed.map((it, k) => `${String.fromCharCode(65 + k)}) ${it.opt}`).join('\n'), gewaehlt: `${String.fromCharCode(65 + idx)}) ${indexed[idx].opt}`, richtig: `${String.fromCharCode(65 + newCorrectIdx)}) ${indexed[newCorrectIdx].opt}` };
 
         this.handleAnswer(isCorrect, data.explanation || '');
       };
@@ -4078,6 +4080,14 @@ const App = {
     const timeTaken = Math.round((Date.now() - this.questionStartTime) / 1000);
     if (correct) this.score++;
     this.results.push({ correct, timeTaken });
+
+    // Alle Fehler (auch Simulation/Prüfung) für die Fehler-Analyse auf dem Ergebnis-Bildschirm
+    if (!this.fehlerListe || this.results.length === 1) this.fehlerListe = [];
+    if (!correct) {
+      const fq = this.questions[this.currentIndex], fd = (fq && fq.content) || {}, ai = this._antwortInfo || {};
+      this.fehlerListe.push({ frage: fd.question || (fd.premise1 ? `${fd.premise1} ${fd.premise2 || ''}` : '') || fd.word || (fd.sequence ? String(fd.sequence) : ''), optionen: ai.optionen || '', gewaehlt: ai.gewaehlt || '', richtig: ai.richtig || this._getCorrectAnswerText(fd) || '', erklaerung: String(explanation || fd.explanation || '').slice(0, 900), typ: fq ? fq.type : '', untertyp: fq ? (fq.subtype || '') : '' });
+    }
+    this._antwortInfo = null;
 
     // Track wrong answers for infographic generation at the end
     if (!correct && this.mode === 'practice') {
@@ -4596,6 +4606,7 @@ const App = {
       Nudge.maybeShowOnResult(pct, wrongCount, topicLabel);
     }
 
+    if (typeof FehlerAnalyse !== 'undefined') FehlerAnalyse.zeige(this.fehlerListe || [], this.mode);
     this.showScreen('screen-result');
   },
 
