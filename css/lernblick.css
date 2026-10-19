@@ -394,3 +394,24 @@ html.lb-pruefung #lb-fab, html.lb-pruefung #lb-wrong-btn, html.lb-pruefung #as-f
 @keyframes lb-uhr { to { transform: rotate(360deg); } }
 .lb-wait-status { font-size: 20px; font-weight: 600; color: var(--lb-ink, #1a1a2e); animation: lb-satz .5s ease; }
 @media (prefers-reduced-motion: reduce) { .lb-uhr-gross, .lb-uhr-klein { animation: none; } }
+#lernblick-root text[data-teil*="korrektur"], #lernblick-root text[teil*="korrektur"] { paint-order: stroke; stroke: #ffffff; stroke-width: 7px; stroke-linejoin: round; }
+
+/* Zu einer Stelle springen */
+.lb-stellen { max-height: 42vh; overflow: auto; margin: 0 auto 8px; width: min(760px, 100%); background: #fff; border: 1px solid #e6dfd2; border-radius: 16px; padding: 10px 12px; box-shadow: 0 10px 30px rgba(26,26,46,0.12); text-align: left; }
+.lb-stellen-kopf { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.lb-stellen-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.lb-stellen-tafel { font-size: 12px; font-weight: 700; color: #6b58d6; text-transform: uppercase; letter-spacing: .05em; margin: 8px 0 2px; }
+.lb-stellen-satz { width: 100%; text-align: left; background: none; border: 0; border-radius: 10px; padding: 7px 9px; font: inherit; font-size: 14px; color: #1a1a2e; cursor: pointer; }
+.lb-stellen-satz:hover, .lb-stellen-satz:focus-visible { background: #f3efff; outline: none; }
+.lb-stellen-satz.jetzt { background: #fdf3d7; font-weight: 600; }
+
+/* Selbst rechnen */
+.lb-schreib { position: fixed; inset: 0; z-index: 2147483000; background: #f5f0e8; display: flex; flex-direction: column; }
+.lb-schreib[hidden] { display: none; }
+.lb-schreib-kopf { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: #fff; border-bottom: 1px solid #e6dfd2; }
+.lb-schreib-auf { font-weight: 600; font-size: 15px; color: #1a1a2e; flex: 1 1 260px; }
+.lb-schreib-werkzeug { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.lb-schreib-werkzeug > button:not(.lb-send):not(.lb-ghost) { width: 44px; height: 44px; border-radius: 12px; border: 1px solid #e6dfd2; background: #fff; font-size: 18px; cursor: pointer; }
+.lb-schreib-werkzeug > button[aria-pressed="true"] { background: #fdf3d7; border-color: #e6a817; }
+.lb-schreib-trenn { width: 1px; height: 28px; background: #e6dfd2; margin: 0 4px; }
+#lb-schreib-flaeche { flex: 1; width: 100%; touch-action: none; cursor: crosshair; display: block; }
