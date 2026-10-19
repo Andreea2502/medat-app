@@ -9771,3 +9771,33 @@ html.ohne-cheatsheets .home-quick-grid > .home-quick { flex: 1 1 0; min-width: 0
 .fa-hinweis { margin: 0; font-size: .82rem; color: var(--text-muted); }
 .fa-video { border: 0; border-radius: 12px; padding: .6rem 1rem; background: #1a1a2e; color: #f5c542; font-weight: 700; font-size: .92rem; cursor: pointer; }
 .fa-video:hover { filter: brightness(1.15); }
+
+/* ===== Neues Bezahlmodell: Konto-Seite, Sperre, Credits (Andreea, 19.10.2026) ===== */
+.abo-seite { display: grid; gap: 1rem; max-width: 860px; margin: 0 auto; padding: .5rem 0 2rem; }
+.abo-kopf { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: flex-start; }
+.abo-email { font-size: .85rem; color: var(--text-muted); margin-bottom: .3rem; }
+.abo-status { padding: .55rem .8rem; border-radius: 10px; font-size: .92rem; background: #f1f5f9; }
+.abo-status.ok { background: #dcfce7; color: #14532d; } .abo-status.probe { background: #fef3c7; color: #78350f; } .abo-status.aus { background: #fee2e2; color: #7f1d1d; }
+.abo-credits { text-align: right; } .abo-credits b { font-size: 1.6rem; } .abo-credits small { display: block; color: var(--text-muted); font-size: .78rem; }
+.abo-probe { background: linear-gradient(135deg, #fff7d6, #ffe9a8); border: 2px solid #f0c040; border-radius: 16px; padding: 1rem 1.1rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.abo-karten { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.abo-karte { position: relative; background: var(--card-bg, #fff); border: 1px solid var(--border, #e5e2da); border-radius: 18px; padding: 1.3rem 1.2rem 1.1rem; display: grid; gap: .4rem; align-content: start; }
+.abo-karte h3 { margin: 0; font-size: 1.1rem; }
+.abo-empfohlen { border: 2px solid #1a1a2e; box-shadow: 0 10px 30px rgba(26,26,46,.12); }
+.abo-band { position: absolute; top: -12px; left: 1rem; background: #1a1a2e; color: #f5c542; font-size: .72rem; font-weight: 800; padding: .25rem .6rem; border-radius: 999px; }
+.abo-preis { font-size: 2rem; font-weight: 900; } .abo-zusatz { color: var(--text-muted); font-size: .85rem; }
+.abo-karte ul { list-style: none; padding: 0; margin: .4rem 0 .6rem; display: grid; gap: .3rem; font-size: .92rem; }
+.abo-knopf { border: 0; border-radius: 12px; padding: .75rem 1rem; background: #1a1a2e; color: #f5c542; font-weight: 800; font-size: .95rem; cursor: pointer; }
+.abo-knopf.zweit { background: #fff; color: #1a1a2e; border: 1px solid #1a1a2e; }
+.abo-knopf:disabled { opacity: .5; cursor: default; }
+.abo-link { border: 0; background: none; color: var(--primary, #4f46e5); font-weight: 700; cursor: pointer; padding: .3rem 0; font-size: .9rem; }
+.abo-nachkauf { border: 1px dashed var(--border, #e5e2da); border-radius: 16px; padding: 1rem 1.1rem; }
+.abo-nachkauf h3 { margin: 0 0 .3rem; font-size: 1rem; } .abo-nachkauf p { margin: 0 0 .7rem; color: var(--text-muted); font-size: .88rem; }
+.abo-packs { display: flex; gap: .6rem; flex-wrap: wrap; }
+.abo-fuss p { margin: .3rem 0; font-size: .8rem; color: var(--text-muted); }
+.abo-sperre { position: fixed; inset: 0; z-index: 9600; display: grid; place-items: center; padding: 1rem; background: rgba(21, 18, 43, .55); backdrop-filter: blur(6px) grayscale(.8); -webkit-backdrop-filter: blur(6px) grayscale(.8); }
+.abo-sperre[hidden] { display: none; }
+.abo-sperre-karte { background: #fff; border-radius: 20px; max-width: 460px; width: 100%; padding: 1.6rem 1.4rem; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.3); display: grid; gap: .6rem; }
+.abo-sperre-karte h2 { margin: 0; font-size: 1.25rem; } .abo-sperre-karte p { margin: 0; color: #555; line-height: 1.5; }
+.abo-sperre-icon { font-size: 2.2rem; }
+.abo-sperre-knoepfe { display: grid; gap: .5rem; margin-top: .4rem; }

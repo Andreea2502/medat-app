@@ -93,9 +93,10 @@ async function ki(system, messages, kurz) {
   const resp = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/lernblick-chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${await token()}`, apikey: CONFIG.SUPABASE_ANON_KEY },
-    body: JSON.stringify({ system_prompt: system, messages, kurz: !!kurz }),
+    body: JSON.stringify({ system_prompt: system, messages, kurz: !!kurz, abrechnung: "credits" }),
   });
   const d = await resp.json().catch(() => ({}));
+  if (resp.status === 402 && typeof Abo !== "undefined") Abo.creditsLeer();   // KI-Credits aufgebraucht
   if (!resp.ok) throw new Error(d.error || `Fehler ${resp.status}`);
   return String(d.response || "");
 }
@@ -488,9 +489,10 @@ async function zeichneBeschriftung(thema, b, mitWoertern) {
     : `Keine Überschrift. In der Mitte groß: ${b.objekt}. ${begr.length} kleine leere Kästchen an dünnen Linien, in jedem Kästchen NUR eine Nummer: ${begr.map((x, i) => `${i + 1} zeigt auf ${x}`).join("; ")}. In den Kästchen stehen NUR die Nummern 1 bis ${begr.length}, KEINE Wörter. Sonst kein Text im Bild.`;
   const resp = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/lernblick-bild`, {
     method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${await token()}`, apikey: CONFIG.SUPABASE_ANON_KEY },
-    body: JSON.stringify({ thema, art_label: "Beschriftungsbild", art_regeln: "- Ein großer Gegenstand in der Mitte, fachlich richtig, nichts daneben.\n- Beschriftungsfelder waagerecht, gleichmäßig links und rechts, dünne Linien zur gemeinten Stelle.\n- Viel Luft.", beschreibung, orientation: "querformat", stil_text: "Style: clean scientific textbook illustration, precise thin outlines, soft flat colors, white background. Print-friendly." }),
+    body: JSON.stringify({ abrechnung: "credits", thema, art_label: "Beschriftungsbild", art_regeln: "- Ein großer Gegenstand in der Mitte, fachlich richtig, nichts daneben.\n- Beschriftungsfelder waagerecht, gleichmäßig links und rechts, dünne Linien zur gemeinten Stelle.\n- Viel Luft.", beschreibung, orientation: "querformat", stil_text: "Style: clean scientific textbook illustration, precise thin outlines, soft flat colors, white background. Print-friendly." }),
   });
   const d = await resp.json();
+  if (resp.status === 402 && typeof Abo !== "undefined") Abo.creditsLeer();
   if (!d.image_base64) throw new Error(d.error || "kein Bild");
   return `data:${d.mime_type || "image/jpeg"};base64,${d.image_base64}`;
 }

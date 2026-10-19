@@ -746,6 +746,12 @@ const App = {
   renderKonto() {
     const container = document.getElementById('konto-container');
     if (!container) return;
+    // Neues Modell: Monatsabo, MedAT-Pass, Credits (js/abo.js)
+    if (typeof Abo !== 'undefined' && Abo.NEUES_MODELL) {
+      Abo.renderKonto(container);
+      Abo.laden(true).then(() => Abo.renderKonto(container));
+      return;
+    }
 
     // NEUE Tier-Namen seit Premium-Launch 2026-05-09:
     //   free | basic/pro (Legacy-Bestand) | premium (€29,90, einziger verkäuflicher Plan)

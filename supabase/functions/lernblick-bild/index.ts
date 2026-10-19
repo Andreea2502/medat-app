@@ -44,11 +44,27 @@ const ORIENT: Record<string, [string, string]> = {
 };
 const TEXT_MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
 
+
+// ---- KI-Credits (neues Modell, Andreea 19.10.2026) ----
+// Abgebucht wird, wenn die neue App es verlangt (abrechnung: "credits") oder MEDAT_CREDITS_PFLICHT=1 gesetzt ist.
+// Admins zahlen nichts. Bei einem Datenbankfehler wird nicht blockiert.
+const KI_ADMINS = ["office@ai-guide.at", "andreea.negru@gmx.at"];
+async function kiAbbuchen(user: { id: string; email?: string }, menge: number, grund: string, verlangt: boolean): Promise<boolean> {
+  if (!(verlangt || Deno.env.get("MEDAT_CREDITS_PFLICHT") === "1") || KI_ADMINS.includes(user.email || "")) return true;
+  try {
+    const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data, error } = await db.rpc("ki_abbuchen", { p_user: user.id, p_menge: menge, p_grund: grund });
+    if (error) { console.error("ki_abbuchen", error.message); return true; }
+    return (data as number) >= 0;
+  } catch (e) { console.error("ki_abbuchen", e); return true; }
+}
+const CREDITS_LEER = { error: "Deine KI-Credits sind für diesen Monat aufgebraucht. Du kannst im Konto Credits nachkaufen.", code: "credits" };
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "Nur POST" }, 405);
   const t0 = Date.now();
-  let userId: string | null = null;
+  let userId: string | null = null, userEmail = "", abgebucht = false;
   try {
     const bt = req.headers.get("x-bench-token");
     const bench = !!bt && (await sha256(bt)) === BENCH_HASH;
@@ -58,7 +74,7 @@ Deno.serve(async (req: Request) => {
       const uc = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, { global: { headers: { Authorization: auth } } });
       const { data: { user }, error } = await uc.auth.getUser();
       if (error || !user) return json({ error: "Bitte melde dich an." }, 401);
-      userId = user.id;
+      userId = user.id; userEmail = user.email || "";
     }
     const key = Deno.env.get("GEMINI_API_KEY");
     if (!key) return json({ error: "GEMINI_API_KEY fehlt" }, 500);
@@ -67,6 +83,10 @@ Deno.serve(async (req: Request) => {
     if (b.pruefen && bench) return json({ openai: !!Deno.env.get("OPENAI_API_KEY"), modelle: Deno.env.get("LERNBLICK_BILD_MODELS") || DEFAULT_MODELS });   // nur nachsehen, ob der Schlüssel da ist – kostet nichts
     const thema = String(b.thema || "").trim().slice(0, 300);
     if (!thema) return json({ error: "Welches Thema?" }, 400);
+    if (!bench && userId) {
+      if (!(await kiAbbuchen({ id: userId, email: userEmail }, 8, "Bild", b.abrechnung === "credits"))) return json(CREDITS_LEER, 402);
+      abgebucht = b.abrechnung === "credits" || Deno.env.get("MEDAT_CREDITS_PFLICHT") === "1";
+    }
     const artLabel = String(b.art_label || "Lernposter").slice(0, 80);
     const artRegeln = String(b.art_regeln || "").slice(0, 2500);
     const stilText = String(b.stil_text || "Hand-drawn sketchnote style on cream paper, black felt-tip lines, small color accents.").slice(0, 900);
@@ -180,6 +200,7 @@ Antworte NUR mit der Beschreibung.`;
       } catch (e) { fehler.push(`${m}: ${String(e)}`); }
     }
     console.error("lernblick-bild: kein Bild", fehler.join(" | "));
+    if (abgebucht && userId && !KI_ADMINS.includes(userEmail)) { try { await createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!).rpc("ki_abbuchen", { p_user: userId, p_menge: -8, p_grund: "Bild fehlgeschlagen – zurück" }); } catch (_) { /* egal */ } }
     return json({ error: "Das Bild konnte gerade nicht erstellt werden. Bitte gleich nochmal versuchen.", inhalt: beschreibung, _fehler: fehler }, 502);
   } catch (e) {
     console.error("lernblick-bild", e);

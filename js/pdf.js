@@ -712,6 +712,17 @@ const PDFExport = {
   //  SIMULATION PDF (full MedAT-H style)
   // =========================================================
   async generateSimulationPDF() {
+    // Monatsabo: 2 Simulationen sofort, dann jede Woche eine weitere (Andreea, 19.10.2026)
+    if (typeof Abo !== 'undefined' && Abo.NEUES_MODELL && Abo.stand && Abo.stand.aktiv && (Abo.stand.art === 'monat' || Abo.stand.art === 'probe')) {
+      try {
+        const { count } = await Auth.supabase.from('user_simulations').select('id', { count: 'exact', head: true }).eq('user_id', Auth.currentUser.id).gte('created_at', Abo.stand.start);
+        if ((count || 0) >= Abo.simFreigabe(999)) {
+          const am = Abo.naechsteSimAm();
+          App.showToast(Abo.stand.art === 'probe' ? 'In der Probezeit sind 2 Simulationen dabei. Mit dem MedAT-Pass hast du alle sofort.' : `Deine nächste Simulation wird am ${am ? am.toLocaleDateString('de-AT') : 'nächsten Wochenstart'} freigeschaltet. Mit dem MedAT-Pass hast du alle sofort.`);
+          return;
+        }
+      } catch (e) { /* im Zweifel nicht blockieren */ }
+    }
     this._setLoading(true);
     this._showSimLoadingOverlay();
     let currentStep = 'Initialisierung';
@@ -3481,6 +3492,12 @@ const PDFExport = {
    * Also deducts credits for PDF pages.
    */
   async _saveWithPrompt(pdf, fileName, category, pdfType, questionCount) {
+    // Neues Modell (Andreea, 19.10.2026): höchstens 10 PDFs in 30 Tagen, jede Seite mit Wasserzeichen (E-Mail)
+    if (typeof Abo !== 'undefined' && Abo.NEUES_MODELL && Auth.isLoggedIn) {
+      const f = await Abo.pdfFreigabe(fileName);
+      if (!f.ok) { Abo.pdfGrenze(f); return; }
+      Abo.wasserzeichen(pdf);
+    }
     const pageCount = pdf.getNumberOfPages();
 
     // Credit check for PDF generation

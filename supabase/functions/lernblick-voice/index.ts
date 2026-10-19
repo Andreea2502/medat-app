@@ -131,6 +131,22 @@ async function elevenSpeak(text: string, lang: string): Promise<Response | null>
   return new Response(res.body, { status: 200, headers: { ...cors, "Content-Type": "audio/mpeg", "Cache-Control": "no-store", "X-Voice": "elevenlabs" } });
 }
 
+
+// ---- KI-Credits (neues Modell, Andreea 19.10.2026) ----
+// Abgebucht wird, wenn die neue App es verlangt (abrechnung: "credits") oder MEDAT_CREDITS_PFLICHT=1 gesetzt ist.
+// Admins zahlen nichts. Bei einem Datenbankfehler wird nicht blockiert.
+const KI_ADMINS = ["office@ai-guide.at", "andreea.negru@gmx.at"];
+async function kiAbbuchen(user: { id: string; email?: string }, menge: number, grund: string, verlangt: boolean): Promise<boolean> {
+  if (!(verlangt || Deno.env.get("MEDAT_CREDITS_PFLICHT") === "1") || KI_ADMINS.includes(user.email || "")) return true;
+  try {
+    const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data, error } = await db.rpc("ki_abbuchen", { p_user: user.id, p_menge: menge, p_grund: grund });
+    if (error) { console.error("ki_abbuchen", error.message); return true; }
+    return (data as number) >= 0;
+  } catch (e) { console.error("ki_abbuchen", e); return true; }
+}
+const CREDITS_LEER = { error: "Deine KI-Credits sind für diesen Monat aufgebraucht. Du kannst im Konto Credits nachkaufen.", code: "credits" };
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
   if (req.method !== "POST") return json({ error: "Nur POST erlaubt" }, 405);
@@ -141,10 +157,12 @@ Deno.serve(async (req: Request) => {
     const { data: { user }, error: userError } = await userClient.auth.getUser();
     if (userError || !user) return json({ error: "Bitte melde dich an." }, 401);
 
-    const { text, lang } = await req.json();
+    const { text, lang, abrechnung } = await req.json();
     const clean = String(text || "").replace(/\s+/g, " ").trim();
     if (!clean) return json({ error: "Kein Text" }, 400);
     if (clean.length > 6000) return json({ error: "Text zu lang (max. 6000 Zeichen)" }, 400);
+    // etwa 1 Credit pro 700 Zeichen (≈ 45 Sekunden Stimme ≈ 1 Cent)
+    if (!(await kiAbbuchen(user, Math.max(1, Math.ceil(clean.length / 700)), "Stimme", abrechnung === "credits"))) return json(CREDITS_LEER, 402);
 
     const order = PROVIDER === "elevenlabs" ? [() => elevenSpeak(clean, lang), () => geminiSpeak(clean, lang)] : [() => geminiSpeak(clean, lang), () => elevenSpeak(clean, lang)];
     for (const speak of order) { const r = await speak(); if (r) return r; }
