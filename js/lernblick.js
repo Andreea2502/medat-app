@@ -11,7 +11,7 @@ if (window.LernBlick) return;
 const BASE = (() => { try { return new URL("..", document.currentScript.src).href; } catch (e) { return "/"; } })();
 const $ = (id) => document.getElementById("lb-" + id);
 
-const LB_VERSION = "20261019h";
+const LB_VERSION = "20261019i";
 const EXTRAS = "\n\nMOLEKÜLE: Strukturformeln zeichnest du nie selbst mit Linien, sondern immer mit dem Baustein <molekuel> in der ZEICHNUNG (siehe unten). Ein Programm zeichnet daraus die exakte Strukturformel im Tafelstil.\n\nESELSBRÜCKEN: Wenn du eine Eselsbrücke oder einen Merksatz gibst, hänge NACH deinem Text zusätzlich eine Zeile an, damit sie gespeichert wird:\nESELSBRUECKE: Merksatz | wofür er gut ist\n\nTAFEL – du zeichnest wie eine Lehrkraft an der Tafel:\nTafel und Erklärung sind EINE Einheit. Alles, was du sagst (Zahlen, Kästchen, Flächen, Seiten, Formeln, Umformungen, Begriffe), steht auch an der Tafel. Nach Text und Tafel darf keine Frage offen bleiben. Wenn du von Kästchen sprichst, zeichne die Kästchen. Wenn du rechnest, schreib jeden Rechenschritt und jede Umformung als eigene Zeile an.\nZeichne, wann immer ein Bild hilft (Geometrie, Rechnen, Brüche, Zahlen, Graphen, Abläufe, Organe, Mechanismen). Format einer Tafel:\nZEICHNUNG:\n<svg viewBox='0 0 1000 600'> ... </svg>\nDer gesprochene Text zu einer Tafel steht direkt VOR ihrem ZEICHNUNG-Block. Abstand zum Rand mindestens 30.\n\nBAUKASTEN – benutze diese Bausteine, wo sie passen. Das Programm berechnet und zeichnet sie exakt, mit allen Kästchen, Zahlen und Beschriftungen:\n1. <dreieck-rw a='3' b='4' x='30' y='30' breite='550' hoehe='540'/> rechtwinkliges Dreieck: Kathete a unten (blau), Kathete b links (grün), Hypotenuse c (rot). Zeichnet automatisch die Quadrate über allen drei Seiten mit Einheitskästchen zum Abzählen und schreibt a² = 9, b² = 16, c² = 25 hinein. Optional quadrate='nein', kaestchen='nein', c-zeigen='nein' (wenn die Person c selbst finden soll).\n   Teile: kathete-a, kathete-b, hypotenuse, kurze-seite, lange-kathete, rechter-winkel, quadrat-a, quadrat-b, quadrat-c\n2. <gleichung x='620' y='90' zeilen='a² + b² = c²; 3² + 4² = c²; 9 + 16 = c²; 25 = c²; c = √25 = 5' notizen='; einsetzen; Quadrate ausrechnen; zusammenzählen; Wurzel ziehen'/> Rechenweg als Karte: Zeile für Zeile nummeriert, rechts grau was du tust, die letzte Zeile wird als Ergebnis grün hervorgehoben. Mehrere <gleichung> auf einer Tafel stapelt das Programm selbst untereinander.\n   Teile: zeile-1, zeile-2, … , ergebnis\n3. <kaestchen x='60' y='80' spalten='4' zeilen='3' gefuellt='12' farbe='#1f6fd1' zahlen='ja' beschriftung='3 · 4 = 12'/> Kästchengitter mit Seitenlängen zum Zählen, Malnehmen, Flächen.\n   Teile: gitter, gefuellt, kaestchen-1, kaestchen-2, … , breite, hoehe\n4. <bruch-kreis cx='280' cy='290' r='200' teile='4' gefuellt='1' farbe='#d62828' beschriftung='1/4'/> Kreis (Pizza) in gleiche Stücke.   Teile: ganzes, gefuellt, stueck-1, …\n5. <bruch-balken x='60' y='200' breite='500' hoehe='90' teile='5' gefuellt='2' beschriftung='2/5'/>   Teile: ganzes, gefuellt, stueck-1, …\n6. <zahlenstrahl x='60' y='300' laenge='860' von='0' bis='10' schritt='1' markiere='3; 7'/>   Teile: zahlenstrahl, punkt-3, punkt-7, zahl-5\n7. <koordinaten x='60' y='40' breite='520' hoehe='520' xmin='-5' xmax='5' ymin='-5' ymax='5' funktion='x^2; 2*x+1'/> Koordinatensystem mit exakt berechneten Graphen.   Teile: x-achse, y-achse, graph-1, graph-2\n8. <pfeil x1='600' y1='300' x2='800' y2='300' text='wird zu' teil='umwandlung'/>\n9. <molekuel id='m1' smiles='CNC[C@H](O)C1=CC=C([OH:1])C([OH:2])=C1' name='Adrenalin' x='20' y='70' breite='420' hoehe='450' teile='1=phenol-oh-1; 2=phenol-oh-2'/> exakte Strukturformel. Gültige SMILES verwenden. Ringe IMMER in Kekulé-Schreibweise mit Großbuchstaben und = (z. B. Benzol C1=CC=CC=C1, nicht c1ccccc1), damit die Doppelbindungen wie an der Tafel sichtbar sind. Ladungen mit eckigen Klammern ([O-], [NH2+], [Cu+2], [Fe+3]). Atome, über die du sprichst, bekommen im SMILES eine Nummer ([OH:1], [O-:2], [NH:3], [C:4](=O), [N+:5]) und in teile='1=name; 2=name' einen Namen. Auf das ganze Molekül zeigst du mit seiner id oder seinem Namen in Kleinbuchstaben ohne Umlaute (z. B. [[m1|Adrenalin]]).\n   Teile: m1 (ganzes Molekül), die Namen aus teile=, außerdem m1-1, m1-2 … für die nummerierten Atome\n10. <bogenpfeil von='m1:1' nach='m1:3' text='e⁻' teil='elektronenpaar-1'/> gebogener Pfeil von Atom zu Atom (Elektronen, Angriff, Ringschluss). Für abgehende Teilchen ohne Ziel: <bogenpfeil von='m1:1' richtung='oben-rechts' laenge='90' text='H⁺' teil='proton-1-geht'/> (Richtungen: oben, unten, links, rechts, oben-links, oben-rechts, unten-links, unten-rechts).\n11. <titel text='Schritt 1: Oxidation der Hydroxygruppen'/> Überschrift oben links an der Tafel.\n12. <zahlenfolge zahlen='2; 5; 4; 7; 6; 9; ?; ?' boegen='+3; −1; +3; −1; +3; −1; +3' x='40' y='300' breite='920'/> Zahlenfolge in Kästchen, oben jeder Rechenschritt als Bogen, Lücken als ?. Für zwei verschränkte Folgen zusätzlich boegen2='…' (Schritt von jeder Zahl zur übernächsten, unten).\n   Teile: zahl-1 …, bogen-1 …, bogen2-1 …, luecke, muster, muster-2\n13. <venn a='Chirurgen' b='Ärzte' c='Läufer' cx='300' cy='330' r='150' leer='a; ac' kreuz='bc|abc'/> Mengenkreise für Implikationen (c weglassen bei zwei Mengen). Bereiche heißen nach den Mengen, in denen sie GENAU liegen: a, b, c, ab, ac, bc, abc. leer = laut Prämissen leere Bereiche, sie werden schraffiert: 'Alle A sind B' → leer='a; ac'. 'Kein A ist B' → leer='ab; abc'. 'Einige A sind B' → kreuz='ab', oder auf die Grenze 'ab|abc', wenn offen ist, ob es auch in C liegt. Rechts daneben mit text die Prämissen und die geprüften Schlussfolgerungen (✓ / ✗).\n   Teile: kreis-a, kreis-b, kreis-c, leer, kreuz, bereich-ab, bereich-bc …\n14. <buchstaben gemischt='NERGAT' wort='GARTEN'/> Wortflüssigkeit: oben die gemischten Buchstaben, Linien zu ihrem Platz im Lösungswort, der erste Buchstabe rot.\n   Teile: gemischt, loesung, erster-buchstabe, buchstabe-1 …\n15. <zusammensetzen ziel='kreis' teile='5' seed='3'/> Figuren zusammensetzen: links die verstreuten, gedrehten Teile, rechts gestrichelt die Zielfigur (kreis, halbkreis, dreieck, quadrat, rechteck, fuenfeck, sechseck, achteck). Zeigst du im Text auf [[zusammensetzen|…]], gleiten die Teile an ihren Platz.\n   Teile: stueck-1 …, ziel, zusammensetzen\n16. <vergessenskurve tage='30' wiederholungen='1; 3; 7; 14'/> Spaced Repetition: Vergessenskurve ohne und mit Wiederholungen.\n   Teile: ohne-wiederholung, mit-wiederholung, wiederholung-1 …\n17. <gedaechtnispalast raeume='Eingang: Türschild mit dem Namen; Küche: Torte mit dem Geburtsdatum; Bad: Blutgruppe als Badeschaum; …'/> Gedächtnispalast als Grundriss mit Rundgang und einem Merkbild je Raum (höchstens 8 Räume).\n   Teile: raum-1 …, weg\nDie Bausteine 12 bis 17 brauchen meist die ganze Tafel; nur venn lässt rechts Platz für Text.\n\nREAKTIONEN UND MECHANISMEN erklärst du SCHRITT FÜR SCHRITT, so wie Pharmazie- und Medizinstudierende es nachvollziehen müssen:\n- Pro Schritt eine eigene ZEICHNUNG (mehrere ZEICHNUNG-Blöcke hintereinander, 2 bis 5). Jede beginnt mit <titel text='Schritt n: …'/>.\n- Aufbau jedes Schritts: links das Ausgangsmolekül (x='20' breite='420'), in der Mitte ein <pfeil x1='450' y1='300' x2='560' y2='300' text='Reagenz/Bedingung'/>, rechts das Produkt (x='570' breite='410'). Abgehende Teilchen (H⁺, H₂O, e⁻) mit bogenpfeil zeigen, neue Bindungen und Elektronenwege ebenfalls mit bogenpfeil.\n- Benenne und nummeriere die Atome, die sich verändern (abgespaltene Protonen bzw. ihre OH-Gruppen, entstehende Ladungen, der angreifende Stickstoff, die neue Bindung), damit du im Text genau darauf zeigen kannst.\n- Ionen und Reagenzien (z. B. Kupferion) zeichnest du als eigenes kleines <molekuel> mit id, damit man im Text darauf zeigen kann.\n- Im Text schreibst du passend **Schritt 1: …**, **Schritt 2: …** und zeigst in jedem Satz mit [[name|…]] auf genau das, worüber du sprichst. Die Tafel wechselt dann automatisch zum richtigen Schritt.\nNur wenn es wirklich keinen Baustein und keine Schablone gibt, zeichnest du selbst mit line, polyline, polygon, path, circle, ellipse, rect und text (font-size 24 bis 34, text-anchor='middle'). Gib jedem wichtigen Element einen Namen mit teil='name', z. B. teil='zellkern'.\n\nZEIGEN – das Wichtigste: Wenn du im Text über einen Teil der Tafel sprichst, markiere ihn so: [[teilname|sichtbarer Text]]. Beispiel: Schau dir [[kurze-seite|die kurze Seite a]] an. Das [[quadrat-a|blaue Quadrat darunter]] hat 3 · 3 = 9 Kästchen. Genau dieser Teil leuchtet dann an der Tafel auf, während du darüber sprichst. Markiere in jedem Satz, der sich auf die Tafel bezieht, den passenden Teil. Nutze nur Teilnamen, die es an deiner Tafel wirklich gibt.\n\nSo sieht es aus:\n- Moderner, ruhiger Stil: klare Linien, Flächen nur zart eingefärbt (fill mit einer Farbe, ohne fill-style). Wenig Text, viel Luft.\n- Farben: #1e293b dunkel, #dc2626 rot, #2563eb blau, #16a34a grün, #eab308 gelb, #ea580c orange, #7c3aed lila, #db2777 rosa, #8b5a2b braun. Nenne im Text dieselben Farben, die an der Tafel stehen.\n- Reihenfolge der Elemente = Reihenfolge deiner Erklärung (zuerst das Bild, dann die Rechnung).\n- Rechne alle Zahlen korrekt. Text und Tafel zeigen dieselben Zahlen.\n- Keine Styles, keine Skripte, keine Bilder. Wenn eine Zeichnung nichts bringt, lass ZEICHNUNG ganz weg.";
 
 // ================= kleine Helfer =================
@@ -2760,6 +2760,7 @@ function buildUI() {
       <div class="lb-row lb-stage-tools">
         <button class="lb-ghost" id="lb-vorlesen" type="button" title="Diese Erklärung mit Stimme vorlesen">🔊 Vorlesen</button>
         <button class="lb-ghost" id="lb-sum" type="button" title="Lernzusammenfassung ansehen, drucken oder speichern">📄 Zusammenfassung</button>
+        <button class="lb-ghost" id="lb-studio-btn" type="button" title="Social-Media-Studio: Video im Hochformat mit Hook, Caption und Hashtags" hidden>🎬 Studio</button>
         <button class="lb-ghost" id="lb-stage-mode" type="button">Bildschirm ansehen</button>
         <button class="lb-icon" id="lb-stage-close" type="button" aria-label="Tafel schließen">✕</button>
       </div>
@@ -2838,6 +2839,7 @@ function buildUI() {
   $("prev").onclick = () => { if (curBoard > 0) navTo(curBoard - 1); };
   $("next").onclick = () => { if (curBoard < cur.boards.length - 1) navTo(curBoard + 1); };
   $("sreplay").onclick = replayExplain;
+  $("studio-btn").onclick = () => (studio.an ? studioAus() : studioEin());
   $("sstop").onclick = () => { stopWalk(); if (narr) narr.stopped = true; endWait(); revealAll(); };
   const stageAsk = () => { const v = $("sq").value.trim(); if (v) { $("sq").value = ""; ask(v); } };
   $("ssend").onclick = stageAsk;
@@ -3422,6 +3424,7 @@ async function startQuiz() {
 }
 function closePanel() {
   lb.upload = null; resumePoint = null;
+  if (studio.an) studioAus();
   closeStage();
   stopWalk();
   lb.open = false;
@@ -3497,16 +3500,18 @@ function presentAnswer(text, o) {
     explain(body, 0, true);
     return state;
   }
-  cur.turns.push({ q: o.qText, a: body, raw: text, ask: o.q, tricks, upload: upload ? upload.dataUrl : null });
+  cur.turns.push({ q: o.qText, a: body, raw: text, ask: o.q, tricks, upload: upload ? upload.dataUrl : null, uploadW: upload ? upload.w : null, uploadH: upload ? upload.h : null, uploadArt: upload ? upload.kind || null : null });
   if (tricks.length) addMsg("trick", tricks.map((t) => `<b>Eselsbrücke:</b> ${esc(t.merksatz)}${t.wofuer ? ` <span class="lb-muted">(${esc(t.wofuer)})</span>` : ""}`).join("<br>"));
   pendingDrill = null;
   lastBody = body;
   if (early) extendNarration(body); else explain(body, 0);
+  if (narr) { narr.turn = cur.turns[cur.turns.length - 1]; filmPruefen(narr); }   // Lernfilm fürs Lernarchiv
   return state;
 }
 async function ask(preset) {
   const q = (typeof preset === "string" ? preset : $("q").value).trim();
   if (!q || lb.busy) return;
+  filmModus = null;
   if (typeof Credits !== "undefined" && !lb.usedSession) {
     if (Credits.hasAiSession && !Credits.hasAiSession()) { Credits.showAiPaywall && Credits.showAiPaywall("session"); return; }
     if (Credits.useAiSession) Credits.useAiSession().catch(() => {});
@@ -4174,6 +4179,7 @@ function updateQCard() {
 }
 function openStage(mode) {
   updateQCard();
+  $("studio-btn").hidden = !istAdmin();
   const st = $("stage");
   if (st.hidden) {
     $("stage-main").append($("mols"), $("board"));
@@ -4445,6 +4451,7 @@ function zeiger(names) {
   const svg = $("board").querySelector("svg");
   if (!svg) return;
   svg.querySelectorAll(".lb-zeiger").forEach((e) => e.remove());
+  studioZoom(svg, null);
   if (!names || !names.length || $("board").classList.contains("side") || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   let ctm; try { ctm = svg.getScreenCTM().inverse(); } catch (e) { return; }
   if (!ctm) return;
@@ -4472,6 +4479,7 @@ function zeiger(names) {
     const g = document.createElementNS(SVGNS, "g"); g.setAttribute("class", "lb-zeiger"); g.setAttribute("pointer-events", "none");
     for (const [c, w] of [["#ffffff", 13], ["#e11d48", 6]]) { const p = document.createElementNS(SVGNS, "path"); p.setAttribute("d", d); p.setAttribute("stroke", c); p.setAttribute("stroke-width", w); p.setAttribute("fill", "none"); p.setAttribute("stroke-linecap", "round"); p.setAttribute("stroke-linejoin", "round"); g.appendChild(p); }
     svg.appendChild(g);
+    studioZoom(svg, [cx, cy, x2 - x1, y2 - y1]);
     g.animate([{ opacity: 0, transform: `translate(${(-Math.cos(a) * 40).toFixed(1)}px, ${(-Math.sin(a) * 40).toFixed(1)}px)` }, { opacity: 1, transform: "translate(0px, 0px)" }], { duration: 450, easing: "ease-out", fill: "backwards" });
     g.animate([{ transform: "translate(0px, 0px)" }, { transform: `translate(${(-Math.cos(a) * 7).toFixed(1)}px, ${(-Math.sin(a) * 7).toFixed(1)}px)` }], { duration: 700, delay: 450, iterations: Infinity, direction: "alternate", easing: "ease-in-out" });
     return;
@@ -4524,6 +4532,8 @@ function showRefs(refs) {
 function onNarrationEnd() {
   highlight([]); revealAll();
   if (narr) narr.ended = true;
+  if (narr) filmPruefen(narr);
+  if (studio.ende) { studio.ende(); return; }
   const b = cur.boards[curBoard];
   if (b && b.parent && !$("stage").hidden) {
     // Vertiefung/Nebentafel fertig: zurück zum Überblick und dort automatisch weitererklären
@@ -4615,6 +4625,7 @@ function sayLine(k) {
   const n = narr; if (!n || !n.sents[k]) return;
   const s = n.sents[k], refs = refsIn(s);
   setSub(s);
+  studioSatz(k);
   const want = n.boardOf ? n.boardOf[k] : -1;
   const onCur = refs.some((r) => { const b = cur.boards[curBoard]; return b && (b.teile || []).includes(r); });
   if (want >= 0 && want !== curBoard && cur.boards[want] && !onCur && !$("stage").hidden && !$("stage").classList.contains("waiting")) {
@@ -4677,9 +4688,10 @@ function loadPart(n, part) {
   const full = n.jobs.slice(part.from, part.to).map((j) => j.text).filter(Boolean).join(" ").slice(0, 6000);
   if (!full) { part.failed = true; return; }
   part.loading = true;
-  callFn("lernblick-voice", { text: full, lang: $("lang").value }, true).then((blob) => {
+  stimme(full).then((blob) => {
     part.loading = false;
     if (narr !== n) return;
+    setTimeout(() => filmPruefen(n), 0);
     part.url = URL.createObjectURL(blob);
     const a = part.audio = new Audio(part.url);
     a.playbackRate = 0.94;   // etwas ruhiger erklären (Andreea: „viel zu schnell“)
@@ -4701,6 +4713,7 @@ function loadPart(n, part) {
   }).catch(() => {
     part.loading = false; part.failed = true;
     if (narr !== n) return;
+    setTimeout(() => filmPruefen(n), 0);
     lb.natural = false; $("natural").checked = false;
     setStatus("Die natürliche Stimme ist gerade nicht erreichbar – ich lese mit der Browser-Stimme vor.");
     if (!n.stopped) playFrom(n.want != null ? n.want : n.from); else endWait();
@@ -4744,7 +4757,7 @@ function extendNarration(body) {
 function replayExplain() {
   if (!lastBody) { setStatus("Stell zuerst eine Frage."); return; }
   document.querySelectorAll(`${SCOPE} [data-flown]`).forEach((g) => { g.getAnimations().forEach((a) => a.cancel()); delete g.dataset.flown; });
-  if (answerBoards) { for (let i = answerBoards[0]; i <= answerBoards[1]; i++) if (cur.boards[i] && cur.boards[i].defer) Object.assign(cur.boards[i], { shown: new Set(), full: false }); showBoard(answerBoards[0], false); }
+  if (answerBoards) { for (let i = answerBoards[0]; i <= answerBoards[1]; i++) if (cur.boards[i] && cur.boards[i].defer) Object.assign(cur.boards[i], { shown: new Set(), full: false, akte: null }); showBoard(answerBoards[0], false); }
   let dur = 0;
   document.querySelectorAll(`${SCOPE} #lb-mols svg, ${SCOPE} #lb-board svg`).forEach((svg) => { dur = Math.max(dur, animateSvg(svg)); });
   animateSvg($("imgdraw"));
@@ -4756,6 +4769,313 @@ document.addEventListener("click", (e) => {
   stopWalk(); showRefs([r.dataset.ref]);
   walkTimers.push(setTimeout(() => highlight([]), 3500));
 });
+
+
+// ================= Lernfilm: jede Tafel-Erklärung mit Stimme im Lernarchiv (Andreea, 19.10.2026) =================
+// „diese ganzen Sachen … müssen unbedingt immer gespeichert werden … immer wieder anschauen und anhorchen … zusammenfassen und ausdrucken“
+// Gespeichert wird im Speicher „lernfilme“ (pro Person ein Ordner): film.json (Antwort mit Tafeln), ton-N.mp3 (Stimme), foto.jpg.
+// Abspielen aus dem Archiv kostet nichts: die Stimme kommt aus den gespeicherten Dateien, die KI wird nicht gefragt.
+const tonArchiv = new Map();                       // gesprochener Text → Tonaufnahme (diese Sitzung bzw. geladener Film)
+function stimme(text) {
+  if (tonArchiv.has(text)) return Promise.resolve(tonArchiv.get(text));
+  return callFn("lernblick-voice", { text, lang: $("lang").value }, true).then((b) => { if (tonArchiv.size > 40) tonArchiv.delete(tonArchiv.keys().next().value); tonArchiv.set(text, b); return b; });
+}
+let filmModus = null;                              // läuft gerade ein Film aus dem Archiv? (dann nicht neu speichern)
+const LAME = "https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js";
+// WAV (16 bit, mono) → MP3 mit 48 kbit/s: etwa 0,35 MB pro Minute statt 2,9 MB
+async function alsMp3(blob) {
+  if (!/wav/i.test(blob.type || "")) return blob;
+  try {
+    await loadScript(LAME);
+    const buf = await blob.arrayBuffer(), dv = new DataView(buf);
+    let off = 12, rate = 24000, ch = 1, data = null;
+    while (off + 8 <= buf.byteLength) {
+      const id = String.fromCharCode(dv.getUint8(off), dv.getUint8(off + 1), dv.getUint8(off + 2), dv.getUint8(off + 3)), len = dv.getUint32(off + 4, true);
+      if (id === "fmt ") { ch = dv.getUint16(off + 10, true); rate = dv.getUint32(off + 12, true); }
+      if (id === "data") { data = new Int16Array(buf.slice(off + 8, off + 8 + Math.min(len, buf.byteLength - off - 8))); break; }
+      off += 8 + len + (len % 2);
+    }
+    if (!data || ch !== 1 || !window.lamejs) return blob;
+    const enc = new lamejs.Mp3Encoder(1, rate, 48), out = [];
+    for (let i = 0; i < data.length; i += 1152) { const m = enc.encodeBuffer(data.subarray(i, i + 1152)); if (m.length) out.push(new Uint8Array(m)); }
+    const end = enc.flush(); if (end.length) out.push(new Uint8Array(end));
+    return new Blob(out, { type: "audio/mpeg" });
+  } catch (e) { console.warn("LernBlick MP3", e); return blob; }
+}
+// Ist die Erklärung komplett (Text fertig, Stimme vollständig)? Dann einmal speichern.
+function filmPruefen(n) {
+  if (!n || !n.turn || n.turn.film || n.partial || filmModus) return;
+  if (!answerBoards) return;                       // nur Erklärungen mit Tafel
+  if (lb.speak && lb.natural) { if (!n.parts || !n.parts.length || n.parts.some((p) => !p.audio && !p.failed)) return; }
+  n.turn.film = "speichert";
+  filmSpeichern(n).catch((e) => { n.turn.film = null; console.warn("LernBlick Lernfilm", e); });
+}
+async function filmSpeichern(n) {
+  if (typeof Auth === "undefined" || !Auth.isLoggedIn || !Auth.supabase || !Auth.currentUser) { n.turn.film = null; return; }
+  const t = n.turn, uid = Auth.currentUser.id, id = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+  const ordner = `${uid}/${id}`, st = Auth.supabase.storage.from("lernfilme");
+  const ton = [];
+  for (const [k, p] of (n.parts || []).entries()) {
+    const text = n.jobs.slice(p.from, p.to).map((j) => j.text).filter(Boolean).join(" ").slice(0, 6000);
+    const b = tonArchiv.get(text); if (!b) continue;
+    const mp3 = await alsMp3(b), datei = `ton-${k}.${/mpeg/.test(mp3.type) ? "mp3" : "wav"}`;
+    const { error } = await st.upload(`${ordner}/${datei}`, mp3, { contentType: mp3.type || "audio/wav", upsert: true });
+    if (error) throw error;
+    ton.push({ text, datei });
+  }
+  let foto = null;
+  if (t.upload) { const fb = await (await fetch(t.upload)).blob(); const { error } = await st.upload(`${ordner}/foto.jpg`, fb, { contentType: "image/jpeg", upsert: true }); if (!error) foto = "foto.jpg"; }
+  let titel = (cur.boards[answerBoards[0]] && cur.boards.slice(answerBoards[0], answerBoards[1] + 1).map((b) => b.titel).find((x) => x && !/denkfehler/i.test(x))) || cleanAsk(t.ask || t.q).slice(0, 80);
+  titel = String(titel).replace(/^\s*Schritt\s*\d+\s*[:–-]\s*/i, "");
+  const f = lb.ctx && lb.ctx.frage;
+  const film = { v: 1, titel, frage: t.q, ask: t.ask, raw: t.raw, lang: $("lang").value, ton, foto, fotoArt: t.uploadArt || null, fotoW: t.uploadW || null, fotoH: t.uploadH || null,
+    aufgabe: f ? { bereich: f.bereich, text: f.text, gewaehlt: f.gewaehlt, richtig: f.richtig } : null, erstellt: new Date().toISOString() };
+  const { error } = await st.upload(`${ordner}/film.json`, new Blob([JSON.stringify(film)], { type: "application/json" }), { contentType: "application/json", upsert: true });
+  if (error) throw error;
+  const token = await getToken();
+  const resp = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/save-banana-image`, {
+    method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, apikey: CONFIG.SUPABASE_ANON_KEY },
+    body: JSON.stringify({ item_type: "lernfilm", content_type: "lernfilm", title: ("🎬 " + titel).slice(0, 100), frage_text: cleanAsk(t.ask || t.q).slice(0, 120), bereich: (f && f.bereich) || "MedAT", tutor_name: "LernBlick",
+      conversation_data: JSON.stringify({ ordner, tafeln: answerBoards[1] - answerBoards[0] + 1, ton: ton.length > 0 }) })
+  });
+  if (!resp.ok) { await st.remove([...ton.map((x) => `${ordner}/${x.datei}`), `${ordner}/film.json`, ...(foto ? [`${ordner}/foto.jpg`] : [])]).catch(() => {}); throw new Error((await resp.json().catch(() => ({}))).error || "Speichern fehlgeschlagen"); }
+  t.film = ordner; t.filmDaten = film;
+  if (typeof Gallery !== "undefined") Gallery._loaded = false;
+  setStatus("✓ Im Lernarchiv gespeichert – mit Stimme zum Wiederanhören.");
+  setTimeout(() => { if (/Lernarchiv gespeichert/.test($("status").textContent)) setStatus(""); }, 5000);
+}
+// Film aus dem Archiv laden und abspielen (ohne KI, ohne neue Stimme)
+async function filmLaden(meta) {
+  const m = typeof meta === "string" ? JSON.parse(meta) : meta;
+  const st = Auth.supabase.storage.from("lernfilme");
+  const { data, error } = await st.download(`${m.ordner}/film.json`);
+  if (error) throw error;
+  const film = JSON.parse(await data.text());
+  await Promise.all((film.ton || []).map(async (x) => { const r = await st.download(`${m.ordner}/${x.datei}`); if (!r.error) tonArchiv.set(x.text, r.data); }));
+  if (film.foto) { const r = await st.download(`${m.ordner}/foto.jpg`); if (!r.error) film.fotoUrl = await new Promise((ok) => { const fr = new FileReader(); fr.onload = () => ok(fr.result); fr.readAsDataURL(r.data); }); }
+  film.ordner = m.ordner;
+  return film;
+}
+async function filmAbspielen(meta) {
+  let film;
+  try { film = await filmLaden(meta); } catch (e) { alert("Diese Erklärung konnte nicht geladen werden: " + (e.message || e)); return; }
+  if (lb.open) closePanel();
+  await openPanel({});
+  if (!lb.open) return;
+  filmModus = film;
+  if (film.lang && LB_LANGS[film.lang]) $("lang").value = film.lang;
+  lb.speak = !!(film.ton && film.ton.length); lb.natural = true;
+  if (film.aufgabe) lb.ctx.frage = Object.assign({ optionen: "", erklaerung: "" }, film.aufgabe);
+  if (film.fotoUrl) lb.upload = { fresh: true, dataUrl: film.fotoUrl, w: film.fotoW || 1000, h: film.fotoH || 1000, kind: film.fotoArt || null, title: "" };
+  stopWalk();
+  addMsg("user", esc(cleanAsk(film.ask || film.frage)));
+  startWait(); setWaitStatus("Ich hole deine gespeicherte Erklärung …");
+  const bubble = addMsg("ai", "");
+  try { await ensureLibs(); } catch (e) {}
+  presentAnswer(film.raw, { q: film.ask, qText: film.frage, bubble });
+  const t = cur.turns[cur.turns.length - 1]; if (t) { t.film = film.ordner; t.filmDaten = film; }
+}
+
+// ================= Social-Media-Studio (nur Admin) =================
+// Andreea, 19.10.2026: Hochformat fürs Handy, alles von der falschen Antwort bis zur Erklärung; Hook, Vorschaubild,
+// Caption, Hashtags und Einblendungen mit Keywords. Die App spielt das Video fertig geschnitten ab – kein Schnitt nötig.
+const studio = { an: false, format: "9x16", paket: null, rec: null, laeuft: false };
+function istAdmin() { try { return typeof Admin !== "undefined" && Admin.isAdmin(); } catch (e) { return false; } }
+const STUDIO_PAKET = `Du bist Social-Media-Texterin für den „MedAT Trainer“ – eine App zur Vorbereitung auf den MedAT (Medizin-Aufnahmetest in Österreich). Zielgruppe: MedAT-Kandidatinnen und -Kandidaten (17–25). Aus einer Tafel-Erklärung entsteht ein TikTok/Reel: Hook → die falsch beantwortete Frage → die Erklärung → Schluss.
+Antworte NUR mit JSON:
+{"hook":"höchstens 9 Wörter, Ich-Form, provokant oder überraschend, enthält MedAT, z. B. 'Diesen MedAT-Fehler hätte ich mir sparen können'","hooks_alt":["zwei weitere Hooks"],"vorschau":{"zeile1":"höchstens 4 Wörter, groß aufs Vorschaubild","zeile2":"höchstens 7 Wörter darunter","stichwort":"1 Wort, das gelb markiert wird"},"caption":"2–4 kurze Sätze mit den Suchbegriffen (MedAT, Thema, Fachbegriffe), dann eine Handlungsaufforderung (z. B. 'Speicher dir das für den MedAT'), Emojis sparsam","hashtags":[{"tag":"#medat","wofuer":"warum dieser Hashtag (2–5 Wörter)"}],"einblendungen":[{"nach_satz":3,"text":"höchstens 5 Wörter, Keyword zuerst"}],"keywords":["Suchbegriffe, die gesprochen und eingeblendet vorkommen"],"schluss":"höchstens 10 Wörter, z. B. 'Damit dir das im MedAT nicht passiert – folge für mehr'"}
+Regeln: Immer geht es um MedAT – damit nur MedAT-Leute klicken. Jahreszahlen in Hashtags immer für den NÄCHSTEN MedAT (siehe Angabe), nie ein vergangenes Jahr. 8 bis 12 Hashtags (Mischung: groß #medat #medizinstudium #lernen, mittel Fach/Thema, klein ganz spezifisch). 4 bis 7 Einblendungen; nach_satz ist die Nummer des Satzes aus der Liste, nach dem eingeblendet wird. Fachlich exakt, Deutsch (Österreich).`;
+async function studioPaket() {
+  const n = narr; if (!n || !n.sents) throw new Error("Zuerst eine Erklärung abspielen.");
+  const t = cur.turns[cur.turns.length - 1] || {}, f = (t.filmDaten && t.filmDaten.aufgabe) || (lb.ctx && lb.ctx.frage) || null;
+  const df = (String(t.raw || "").match(/<denkfehler\b[^>]*>/i) || [""])[0];
+  const ziel = (typeof App !== "undefined" && App._medatZiel) ? App._medatZiel.getFullYear() : new Date().getFullYear() + 1;
+  const inhalt = `NÄCHSTER MEDAT: ${ziel} (heute: ${new Date().toLocaleDateString("de-AT")})\nFRAGE DER PERSON: ${cleanAsk(t.ask || t.q || "")}\n${f ? `AUFGABE: ${f.text || ""}\nGEWÄHLT (falsch): ${f.gewaehlt || ""}\nRICHTIG: ${f.richtig || ""}\n` : ""}${df ? "DENKFEHLER-TAFEL: " + df + "\n" : ""}SÄTZE DER ERKLÄRUNG:\n${n.sents.map((s, i) => `${i + 1}. ${plain(s)}`).join("\n")}`;
+  const d = await callFn("lernblick-chat", { system_prompt: STUDIO_PAKET, messages: [{ role: "user", content: inhalt }], kurz: true });
+  return quizJson(d.response);
+}
+// Was oben in der Frage-Karte steht: Aufgabe, deine Antwort, richtige Antwort – aus der Denkfehler-Tafel oder der Aufgabe
+function studioFrage() {
+  const t = cur.turns[cur.turns.length - 1] || {}, f = (t.filmDaten && t.filmDaten.aufgabe) || (lb.ctx && lb.ctx.frage) || null;
+  const df = String(t.raw || "").match(/<denkfehler\b[^>]*>/i), at = (k) => { const m = df && df[0].match(new RegExp(`\\b${k}\\s*=\\s*(['"])([\\s\\S]*?)\\1`, "i")); return m ? plain(m[2]) : ""; };
+  return { frage: (f && f.text) || cleanAsk(t.ask || t.q || ""), falsch: (f && f.gewaehlt) || at("deine"), richtig: (f && f.richtig) || at("richtig") };
+}
+function studioUI() {
+  if ($("studio")) return;
+  const p = el("aside", "lb-studio-panel"); p.id = "lb-studio"; p.hidden = true;
+  p.innerHTML = `<div class="lb-studio-kopf"><b>🎬 Social-Media-Studio</b><button class="lb-icon" id="lb-studio-x" type="button" aria-label="Studio schließen">✕</button></div>
+    <div class="lb-studio-zeile"><span>Format</span><div class="lb-seg"><button type="button" data-format="9x16" aria-pressed="true">📱 Handy 9:16</button><button type="button" data-format="16x9" aria-pressed="false">💻 Laptop 16:9</button></div></div>
+    <div class="lb-studio-zeile lb-studio-knoepfe"><button class="lb-send" id="lb-studio-paket" type="button">✨ Hook, Caption & Hashtags</button></div>
+    <div class="lb-studio-zeile lb-studio-knoepfe"><button class="lb-ghost" id="lb-studio-probe" type="button">▶ Video abspielen</button><button class="lb-send lb-rec" id="lb-studio-rec" type="button">⏺ Aufnehmen</button></div>
+    <p class="lb-studio-hinweis" id="lb-studio-hinweis"></p>
+    <div id="lb-studio-inhalt"></div>`;
+  $("stage").after(p);
+  $("studio-x").onclick = () => studioAus();
+  p.querySelectorAll("[data-format]").forEach((b) => (b.onclick = () => { studio.format = b.dataset.format; p.querySelectorAll("[data-format]").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); studioFormat(); }));
+  $("studio-paket").onclick = async () => {
+    const b = $("studio-paket"); b.disabled = true; b.textContent = "Ich schreibe …";
+    try { studio.paket = await studioPaket(); studioZeigePaket(); } catch (e) { $("studio-hinweis").textContent = "Das hat nicht geklappt: " + (e.message || e); }
+    b.disabled = false; b.textContent = "✨ Neu schreiben";
+  };
+  $("studio-probe").onclick = () => studioAbspielen(false);
+  $("studio-rec").onclick = () => studioAbspielen(true);
+  const mobil = !(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+  $("studio-hinweis").textContent = mobil ? "Am Handy: Bildschirmaufnahme starten, dann „▶ Video abspielen“ tippen – das Video läuft fertig geschnitten durch." : "„⏺ Aufnehmen“: Chrome fragt einmal nach diesem Tab – „Tab-Audio teilen“ anhaken. Aufgenommen wird nur der Videorahmen.";
+  if (mobil) $("studio-rec").hidden = true;
+}
+function studioFormat() {
+  const h = document.documentElement;
+  h.classList.toggle("lb-studio-9x16", studio.an && studio.format === "9x16");
+  h.classList.toggle("lb-studio-16x9", studio.an && studio.format === "16x9");
+}
+function studioEin() {
+  if (!istAdmin()) return;
+  studioUI(); studio.an = true; $("studio").hidden = false;
+  document.documentElement.classList.add("lb-studio"); studioFormat();
+  if (!$("studio-deko")) {
+    const d = el("div", "lb-studio-deko"); d.id = "lb-studio-deko";
+    d.innerHTML = `<div class="lb-st-marke">MedAT <span>Trainer</span></div><div class="lb-st-pop" id="lb-st-pop" hidden></div><div class="lb-st-karte" id="lb-st-karte" hidden></div>`;
+    $("stage").appendChild(d);
+  }
+  if (studio.paket) studioZeigePaket();
+}
+function studioAus() {
+  studio.an = false; studio.laeuft = false;
+  const s = $("studio"); if (s) s.hidden = true;
+  document.documentElement.classList.remove("lb-studio", "lb-studio-9x16", "lb-studio-16x9", "lb-studio-laeuft");
+  if (studio.rec && studio.rec.state !== "inactive") studio.rec.stop();
+}
+function studioZeigePaket() {
+  const P = studio.paket, box = $("studio-inhalt"); if (!P || !box) return;
+  const kopie = (txt) => { const b = el("button", "lb-tip", "Kopieren"); b.type = "button"; b.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(txt); b.textContent = "✓ kopiert"; }; return b; };
+  const block = (titel, txt) => { const d = el("div", "lb-studio-block"); const k = el("div", "lb-studio-blockkopf"); k.append(el("b", "", titel), kopie(txt)); d.append(k, el("p", "", txt)); return d; };
+  box.replaceChildren();
+  const hooks = [P.hook, ...(P.hooks_alt || [])].filter(Boolean);
+  const hk = el("div", "lb-studio-block"); hk.appendChild(el("b", "", "Hook (Text im Video, die ersten 3 Sekunden)"));
+  hooks.forEach((h, i) => { const r = el("label", "lb-studio-hook"); const inp = el("input"); inp.type = "radio"; inp.name = "lb-hook"; inp.checked = i === 0; inp.onchange = () => { P.hook = h; studioVorschau(); }; r.append(inp, el("span", "", h)); hk.appendChild(r); });
+  box.appendChild(hk);
+  const vb = el("div", "lb-studio-block"); const vk = el("div", "lb-studio-blockkopf"); vk.appendChild(el("b", "", "Vorschaubild"));
+  const dl = el("button", "lb-tip", "⬇ Herunterladen"); dl.type = "button"; dl.onclick = () => { const c = $("studio-vorschau"); const a = document.createElement("a"); a.download = `medat-vorschau-${studio.format}.png`; a.href = c.toDataURL("image/png"); a.click(); };
+  vk.appendChild(dl); vb.appendChild(vk); const cv = document.createElement("canvas"); cv.id = "lb-studio-vorschau"; cv.className = "lb-studio-vorschau"; vb.appendChild(cv); box.appendChild(vb);
+  box.appendChild(block("Caption", P.caption || ""));
+  const tags = (P.hashtags || []).map((h) => (typeof h === "string" ? { tag: h, wofuer: "" } : h));
+  const tb = el("div", "lb-studio-block"); const tk = el("div", "lb-studio-blockkopf"); tk.append(el("b", "", "Hashtags"), kopie(tags.map((x) => x.tag).join(" "))); tb.appendChild(tk);
+  const tab = el("table", "lb-studio-tab"); tab.innerHTML = "<tr><th>Hashtag</th><th>Wofür</th></tr>" + tags.map((x) => `<tr><td>${esc(x.tag)}</td><td>${esc(x.wofuer || "")}</td></tr>`).join(""); tb.appendChild(tab); box.appendChild(tb);
+  const eb = el("div", "lb-studio-block"); eb.appendChild(el("b", "", "Einblendungen (Text auf dem Video)"));
+  const et = el("table", "lb-studio-tab"); et.innerHTML = "<tr><th>Wann</th><th>Text</th></tr>" + `<tr><td>0:00</td><td>${esc(P.hook || "")}</td></tr>` + (P.einblendungen || []).map((x) => `<tr><td>nach Satz ${esc(String(x.nach_satz))}</td><td>${esc(x.text || "")}</td></tr>`).join("") + `<tr><td>Ende</td><td>${esc(P.schluss || "")}</td></tr>`;
+  eb.appendChild(et); box.appendChild(eb);
+  if ((P.keywords || []).length) box.appendChild(block("Keywords", P.keywords.join(", ")));
+  studioVorschau();
+}
+// Vorschaubild: groß der Hook-Kern, ein Stichwort gelb, darunter die wichtigste Tafel – nicht überladen
+async function studioVorschau() {
+  const c = $("studio-vorschau"), P = studio.paket; if (!c || !P) return;
+  const hoch = studio.format === "9x16", W = hoch ? 1080 : 1280, H = hoch ? 1920 : 720; c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  const grad = g.createLinearGradient(0, 0, W, H); grad.addColorStop(0, "#15122b"); grad.addColorStop(1, "#2b1d5c"); g.fillStyle = grad; g.fillRect(0, 0, W, H);
+  // Tafel als Bild
+  let tafel = null;
+  try {
+    const i = answerBoards ? cur.boards.slice(answerBoards[0], answerBoards[1] + 1).findIndex((b) => b.svg && /<(operon|synapse|verduennung|welle|schema|kreislauf|kurve|molekuel|analyse)\b/i.test(b.svg)) : -1;
+    const b = i >= 0 ? cur.boards[answerBoards[0] + i] : cur.boards[curBoard];
+    const svg = b && b.svg ? buildBoardSvg(b.svg, "white") : null;
+    if (svg) {
+      svg.setAttribute("width", "1000"); svg.setAttribute("height", "600"); svg.setAttribute("xmlns", SVGNS);
+      const holder = el("div"); holder.style.cssText = "position:fixed;left:-3000px;top:0;width:1000px;height:600px"; holder.appendChild(svg); document.body.appendChild(holder);
+      try { placeCallouts(svg); fitTexts(svg); } catch (e) {}
+      const bg = document.createElementNS(SVGNS, "rect"); for (const [k, v] of Object.entries({ x: 0, y: 0, width: 1000, height: 600, fill: "#ffffff" })) bg.setAttribute(k, v); svg.insertBefore(bg, svg.firstChild);
+      svg.querySelectorAll("text").forEach((t) => { t.setAttribute("font-family", "Inter, Arial, sans-serif"); });
+      const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+      holder.remove();
+      tafel = await new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = url; });
+    }
+  } catch (e) { tafel = null; }
+  const pad = hoch ? 70 : 50;
+  // Kennzeichnung „MedAT“
+  g.fillStyle = "#f5c542"; const badge = hoch ? 46 : 30; g.font = `800 ${badge}px Inter, Arial, sans-serif`;
+  const bt = "MedAT", bw = g.measureText(bt).width + badge; g.beginPath(); g.roundRect ? g.roundRect(pad, pad, bw, badge * 1.7, 14) : g.rect(pad, pad, bw, badge * 1.7); g.fill();
+  g.fillStyle = "#15122b"; g.fillText(bt, pad + badge / 2, pad + badge * 1.22);
+  // Zeile 1 groß, Stichwort gelb
+  const z1 = (P.vorschau && P.vorschau.zeile1) || P.hook || "", z2 = (P.vorschau && P.vorschau.zeile2) || "", stw = ((P.vorschau && P.vorschau.stichwort) || "").toLowerCase();
+  const umbruch = (text, size, maxW) => { g.font = `900 ${size}px Inter, Arial, sans-serif`; const w = text.split(/\s+/), z = []; let c0 = ""; w.forEach((x) => { if (g.measureText((c0 + " " + x).trim()).width > maxW && c0) { z.push(c0); c0 = x; } else c0 = (c0 + " " + x).trim(); }); if (c0) z.push(c0); return z; };
+  const s1 = hoch ? 118 : 74, zeilen = umbruch(z1, s1, W - 2 * pad);
+  let y = pad + badge * 1.7 + (hoch ? 120 : 70);
+  zeilen.forEach((z) => {
+    let x = pad;
+    z.split(" ").forEach((wort) => { g.font = `900 ${s1}px Inter, Arial, sans-serif`; g.fillStyle = stw && wort.toLowerCase().replace(/[^a-zäöüß0-9-]/g, "").includes(stw) ? "#f5c542" : "#ffffff"; g.fillText(wort, x, y); x += g.measureText(wort + " ").width; });
+    y += s1 * 1.08;
+  });
+  if (z2) { g.fillStyle = "#c9c3ff"; const s2 = hoch ? 54 : 34; umbruch(z2, s2, W - 2 * pad).forEach((z) => { g.font = `700 ${s2}px Inter, Arial, sans-serif`; g.fillText(z, pad, y + s2 * 0.4); y += s2 * 1.25; }); }
+  if (tafel) {
+    const tw_ = hoch ? W - 2 * pad : W * 0.46, th = tw_ * 0.6, tx_ = hoch ? pad : W - pad - tw_, ty = hoch ? Math.max(y + 60, H - th - 260) : H - th - pad;
+    g.save(); g.shadowColor = "rgba(0,0,0,.45)"; g.shadowBlur = 40; g.fillStyle = "#fff"; g.beginPath(); g.roundRect ? g.roundRect(tx_, ty, tw_, th, 24) : g.rect(tx_, ty, tw_, th); g.fill(); g.restore();
+    g.save(); g.beginPath(); g.roundRect ? g.roundRect(tx_, ty, tw_, th, 24) : g.rect(tx_, ty, tw_, th); g.clip(); g.drawImage(tafel, tx_, ty, tw_, th); g.restore();
+  }
+  if (hoch) { g.fillStyle = "#ffffff"; g.font = "700 44px Inter, Arial, sans-serif"; g.fillText("❌ → ✅  So passiert dir das nicht", pad, H - 120); }
+}
+// Hochformat: die Tafel ist dort klein – beim Erklären zoomt die Kamera sanft auf die Stelle, auf die gerade gezeigt wird
+function studioZoom(svg, ziel) {
+  if (!svg) return;
+  const an = studio.an && studio.format === "9x16" && studio.laeuft;
+  if (!an || !ziel) { if (svg.style.transform) svg.style.transform = "scale(1)"; return; }
+  const vb = svg.viewBox.baseVal, [cx, cy, w, h] = ziel;
+  const k = Math.max(1, Math.min(1.75, 0.8 * vb.width / Math.max(w, 1), 0.8 * vb.height / Math.max(h, 1)));
+  svg.style.transition = "transform .9s cubic-bezier(.3,.1,.2,1)";
+  svg.style.transformOrigin = `${((cx - vb.x) / vb.width * 100).toFixed(1)}% ${((cy - vb.y) / vb.height * 100).toFixed(1)}%`;
+  svg.style.transform = `scale(${k.toFixed(2)})`;
+}
+function studioKarte(html, ms) {
+  return new Promise((ok) => {
+    const k = $("st-karte"); if (!k) return ok();
+    k.innerHTML = html; k.hidden = false; k.classList.remove("weg"); void k.offsetWidth; k.classList.add("da");
+    setTimeout(() => { k.classList.add("weg"); setTimeout(() => { k.hidden = true; k.classList.remove("da", "weg"); ok(); }, 450); }, ms);
+  });
+}
+// Einblendung (Keyword) zum gerade gesprochenen Satz
+function studioSatz(k) {
+  if (!studio.laeuft || !studio.paket) return;
+  const e = (studio.paket.einblendungen || []).find((x) => Number(x.nach_satz) === k + 1);
+  if (!e) return;
+  const p = $("st-pop"); if (!p) return;
+  p.textContent = e.text; p.hidden = false; p.classList.remove("an"); void p.offsetWidth; p.classList.add("an");
+  clearTimeout(studio.popT); studio.popT = setTimeout(() => { p.hidden = true; }, 3200);
+}
+async function studioAbspielen(aufnehmen) {
+  if (!lastBody) { $("studio-hinweis").textContent = "Zuerst eine Erklärung erzeugen oder aus dem Lernarchiv öffnen."; return; }
+  let stream = null, chunks = [];
+  if (aufnehmen) {
+    try {
+      stream = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: "browser", frameRate: 30 }, audio: { suppressLocalAudioPlayback: false }, preferCurrentTab: true, selfBrowserSurface: "include", systemAudio: "include" });
+      const [vt] = stream.getVideoTracks();
+      if (window.CropTarget && vt.cropTo) { try { await vt.cropTo(await CropTarget.fromElement($("stage"))); } catch (e) { console.warn("Zuschneiden nicht möglich", e); } }
+      const typ = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find((t) => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
+      studio.rec = new MediaRecorder(stream, typ ? { mimeType: typ, videoBitsPerSecond: 6000000 } : undefined);
+      studio.rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+      studio.rec.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunks, { type: studio.rec.mimeType || "video/webm" }), a = document.createElement("a");
+        a.href = URL.createObjectURL(blob); a.download = `medat-${slug((cur.turns[cur.turns.length - 1] || {}).q || "erklaerung").slice(0, 40)}.${/mp4/.test(blob.type) ? "mp4" : "webm"}`; a.click();
+        $("studio-hinweis").textContent = `✓ Video gespeichert (${/mp4/.test(blob.type) ? "MP4" : "WebM"}, ${(blob.size / 1048576).toFixed(1)} MB).`;
+        document.documentElement.classList.remove("lb-studio-laeuft");
+      };
+      vt.onended = () => { if (studio.rec && studio.rec.state !== "inactive") studio.rec.stop(); };
+    } catch (e) { $("studio-hinweis").textContent = "Aufnahme abgebrochen: " + (e.message || e); return; }
+  }
+  stopWalk();
+  studio.laeuft = true; document.documentElement.classList.add("lb-studio-laeuft");
+  $("endbar").hidden = true; setSub("");
+  if (studio.rec && aufnehmen) { studio.rec.start(1000); await new Promise((r) => setTimeout(r, 600)); }
+  const P = studio.paket || {}, F = studioFrage();
+  await studioKarte(`<div class="lb-st-hook">${esc(P.hook || "Diesen MedAT-Fehler machen fast alle 😳")}</div>`, 3200);
+  if (F.frage) await studioKarte(`<div class="lb-st-frage"><small>MedAT-Frage</small><p>${esc(F.frage.slice(0, 260))}</p>${F.falsch ? `<div class="lb-st-falsch">✗ Meine Antwort: ${esc(F.falsch.slice(0, 140))}</div>` : ""}${F.richtig ? `<div class="lb-st-richtig">✓ Richtig: ${esc(F.richtig.slice(0, 140))}</div>` : ""}</div>`, F.falsch ? 5200 : 3600);
+  studio.ende = async () => {
+    studio.ende = null;
+    await studioKarte(`<div class="lb-st-hook lb-st-schluss">${esc(P.schluss || "Damit dir das im MedAT nicht passiert – folge für mehr!")}<small>MedAT Trainer · LernBlick</small></div>`, 3000);
+    studio.laeuft = false;
+    if (studio.rec && studio.rec.state === "recording") studio.rec.stop(); else document.documentElement.classList.remove("lb-studio-laeuft");
+  };
+  replayExplain();
+}
 
 // ---------- Fragen-Bildschirm: Knopf nach falscher Antwort ----------
 function watchWrongAnswers() {
@@ -4918,7 +5238,7 @@ function init() {
   setInterval(() => { const a = document.getElementById("screen-auth"); $("fab").style.display = a && visible(a) ? "none" : ""; }, 700);
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
-window.LernBlick = { open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), foto: async (file) => { await openPanel({}); if (!lb.open) return; await pickUpload(file); ask(); }, blaetter: async (q) => { await ladeBlaetter(); return passendeBlaetter(q).map((b) => b.id); }, showSummary: (d) => openSummary(d) };
+window.LernBlick = { film: (m) => filmAbspielen(m), studio: () => studioEin(), open: (o) => openPanel(o || {}), thema: (t) => openPanel({ thema: t || true }), close: closePanel, ask: (q) => openPanel({ ask: q }), foto: async (file) => { await openPanel({}); if (!lb.open) return; await pickUpload(file); ask(); }, blaetter: async (q) => { await ladeBlaetter(); return passendeBlaetter(q).map((b) => b.id); }, showSummary: (d) => openSummary(d) };
 // Nur für den automatischen Prüfstand (wird im normalen Betrieb nie gesetzt)
 if (window.__LB_BENCH) window.LernBlick._bench = {
   state: () => ({ turns: cur.turns.length, busy: lb.busy, boards: cur.boards.map((b) => ({ titel: b.titel || "", teile: b.teile || [], svg: !!b.svg })), answerBoards, sents: narr ? narr.sents : [], boardOf: narr ? narr.boardOf : [], segs: answerSegs, anchors: Object.keys(anchors), imgTeile: [...document.querySelectorAll("#lb-imgdraw [data-teil]")].flatMap((e) => e.getAttribute("data-teil").split(/\s+/)), status: $("status").textContent }),

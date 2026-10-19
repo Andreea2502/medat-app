@@ -99,6 +99,7 @@ const Gallery = {
 
     const images = this.items.filter(i => (i.item_type || 'image') === 'image');
     const convs = this.items.filter(i => i.item_type === 'conversation');
+    const filme = this.items.filter(i => i.item_type === 'lernfilm');
     const bereiche = [...new Set(this.items.map(i => i.bereich).filter(Boolean))];
 
     bar.innerHTML = `
@@ -108,6 +109,9 @@ const Gallery = {
         </button>
         <button class="gallery-type-tab ${this.currentTypeFilter === 'image' ? 'active' : ''}" data-type="image">
           🖼️ Bilder <span class="gallery-chip-count">${images.length}</span>
+        </button>
+        <button class="gallery-type-tab ${this.currentTypeFilter === 'lernfilm' ? 'active' : ''}" data-type="lernfilm">
+          🎬 Erklärungen <span class="gallery-chip-count">${filme.length}</span>
         </button>
         <button class="gallery-type-tab ${this.currentTypeFilter === 'conversation' ? 'active' : ''}" data-type="conversation">
           💬 Gespräche <span class="gallery-chip-count">${convs.length}</span>
@@ -176,6 +180,25 @@ const Gallery = {
       const se = STIL_EMOJI[item.stil] || (isConv ? '' : '🖼️');
       const preview = (item.frage_text || item.title || '').slice(0, 70);
       const hasNotes = item.notes && item.notes.trim().length > 0;
+
+      // LernBlick-Erklärung mit Tafeln und Stimme: antippen = nochmal ansehen und anhören (Andreea, 19.10.2026)
+      if (item.item_type === 'lernfilm') {
+        let meta = {}; try { meta = JSON.parse(item.conversation_data || '{}'); } catch (e) {}
+        return `
+          <div class="gallery-card gallery-card-conv gallery-card-film" onclick="Gallery.openFilm('${item.id}')">
+            <button class="gallery-card-delete-btn" title="Löschen" onclick="event.stopPropagation();Gallery._quickDelete('${item.id}',true)">✕</button>
+            <div class="gallery-card-thumb gallery-card-thumb-conv gallery-card-thumb-film">
+              <div class="gallery-conv-preview-icon">▶</div>
+              <div class="gallery-conv-preview-tutor">${meta.ton ? 'mit Stimme' : 'Tafel-Erklärung'}</div>
+              <div class="gallery-card-badge gallery-badge-conv">🎬 Erklärung</div>
+            </div>
+            <div class="gallery-card-body">
+              <div class="gallery-card-bereich">${this._escapeHtml(item.bereich || 'MedAT')}</div>
+              <div class="gallery-card-preview">${this._escapeHtml((item.title || '').replace(/^🎬\s*/, ''))}</div>
+              <div class="gallery-card-meta"><span>${date}</span><span class="gallery-card-msg-count">${meta.tafeln || 1} Tafel${(meta.tafeln || 1) > 1 ? 'n' : ''}</span></div>
+            </div>
+          </div>`;
+      }
 
       if (isConv) {
         let msgCount = 0;
@@ -506,8 +529,23 @@ const Gallery = {
     }
   },
 
+  // ─── LernBlick-Erklärung abspielen ────────────────────────────────────────
+  openFilm(id) {
+    const item = this.items.find(i => i.id === id);
+    if (!item || !window.LernBlick || !LernBlick.film) return;
+    LernBlick.film(item.conversation_data);
+  },
+
   // ─── Shared delete logic ──────────────────────────────────────────────────
   async _doDelete(id) {
+    // Erklärung: auch Tafeln, Stimme und Foto aus dem Speicher entfernen
+    const film = this.items.find(i => i.id === id && i.item_type === 'lernfilm');
+    if (film) {
+      try {
+        const ordner = JSON.parse(film.conversation_data || '{}').ordner;
+        if (ordner) { const st = Auth.supabase.storage.from('lernfilme'); const { data } = await st.list(ordner); if (data && data.length) await st.remove(data.map(f => `${ordner}/${f.name}`)); }
+      } catch (e) { console.warn('Lernfilm-Dateien nicht gelöscht', e); }
+    }
     const { data: { session } } = await Auth.supabase.auth.getSession();
     const resp = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/save-banana-image?id=${id}`, {
       method: 'DELETE',
