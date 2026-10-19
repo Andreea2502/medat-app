@@ -135,3 +135,4 @@ html.lb-open #as-fab, html.as-offen #as-fab { display: none !important; }
 .as-banner-text b { font-size: 16px; }
 .as-banner-text span { font-size: 13px; opacity: .9; }
 .as-banner-arrow { font-size: 24px; opacity: .8; }
+.as-fallen-fach { margin: 10px 0 4px; font-weight: 700; font-size: 13px; color: #6b58d6; }

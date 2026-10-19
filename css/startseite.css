@@ -137,3 +137,7 @@ html.neue-startseite.hn-auf-start #mascot-wrap { display: none !important; }
   .hn-q { height: 72px; flex-direction: row; font-size: 14px; border-radius: 20px; gap: 8px; }
 }
 @media (prefers-reduced-motion: reduce) { .hn-kachel { transition: none; } }
+
+/* Prüfungsfallen-Lab nicht mehr als eigenes Lab (jetzt im Lern-Assistenten) */
+.trap-hero-banner, #snav-trap-lab { display: none !important; }
+@media (min-width: 980px) { .hn-leiste { grid-template-columns: 1fr; } }

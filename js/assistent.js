@@ -42,7 +42,6 @@ const BEREICHE = {
   b1: { titel: "Wissens-Lab (alle interaktiven Werkzeuge)", los: () => App.showScreen("screen-tools") },
   b2: { titel: "Lernarchiv (gespeicherte Bilder, Zusammenfassungen, Gespräche)", los: () => (typeof Gallery !== "undefined" ? Gallery.open() : App.showScreen("screen-gallery")) },
   b3: { titel: "Lernplan bis zum MedAT", los: () => App.showScreen("screen-lernplan") },
-  b4: { titel: "Prüfungsfallen-Lab (typische Denkfehler trainieren)", los: () => (typeof TrapLab !== "undefined" ? TrapLab.open() : null) },
   b5: { titel: "Simulationen (komplette MedAT-Simulation, Übersicht)", los: () => App.openSimOverview() },
   b7: { titel: "Statistik und Fortschritt", los: () => App.showScreen("screen-stats") },
   b8: { titel: "Schwächen-Analyse (welche Themen noch wackeln)", los: () => App.showScreen("screen-weakness") },
@@ -124,7 +123,8 @@ Mögliche Aktionen:
 5. {"typ":"arbeitsblatt","fach":"…","thema":"genau so konkret wie gewünscht (z. B. „Synapse“, NICHT verallgemeinern zu „Nervensystem“)","bausteine":["aufgaben","multiple_choice","wahr_falsch","zuordnen","lueckentext","kreuzwort","tabelle"],"seiten":2,"bild":false}
    KI-Arbeitsblatt zu einem Thema zum Ausdrucken. bild:true = mit gezeichneter Abbildung zum Beschriften (nur wenn gewünscht oder bei Aufbau-/Anatomie-Themen sinnvoll).
 6. {"typ":"zusammenfassung","fach":"…","thema":"genau so konkret wie gewünscht","bild":false} – kompakte Lernzusammenfassung auf MedAT-Niveau zum Ausdrucken.
-7. {"typ":"erklaeren","frage":"…"} – wenn jemand etwas ERKLÄRT haben will (dann übernimmt LernBlick mit Tafel und Stimme).
+7. {"typ":"fallen","fach":"biologie|chemie|physik|"} – typische MedAT-Prüfungsfallen (Denkfehler) trainieren, nach Fach. fach leer = alle Fächer zur Auswahl.
+8. {"typ":"erklaeren","frage":"…"} – wenn jemand etwas ERKLÄRT haben will (dann übernimmt LernBlick mit Tafel und Stimme).
 HANDLE SOFORT: Sobald Art (Fragen, Arbeitsblatt, Zusammenfassung, Untertest, Simulation …) und Thema oder Fach erkennbar sind, setzt du die Aktion – frag NICHT nach Details wie Abbildung, Seitenzahl, Bausteinen oder Anzahl, nimm sinnvolle Standardwerte (bei Aufbau, Anatomie, Zellen, Organen, Geweben, Synapse, Neuron: "bild":true). In "antwort" sagst du kurz, was du baust.
 Nur wenn wirklich nicht erkennbar ist, worum es geht, setze aktion auf null und stelle GENAU EINE kurze Rückfrage.
 Standardwerte: 20 Fragen, wenn keine Zahl genannt ist (höchstens 80). "wie":"app", außer es fällt PDF, drucken, Blatt, ausdrucken oder Arbeitsblatt. Fragen nach dem, was die App kann, beantwortest du kurz und schlägst passende Aktionen vor.
@@ -152,6 +152,7 @@ function pruefe(a, k) {
     case "arbeitsblatt": { const ok = ["aufgaben", "multiple_choice", "wahr_falsch", "zuordnen", "lueckentext", "kreuzwort", "tabelle"]; const b = (a.bausteine || []).filter((x) => ok.includes(x)); return a.thema ? { typ: "arbeitsblatt", fach: fach(a.fach), thema: String(a.thema).slice(0, 120), bausteine: b.length ? b : ["aufgaben", "multiple_choice", "zuordnen", "lueckentext", "kreuzwort"], seiten: n(a.seiten, 2, 3), bild: !!a.bild } : null; }
     case "zusammenfassung": return a.thema ? { typ: "zusammenfassung", fach: fach(a.fach), thema: String(a.thema).slice(0, 120), bild: !!a.bild } : null;
     case "erklaeren": return a.frage ? { typ: "erklaeren", frage: String(a.frage).slice(0, 500) } : null;
+    case "fallen": return { typ: "fallen", fach: /bio|chem|phys/i.test(a.fach || "") ? String(a.fach).toLowerCase().slice(0, 4) : "" };
   }
   return null;
 }
@@ -204,7 +205,7 @@ function oeffne(text) {
   if (text) frage(text); else setTimeout(() => $("q").focus(), 60);
 }
 function schliesse() { $("panel").hidden = true; st.open = false; document.documentElement.classList.remove("as-offen"); }
-const STARTER = ["20 Biologie-Fragen zur Genetik als PDF", "Ich will Allergieausweise üben", "Arbeitsblatt zur Synapse zum Ausdrucken", "Zusammenfassung Säure-Base", "Mini-Simulation nur KFF", "Was kann die App alles?"];
+const STARTER = ["Prüfungsfallen üben", "20 Biologie-Fragen zur Genetik als PDF", "Ich will Allergieausweise üben", "Arbeitsblatt zur Synapse zum Ausdrucken", "Zusammenfassung Säure-Base", "Mini-Simulation nur KFF", "Was kann die App alles?"];
 function willkommen() {
   $("chat").replaceChildren();
   blase("as", `Hallo! Ich kenne die ganze App. Sag mir einfach, was du üben willst – ich stelle dir Fragen, Arbeitsblätter, Zusammenfassungen oder eine Simulation zusammen, als Übung in der App oder zum Ausdrucken. Erklären mit Tafel und Stimme übernimmt LernBlick.`);
@@ -230,6 +231,13 @@ async function frage(q) {
   if (st.busy) return;
   st.busy = true; tipps([]);
   blase("ich", q);
+  // Prüfungsfallen: ohne KI-Anfrage direkt die Auswahl nach Fach zeigen
+  if (/prüfungsfall|pruefungsfall|denkfehler/i.test(q) && q.length < 80) {
+    const f = (q.match(/bio|chem|phys/i) || [""])[0].toLowerCase().slice(0, 4);
+    blase("as", "Such dir ein Thema aus – ich zeige dir die typischen Fallen und du übst sie gleich.");
+    try { await fuehreAus({ typ: "fallen", fach: f }, null); } finally { st.busy = false; tipps(STARTER.slice(1, 4)); }
+    return;
+  }
   const w = warte("Moment …");
   try {
     const k = await katalog();
@@ -257,6 +265,18 @@ async function fuehreAus(a, k) {
     case "oeffnen": return oeffneZiel(k.ziele[a.ziel]);
     case "arbeitsblatt": return arbeitsblatt(a);
     case "zusammenfassung": return zusammenfassung(a);
+    case "fallen": {
+      const alle = [["biol", "Biologie", [["mitochondrien", "Mitochondrien"], ["genetik", "Genetik"]]], ["chem", "Chemie", [["ph-wert", "pH-Wert & Säuren/Basen"], ["konzentrationen", "Konzentrationen & Einheiten"]]], ["phys", "Physik", [["kraefte", "Kräfte & Newton"]]]];
+      const wahl = alle.filter(([k]) => !a.fach || k.startsWith(a.fach));
+      const c = karte("Prüfungsfallen", "Die typischen Denkfehler, die im MedAT Punkte kosten – such dir ein Thema aus:", []);
+      wahl.forEach(([, fach, themen]) => {
+        c.appendChild(el("p", "as-fallen-fach", fach));
+        const r = el("div", "as-karte-btns");
+        themen.forEach(([id, t]) => { const b = el("button", "as-ghost", t); b.type = "button"; b.onclick = () => { schliesse(); if (typeof TrapLab !== "undefined") TrapLab.openTopic(id); }; r.appendChild(b); });
+        c.appendChild(r);
+      });
+      return c;
+    }
     case "kffhilfe": {
       const u = UNTERTESTE[a.untertest];
       const name = u.label.replace(/ \(.*$/, "");

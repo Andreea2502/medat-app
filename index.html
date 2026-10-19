@@ -38,8 +38,8 @@
   <!-- jsPDF für PDF-Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="stylesheet" href="css/lernblick.css?v=20261019e">
-<link rel="stylesheet" href="css/assistent.css?v=20261019b">
-<link rel="stylesheet" href="css/startseite.css?v=20261019d">
+<link rel="stylesheet" href="css/assistent.css?v=20261019f">
+<link rel="stylesheet" href="css/startseite.css?v=20261019f">
 </head>
 <body>
 
@@ -90,6 +90,7 @@
             <button type="button" class="hn-chip" data-lb="tafel">An der Tafel erklären</button>
             <button type="button" class="hn-chip" data-as="Frag mich ab – stell mir ein paar Fragen auf MedAT-Niveau">Frag mich ab</button>
             <button type="button" class="hn-chip" data-as="Ich möchte ein Arbeitsblatt">Arbeitsblatt</button>
+            <button type="button" class="hn-chip" data-as="Prüfungsfallen üben">Prüfungsfallen</button>
             <button type="button" class="hn-chip" data-lb="thema">Thema lernen</button>
           </div>
           <input type="file" id="hn-foto-datei" accept="image/*" hidden>
@@ -103,7 +104,7 @@
             <button type="button" class="hn-kachel hn-gruen" onclick="App.showScreen('screen-tools')"><span class="hn-glanz"></span><span class="hn-blase"></span><span class="hn-chipicon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6A2 2 0 0 0 19 18l-5-9V3"/><path d="M7.5 14h9"/></svg></span><span class="hn-txt"><b>Wissens-Lab</b><span>24 interaktive Tools</span></span></button>
           </div>
           <div class="hn-leiste">
-            <button type="button" class="hn-kachel hn-fallen" onclick="TrapLab.open()"><span class="hn-glanz"></span><span class="hn-chipicon hn-klein"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg></span><span class="hn-txt"><b>Prüfungsfallen-Lab</b></span><em>NEU</em></button>
+            
             <div class="hn-quick">
               <button type="button" class="hn-q" onclick="App.openSmartTraining()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg><span>Schwächen</span></button>
               <button type="button" class="hn-q" onclick="App.showScreen('screen-stats')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11M12 20V5M19 20v-7"/></svg><span>Statistik</span></button>
@@ -1707,7 +1708,7 @@
   </script>
 <script src="js/lernblick.js?v=20261019e" defer></script>
 <script src="js/vendor/raetsel.js?v=20261019b" defer></script>
-<script src="js/assistent.js?v=20261019b" defer></script>
+<script src="js/assistent.js?v=20261019f" defer></script>
 <script src="js/startseite.js?v=20261019d" defer></script>
 </body>
 </html>
