@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>MedAT Trainer – deine Auswahl</title>
+<style>
+  :root{--ink:#1a1a2e;--grau:#666;--bg:#f5f0e8;--karte:#fff;--gelb:#f5c542;--gelb2:#f0b429;--rot:#c0392b;--soft:#f8f5ed}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6}
+  main{max-width:560px;margin:0 auto;padding:2rem 16px 3rem}
+  .kopf{text-align:center;margin-bottom:1.4rem}
+  .kopf .logo{font-size:2.4rem}
+  .kopf h1{font-size:1.3rem;margin:.2rem 0 0}
+  .karte{background:var(--karte);border-radius:16px;padding:1.8rem 1.4rem;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+  h2{font-size:1.2rem;margin:0 0 .8rem;text-align:center}
+  p{color:#444;margin:.6rem 0}
+  .gross{font-size:3rem;text-align:center;margin:0 0 .4rem}
+  .knopf{display:block;width:100%;border:0;border-radius:12px;padding:.9rem 1rem;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;text-align:center;text-decoration:none;margin-top:1rem}
+  .gelb{background:linear-gradient(135deg,var(--gelb),var(--gelb2));color:var(--ink);box-shadow:0 4px 12px rgba(245,197,66,.3)}
+  .leise{background:transparent;color:var(--grau);border:1.5px solid #ddd}
+  .rot{background:var(--rot);color:#fff}
+  .box{background:var(--soft);border-radius:12px;padding:1rem 1.1rem;margin-top:1.2rem}
+  .box h3{font-size:.95rem;margin:0 0 .5rem}
+  .neu{list-style:none;padding:0;margin:.4rem 0 0}
+  .neu li{display:flex;gap:.7rem;padding:.55rem 0;border-top:1px solid #eee4cf}
+  .neu li:first-child{border-top:0}
+  .neu b{display:block}
+  .neu span{color:#555;font-size:.9rem}
+  .neu .ic{font-size:1.4rem;flex:0 0 1.8rem;text-align:center}
+  label.haken{display:flex;gap:.6rem;align-items:flex-start;font-size:.9rem;color:#444;margin-top:1rem;cursor:pointer}
+  label.haken input{margin-top:.3rem;width:1.1rem;height:1.1rem;flex:0 0 auto}
+  .klein{font-size:.8rem;color:#888;text-align:center;margin-top:1.4rem}
+  .fehler{color:var(--rot);text-align:center}
+  .warte{text-align:center;color:var(--grau)}
+  .preise{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.6rem}
+  .preise div{background:#fff;border-radius:10px;padding:.7rem;text-align:center;font-size:.85rem;color:#555}
+  .preise strong{display:block;font-size:1.1rem;color:var(--ink)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <div class="kopf"><div class="logo">🩺</div><h1>MedAT Trainer</h1></div>
+  <div class="karte" id="inhalt"><p class="warte">Einen Moment …</p></div>
+  <p class="klein">Fragen? Schreib uns an <a href="mailto:office@ai-guide.at">office@ai-guide.at</a></p>
+</main>
+<script>
+(function () {
+  const FN = 'https://vbmhkdrpglezbznnwpws.supabase.co/functions/v1/medat-weg';
+  const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibWhrZHJwZ2xlemJ6bm53cHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwOTAzNzAsImV4cCI6MjA4NDY2NjM3MH0.zsrzk9VxlFaWo7wiAEoPqXoNhONmv85tOBYqu6BFhaE';
+  const APP = './';
+  const q = new URLSearchParams(location.search);
+  const t = q.get('t') || '', w = q.get('w') || '';
+  const el = document.getElementById('inhalt');
+  const zeig = (h) => { el.innerHTML = h; };
+
+  async function rufe(body) {
+    const r = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: JSON.stringify(Object.assign({ t }, body)) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || d.error) throw new Error(d.error || 'Das hat nicht geklappt.');
+    return d;
+  }
+  const fehler = (e) => zeig('<div class="gross">😕</div><p class="fehler">' + (e.message || e) + '</p><p style="text-align:center">Du kannst uns jederzeit an <a href="mailto:office@ai-guide.at">office@ai-guide.at</a> schreiben.</p>');
+
+  const NEU = `
+    <ul class="neu">
+      <li><div class="ic">🧑‍🏫</div><div><b>LernBlick – dein Tutor an der Tafel</b><span>Er erklärt mit Stimme und zeichnet live: Operon, Synapse, Hormonachsen, Verdünnungen – Schritt für Schritt.</span></div></li>
+      <li><div class="ic">🎯</div><div><b>Erklärt genau deinen Denkfehler</b><span>Nicht allgemein, sondern: „Du bist davon ausgegangen, dass … – darum stimmt es nicht.“</span></div></li>
+      <li><div class="ic">📸</div><div><b>Foto hochladen</b><span>Aufgabe aus dem Buch oder Mitschrift abfotografieren – LernBlick erklärt sie dir.</span></div></li>
+      <li><div class="ic">📊</div><div><b>Fehler-Analyse nach jeder Prüfung</b><span>Welche Themen dir noch fehlen – mit maßgeschneidertem Erklärvideo pro Thema.</span></div></li>
+      <li><div class="ic">🎬</div><div><b>Dein Lernarchiv</b><span>Jede Erklärung bleibt gespeichert: nochmal ansehen, anhören, zusammenfassen, ausdrucken.</span></div></li>
+    </ul>`;
+
+  function bestanden() {
+    zeig(`
+      <div class="gross">🎉</div>
+      <h2>Herzlichen Glückwunsch!</h2>
+      <p>Du hast den MedAT geschafft – das ist eine riesige Leistung, auf die du stolz sein kannst. Danke, dass du dich mit dem MedAT Trainer vorbereitet hast. Wir wünschen dir einen großartigen Start ins Studium!</p>
+      <p>Du brauchst dein Konto jetzt nicht mehr. Wenn du möchtest, löschen wir es mit allen Daten – mit einem Klick.</p>
+      ${loeschTeil()}`);
+    bindeLoeschen('Alles Gute fürs Studium! 🩺');
+  }
+  function aufhoeren() {
+    zeig(`
+      <div class="gross">🍀</div>
+      <h2>Danke für deine Rückmeldung</h2>
+      <p>Schön, dass du ein Stück des Weges mit uns gegangen bist. Wohin es dich auch führt: Wir wünschen dir von Herzen alles Gute – und viel Erfolg bei dem, was jetzt kommt.</p>
+      <p>Wenn du möchtest, löschen wir dein Konto mit allen Daten.</p>
+      ${loeschTeil()}`);
+    bindeLoeschen('Alles Gute für deinen weiteren Weg! 🍀');
+  }
+  function loeschTeil() {
+    return `
+      <button class="knopf leise" id="los1">Konto und Daten löschen</button>
+      <div id="frage" hidden class="box">
+        <h3>Wirklich löschen?</h3>
+        <p style="font-size:.9rem">Dein Konto, deine Lernstände, gespeicherten Erklärungen und PDFs werden endgültig gelöscht. Das lässt sich nicht rückgängig machen.</p>
+        <button class="knopf rot" id="los2">Ja, endgültig löschen</button>
+        <button class="knopf leise" id="nein">Doch nicht</button>
+      </div>
+      <p class="klein" style="text-align:left">Du musst nichts tun: Wenn du dein Konto behalten willst, schließ diese Seite einfach.</p>`;
+  }
+  function bindeLoeschen(gruss) {
+    const f = document.getElementById('frage');
+    document.getElementById('los1').onclick = () => { f.hidden = false; document.getElementById('los1').hidden = true; };
+    document.getElementById('nein').onclick = () => { f.hidden = true; document.getElementById('los1').hidden = false; };
+    document.getElementById('los2').onclick = async (ev) => {
+      ev.target.disabled = true; ev.target.textContent = 'Wird gelöscht …';
+      try { await rufe({ loeschen: true }); zeig(`<div class="gross">✅</div><h2>Erledigt</h2><p style="text-align:center">Dein Konto und alle Daten sind gelöscht.</p><p style="text-align:center">${gruss}</p>`); }
+      catch (e) { fehler(e); }
+    };
+  }
+
+  function weiterlernen(d) {
+    const bis = d.probe && (d.probe.bis || d.probe.ende || d.probe);
+    const datum = bis && !isNaN(Date.parse(bis)) ? new Date(bis).toLocaleDateString('de-AT', { day: 'numeric', month: 'long' }) : null;
+    const schon = d.probe && d.probe.ok === false;
+    zeig(`
+      <div class="gross">🚀</div>
+      <h2>${schon ? 'Du bist schon dabei!' : 'Deine 14 Tage laufen!'}</h2>
+      <p style="text-align:center">${schon
+        ? 'Für dein Konto lief die Probezeit schon oder du hast bereits einen Zugang' + (datum ? ' (bis <b>' + datum + '</b>)' : '') + '. Log dich einfach ein – im Konto siehst du deinen Stand.'
+        : 'Du kannst ab sofort alles im neuen MedAT Trainer ausprobieren' + (datum ? ' – bis <b>' + datum + '</b>' : '') + '. Kostenlos und ohne Zahlungsdaten. Danach endet die Probezeit von selbst, es wird nichts abgebucht.'}</p>
+      <a class="knopf gelb" href="${APP}">Jetzt einloggen und loslegen</a>
+      <p class="klein" style="margin-top:.6rem">Melde dich mit ${d.email ? '<b>' + d.email + '</b>' : 'deiner bisherigen E-Mail-Adresse'} an.</p>
+      <div class="box"><h3>Das ist neu</h3>${NEU}</div>
+      <div class="box">
+        <h3>Und danach?</h3>
+        <p style="font-size:.9rem;margin-top:0">Wenn es dir gefällt, wählst du im Konto:</p>
+        <div class="preise">
+          <div><strong>14,90 €</strong>pro Monat<br>monatlich kündbar</div>
+          <div><strong>99 €</strong>MedAT-Pass<br>bis MedAT 2027, kein Abo</div>
+        </div>
+      </div>`);
+  }
+  function weiterFrage() {
+    zeig(`
+      <div class="gross">💪</div>
+      <h2>Schön, dass du weitermachst!</h2>
+      <p style="text-align:center">Der MedAT Trainer hat ein neues Gesicht – und einen Tutor, der dir an der Tafel erklärt, was du falsch gemacht hast. Teste 14 Tage lang alles kostenlos, ohne Zahlungsdaten.</p>
+      <div class="box"><h3>Das ist neu</h3>${NEU}</div>
+      <label class="haken"><input type="checkbox" id="mails"> <span>Ja, ich möchte gelegentlich Lerntipps und Neuigkeiten zum MedAT Trainer per E-Mail bekommen. Abmelden geht jederzeit.</span></label>
+      <button class="knopf gelb" id="start">14 Tage Probezeit starten</button>`);
+    document.getElementById('start').onclick = async (ev) => {
+      ev.target.disabled = true; ev.target.textContent = 'Wird gestartet …';
+      try { weiterlernen(await rufe({ wahl: 'weiterlernen', mails: document.getElementById('mails').checked })); }
+      catch (e) { fehler(e); }
+    };
+  }
+
+  async function start() {
+    if (!t) return fehler(new Error('Dieser Link ist unvollständig. Bitte öffne ihn direkt aus der E-Mail.'));
+    if (w === 'weiterlernen') return weiterFrage();
+    if (w !== 'bestanden' && w !== 'aufhoeren') return fehler(new Error('Unbekannte Auswahl.'));
+    try { await rufe({ wahl: w }); (w === 'bestanden' ? bestanden : aufhoeren)(); }
+    catch (e) { fehler(e); }
+  }
+  start();
+})();
+</script>
+</body>
+</html>
