@@ -1,0 +1,143 @@
+/* ===== Neue Startseite (Entwurf A: Glas-Kacheln, Fragefeld im dunklen Feld) =====
+   Zurück zur alten Startseite: Klasse "neue-startseite" an <html> entfernen (js/startseite.js). */
+
+#home-neu { display: none; }
+html.neue-startseite #home-neu { display: block; }
+html.neue-startseite #screen-home > :not(#home-neu) { display: none !important; }
+html.neue-startseite #screen-home { padding: 0 !important; max-width: none !important; margin: 0 !important; min-height: 0; }
+#home-neu, #home-neu * { box-sizing: border-box; }
+#home-neu { width: 100%; overflow-x: hidden; }
+/* Auf der Startseite übernimmt das dunkle Feld alles, was vorher schwebende Knöpfe waren */
+html.neue-startseite.hn-auf-start #hamburger-btn,
+html.neue-startseite.hn-auf-start #lb-fab,
+html.neue-startseite.hn-auf-start #as-fab,
+html.neue-startseite.hn-auf-start #mascot-wrap { display: none !important; }
+
+#home-neu {
+  --hn-ink: #1a1a2e; --hn-gelb: #f5c542;
+  max-width: 1200px; margin: 0 auto; box-sizing: border-box;
+  padding: max(12px, env(safe-area-inset-top)) 16px 14px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--hn-ink);
+}
+#home-neu button { font-family: inherit; cursor: pointer; }
+#home-neu button:focus-visible, #home-neu input:focus-visible { outline: 3px solid #6b58d6; outline-offset: 2px; }
+
+.hn-kopf { display: flex; align-items: center; justify-content: space-between; height: 44px; margin-bottom: 12px; }
+.hn-kopf-r { display: flex; gap: 8px; }
+.hn-rund { width: 44px; height: 44px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: var(--hn-ink); padding: 0; }
+.hn-weiss { background: #fff; border: 1px solid #ece4d6; box-shadow: 0 4px 14px rgba(26,26,46,0.06); }
+.hn-profil { border-radius: 50%; font-weight: 800; font-size: 14px; }
+.hn-marke { font-size: 19px; font-weight: 800; letter-spacing: -0.03em; }
+.hn-marke span { color: #b8860b; }
+
+.hn-haupt { display: flex; flex-direction: column; gap: 12px; }
+.hn-rechts { display: flex; flex-direction: column; gap: 12px; }
+
+/* Dunkles Feld */
+.hn-hero {
+  position: relative; overflow: hidden; border-radius: 26px; padding: 16px; color: #f5f5f5;
+  background: linear-gradient(150deg, #2c2c4e 0%, #1a1a2e 55%, #15152a 100%);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 18px 36px rgba(26,26,46,0.25);
+  display: flex; flex-direction: column; gap: 13px;
+}
+.hn-hero::before { content: ""; position: absolute; inset: 0; background: linear-gradient(165deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 40%); pointer-events: none; }
+.hn-hero > * { position: relative; }
+.hn-hero-oben { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.hn-gruss { font-size: 13px; font-weight: 600; color: var(--hn-gelb); }
+.hn-bis { font-size: 12px; color: #c4c4d6; margin-top: 4px; }
+.hn-hero-knoepfe { display: flex; gap: 6px; flex-shrink: 0; }
+.hn-hero-oben > div:first-child { min-width: 0; }
+@media (max-width: 600px) { .hn-upgrade { width: 38px; padding: 0; justify-content: center; } .hn-upgrade span { display: none; } }
+.hn-q svg { flex-shrink: 0; width: 20px; height: 20px; }
+.hn-weiter, .hn-upgrade { height: 38px; padding: 0 12px; border-radius: 12px; border: none; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); }
+.hn-weiter { background: var(--hn-gelb); color: var(--hn-ink); }
+.hn-upgrade { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(245,197,66,0.6); box-shadow: none; }
+.hn-countdown { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.hn-countdown > div { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 8px 0 6px; text-align: center; }
+.hn-countdown b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.hn-countdown span { font-size: 10.5px; color: #c4c4d6; }
+.hn-countdown.hn-vorbei { grid-template-columns: 1fr; }
+.hn-spacer { display: none; }
+.hn-frage { display: flex; align-items: center; gap: 8px; height: 50px; padding: 0 5px 0 14px; border-radius: 17px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); margin: 0; }
+.hn-frage input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #fff; font: inherit; font-size: 14px; }
+.hn-frage input::placeholder { color: #b9b9cc; }
+.hn-mic, .hn-los { width: 40px; height: 40px; border-radius: 13px; border: none; display: inline-flex; align-items: center; justify-content: center; color: #fff; flex-shrink: 0; }
+.hn-mic { background: rgba(255,255,255,0.1); }
+.hn-mic.hn-hoert { background: #dc2626; }
+.hn-los { background: #6b58d6; }
+.hn-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+.hn-chips::-webkit-scrollbar { display: none; }
+.hn-chip { flex-shrink: 0; height: 34px; padding: 0 12px; border-radius: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); color: #f5f5f5; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.hn-chip svg { color: var(--hn-gelb); }
+.hn-chip:hover { background: rgba(255,255,255,0.14); }
+
+/* Glas-Kacheln mit Farbverlauf */
+.hn-kacheln { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.hn-kachel {
+  position: relative; overflow: hidden; border-radius: 22px; padding: 14px; height: 108px; box-sizing: border-box; text-align: left;
+  display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start;
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -12px 24px rgba(0,0,0,0.08), 0 10px 22px rgba(26,26,46,0.14);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.hn-kachel:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), inset 0 -12px 24px rgba(0,0,0,0.08), 0 14px 28px rgba(26,26,46,0.2); }
+.hn-glanz { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.08) 38%, rgba(255,255,255,0) 60%); pointer-events: none; }
+.hn-blase { position: absolute; width: 120px; height: 120px; right: -34px; top: -40px; border-radius: 50%; background: rgba(255,255,255,0.22); border: 1px solid rgba(255,255,255,0.35); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); pointer-events: none; }
+.hn-chipicon { position: relative; width: 38px; height: 38px; border-radius: 12px; background: rgba(255,255,255,0.28); border: 1px solid rgba(255,255,255,0.6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); display: inline-flex; align-items: center; justify-content: center; }
+.hn-chipicon.hn-klein { width: 34px; height: 34px; border-radius: 11px; color: #6b4d99; }
+.hn-txt { position: relative; display: flex; flex-direction: column; }
+.hn-txt b { font-size: 15px; font-weight: 800; }
+.hn-txt span { font-size: 12px; font-weight: 600; }
+.hn-gelb { background: linear-gradient(140deg, #fbe089 0%, #f5c542 45%, #e6a817 100%); color: var(--hn-ink); }
+.hn-koralle { background: linear-gradient(140deg, #ee9a78 0%, #d86a44 45%, #b4502d 100%); color: #fff; }
+.hn-lila { background: linear-gradient(140deg, #8f7cf0 0%, #6b58d6 45%, #4a3bb0 100%); color: #fff; }
+.hn-gruen { background: linear-gradient(140deg, #4fae78 0%, #2d8a54 45%, #1c6439 100%); color: #fff; }
+.hn-fallen { height: 54px; padding: 0 14px; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px; border-radius: 18px; width: 100%; background: linear-gradient(120deg, #efe7fa 0%, #e0d3f3 60%, #cdbbea 100%); color: var(--hn-ink); }
+.hn-fallen .hn-txt { flex: 1; }
+.hn-fallen .hn-txt b { font-size: 14px; font-weight: 700; }
+.hn-fallen em { position: relative; font-style: normal; font-size: 11px; font-weight: 800; background: var(--hn-gelb); padding: 3px 8px; border-radius: 8px; }
+.hn-leiste { display: flex; flex-direction: column; gap: 12px; }
+.hn-quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.hn-q { height: 70px; border-radius: 16px; background: #fff; border: 1px solid #ece4d6; box-shadow: 0 4px 14px rgba(26,26,46,0.06); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 11.5px; font-weight: 700; color: var(--hn-ink); padding: 0 4px; }
+.hn-q:nth-child(1) svg { color: #2d6b4a; } .hn-q:nth-child(2) svg { color: #c0522e; } .hn-q:nth-child(3) svg { color: #6b4d99; } .hn-q:nth-child(4) svg { color: #b8860b; }
+.hn-q:hover { border-color: #d9cdb8; }
+.hn-ki { margin: 10px 0 0; text-align: center; font-size: 11px; color: #8a8698; }
+
+/* Kleine Handys: etwas enger, damit alles auf einen Bildschirm passt */
+@media (max-height: 760px) and (max-width: 600px) {
+  .hn-kachel { height: 96px; }
+  .hn-countdown b { font-size: 21px; }
+  .hn-q { height: 62px; }
+  .hn-haupt, .hn-rechts, .hn-leiste { gap: 10px; }
+}
+
+/* Computer: links das dunkle Feld, rechts die Kacheln */
+@media (min-width: 980px) {
+  #home-neu { padding: 24px 40px 24px; }
+  .hn-marke { font-size: 22px; }
+  .hn-haupt { display: grid; grid-template-columns: 440px minmax(0, 1fr); gap: 22px; min-height: calc(100vh - 140px); max-height: 760px; }
+  .hn-hero { border-radius: 30px; padding: 26px; gap: 16px; }
+  .hn-gruss { font-size: 16px; } .hn-bis { font-size: 13px; }
+  .hn-countdown b { font-size: 38px; } .hn-countdown span { font-size: 12px; }
+  .hn-countdown > div { border-radius: 18px; padding: 14px 0 10px; }
+  .hn-spacer { display: block; flex: 1; }
+  .hn-frage { height: 60px; border-radius: 20px; }
+  .hn-chips { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+  .hn-rechts { gap: 16px; }
+  .hn-kacheln { flex: 1; gap: 16px; }
+  .hn-kachel { height: auto; min-height: 150px; border-radius: 28px; padding: 24px; }
+  .hn-kacheln .hn-chipicon { width: 52px; height: 52px; border-radius: 16px; }
+  .hn-kacheln .hn-chipicon svg { width: 26px; height: 26px; }
+  .hn-kacheln .hn-txt b { font-size: 22px; } .hn-kacheln .hn-txt span { font-size: 14px; }
+  .hn-blase { width: 200px; height: 200px; right: -60px; top: -70px; }
+  .hn-leiste { display: grid; grid-template-columns: 2fr 4fr; gap: 12px; }
+  .hn-leiste .hn-kachel.hn-fallen { height: 72px; min-height: 0; padding: 0 16px; border-radius: 20px; }
+  .hn-quick { gap: 12px; }
+  .hn-q { height: 72px; flex-direction: row; font-size: 14px; border-radius: 20px; gap: 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .hn-kachel { transition: none; } }
+
+/* Prüfungsfallen-Lab nicht mehr als eigenes Lab (jetzt im Lern-Assistenten) */
+.trap-hero-banner, #snav-trap-lab { display: none !important; }
+@media (min-width: 980px) { .hn-leiste { grid-template-columns: 1fr; } }

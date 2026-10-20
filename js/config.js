@@ -2,8 +2,16 @@
 // Exakte MedAT-H Testspezifikationen
 
 const CONFIG = {
+  // Cheat-Sheets (Bilder) vorerst ausgeblendet – Andreea, 19.10.2026. Auf true setzen, um sie zurückzuholen.
+  CHEATSHEETS_AKTIV: false,
   SUPABASE_URL: 'https://vbmhkdrpglezbznnwpws.supabase.co',
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZibWhrZHJwZ2xlemJ6bm53cHdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwOTAzNzAsImV4cCI6MjA4NDY2NjM3MH0.zsrzk9VxlFaWo7wiAEoPqXoNhONmv85tOBYqu6BFhaE',
+
+  // === STRIPE PREMIUM CHECKOUT ===
+  // Direkter Stripe-Payment-Link für Premium (29,90 €) — ersetzt die Edge Function.
+  // Alle Premium-Buttons im Frontend zeigen auf diesen Link.
+  // Geändert: 27.05.2026 (statt 39,90 / 19,90 / Promo-Stripes)
+  STRIPE_PREMIUM_LINK: 'https://buy.stripe.com/aFadR9cza9DrbpK2oe2B204',
 
   // ===== MedAT-H Testblöcke =====
   TEST_BLOCKS: {
@@ -127,3 +135,5 @@ const CONFIG = {
     return sid;
   }
 };
+
+if (typeof document !== 'undefined' && CONFIG.CHEATSHEETS_AKTIV === false) document.documentElement.classList.add('ohne-cheatsheets');

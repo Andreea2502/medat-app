@@ -588,12 +588,11 @@ const Lernplan = (() => {
               <h2 style="font-size:1.2rem;font-weight:800;color:#1a1a2e;margin:0 0 0.5rem">Lernplan-Resets aufgebraucht</h2>
               <p style="font-size:0.88rem;color:#5c5c6e;line-height:1.6;margin:0 0 1rem">
                 Du hast dein kostenloses Limit von <strong>3 Lernplan-Resets</strong> erreicht.<br>
-                Mit Basic oder Premium kannst du deinen Lernplan unbegrenzt neu generieren.
+                Mit Premium kannst du deinen Lernplan unbegrenzt neu generieren.
               </p>
               <div style="background:#f8f8f8;border-radius:14px;padding:1rem;margin-bottom:1.25rem;text-align:left;font-size:0.82rem;color:#5c5c6e;line-height:1.8">
                 ✓ Free: 3 Resets lifetime<br>
-                ✓ Basic: Unbegrenzte Resets — €19,90/Mo<br>
-                ✓ Premium: Unbegrenzte Resets — €29,90/Mo
+                ✓ Premium: Unbegrenzte Resets — €29,90 (einmalig)
               </div>
               <button onclick="document.getElementById('ai-credits-paywall').remove();App.showScreen('screen-konto')"
                 style="width:100%;background:linear-gradient(135deg,#f5c542,#e0a820);color:#1a1a2e;border:none;border-radius:12px;padding:0.85rem;font-weight:700;font-size:0.95rem;cursor:pointer;box-shadow:0 4px 12px rgba(245,197,66,0.3)">

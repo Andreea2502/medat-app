@@ -33,7 +33,7 @@ const Auth = {
   },
 
   /**
-   * Bestehende Session prüfen
+   * Bestehende Session prüfen — auf Preview-URLs: Auto-Login
    */
   async checkSession() {
     try {
@@ -46,6 +46,28 @@ const Auth = {
     } catch (e) {
       console.warn('Session-Check fehlgeschlagen:', e);
     }
+
+    // Auto-Login auf Preview-URLs (vercel.app) — nie auf der Produktions-URL
+    const host = window.location.hostname;
+    const isPreview = host.includes('vercel.app') && !host.startsWith('medat-trainer');
+    if (isPreview) {
+      try {
+        console.log('🔧 Preview-Modus: Auto-Login…');
+        const { data, error } = await this.supabase.auth.signInWithPassword({
+          email: 'andreea@medat-trainer.at',
+          password: 'Test1234!',
+        });
+        if (!error && data.session) {
+          this.currentUser = data.user;
+          await this.loadProfile();
+          console.log('✅ Auto-Login erfolgreich');
+          return true;
+        }
+      } catch (e) {
+        console.warn('Auto-Login fehlgeschlagen:', e);
+      }
+    }
+
     return false;
   },
 

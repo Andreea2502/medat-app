@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="de" data-stimme="aus">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skelett &amp; Muskeln · Werkzeugkiste</title>
+<meta name="description" content="Der Bewegungsapparat in 3D für die Mittelschule: alle Knochen mit Fachbegriff (Latein zuschaltbar), Muskeln als Schicht, Setzkasten, Gelenktypen mit Bewegung am Modell, Beuger und Strecker, Haltung prüfen, Knochen finden und Quiz.">
+<link rel="stylesheet" href="../lib/kiste.css">
+<link rel="stylesheet" href="../lib/atlas.css">
+<script type="importmap">{"imports":{"three":"../lib/three/three.module.js","three/addons/":"../lib/three/addons/"}}</script>
+<link rel="modulepreload" href="../lib/atlas.js">
+<style>
+  /* Biologie: tiefes Petrol; Beuger warm-rot, Strecker blau */
+  :root{--accent:#1f7a8c;--accent-deep:#155a68;--accent-soft:#dff1f4;--beuger:#ff6a3d;--strecker:#3d8bff}
+  .stufen,.wahl{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:4px 0 12px}
+  .stufen button,.wahl button{min-height:48px;padding:0 16px;border-radius:99px;border:2px solid var(--line);background:#fff;font-weight:800;font-size:.98rem}
+  .stufen button[aria-pressed="true"],.wahl button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .lead b{color:var(--accent-deep)}
+  .info{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+  @media (min-width:800px){.info{grid-template-columns:150px minmax(0,1fr)}}
+  .info svg{width:150px;height:110px;display:block;margin:0 auto;background:#f4f7f9;border-radius:14px;border:2px solid var(--line)}
+  .info h3{font-size:1.2rem;font-weight:800;color:var(--accent-deep)}
+  .info p{margin:4px 0 8px;line-height:1.5}
+  .beispiele{display:flex;flex-wrap:wrap;gap:8px}
+  .ausw{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-top:12px}
+  .regler2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;margin:12px 0 4px;font-weight:800}
+  .regler2 input{width:min(340px,70vw);height:36px;accent-color:var(--accent)}
+  .paar{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px}
+  .paar span{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:6px 14px;font-weight:800;border:2px solid var(--line);background:#fff}
+  .paar i{width:14px;height:14px;border-radius:50%;display:inline-block}
+  .zustand{margin-top:10px;border-radius:14px;padding:12px 14px;background:#f4f7f9;border:2px solid var(--line);font-weight:600;line-height:1.5;min-height:3.2em}
+  .zustand b.beuger{color:#c2410c}.zustand b.strecker{color:#1d5fc4}
+  .haltung{margin-top:12px;border-radius:16px;background:#fff8e1;border:2px solid #f0cf6b;padding:14px}
+  .haltung .satz{font-size:1.15rem;font-weight:800;text-align:center;margin:6px 0 10px;min-height:2.6em;display:flex;align-items:center;justify-content:center}
+  .quellen .innen p{margin:6px 0}
+  .quellen a{color:var(--accent-deep);font-weight:700}
+  html.blatt .lz-band,html.blatt .kopf,html.blatt .reiter,html.blatt .lehrer,html.blatt .karte>h2,html.blatt .karte>.lead,html.blatt .karte>:not(.atlas-platz){display:none!important}
+  html.blatt .atlas-leiste,html.blatt .atlas-ecke,html.blatt .atlas-hinweis,html.blatt .atlas-lade,html.blatt .atlas-karte,html.blatt .atlas-aufgabe,html.blatt .atlas-tipp{display:none!important}
+  html.blatt .atlas-buehne{height:var(--blatt-h,860px);border:0;border-radius:0}
+  html.blatt .karte{box-shadow:none;border:0;padding:0;margin:0}
+  html.blatt body{background:#fff;padding:0}
+  html.blatt .atlas-et{background:#fff;color:#1d1b33;border:1.5px solid #1d1b33}
+</style>
+</head>
+<body>
+<div class="lz-band"><span class="lz-tag">Werkzeugkiste</span><b>Biologie</b><span class="lz-stufe">5.–6. Schulstufe · Mittelschule</span><a href="/">← Zurück zur MedAT-App</a></div>
+<header class="kopf"><div class="kopf-innen">
+  <div class="abzeichen" aria-hidden="true">🦴</div>
+  <div><h1>Skelett &amp; Muskeln</h1><p>Knochen beschriften · Gelenktypen · Beuger &amp; Strecker · Haltung · Quiz</p></div>
+  <div class="rechts"><button id="tonKnopf" class="rund" type="button" aria-pressed="false" aria-label="Töne">🔇</button><button id="vollKnopf" class="rund" type="button" aria-label="Vollbild" title="Vollbild">⛶</button></div>
+</div></header>
+
+<nav class="reiter" role="tablist" aria-label="Bereiche">
+  <button type="button" data-ziel="skelett"><span class="emo">🦴</span>Skelett</button>
+  <button type="button" data-ziel="setzkasten"><span class="emo">🗃️</span>Setzkasten</button>
+  <button type="button" data-ziel="gelenke"><span class="emo">🔩</span>Gelenke</button>
+  <button type="button" data-ziel="muskeln"><span class="emo">💪</span>Beuger &amp; Strecker</button>
+  <button type="button" data-ziel="haltung"><span class="emo">🧍</span>Haltung</button>
+  <button type="button" data-ziel="finden"><span class="emo">👆</span>Finde es!</button>
+  <button type="button" data-ziel="quiz"><span class="emo">⭐</span>Quiz</button>
+</nav>
+
+<main class="wrap">
+
+<section class="bereich" id="skelett" role="tabpanel">
+  <div class="karte">
+    <h2>🦴 Das Skelett — alle Knochen</h2>
+    <p class="lead" id="leadK"></p>
+    <div id="platz-skelett" class="atlas-platz"></div>
+  </div>
+</section>
+
+<section class="bereich" id="setzkasten" role="tabpanel">
+  <div class="karte">
+    <h2>🗃️ Setzkasten</h2>
+    <p class="lead" id="leadS"></p>
+    <div id="platz-setzkasten" class="atlas-platz"></div>
+  </div>
+</section>
+
+<section class="bereich" id="gelenke" role="tabpanel">
+  <div class="karte">
+    <h2>🔩 Gelenktypen</h2>
+    <p class="lead" id="leadG"></p>
+    <div class="wahl" id="modusG" role="group" aria-label="Erkunden oder zuordnen">
+      <button type="button" data-m="erkunden" aria-pressed="true">🔍 Erkunden</button>
+      <button type="button" data-m="zuordnen" aria-pressed="false">🎯 Gelenktyp zuordnen</button>
+    </div>
+    <div class="wahl" id="typenG" role="group" aria-label="Gelenktyp"></div>
+    <div id="platz-gelenke" class="atlas-platz"></div>
+    <div class="info" id="infoG"></div>
+    <div class="ausw versteckt" id="zuordnenG"></div>
+    <div class="meldung versteckt" id="meldG" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="bereich" id="muskeln" role="tabpanel">
+  <div class="karte">
+    <h2>💪 Beuger &amp; Strecker</h2>
+    <p class="lead" id="leadM"></p>
+    <div class="wahl" id="paareM" role="group" aria-label="Gelenk"></div>
+    <div id="platz-muskeln" class="atlas-platz"></div>
+    <div class="regler2"><span id="reglerLinks">gestreckt</span><input type="range" id="reglerM" min="0" max="100" value="0" aria-label="Gelenk beugen"><span id="reglerRechts">gebeugt</span></div>
+    <div class="zeile mitte"><button class="k" type="button" id="spielM">▶ Bewegung abspielen</button></div>
+    <div class="paar" id="paarM" aria-hidden="true"></div>
+    <div class="zustand" id="zustandM" aria-live="polite"></div>
+  </div>
+</section>
+
+<section class="bereich" id="haltung" role="tabpanel">
+  <div class="karte">
+    <h2>🧍 Haltung prüfen</h2>
+    <p class="lead" id="leadH"></p>
+    <div id="platz-haltung" class="atlas-platz"></div>
+    <div class="haltung">
+      <div class="zeile" style="justify-content:space-between"><span class="stand" id="standH"></span><div class="sterne" id="sterneH"></div></div>
+      <p class="satz" id="satzH" aria-live="polite"></p>
+      <div class="zeile mitte"><button class="k" type="button" id="gutH">👍 gesund</button><button class="k" type="button" id="schlechtH">👎 ungesund</button><button class="k haupt versteckt" type="button" id="weiterH">Weiter ➜</button></div>
+      <div class="meldung" id="meldH" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section class="bereich" id="finden" role="tabpanel">
+  <div class="karte">
+    <h2>👆 Finde es! — Knochen und Muskeln beschriften</h2>
+    <p class="lead" id="leadF"></p>
+    <div class="stufen" id="stufenF" role="group" aria-label="Stufe"></div>
+    <div id="platz-finden" class="atlas-platz"></div>
+  </div>
+</section>
+
+<section class="bereich" id="quiz" role="tabpanel">
+  <div class="karte"><h2>⭐ Quiz</h2>
+    <div class="stufen" id="stufenQ" role="group" aria-label="Stufe"></div>
+    <div id="quizBox"></div>
+  </div>
+</section>
+
+<details class="lehrer">
+  <summary>👩‍🏫 Für Lehrkräfte</summary>
+  <div class="innen"><ul>
+    <li><b>Stundenablauf (50 min):</b> Einstieg ~5 min: <code>#skelett</code> am Beamer drehen, „Latein“ zuschalten, einen Knochen isolieren. Erarbeitung ~20 min: <code>#setzkasten</code> (Aufbau nach Bereichen: Schädel, Wirbelsäule, Brustkorb, Schulter- und Beckengürtel, Gliedmaßen), <code>#gelenke</code> (fünf Gelenktypen mit Bewegung am Modell), <code>#muskeln</code> (Gegenspieler-Prinzip mit Regler). Übung ~15 min in Partnerarbeit: „Gelenktyp zuordnen“, <code>#finden</code>, <code>#haltung</code>. Sicherung ~5–10 min: <code>#quiz</code> und das Arbeitsblatt „Knochen beschriften“.</li>
+    <li><b>Differenzierung:</b> ⭐ die großen Knochen (Schädel, Oberarm, Oberschenkel, Hüftbein …) und Grundbegriffe. ⭐⭐ Unterarm- und Unterschenkelknochen, Schulter- und Beckengürtel, Gelenktypen, Gegenspieler. ⭐⭐⭐ alle 88 Knochenteile des Modells einzeln (jeder Wirbel, jede Rippe), Rippenarten, Fachbegriffe; im Finden ohne Namenshilfe. Die Muskeln (59 Teile) sind eine eigene Stufe.</li>
+    <li><b>Modell:</b> echte Formen aus BodyParts3D (verkleinert). Kleine Knochen sind zusammengefasst: Handwurzel-, Mittelhand- und Fingerknochen je Hand, Fußwurzel-, Mittelfuß- und Zehenknochen je Fuß, der Schädel ohne Unterkiefer als ein Teil, alle Bandscheiben als ein Teil; das Steißbein fehlt im Modell. Die Muskeln sind die großen, oberflächlichen; mehrere Muskeln sind als Gruppe zusammengefasst (Schenkelbeuger, Adduktoren, Unterarmbeuger und -strecker). Links und Rechts meinen die Körperseite des Menschen.</li>
+    <li><b>Bewegungen am Modell</b> sind vereinfacht: Der Unterarm dreht sich um den Ellbogen, der Bizeps wird kürzer und dicker. In Wirklichkeit gleiten die Muskelfasern ineinander (Aktin und Myosin, 4. Klasse). Beim Kniegelenk ist im gebeugten Zustand zusätzlich eine kleine Drehung möglich (Drehscharniergelenk).</li>
+    <li><b>Lehrplan Mittelschule, Biologie und Umweltbildung, 1. Klasse (5. Schulstufe):</b> „Der Mensch: Bau und Funktion des Bewegungsapparates — Skelett, Gelenke, Muskeln; Zusammenspiel von Knochen, Gelenken und Muskeln; Haltungsschäden vermeiden“ (Bauplan 530). Fachbegriffe deutsch, lateinische Namen als Zusatz.</li>
+    <li><b>Direkt springen:</b> Link mit <code>#setzkasten</code>, <code>#gelenke</code>, <code>#muskeln</code>, <code>#haltung</code>, <code>#finden</code> oder <code>#quiz</code> teilen. Ohne 3D (ältere Tablets) erscheinen ein Standbild und die Liste aller Teile mit ihrem Steckbrief.</li>
+  </ul></div>
+</details>
+<details class="lehrer quellen" id="quellen">
+  <summary>📜 Quellen &amp; Lizenzen</summary>
+  <div class="innen">
+    <p>3D-Modelle: BodyParts3D, © The Database Center for Life Science, licensed under CC Attribution 4.0 International (CC BY 4.0) — verändert (verkleinert, zusammengefasst, eingefärbt). <a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/" target="_blank" rel="noopener">dbarchive.biosciencedbc.jp/en/bodyparts3d</a></p>
+    <p>3D-Darstellung: three.js r186, © 2010–2026 three.js authors, MIT-Lizenz (<a href="../lib/three/LICENSE" target="_blank" rel="noopener">Lizenztext</a>). Alles liegt auf unserem Server, nichts wird von fremden Servern geladen.</p>
+  </div>
+</details>
+</main>
+
+<script type="application/json" id="texte">{
+  "lead": {
+    "skelett": "Dreh das Skelett, tippe auf einen Knochen: Du siehst den <b>Fachbegriff</b>, den Steckbrief und — mit dem Knopf „Latein“ — den lateinischen Namen. In der Liste kannst du die <b>Muskeln</b> und die <b>Organe</b> als Schicht dazuschalten.",
+    "setzkasten": "Alle Knochen fliegen in den Setzkasten, sortiert nach den Bereichen des Skeletts. Schalte in der Liste die Muskeln dazu, dann kommen auch sie in den Kasten.",
+    "gelenke": "Wähle einen Gelenktyp: Die beiden Knochen leuchten, ein Punkt zeigt das Gelenk. Mit <b>▶</b> bewegt sich das Gelenk am Modell.",
+    "muskeln": "Muskeln können nur <b>ziehen</b>, nicht schieben. Darum arbeiten sie als <b>Gegenspieler</b>: Der Beuger beugt das Gelenk, der Strecker streckt es. Zieh am Regler.",
+    "haltung": "Von der Seite siehst du die <b>Doppel-S-Form</b> der Wirbelsäule. Sie federt wie eine Spiralfeder. Entscheide dann: Ist das gut für deinen Rücken?",
+    "finden": "Lies den Namen und tippe den Knochen oder Muskel am Modell an. Du darfst das Modell drehen. Richtig beim ersten Versuch gibt einen Stern."
+  },
+  "lob": {
+    "super": "Ausgezeichnet! Du kennst deinen Bewegungsapparat sehr gut.",
+    "gut": "Gut gemacht! Mit noch einer Runde holst du alle Sterne.",
+    "weiter": "Schau dir die Steckbriefe im Reiter Skelett an und versuch es noch einmal."
+  }
+}</script>
+
+<script src="../lib/kiste.js"></script>
+<script type="module">
+import { Atlas } from '../lib/atlas.js';
+const K = window.KISTE;
+const T = JSON.parse(document.getElementById('texte').textContent);
+const $ = (id) => document.getElementById(id);
+const BLATT_H = /[&?]h=(\d+)/.exec(location.hash);
+const BLATT = /^#blatt=/.test(location.hash) ? location.hash.slice(7).split('&')[0] : null;
+if (BLATT) { document.documentElement.classList.add('blatt'); if (BLATT_H) document.documentElement.style.setProperty('--blatt-h', BLATT_H[1] + 'px'); }
+const ROEM = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+
+/* ═══ Kategorien (Farben der Listen-Punkte; das Modell selbst ist „echt“ gefärbt) ═══ */
+const KATEGORIEN = [
+  { id: 'schaedel', name: 'Schädel', farbe: '#d9822b', schicht: 'skelett' },
+  { id: 'wirbelsaeule', name: 'Wirbelsäule', farbe: '#3d7be0', schicht: 'skelett' },
+  { id: 'brustkorb', name: 'Brustkorb', farbe: '#1f9e8f', schicht: 'skelett' },
+  { id: 'schulter', name: 'Schultergürtel', farbe: '#2fa36b', schicht: 'skelett' },
+  { id: 'arm', name: 'Arm', farbe: '#5a9e2c', schicht: 'skelett' },
+  { id: 'hand', name: 'Hand', farbe: '#8a5be0', schicht: 'skelett' },
+  { id: 'becken', name: 'Beckengürtel', farbe: '#c2477a', schicht: 'skelett' },
+  { id: 'bein', name: 'Bein', farbe: '#e2574c', schicht: 'skelett' },
+  { id: 'fuss', name: 'Fuß', farbe: '#b8860b', schicht: 'skelett' },
+  { id: 'm-hals', name: 'Hals & Nacken', farbe: '#b23a48', schicht: 'muskeln' },
+  { id: 'm-rumpf', name: 'Rumpfmuskeln', farbe: '#a8322d', schicht: 'muskeln' },
+  { id: 'm-arm', name: 'Armmuskeln', farbe: '#c0392b', schicht: 'muskeln' },
+  { id: 'm-bein', name: 'Hüft- & Beinmuskeln', farbe: '#922b21', schicht: 'muskeln' },
+  { id: 'organe', name: 'Organe', farbe: '#d35400', schicht: 'organe' },
+];
+
+/* ═══ Fachbegriffe und Steckbriefe je Knotentyp (Knoten-ids aus ../atlas/koerper/teile.json) ═══
+   [Name, Latein, Kategorie, Quizstufe, Text, Wusstest du?] */
+const D = {
+  schaedel: ['Schädel', 'Cranium', 'schaedel', 1, 'Der Schädel besteht aus dem Hirnschädel, der das Gehirn wie eine Kapsel umschließt, und dem Gesichtsschädel. Seine Knochen sind durch Nähte fest verbunden und unbeweglich.', 'Ein Neugeborenes hat zwischen den Schädelknochen noch weiche Stellen, die Fontanellen. So kann der Kopf bei der Geburt etwas nachgeben.'],
+  unterkiefer: ['Unterkiefer', 'Mandibula', 'schaedel', 1, 'Der Unterkiefer ist der einzige bewegliche Knochen des Schädels. Im Kiefergelenk kann er sich heben, senken und seitlich verschieben — so kauen wir.', 'Die Kaumuskeln, die den Unterkiefer heben, gehören zu den kräftigsten Muskeln des Körpers.'],
+  'zaehne-oben': ['Zähne des Oberkiefers', 'Dentes maxillares', 'schaedel', 3, 'Das bleibende Gebiss hat 32 Zähne: Schneide-, Eck- und Backenzähne. Sie zerkleinern die Nahrung.', 'Zahnschmelz ist der härteste Stoff im Körper — härter als Knochen. Er kann sich aber nicht selbst reparieren.'],
+  'zaehne-unten': ['Zähne des Unterkiefers', 'Dentes mandibulares', 'schaedel', 3, 'Im Unterkiefer sitzen 16 Zähne des bleibenden Gebisses. Beim Kauen beißen sie gegen die Zähne des Oberkiefers.', 'Die Weisheitszähne kommen oft erst mit 17 bis 25 Jahren — manchmal nie.'],
+  zungenbein: ['Zungenbein', 'Os hyoideum', 'schaedel', 3, 'Das Zungenbein liegt im Hals oberhalb des Kehlkopfs. Muskeln von Zunge und Mundboden setzen an ihm an.', 'Es ist der einzige Knochen, der mit keinem anderen Knochen ein Gelenk bildet — nur Muskeln und Bänder halten ihn.'],
+  kreuzbein: ['Kreuzbein', 'Os sacrum', 'wirbelsaeule', 2, 'Das Kreuzbein besteht aus fünf verwachsenen Wirbeln. Es ist zwischen die beiden Hüftbeine eingekeilt und verbindet die Wirbelsäule mit dem Beckengürtel.', 'Unter dem Kreuzbein sitzt noch das kleine Steißbein — der Rest eines Schwanzes.'],
+  bandscheiben: ['Bandscheiben', 'Disci intervertebrales', 'wirbelsaeule', 2, 'Zwischen den Wirbelkörpern liegen die Bandscheiben aus Faserknorpel mit einem weichen Kern. Sie federn Stöße ab und machen die Wirbelsäule beweglich.', 'Am Abend bist du etwa 1 bis 2 cm kleiner als am Morgen: Die Bandscheiben geben tagsüber Wasser ab und nehmen es nachts wieder auf.'],
+  sternum: ['Brustbein', 'Sternum', 'brustkorb', 1, 'Das Brustbein ist ein flacher Knochen vorne in der Brust. Die oberen Rippen sind über Rippenknorpel mit ihm verbunden.', 'Im Brustbein liegt rotes Knochenmark: Hier entstehen Blutzellen.'],
+  clavicula: ['Schlüsselbein', 'Clavicula', 'schulter', 1, 'Das Schlüsselbein ist ein S-förmiger Knochen zwischen Brustbein und Schulterblatt. Es hält die Schulter seitlich vom Brustkorb weg.', 'Bei Stürzen auf den ausgestreckten Arm bricht es von allen Knochen am häufigsten.'],
+  scapula: ['Schulterblatt', 'Scapula', 'schulter', 1, 'Das Schulterblatt ist ein dreieckiger, platter Knochen am Rücken. Seine Gelenkpfanne bildet mit dem Oberarmkopf das Schultergelenk, ein Kugelgelenk.', 'Das Schulterblatt hängt nur in Muskeln — darum ist die Schulter das beweglichste Gelenk des Körpers.'],
+  humerus: ['Oberarmknochen', 'Humerus', 'arm', 1, 'Der Oberarmknochen ist ein Röhrenknochen. Oben bildet sein runder Kopf das Schultergelenk, unten mit Elle und Speiche das Ellbogengelenk.', 'Am Ellbogen läuft ein Nerv direkt über den Knochen — der „Musikantenknochen“ kribbelt, wenn man ihn anstößt.'],
+  radius: ['Speiche', 'Radius', 'arm', 1, 'Die Speiche liegt auf der Daumenseite des Unterarms. Beim Drehen der Hand dreht sie sich um die Elle.', 'Der Bruch der Speiche knapp über dem Handgelenk ist der häufigste Knochenbruch beim Menschen.'],
+  ulna: ['Elle', 'Ulna', 'arm', 1, 'Die Elle liegt auf der Seite des kleinen Fingers. Mit dem Oberarmknochen bildet sie das Scharniergelenk des Ellbogens.', 'Die alte Längeneinheit „Elle“ war die Länge eines Unterarms, etwa 50 bis 70 cm.'],
+  handwurzel: ['Handwurzelknochen', 'Ossa carpi', 'hand', 2, 'Acht kleine Handwurzelknochen liegen in zwei Reihen. Mit der Speiche bilden sie das Handgelenk, ein Eigelenk.', 'Das Kahnbein ist der Handwurzelknochen, der bei Stürzen am häufigsten bricht.'],
+  mittelhand: ['Mittelhandknochen', 'Ossa metacarpi', 'hand', 2, 'Fünf Mittelhandknochen bilden die Handfläche. Zwischen Handwurzel und Daumen-Mittelhandknochen liegt ein Sattelgelenk.', 'Wegen dieses Sattelgelenks kannst du den Daumen den Fingern gegenüberstellen und greifen.'],
+  finger: ['Fingerknochen', 'Phalanges manus', 'hand', 2, 'Jeder Finger hat drei Fingerglieder, der Daumen zwei — zusammen 14 je Hand. Die Gelenke zwischen den Gliedern sind Scharniergelenke.', 'Finger haben keine Muskeln: Sie werden über lange Sehnen von den Muskeln im Unterarm bewegt.'],
+  hueftbein: ['Hüftbein', 'Os coxae', 'becken', 1, 'Das Hüftbein ist aus Darmbein, Sitzbein und Schambein zusammengewachsen. Beide Hüftbeine bilden mit dem Kreuzbein das Becken. In seiner Pfanne sitzt der Oberschenkelkopf: das Hüftgelenk.', 'Das weibliche Becken ist breiter als das männliche — Platz für die Geburt eines Kindes.'],
+  femur: ['Oberschenkelknochen', 'Femur', 'bein', 1, 'Der Oberschenkelknochen ist der längste und kräftigste Röhrenknochen. Oben bildet sein Kopf das Hüftgelenk, unten mit Schienbein und Kniescheibe das Kniegelenk.', 'Beim Springen trägt er kurz ein Vielfaches deines Körpergewichts.'],
+  patella: ['Kniescheibe', 'Patella', 'bein', 1, 'Die Kniescheibe ist ein Sesambein: Sie liegt in der Sehne des vierköpfigen Oberschenkelmuskels und schützt das Kniegelenk von vorne.', 'Sie wirkt wie eine Umlenkrolle und macht den Oberschenkelmuskel beim Strecken kräftiger.'],
+  tibia: ['Schienbein', 'Tibia', 'bein', 1, 'Das Schienbein ist der kräftige Knochen auf der Innenseite des Unterschenkels. Es trägt fast das ganze Körpergewicht.', 'Vorne liegt es direkt unter der Haut — darum tut ein Tritt gegen das Schienbein so weh.'],
+  fibula: ['Wadenbein', 'Fibula', 'bein', 2, 'Das Wadenbein ist dünn und liegt außen. Es trägt kaum Gewicht, bildet aber den Außenknöchel und stabilisiert das Sprunggelenk.', 'Den Außenknöchel am Fuß kannst du sehen und fühlen — das ist das untere Ende des Wadenbeins.'],
+  fusswurzel: ['Fußwurzelknochen', 'Ossa tarsi', 'fuss', 2, 'Sieben Fußwurzelknochen, darunter Sprungbein und Fersenbein. Das Sprungbein bildet mit Schien- und Wadenbein das obere Sprunggelenk.', 'Das Fersenbein ist der größte Knochen des Fußes.'],
+  mittelfuss: ['Mittelfußknochen', 'Ossa metatarsi', 'fuss', 2, 'Fünf Mittelfußknochen bilden zusammen mit der Fußwurzel das Fußgewölbe. Es federt beim Gehen und Laufen.', 'Bei Plattfüßen ist das Fußgewölbe abgeflacht. Barfußgehen stärkt die Fußmuskeln.'],
+  zehen: ['Zehenknochen', 'Phalanges pedis', 'fuss', 2, 'Die große Zehe hat zwei Glieder, die anderen Zehen drei — 14 Zehenknochen je Fuß.', 'Beim Abrollen trägt die große Zehe am Schluss das ganze Gewicht.'],
+  /* Muskeln */
+  deltamuskel: ['Deltamuskel', 'Musculus deltoideus', 'm-arm', 2, 'Der Deltamuskel umhüllt die Schulter wie eine Kappe. Er hebt den Arm seitlich bis zur Waagrechten.', 'Er heißt nach dem griechischen Buchstaben Delta (Δ), weil er dreieckig ist.'],
+  bizeps: ['Bizeps (zweiköpfiger Oberarmmuskel)', 'Musculus biceps brachii', 'm-arm', 1, 'Der Bizeps liegt vorne am Oberarm. Zieht er sich zusammen, beugt er den Unterarm im Ellbogengelenk — er ist ein Beuger. Sein Gegenspieler ist der Trizeps.', '„Bi-zeps“ heißt „zwei Köpfe“: Der Muskel entspringt mit zwei Sehnen am Schulterblatt.'],
+  trizeps: ['Trizeps (dreiköpfiger Oberarmmuskel)', 'Musculus triceps brachii', 'm-arm', 1, 'Der Trizeps liegt hinten am Oberarm. Er streckt den Unterarm im Ellbogengelenk — er ist ein Strecker und der Gegenspieler des Bizeps.', 'Der Trizeps ist größer als der Bizeps: Er macht etwa zwei Drittel der Oberarmmuskeln aus.'],
+  oberarmmuskel: ['Armbeuger (Oberarmmuskel)', 'Musculus brachialis', 'm-arm', 3, 'Der Armbeuger liegt unter dem Bizeps und zieht zur Elle. Er ist der kräftigste Beuger des Ellbogens.', 'Er arbeitet immer mit, egal wie die Hand gedreht ist.'],
+  oberarmspeichenmuskel: ['Oberarmspeichenmuskel', 'Musculus brachioradialis', 'm-arm', 3, 'Er zieht vom Oberarm zur Speiche und hilft beim Beugen des Ellbogens, besonders mit dem Daumen nach oben.', 'Halte ein Glas mit dem Daumen nach oben und beuge den Arm: Dann siehst du ihn am Unterarm.'],
+  unterarmbeuger: ['Unterarmbeuger', 'Musculi flexores antebrachii', 'm-arm', 3, 'Die Beugemuskeln an der Innenseite des Unterarms beugen Handgelenk und Finger. Ihre langen Sehnen ziehen bis in die Finger.', 'Mach eine Faust: An der Innenseite des Handgelenks treten ihre Sehnen hervor.'],
+  unterarmstrecker: ['Unterarmstrecker', 'Musculi extensores antebrachii', 'm-arm', 3, 'Die Streckmuskeln auf der Außenseite des Unterarms strecken Handgelenk und Finger. Sie sind die Gegenspieler der Unterarmbeuger.', 'Der „Tennisarm“ ist eine Reizung am Ursprung dieser Muskeln am Ellbogen.'],
+  'grosser-brustmuskel': ['großer Brustmuskel', 'Musculus pectoralis major', 'm-rumpf', 1, 'Der große Brustmuskel zieht den Arm nach vorne und zum Körper heran, zum Beispiel beim Liegestütz oder beim Umarmen.', 'Beim Klettern und Schwimmen (Kraulen) arbeitet er besonders stark.'],
+  kapuzenmuskel: ['Kapuzenmuskel', 'Musculus trapezius', 'm-hals', 2, 'Der Kapuzenmuskel liegt flach auf Nacken und oberem Rücken. Er hebt die Schultern und zieht die Schulterblätter zusammen.', 'Beide Kapuzenmuskeln zusammen haben die Form einer Mönchskapuze — daher der Name.'],
+  'vorderer-saegemuskel': ['vorderer Sägemuskel', 'Musculus serratus anterior', 'm-rumpf', 3, 'Der Sägemuskel liegt seitlich am Brustkorb. Er zieht das Schulterblatt nach vorne und hilft, den Arm über den Kopf zu heben.', 'Seine Zacken sehen aus wie die Zähne einer Säge.'],
+  'aeusserer-schraeger-bauchmuskel': ['äußerer schräger Bauchmuskel', 'Musculus obliquus externus abdominis', 'm-rumpf', 2, 'Die schrägen Bauchmuskeln drehen und beugen den Rumpf. Mit den anderen Bauchmuskeln halten sie die Organe und stützen die Wirbelsäule.', 'Starke Bauch- und Rückenmuskeln sind das beste Mittel gegen Rückenschmerzen.'],
+  rueckenstrecker: ['Rückenstrecker', 'Musculus erector spinae', 'm-rumpf', 2, 'Der Rückenstrecker zieht in langen Strängen links und rechts neben der Wirbelsäule vom Becken bis zum Kopf. Er richtet den Rumpf auf und hält ihn aufrecht.', 'Er ist der wichtigste Haltemuskel. Seine Gegenspieler sind die Bauchmuskeln — beide zusammen stützen die Wirbelsäule wie ein Korsett.'],
+  'weisse-linie': ['weiße Linie', 'Linea alba', 'm-rumpf', 3, 'Die weiße Linie ist ein Sehnenstreifen in der Mitte des Bauches. Hier treffen die Sehnenplatten der Bauchmuskeln beider Seiten zusammen.', 'Bei trainierten Menschen sieht man sie als Rinne in der Mitte des „Sixpacks“.'],
+  untergraetenmuskel: ['Untergrätenmuskel', 'Musculus infraspinatus', 'm-rumpf', 3, 'Er liegt auf dem Schulterblatt unter der Schultergräte und dreht den Arm nach außen. Er hält den Oberarmkopf in der Gelenkpfanne.', 'Er gehört zur „Rotatorenmanschette“, die das Schultergelenk zusammenhält.'],
+  'grosser-rundmuskel': ['großer Rundmuskel', 'Musculus teres major', 'm-rumpf', 3, 'Er zieht vom Schulterblatt zum Oberarm und zieht den Arm nach hinten und an den Körper.', 'Er hilft beim Rudern und beim Klimmzug.'],
+  kopfwender: ['Kopfwender', 'Musculus sternocleidomastoideus', 'm-hals', 2, 'Der Kopfwender zieht von Brustbein und Schlüsselbein hinter das Ohr. Er dreht und neigt den Kopf.', 'Dreh den Kopf zur Seite: Dann siehst du ihn am Hals als Strang.'],
+  'grosser-gesaessmuskel': ['großer Gesäßmuskel', 'Musculus gluteus maximus', 'm-bein', 1, 'Der große Gesäßmuskel ist der größte Muskel des Körpers. Er streckt das Hüftgelenk, zum Beispiel beim Treppensteigen und Aufstehen.', 'Ohne ihn könnten wir nicht aufrecht gehen — er hält uns beim Gehen gerade.'],
+  'mittlerer-gesaessmuskel': ['mittlerer Gesäßmuskel', 'Musculus gluteus medius', 'm-bein', 3, 'Er spreizt das Bein ab und hält beim Gehen das Becken waagrecht.', 'Ist er schwach, kippt das Becken beim Gehen zur Seite.'],
+  schenkelbindenspanner: ['Schenkelbindenspanner', 'Musculus tensor fasciae latae', 'm-bein', 3, 'Er spannt die feste Bindegewebsplatte an der Außenseite des Oberschenkels und hilft beim Beugen und Abspreizen der Hüfte.', 'Läufer spüren diese Platte manchmal als Schmerz außen am Knie.'],
+  'vierkoepfiger-oberschenkelmuskel': ['vierköpfiger Oberschenkelmuskel', 'Musculus quadriceps femoris', 'm-bein', 1, 'Er liegt vorne am Oberschenkel und streckt das Knie — er ist der Strecker, die Schenkelbeuger sind seine Gegenspieler.', 'Seine Sehne umschließt die Kniescheibe. Mit dem Reflexhammer prüft die Ärztin den Kniesehnenreflex.'],
+  schenkelbeuger: ['Schenkelbeuger', 'Musculi ischiocrurales', 'm-bein', 1, 'Die Schenkelbeuger liegen hinten am Oberschenkel. Sie beugen das Knie und strecken die Hüfte.', 'Fußballer verletzen sich hier oft: eine „Zerrung hinten im Oberschenkel“.'],
+  schneidermuskel: ['Schneidermuskel', 'Musculus sartorius', 'm-bein', 2, 'Der Schneidermuskel ist der längste Muskel des Körpers. Er zieht schräg über den Oberschenkel und hilft beim Schneidersitz.', 'Früher saßen Schneider bei der Arbeit im Schneidersitz — daher der Name.'],
+  'schlanker-muskel': ['schlanker Muskel', 'Musculus gracilis', 'm-bein', 3, 'Er liegt an der Innenseite des Oberschenkels, zieht das Bein heran und hilft beim Beugen des Knies.', 'Er ist der einzige Schenkelanzieher, der über das Kniegelenk zieht.'],
+  adduktoren: ['Adduktoren (Schenkelanzieher)', 'Musculi adductores', 'm-bein', 2, 'Die Adduktoren an der Innenseite des Oberschenkels ziehen die Beine zusammen, zum Beispiel beim Reiten oder Brustschwimmen.', '„Adduktion“ heißt Heranführen — das Gegenteil ist „Abduktion“, Abspreizen.'],
+  zwillingswadenmuskel: ['Zwillingswadenmuskel', 'Musculus gastrocnemius', 'm-bein', 1, 'Der Zwillingswadenmuskel formt die Wade. Er hebt die Ferse — du stehst auf den Zehenspitzen. Sein Gegenspieler ist der vordere Schienbeinmuskel.', 'Er hat zwei Köpfe, darum „Zwilling“. Beim Springen arbeitet er wie eine Sprungfeder.'],
+  schollenmuskel: ['Schollenmuskel', 'Musculus soleus', 'm-bein', 3, 'Der Schollenmuskel liegt unter dem Zwillingswadenmuskel. Zusammen ziehen sie über die Achillessehne am Fersenbein.', 'Er ist flach wie eine Scholle — ein Plattfisch.'],
+  achillessehne: ['Achillessehne', 'Tendo calcaneus', 'm-bein', 2, 'Die Achillessehne ist die kräftigste Sehne des Körpers. Sie verbindet die Wadenmuskeln mit dem Fersenbein.', 'Benannt nach dem griechischen Helden Achilles, der nur an der Ferse verwundbar war.'],
+  'vorderer-schienbeinmuskel': ['vorderer Schienbeinmuskel', 'Musculus tibialis anterior', 'm-bein', 2, 'Er liegt vorne neben dem Schienbein und hebt den Fuß an. Er ist der Gegenspieler der Wadenmuskeln.', 'Geh einmal auf den Fersen: Dann spürst du ihn vorne am Unterschenkel.'],
+  'langer-zehenstrecker': ['langer Zehenstrecker', 'Musculus extensor digitorum longus', 'm-bein', 3, 'Er hebt die Zehen 2 bis 5 und hilft, den Fuß anzuheben.', 'Seine vier Sehnen siehst du auf dem Fußrücken, wenn du die Zehen hebst.'],
+  wadenbeinmuskeln: ['Wadenbeinmuskeln', 'Musculi fibulares', 'm-bein', 3, 'Sie liegen außen am Unterschenkel, senken den Fuß und heben den äußeren Fußrand. Sie schützen vor dem Umknicken.', 'Wer oft umknickt, kann sie mit Balance-Übungen stärken.'],
+  /* Organe (optionale Schicht) */
+  gehirn: ['Gehirn', 'Encephalon', 'organe', 2, 'Das Gehirn steuert über die Nerven alle Bewegungen: Es schickt den Muskeln den Befehl, sich zusammenzuziehen.', 'Das Gehirn wiegt etwa 1,3 kg und verbraucht ein Fünftel der Energie des Körpers.'],
+  auge: ['Auge', 'Bulbus oculi', 'organe', 3, 'Das Auge liegt geschützt in der Augenhöhle des Schädels. Sechs Augenmuskeln bewegen es in alle Richtungen.', 'Die Augenmuskeln sind die schnellsten Muskeln des Körpers.'],
+  luftroehre: ['Luftröhre mit Hauptbronchien', 'Trachea', 'organe', 3, 'Die Luftröhre leitet die Atemluft zur Lunge. Knorpelspangen halten sie offen.', 'Sie teilt sich in zwei Hauptbronchien, einen für jeden Lungenflügel.'],
+  lunge: ['Lunge', 'Pulmo', 'organe', 2, 'In der Lunge gelangt Sauerstoff ins Blut. Der Brustkorb aus Rippen, Brustbein und Brustwirbeln schützt sie.', 'Beim Einatmen heben die Zwischenrippenmuskeln die Rippen, das Zwerchfell senkt sich.'],
+  herz: ['Herz', 'Cor', 'organe', 2, 'Das Herz ist ein Hohlmuskel. Es pumpt das Blut, das die Muskeln mit Sauerstoff versorgt. Es liegt geschützt hinter dem Brustbein.', 'Der Herzmuskel arbeitet ein Leben lang ohne Pause und wird nie müde.'],
+  speiseroehre: ['Speiseröhre', 'Oesophagus', 'organe', 3, 'Die Speiseröhre transportiert die Nahrung mit Muskelwellen vom Rachen in den Magen.', 'Ihre Muskeln arbeiten unwillkürlich — du musst nicht daran denken.'],
+  zwerchfell: ['Zwerchfell', 'Diaphragma', 'organe', 2, 'Das Zwerchfell ist der wichtigste Atemmuskel. Es trennt Brust- und Bauchraum und senkt sich beim Einatmen.', 'Schluckauf ist ein plötzliches Zucken des Zwerchfells.'],
+  leber: ['Leber', 'Hepar', 'organe', 3, 'Die Leber liegt rechts unter dem Zwerchfell. Sie speichert Nährstoffe und baut Giftstoffe ab.', 'Sie ist die größte Drüse des Körpers.'],
+  gallenblase: ['Gallenblase', 'Vesica biliaris', 'organe', 3, 'Die Gallenblase speichert die Galle aus der Leber. Galle hilft bei der Fettverdauung.', 'Die Gallenblase fasst etwa 50 ml.'],
+  magen: ['Magen', 'Gaster', 'organe', 3, 'Im Magen wird die Nahrung mit Magensaft vermischt und durch Muskelbewegungen durchgeknetet.', 'Magensäure ist so stark sauer, dass sie Bakterien abtötet.'],
+  milz: ['Milz', 'Splen', 'organe', 3, 'Die Milz liegt links oben im Bauch. Sie baut alte rote Blutzellen ab und hilft bei der Abwehr.', 'Man kann ohne Milz leben.'],
+  bauchspeicheldruese: ['Bauchspeicheldrüse', 'Pancreas', 'organe', 3, 'Die Bauchspeicheldrüse bildet Verdauungssäfte und das Hormon Insulin.', 'Insulin bringt den Zucker aus dem Blut in die Zellen — auch in die Muskeln.'],
+  duenndarm: ['Dünndarm', 'Intestinum tenue', 'organe', 3, 'Im Dünndarm werden die Nährstoffe ins Blut aufgenommen. Er ist 5 bis 6 m lang.', 'Seine Zotten vergrößern die Oberfläche auf die Fläche eines Tennisplatzes.'],
+  dickdarm: ['Dickdarm mit Mastdarm', 'Intestinum crassum', 'organe', 3, 'Der Dickdarm entzieht den Nahrungsresten Wasser. Am Ende liegt der Mastdarm.', 'Im Dickdarm leben Billionen nützlicher Bakterien.'],
+  niere: ['Niere', 'Ren', 'organe', 3, 'Die Nieren filtern das Blut und bilden den Harn. Sie liegen hinten neben der Wirbelsäule, geschützt von den unteren Rippen.', 'Alle 4 bis 5 Minuten fließt das gesamte Blut einmal durch die Nieren.'],
+  harnleiter: ['Harnleiter', 'Ureter', 'organe', 3, 'Die Harnleiter leiten den Harn von den Nieren in die Harnblase.', 'Sie schieben den Harn mit Muskelwellen weiter.'],
+  harnblase: ['Harnblase', 'Vesica urinaria', 'organe', 3, 'Die Harnblase sammelt den Harn. Sie liegt geschützt im Becken.', 'Sie fasst bei Erwachsenen etwa einen halben Liter.'],
+};
+const ECHT = { 'weisse-linie': '#efe6d6', gehirn: '#e3b1ad', auge: '#f1efe6', luftroehre: '#e8c2b2', lunge: '#d98c8c', herz: '#9e2a2b', speiseroehre: '#d9988a', zwerchfell: '#a0413a', leber: '#7b2d26', gallenblase: '#4f7a3a', magen: '#d98a7a', milz: '#6e2a3c', bauchspeicheldruese: '#e3b778', duenndarm: '#e7a59a', dickdarm: '#c98b72', niere: '#8b3a3a', harnleiter: '#e8cfa0', harnblase: '#e3b9a0', achillessehne: '#e8dccb' };
+const WIRBEL = {
+  halswirbel: ['Halswirbel', 'Vertebra cervicalis', 'Die sieben Halswirbel sind klein und sehr beweglich. Sie tragen den Kopf und lassen ihn nicken, neigen und drehen.', 'Fast alle Säugetiere haben sieben Halswirbel — auch die Giraffe!'],
+  brustwirbel: ['Brustwirbel', 'Vertebra thoracica', 'An den zwölf Brustwirbeln sind die Rippen gelenkig befestigt. Mit Rippen und Brustbein bilden sie den Brustkorb.', 'Die Brustwirbelsäule ist nach hinten gekrümmt — ein Teil der Doppel-S-Form.'],
+  lendenwirbel: ['Lendenwirbel', 'Vertebra lumbalis', 'Die fünf Lendenwirbel sind die größten Wirbel. Sie tragen das meiste Gewicht des Oberkörpers — darum soll man aus den Knien heben.', 'Rückenschmerzen entstehen am häufigsten im Bereich der Lendenwirbelsäule.'],
+};
+function teilAus(z) {
+  const roh = z.id.replace(/-[lr]$/, '');
+  let m = /^(halswirbel|brustwirbel|lendenwirbel)-(\d+)$/.exec(roh);
+  if (m) {
+    const w = WIRBEL[m[1]], n = Number(m[2]);
+    if (m[1] === 'halswirbel' && n === 1) return { name: '1. Halswirbel (Atlas)', kurz: 'Atlas', latein: 'Atlas', kategorie: 'wirbelsaeule', quiz: 2, text: 'Der Atlas trägt den Kopf. Mit dem Hinterhauptsbein bildet er ein Eigelenk — damit nicken wir. Er hat keinen Wirbelkörper, sondern ist ein Ring.', wusstest: 'Er heißt nach dem Riesen Atlas aus der griechischen Sage, der das Himmelsgewölbe trägt.' };
+    if (m[1] === 'halswirbel' && n === 2) return { name: '2. Halswirbel (Axis)', kurz: 'Axis', latein: 'Axis', kategorie: 'wirbelsaeule', quiz: 2, text: 'Der Axis hat einen Zahn, der nach oben in den Ring des Atlas ragt. Um diesen Zahn dreht sich der Atlas mit dem Kopf: ein Drehgelenk.', wusstest: 'Wenn du „Nein“ schüttelst, dreht sich der Kopf um den Zahn des Axis.' };
+    return { name: `${n}. ${w[0]}`, kurz: `${n}. ${w[0]}`, latein: `${w[1]} ${ROEM[n]}`, kategorie: 'wirbelsaeule', quiz: 3, text: w[2], wusstest: w[3] };
+  }
+  m = /^rippe-(\d+)$/.exec(roh);
+  if (m) {
+    const n = Number(m[1]);
+    const art = n <= 7 ? ['echte Rippe', 'Die Rippen 1 bis 7 heißen echte Rippen: Jede ist über ein eigenes Knorpelstück direkt mit dem Brustbein verbunden.']
+      : n <= 10 ? ['falsche Rippe', 'Die Rippen 8 bis 10 heißen falsche Rippen: Ihr Knorpel erreicht das Brustbein nur über den Knorpel der Rippe darüber.']
+        : ['freie Rippe', 'Die Rippen 11 und 12 sind frei: Sie enden in der Bauchwand und haben keine Verbindung zum Brustbein.'];
+    return { name: `${n}. Rippe`, kurz: `${n}. Rippe`, latein: `Costa ${ROEM[n]}`, kategorie: 'brustkorb', quiz: 3, text: `${art[1]} Mit den Brustwirbeln ist jede Rippe gelenkig verbunden.`, wusstest: 'Beim Einatmen heben die Zwischenrippenmuskeln den Brustkorb — die Lunge kann sich ausdehnen.', extra: `<b>Art:</b> ${art[0]}`, suchwoerter: [art[0], 'Rippen'] };
+  }
+  const key = D[roh] ? roh : D[roh.replace(/^harnleiter$/, 'harnleiter')] ? roh : null;
+  const d = D[key || roh] || D[roh.split('-')[0]];
+  if (!d) {
+    const name = roh.replace(/-/g, ' ').replace(/ae/g, 'ä').replace(/oe/g, 'ö').replace(/ue/g, 'ü');
+    return { name: name.charAt(0).toUpperCase() + name.slice(1), kategorie: z.schicht === 'muskeln' ? 'm-rumpf' : z.schicht === 'organe' ? 'organe' : 'schaedel', quiz: 3, text: '' };
+  }
+  const echtFarbe = ECHT[roh] || ECHT[roh.split('-')[0]];
+  return { name: d[0], latein: d[1], kategorie: d[2], quiz: d[3], text: d[4], wusstest: d[5], echt: echtFarbe, kurz: d[0].replace(/ \(.*\)$/, '') };
+}
+
+const SCHICHTEN = [
+  { id: 'skelett', name: 'Skelett', emo: '🦴', datei: 'skelett.glb', an: true },
+  { id: 'muskeln', name: 'Muskeln', emo: '💪', datei: 'muskeln.glb', an: false, spaet: true },
+  { id: 'organe', name: 'Organe', emo: '🫀', datei: 'organe.glb', an: false, spaet: true },
+];
+const atlas = Atlas.start($('platz-skelett'), {
+  thema: '../atlas/koerper/', darstellung: 'echt', titel: 'Skelett und Muskeln des Menschen',
+  poster: ['../blatt-bilder/ms-skelett-muskeln/poster.webp'], // Standbild mit durchsichtigem Grund (aus dem 3D-Bild)
+  schichten: SCHICHTEN, kategorien: KATEGORIEN, teile: [],
+  auto: (z) => Object.assign({ id: z.id }, teilAus(z)),
+  latein: true, setzkastenNamen: true,
+  texte: { kategorien: 'Bereiche', teile: 'Alle Teile', liste: 'Knochen, Muskeln & Organe', isolieren: 'Isolieren' },
+});
+window.atlas3d = atlas; // für Tests und die Blatt-Fotos
+
+for (const [k, v] of Object.entries(T.lead)) { const el = $('lead' + { skelett: 'K', setzkasten: 'S', gelenke: 'G', muskeln: 'M', haltung: 'H', finden: 'F' }[k]); if (el) el.innerHTML = v; }
+
+function knoepfe(box, liste, fn, an = 0) {
+  box.innerHTML = '';
+  liste.forEach((n, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.innerHTML = n; b.setAttribute('aria-pressed', i === an ? 'true' : 'false');
+    b.onclick = () => { K.ton('klick'); [...box.children].forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); fn(i); };
+    box.append(b);
+  });
+}
+const warte = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* ═══ Geometrie-Helfer: Gelenkpunkt = Mitte der nächsten Punkte zweier Knochen ═══ */
+const GP = new Map();
+function gelenkPunkt(a, b, filterB) {
+  const key = a + '|' + b + (filterB ? '|f' : '');
+  if (GP.has(key)) return GP.get(key);
+  const { THREE } = atlas.drei();
+  const punkte = (id, f) => {
+    const t = atlas.teil(id); if (!t || !t.mesh) return [];
+    const g = t.mesh.geometry.getAttribute('position'); const m = new THREE.Matrix4().compose(t.heim, new THREE.Quaternion(), new THREE.Vector3(1, 1, 1)).multiply(t.mesh.matrix);
+    const st = Math.max(1, Math.floor(g.count / 700)); const out = [];
+    for (let i = 0; i < g.count; i += st) { const v = new THREE.Vector3().fromBufferAttribute(g, i).applyMatrix4(m); if (!f || f(v, t)) out.push(v); }
+    return out;
+  };
+  const A = punkte(a), B = punkte(b, filterB);
+  let best = null, bd = 1e9;
+  for (const p of A) for (const q of B) { const d = p.distanceToSquared(q); if (d < bd) { bd = d; best = [p, q]; } }
+  const r = best ? best[0].clone().add(best[1]).multiplyScalar(0.5) : atlas.teil(a).heim.clone();
+  GP.set(key, r);
+  return r;
+}
+const KETTE = {
+  arm: (s) => [`humerus-${s}`, `radius-${s}`, `ulna-${s}`, `handwurzel-${s}`, `mittelhand-${s}`, `finger-${s}`, `bizeps-${s}`, `trizeps-${s}`, `oberarmmuskel-${s}`, `oberarmspeichenmuskel-${s}`, `unterarmbeuger-${s}`, `unterarmstrecker-${s}`],
+  unterarm: (s) => [`radius-${s}`, `ulna-${s}`, `handwurzel-${s}`, `mittelhand-${s}`, `finger-${s}`, `oberarmspeichenmuskel-${s}`, `unterarmbeuger-${s}`, `unterarmstrecker-${s}`],
+  hand: (s) => [`handwurzel-${s}`, `mittelhand-${s}`, `finger-${s}`],
+  bein: (s) => [`femur-${s}`, `patella-${s}`, `tibia-${s}`, `fibula-${s}`, `fusswurzel-${s}`, `mittelfuss-${s}`, `zehen-${s}`, ...['vierkoepfiger-oberschenkelmuskel', 'schenkelbeuger', 'schneidermuskel', 'schlanker-muskel', 'adduktoren', 'schenkelbindenspanner', 'zwillingswadenmuskel', 'schollenmuskel', 'achillessehne', 'vorderer-schienbeinmuskel', 'langer-zehenstrecker', 'wadenbeinmuskeln'].map((m) => `${m}-${s}`)],
+  unterschenkel: (s) => [`tibia-${s}`, `fibula-${s}`, `fusswurzel-${s}`, `mittelfuss-${s}`, `zehen-${s}`, ...['zwillingswadenmuskel', 'schollenmuskel', 'achillessehne', 'vorderer-schienbeinmuskel', 'langer-zehenstrecker', 'wadenbeinmuskeln'].map((m) => `${m}-${s}`)],
+  fuss: (s) => [`fusswurzel-${s}`, `mittelfuss-${s}`, `zehen-${s}`],
+  kopf: () => ['schaedel', 'unterkiefer', 'zaehne-oben', 'zaehne-unten', 'halswirbel-1', 'gehirn', 'auge-l', 'auge-r'],
+};
+let stoppBewegung = null;
+function poseZurueck() { if (stoppBewegung) { stoppBewegung(); stoppBewegung = null; } for (const t of atlas.teile()) if (t.pose) atlas.pose(t.id, null); }
+function drehKette(ids, um, q) { for (const id of ids) if (atlas.teil(id)) atlas.pose(id, { um, q }); }
+function q(achse, grad) { const { THREE } = atlas.drei(); return new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(...achse).normalize(), grad * Math.PI / 180); }
+/** Bewegung über die Zeit: f(u) mit u 0..1, dauer ms, wiederholen. */
+function bewegung(f, dauer = 3600, runden = 2) {
+  poseZurueck();
+  const t0 = performance.now();
+  const stop = atlas.animiere(() => {
+    const u = (performance.now() - t0) / dauer;
+    if (u >= runden) { f(0); stop(); stoppBewegung = null; return; }
+    f(u % 1);
+  });
+  stoppBewegung = () => { stop(); f(0); };
+}
+
+/* ═══ Gelenktypen ═══ */
+const L = 'l';
+const SVG = {
+  kugel: '<svg viewBox="0 0 150 110" aria-hidden="true"><path d="M30 20 Q75 75 120 20" fill="none" stroke="#8b6f47" stroke-width="10" stroke-linecap="round"/><circle cx="75" cy="48" r="20" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3"/><rect x="69" y="64" width="12" height="40" rx="5" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3"/><path d="M40 92 A40 14 0 0 0 110 92" fill="none" stroke="#1f7a8c" stroke-width="3" marker-end="url(#pf)"/><defs><marker id="pf" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1f7a8c"/></marker></defs></svg>',
+  scharnier: '<svg viewBox="0 0 150 110" aria-hidden="true"><rect x="20" y="40" width="60" height="20" rx="8" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3"/><circle cx="80" cy="50" r="14" fill="#cdbb95" stroke="#6b5a3a" stroke-width="3"/><rect x="80" y="40" width="55" height="20" rx="8" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3" transform="rotate(-40 80 50)"/><path d="M118 72 A40 40 0 0 0 125 30" fill="none" stroke="#1f7a8c" stroke-width="3"/><circle cx="80" cy="50" r="3" fill="#6b5a3a"/></svg>',
+  sattel: '<svg viewBox="0 0 150 110" aria-hidden="true"><path d="M25 70 Q75 40 125 70 L125 95 L25 95z" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3"/><path d="M45 30 Q75 62 105 30 L105 12 L45 12z" fill="#cdbb95" stroke="#6b5a3a" stroke-width="3"/><path d="M20 50 H130" stroke="#1f7a8c" stroke-width="3" stroke-dasharray="6 5"/><path d="M75 5 V105" stroke="#1f7a8c" stroke-width="3" stroke-dasharray="6 5"/></svg>',
+  dreh: '<svg viewBox="0 0 150 110" aria-hidden="true"><rect x="62" y="30" width="26" height="70" rx="8" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3"/><ellipse cx="75" cy="38" rx="40" ry="14" fill="none" stroke="#6b5a3a" stroke-width="10"/><path d="M28 18 A50 16 0 0 1 122 18" fill="none" stroke="#1f7a8c" stroke-width="3" marker-end="url(#pf2)"/><defs><marker id="pf2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1f7a8c"/></marker></defs></svg>',
+  ei: '<svg viewBox="0 0 150 110" aria-hidden="true"><path d="M30 30 Q75 80 120 30" fill="none" stroke="#8b6f47" stroke-width="10" stroke-linecap="round"/><ellipse cx="75" cy="50" rx="30" ry="17" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3"/><rect x="66" y="64" width="18" height="38" rx="6" fill="#e9dcc2" stroke="#6b5a3a" stroke-width="3"/><path d="M30 80 H120" stroke="#1f7a8c" stroke-width="3" stroke-dasharray="6 5"/><path d="M75 10 V40" stroke="#1f7a8c" stroke-width="3" stroke-dasharray="6 5"/></svg>',
+};
+const GELENKE = [
+  { typ: 'kugel', name: 'Kugelgelenk', achsen: 'drei Hauptachsen — Bewegung in alle Richtungen, auch Drehen',
+    text: 'Ein kugeliger Gelenkkopf sitzt in einer schalenförmigen Gelenkpfanne. So kann sich der Knochen in alle Richtungen bewegen und auch drehen.',
+    beispiele: [
+      { name: 'Schultergelenk', a: `humerus-${L}`, b: `scapula-${L}`, zeige: KETTE.arm(L), bew: (um) => (u) => { const w = Math.sin(u * Math.PI * 2); drehKette(KETTE.arm(L), um, q([0, 0, 1], 55 * (1 - Math.cos(u * Math.PI * 2)) / 2).multiply(q([1, 0, 0], -45 * w))); } },
+      { name: 'Hüftgelenk', a: `femur-${L}`, b: `hueftbein-${L}`, zeige: KETTE.bein(L), bew: (um) => (u) => { const w = Math.sin(u * Math.PI * 2); drehKette(KETTE.bein(L), um, q([0, 0, 1], 30 * (1 - Math.cos(u * Math.PI * 2)) / 2).multiply(q([1, 0, 0], -40 * Math.max(0, w)))); } },
+    ] },
+  { typ: 'scharnier', name: 'Scharniergelenk', achsen: 'eine Achse — Beugen und Strecken',
+    text: 'Wie das Scharnier einer Tür: Eine walzenförmige Gelenkfläche dreht sich in einer passenden Rinne. Das Gelenk kann nur beugen und strecken.',
+    beispiele: [
+      { name: 'Ellbogengelenk', a: `humerus-${L}`, b: `ulna-${L}`, zeige: KETTE.unterarm(L), bew: (um) => (u) => drehKette(KETTE.unterarm(L), um, q([1, 0, 0], -125 * Math.sin(u * Math.PI))) },
+      { name: 'Kniegelenk', a: `femur-${L}`, b: `tibia-${L}`, zeige: KETTE.unterschenkel(L), bew: (um) => (u) => drehKette(KETTE.unterschenkel(L), um, q([1, 0, 0], 100 * Math.sin(u * Math.PI))) },
+      { name: 'Fingergelenke', a: `finger-${L}`, b: `mittelhand-${L}`, zeige: [`finger-${L}`], bew: (um) => (u) => drehKette([`finger-${L}`], um, q([1, 0, 0], -70 * Math.sin(u * Math.PI))) },
+    ] },
+  { typ: 'sattel', name: 'Sattelgelenk', achsen: 'zwei Achsen — vor und zurück, hin und her',
+    text: 'Zwei sattelförmige Gelenkflächen sitzen aufeinander wie ein Reiter im Sattel. Das Gelenk bewegt sich in zwei Richtungen. Darum kannst du den Daumen den anderen Fingern gegenüberstellen.',
+    beispiele: [
+      { name: 'Daumensattelgelenk', a: `mittelhand-${L}`, b: `handwurzel-${L}`, filter: true, zeige: KETTE.hand(L) },
+    ] },
+  { typ: 'dreh', name: 'Drehgelenk (Zapfengelenk)', achsen: 'eine Achse — nur Drehen',
+    text: 'Ein Zapfen dreht sich in einem Ring aus Knochen und Bändern. Das Gelenk kann nur drehen, zum Beispiel beim Kopfschütteln.',
+    beispiele: [
+      { name: 'zwischen Atlas und Axis', a: 'halswirbel-1', b: 'halswirbel-2', zeige: KETTE.kopf(), bew: (um) => (u) => drehKette(KETTE.kopf(), um, q([0, 1, 0], 55 * Math.sin(u * Math.PI * 2))) },
+      { name: 'Speiche um Elle (Unterarm drehen)', a: `radius-${L}`, b: `ulna-${L}`, zeige: [`radius-${L}`, ...KETTE.hand(L)], bew: (um) => { const hand = gelenkPunkt(`radius-${L}`, `handwurzel-${L}`); const achse = hand.clone().sub(um).normalize().toArray(); return (u) => drehKette([`radius-${L}`, ...KETTE.hand(L)], um, q(achse, 80 * Math.sin(u * Math.PI * 2))); } },
+    ] },
+  { typ: 'ei', name: 'Eigelenk', achsen: 'zwei Achsen — beugen/strecken und seitlich kippen, aber nicht drehen',
+    text: 'Ein eiförmiger Gelenkkopf liegt in einer ovalen Pfanne. Das Gelenk kann beugen, strecken und zur Seite kippen — drehen kann es nicht.',
+    beispiele: [
+      { name: 'Handgelenk', a: `radius-${L}`, b: `handwurzel-${L}`, zeige: KETTE.hand(L), bew: (um) => (u) => { const a = u < 0.5 ? Math.sin(u * 2 * Math.PI) : 0, b = u >= 0.5 ? Math.sin((u - 0.5) * 2 * Math.PI) : 0; drehKette(KETTE.hand(L), um, q([1, 0, 0], -55 * a).multiply(q([0, 0, 1], 22 * b))); } },
+      { name: 'Gelenk zwischen Schädel und Atlas', a: 'schaedel', b: 'halswirbel-1', zeige: KETTE.kopf().filter((x) => x !== 'halswirbel-1'), bew: (um) => (u) => drehKette(KETTE.kopf().filter((x) => x !== 'halswirbel-1'), um, q([1, 0, 0], 22 * Math.sin(u * Math.PI * 2))) },
+    ] },
+];
+const DAUMEN_FILTER = (v) => v.x > 0.262; // Daumenseite der linken Hand (anatomisch außen)
+let typG = 0, modusG = 'erkunden';
+async function gelenkZeigen(i, beispielNr = 0) {
+  typG = i; poseZurueck();
+  const g = GELENKE[i];
+  await atlas.schicht('skelett', true); await atlas.schicht('muskeln', false); await atlas.schicht('organe', false);
+  const bs = g.beispiele;
+  const ids = [...new Set(bs.flatMap((b) => [b.a, b.b]))].filter((id) => atlas.teil(id));
+  atlas.markiere(ids, { rest: 'geist', farbe: (t) => (bs.some((b) => b.a === t.id) ? '#f2b15a' : '#6fb7c9'), leuchten: () => 0.18 });
+  const punkte = bs.map((b) => ({ pos: gelenkPunkt(b.a, b.b, b.filter ? DAUMEN_FILTER : null), text: b.name, farbe: '#ffd23a' }));
+  atlas.marken(punkte);
+  atlas.rahme(ids, 900);
+  $('infoG').innerHTML = `<div>${SVG[g.typ]}</div><div><h3>${g.name}</h3><p>${g.text}</p><p><b>Achsen:</b> ${g.achsen}.</p><div class="beispiele" id="bspG"></div></div>`;
+  bs.forEach((b, j) => {
+    const k = document.createElement('button'); k.type = 'button'; k.className = 'k' + (j === beispielNr ? ' haupt' : '');
+    k.textContent = (b.bew ? '▶ ' : '🔍 ') + b.name;
+    k.onclick = () => {
+      K.ton('klick');
+      [...$('bspG').children].forEach((x) => x.classList.toggle('haupt', x === k));
+      const um = gelenkPunkt(b.a, b.b, b.filter ? DAUMEN_FILTER : null);
+      atlas.markiere([...new Set([b.a, b.b, ...(b.zeige || [])])].filter((id) => atlas.teil(id) && atlas.teil(id).schicht === 'skelett'), { rest: 'geist', farbe: (t) => (t.id === b.a || (b.zeige || []).includes(t.id) ? '#f2b15a' : t.id === b.b ? '#6fb7c9' : null), leuchten: () => 0.15 });
+      atlas.marken([{ pos: um, text: b.name, farbe: '#ffd23a' }]);
+      atlas.rahme([b.a, b.b, ...(b.zeige || [])].filter((id) => atlas.teil(id) && atlas.teil(id).schicht === 'skelett'), 800, null, b.bew ? 2.3 : 1.6);
+      if (b.bew) setTimeout(() => bewegung(b.bew(um), 3400, 2), 650);
+    };
+    $('bspG').append(k);
+  });
+}
+knoepfe($('typenG'), GELENKE.map((g) => g.name), (i) => { if (modusG === 'erkunden') gelenkZeigen(i); });
+/* Zuordnen: ein Gelenk leuchtet, welcher Typ ist es? */
+const ZUORDNEN = GELENKE.flatMap((g, i) => g.beispiele.map((b) => ({ ...b, typ: i })));
+const Z = { nr: 0, sterne: 0, versuch: 0, liste: [] };
+function zuordnenStart() {
+  Z.liste = K.mische(ZUORDNEN).concat(K.mische(ZUORDNEN)).slice(0, 8); Z.nr = 0; Z.sterne = 0;
+  zuordnenFrage();
+}
+function zuordnenFrage() {
+  poseZurueck();
+  const box = $('zuordnenG');
+  if (Z.nr >= Z.liste.length) {
+    box.innerHTML = `<b style="font-size:1.2rem">🏁 ${Z.sterne} von ${Z.liste.length} ⭐</b>`;
+    const b = document.createElement('button'); b.className = 'k haupt'; b.type = 'button'; b.textContent = '↺ Noch einmal'; b.onclick = zuordnenStart; box.append(b);
+    K.melde('meldG', Z.sterne >= Z.liste.length - 1 ? 'ok' : '', Z.sterne >= Z.liste.length - 1 ? 'Super — du erkennst alle Gelenktypen!' : 'Schau dir im Erkunden die Gelenktypen noch einmal an.');
+    if (Z.sterne >= Z.liste.length - 1) K.konfetti();
+    return;
+  }
+  const f = Z.liste[Z.nr]; Z.versuch = 0;
+  const um = gelenkPunkt(f.a, f.b, f.filter ? DAUMEN_FILTER : null);
+  const ids = [f.a, f.b].filter((id) => atlas.teil(id));
+  atlas.markiere(ids, { rest: 'geist', farbe: (t) => (t.id === f.a ? '#f2b15a' : '#6fb7c9'), leuchten: () => 0.15 });
+  atlas.marken([{ pos: um, text: `${Z.nr + 1}/${Z.liste.length}: ${f.name}`, farbe: '#ffd23a' }]);
+  atlas.rahme(ids, 800);
+  box.innerHTML = '';
+  GELENKE.forEach((g, i) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'k'; b.textContent = g.name;
+    b.onclick = () => {
+      if (i === f.typ) {
+        if (Z.versuch === 0) Z.sterne++;
+        K.melde('meldG', 'ok', `✔ Richtig: Das ${f.name} ist ein ${g.name}. ${g.achsen.charAt(0).toUpperCase() + g.achsen.slice(1)}.`);
+        if (f.bew) bewegung(f.bew(um), 2600, 1);
+        [...box.children].forEach((x) => { x.disabled = true; });
+        setTimeout(() => { Z.nr++; zuordnenFrage(); }, f.bew ? 2900 : 1800);
+      } else { Z.versuch++; b.disabled = true; K.melde('meldG', 'falsch', `✖ Kein ${g.name}. Überlege: Wie viele Richtungen kann sich das Gelenk bewegen?`); }
+    };
+    box.append(b);
+  });
+  K.melde('meldG', '', `⭐ ${Z.sterne} — Welcher Gelenktyp ist das ${f.name}?`);
+}
+knoepfe($('modusG'), ['🔍 Erkunden', '🎯 Gelenktyp zuordnen'], (i) => {
+  modusG = i ? 'zuordnen' : 'erkunden';
+  $('typenG').classList.toggle('versteckt', !!i); $('infoG').classList.toggle('versteckt', !!i);
+  $('zuordnenG').classList.toggle('versteckt', !i); $('meldG').classList.toggle('versteckt', !i);
+  if (i) zuordnenStart(); else gelenkZeigen(typG);
+});
+
+/* ═══ Beuger & Strecker ═══ */
+const PAARE = [
+  { name: 'Ellbogen', gelenk: 'Ellbogengelenk', beuger: [`bizeps-${L}`, `oberarmmuskel-${L}`], strecker: [`trizeps-${L}`], beugerName: 'Bizeps', streckerName: 'Trizeps',
+    a: `humerus-${L}`, b: `ulna-${L}`, kette: KETTE.unterarm(L), achse: [1, 0, 0], max: -130, kamera: [1, 0.15, 0.35], zeige: [`humerus-${L}`, `scapula-${L}`, `clavicula-${L}`, ...KETTE.unterarm(L), `deltamuskel-${L}`],
+    links: 'gestreckt', rechts: 'gebeugt' },
+  { name: 'Knie', gelenk: 'Kniegelenk', beuger: [`schenkelbeuger-${L}`], strecker: [`vierkoepfiger-oberschenkelmuskel-${L}`], beugerName: 'Schenkelbeuger', streckerName: 'vierköpfiger Oberschenkelmuskel',
+    a: `femur-${L}`, b: `tibia-${L}`, kette: KETTE.unterschenkel(L), achse: [1, 0, 0], max: 110, kamera: [1, 0.1, 0.2], zeige: [`femur-${L}`, `patella-${L}`, `hueftbein-${L}`, ...KETTE.unterschenkel(L), `grosser-gesaessmuskel-${L}`],
+    links: 'gestreckt', rechts: 'gebeugt' },
+  { name: 'Sprunggelenk', gelenk: 'oberes Sprunggelenk', beuger: [`vorderer-schienbeinmuskel-${L}`], strecker: [`zwillingswadenmuskel-${L}`, `schollenmuskel-${L}`], beugerName: 'vorderer Schienbeinmuskel', streckerName: 'Wadenmuskeln',
+    a: `tibia-${L}`, b: `fusswurzel-${L}`, kette: KETTE.fuss(L), achse: [1, 0, 0], max: -28, kamera: [1, 0.12, 0.15], zeige: [`tibia-${L}`, `fibula-${L}`, ...KETTE.fuss(L), `achillessehne-${L}`, `langer-zehenstrecker-${L}`, `wadenbeinmuskeln-${L}`],
+    links: 'Fuß locker', rechts: 'Fuß gehoben' },
+];
+let paarNr = 0, wertM = 0, laufM = null;
+function paarIds(p) { return [...new Set([...p.zeige, ...p.beuger, ...p.strecker])].filter((id) => atlas.teil(id)); }
+async function paarZeigen(i) {
+  paarNr = i; poseZurueck(); if (laufM) { laufM(); laufM = null; }
+  const p = PAARE[i];
+  await atlas.schicht('muskeln', true); await atlas.schicht('skelett', true);
+  atlas.marken(null);
+  const ids = paarIds(p);
+  atlas.markiere(ids, { rest: (t) => (t.schicht === 'skelett' ? 'geist' : 'weg'), farbe: (t) => (p.beuger.includes(t.id) ? '#ff6a3d' : p.strecker.includes(t.id) ? '#3d8bff' : null), leuchten: (t) => (p.beuger.includes(t.id) ? 0.15 + 0.5 * wertM : p.strecker.includes(t.id) ? 0.08 : 0) });
+  $('reglerLinks').textContent = p.links; $('reglerRechts').textContent = p.rechts;
+  $('paarM').innerHTML = `<span><i style="background:var(--beuger)"></i>Beuger: ${p.beugerName}</span><span><i style="background:var(--strecker)"></i>Strecker: ${p.streckerName}</span>`;
+  $('reglerM').value = '0'; stelleM(0);
+  setTimeout(() => atlas.rahme(ids, 800, p.kamera, 1.25), 50);
+}
+function muskelPose(ids, s, oben) {
+  const { THREE } = atlas.drei();
+  for (const id of ids) {
+    const t = atlas.teil(id); if (!t || !t.box) continue;
+    const anker = new THREE.Vector3(t.heim.x, oben ? t.box.max.y : t.box.min.y, t.heim.z);
+    atlas.pose(id, s ? { s: new THREE.Vector3(...s), anker } : null);
+  }
+}
+function stelleM(w) {
+  wertM = w;
+  const p = PAARE[paarNr];
+  const um = gelenkPunkt(p.a, p.b);
+  drehKette(p.kette, um, q(p.achse, p.max * w));
+  /* Der Beuger wird kürzer und dicker, der Strecker etwas länger und dünner (vereinfacht). */
+  const beugerOben = p.name !== 'Sprunggelenk';
+  muskelPose(p.beuger, [1 + 0.32 * w, 1 - 0.2 * w, 1 + 0.32 * w], beugerOben);
+  muskelPose(p.strecker, [1 - 0.06 * w, 1 + 0.05 * w, 1 - 0.06 * w], true);
+  atlas.neuFaerben();
+  const gebeugt = w > 0.15;
+  $('zustandM').innerHTML = gebeugt
+    ? `Das ${p.gelenk} ist ${p.name === 'Sprunggelenk' ? 'angehoben' : 'gebeugt'}: Der <b class="beuger">${p.beugerName}</b> zieht sich zusammen — er wird kürzer und dicker (Beuger). Der <b class="strecker">${p.streckerName}</b> ist entspannt und wird gedehnt (Strecker).`
+    : `Das ${p.gelenk} ist ${p.name === 'Sprunggelenk' ? 'in Ruhe' : 'gestreckt'}. Zum ${p.name === 'Sprunggelenk' ? 'Heben des Fußes' : 'Beugen'} muss sich der <b class="beuger">${p.beugerName}</b> zusammenziehen. Zurück bringt ihn sein Gegenspieler, der <b class="strecker">${p.streckerName}</b>.`;
+}
+$('reglerM').addEventListener('input', () => { if (laufM) { laufM(); laufM = null; } stelleM(Number($('reglerM').value) / 100); });
+$('spielM').addEventListener('click', () => {
+  if (laufM) { laufM(); laufM = null; return; }
+  const t0 = performance.now();
+  const stop = atlas.animiere(() => {
+    const u = ((performance.now() - t0) / 3200) % 2;
+    const w = Math.sin(Math.min(1, u) * Math.PI);
+    $('reglerM').value = String(Math.round(w * 100)); stelleM(w);
+    if (performance.now() - t0 > 6400) { stop(); laufM = null; stelleM(0); $('reglerM').value = '0'; }
+  });
+  laufM = () => { stop(); };
+});
+knoepfe($('paareM'), PAARE.map((p) => p.name), (i) => paarZeigen(i));
+
+/* ═══ Haltung: Doppel-S von der Seite + Aussagen ═══ */
+const HALTUNG = [
+  ['Ich trage die Schultasche mit beiden Trägern auf dem Rücken.', true, 'Das Gewicht verteilt sich gleichmäßig auf beide Schultern und die Wirbelsäule.'],
+  ['Ich trage die schwere Tasche immer nur auf einer Schulter.', false, 'Die Wirbelsäule wird einseitig belastet und kann sich seitlich verbiegen.'],
+  ['Beim Heben einer Kiste gehe ich in die Knie und halte den Rücken gerade.', true, 'So arbeiten die starken Beinmuskeln, und die Bandscheiben werden geschont.'],
+  ['Ich hebe schwere Dinge mit rundem Rücken und gestreckten Beinen.', false, 'Dabei werden die Bandscheiben der Lendenwirbelsäule sehr stark gedrückt.'],
+  ['Ich sitze stundenlang zusammengesunken vor dem Handy.', false, 'Der Kopf hängt nach vorne — Nacken und Halswirbelsäule werden überlastet.'],
+  ['Beim Sitzen stehen meine Füße ganz auf dem Boden und der Rücken lehnt an.', true, 'So bleibt die Doppel-S-Form erhalten.'],
+  ['Ich mache beim Lernen immer wieder kurze Bewegungspausen.', true, 'Bewegung versorgt die Bandscheiben mit Nährstoffen und lockert die Muskeln.'],
+  ['Meine Schultasche wiegt höchstens etwa ein Zehntel meines Körpergewichts.', true, 'Das empfehlen Ärztinnen und Ärzte: bei 40 kg also höchstens etwa 4 kg.'],
+  ['Der Bildschirm steht so tief, dass ich den Kopf stark nach unten beugen muss.', false, 'Der obere Bildschirmrand sollte etwa auf Augenhöhe sein.'],
+  ['Sport stärkt die Rücken- und Bauchmuskeln, und die stützen die Wirbelsäule.', true, 'Starke Muskeln sind wie ein Korsett für den Rücken.'],
+  ['Ich schlafe auf einer Matratze, die so weich ist, dass ich ganz durchhänge.', false, 'Die Wirbelsäule soll im Liegen gerade bleiben.'],
+  ['Hohe Absätze sind für die Füße und den Rücken gesund.', false, 'Sie kippen das Becken nach vorne und belasten Vorfuß und Lendenwirbelsäule.'],
+  ['Ich wechsle beim Stehen öfter das Standbein und bewege mich.', true, 'Abwechslung entlastet Gelenke und Muskeln.'],
+  ['Ich lümmle beim Schreiben schief über den Tisch.', false, 'Eine schiefe Haltung belastet die Wirbelsäule einseitig.'],
+];
+const H = { nr: 0, sterne: 0, versuch: 0, liste: [] };
+function haltungStart() { H.liste = K.mische(HALTUNG).slice(0, 10); H.nr = 0; H.sterne = 0; haltungFrage(); }
+function haltungFrage() {
+  const fertig = H.nr >= H.liste.length;
+  $('standH').textContent = fertig ? 'Geschafft!' : `Aussage ${H.nr + 1} von ${H.liste.length}`;
+  K.sterne('sterneH', H.sterne, H.liste.length);
+  $('gutH').classList.toggle('versteckt', fertig); $('schlechtH').classList.toggle('versteckt', fertig); $('weiterH').classList.add('versteckt');
+  $('gutH').disabled = $('schlechtH').disabled = false;
+  if (fertig) {
+    $('satzH').textContent = `Du hast ${H.sterne} von ${H.liste.length} Sternen.`;
+    const b = $('weiterH'); b.textContent = '↺ Noch einmal'; b.classList.remove('versteckt'); b.onclick = haltungStart;
+    K.melde('meldH', H.sterne >= H.liste.length - 1 ? 'ok' : '', H.sterne >= H.liste.length - 1 ? 'Dein Rücken sagt Danke!' : 'Lies die Erklärungen noch einmal und probier es wieder.');
+    if (H.sterne >= H.liste.length - 1) K.konfetti();
+    return;
+  }
+  H.versuch = 0;
+  $('satzH').textContent = H.liste[H.nr][0];
+  K.melde('meldH', '', 'Ist das gesund für deinen Rücken?');
+}
+function haltungAntwort(gesund) {
+  const f = H.liste[H.nr];
+  if (gesund === f[1]) {
+    if (H.versuch === 0) H.sterne++;
+    K.melde('meldH', 'ok', `✔ ${f[1] ? 'Ja, das ist gesund.' : 'Richtig, das ist ungesund.'} ${f[2]}`);
+    $('gutH').disabled = $('schlechtH').disabled = true;
+    const b = $('weiterH'); b.textContent = 'Weiter ➜'; b.classList.remove('versteckt'); b.onclick = () => { H.nr++; haltungFrage(); };
+    K.sterne('sterneH', H.sterne, H.liste.length);
+  } else { H.versuch++; K.melde('meldH', 'falsch', '✖ Überleg noch einmal: Was macht das mit der Wirbelsäule?'); }
+}
+$('gutH').addEventListener('click', () => haltungAntwort(true));
+$('schlechtH').addEventListener('click', () => haltungAntwort(false));
+haltungStart();
+async function haltungZeigen() {
+  poseZurueck();
+  await atlas.schicht('skelett', true); await atlas.schicht('muskeln', false); await atlas.schicht('organe', false);
+  const wirbel = atlas.finde((t) => /wirbel|kreuzbein|bandscheiben/.test(t.id));
+  atlas.markiere([...wirbel, 'schaedel'], { rest: 'geist', farbe: (t) => (/^halswirbel/.test(t.id) ? '#f2b15a' : /^brustwirbel/.test(t.id) ? '#6fb7c9' : /^lendenwirbel/.test(t.id) ? '#9cd67a' : t.id === 'kreuzbein' ? '#d79be0' : null), leuchten: (t) => (t.id === 'schaedel' ? 0 : 0.12) });
+  const p = (id) => atlas.teil(id) && atlas.teil(id).heim.clone().add(new (atlas.drei().THREE.Vector3)(0, 0, -0.05));
+  atlas.marken([['halswirbel-4', 'Halswirbelsäule'], ['brustwirbel-7', 'Brustwirbelsäule'], ['lendenwirbel-3', 'Lendenwirbelsäule'], ['kreuzbein', 'Kreuzbein']].filter(([id]) => atlas.teil(id)).map(([id, text]) => ({ pos: p(id), text, farbe: '#ffd23a' })));
+  atlas.kamera('links');
+  setTimeout(() => atlas.rahme([...wirbel, 'schaedel'], 800), 950);
+}
+
+/* ═══ Finde es ═══ */
+let stufeF = 0;
+function findenStart() {
+  const muskeln = stufeF === 3;
+  atlas.markiere(null); atlas.marken(null);
+  atlas.quiz({ stufe: muskeln ? 2 : stufeF + 1, runden: 10, schichten: muskeln ? ['muskeln'] : ['skelett'], filter: (t) => (muskeln ? t.schicht === 'muskeln' : t.schicht === 'skelett'), ende: (n, max) => { if (n >= max - 1) K.konfetti(); } });
+}
+knoepfe($('stufenF'), ['⭐ große Knochen', '⭐⭐ mehr Knochen', '⭐⭐⭐ alle Knochen', '💪 Muskeln'], (i) => { stufeF = i; findenStart(); });
+
+/* ═══ Reiter: EIN 3D-Atlas wandert mit ═══ */
+let reiter = 'skelett';
+async function zeigeReiter(id) {
+  reiter = id;
+  await atlas.bereit;
+  if (reiter !== id) return;
+  poseZurueck(); if (laufM) { laufM(); laufM = null; }
+  if (id !== 'gelenke' && id !== 'muskeln' && id !== 'haltung') { atlas.markiere(null); atlas.marken(null); }
+  const frei = id === 'skelett' || id === 'setzkasten';
+  atlas.seiteZeigen(frei); atlas.leiste(frei || id === 'finden');
+  if (id === 'skelett') { await atlas.modus('ganz'); }
+  else if (id === 'setzkasten') { await atlas.modus('setzkasten'); }
+  else if (id === 'gelenke') { await atlas.modus('ganz'); if (modusG === 'erkunden') gelenkZeigen(typG); else zuordnenStart(); }
+  else if (id === 'muskeln') { await atlas.modus('ganz'); paarZeigen(paarNr); }
+  else if (id === 'haltung') { await atlas.modus('ganz'); haltungZeigen(); }
+  else if (id === 'finden') { findenStart(); }
+}
+document.addEventListener('kiste:reiter', (e) => {
+  if (BLATT) return; // Foto für die Blätter: der Reiter bleibt, wie blattSzene ihn einstellt
+  const id = e.detail;
+  const platz = $('platz-' + id);
+  if (platz) { if (!platz.contains(atlas.el)) atlas.verschiebe(platz); zeigeReiter(id); }
+});
+
+/* ═══ Quiz (Wissen) in drei Stufen ═══ */
+const QUIZ = {
+  0: [
+    ['Wie viele Knochen hat ein erwachsener Mensch ungefähr?', ['206', '106', '306', '1 006'], 'Ein Baby hat noch über 300 — manche wachsen später zusammen.', '🦴'],
+    ['Welcher ist der längste Knochen des Körpers?', ['Oberschenkelknochen', 'Oberarmknochen', 'Schienbein', 'Wadenbein'], 'Er reicht von der Hüfte bis zum Knie.', '📏'],
+    ['Welche Aufgabe hat das Skelett NICHT?', ['Nahrung verdauen', 'den Körper stützen', 'Organe schützen', 'Bewegung ermöglichen'], 'Verdauen ist Aufgabe von Magen und Darm.', '❓'],
+    ['Welcher Muskel beugt den Unterarm?', ['Bizeps', 'Trizeps', 'Deltamuskel', 'Kapuzenmuskel'], 'Der Bizeps vorne am Oberarm ist ein Beuger.', '💪'],
+    ['Welcher Muskel streckt den Unterarm?', ['Trizeps', 'Bizeps', 'großer Brustmuskel', 'Kopfwender'], 'Der Trizeps hinten am Oberarm ist der Strecker.', '🦾'],
+    ['Was verbindet Muskeln mit Knochen?', ['Sehnen', 'Bänder', 'Nerven', 'Adern'], 'Bänder verbinden dagegen Knochen mit Knochen.', '🔗'],
+    ['Welche Knochen schützen Herz und Lunge?', ['Rippen, Brustbein und Brustwirbel', 'Hüftbeine', 'Schädelknochen', 'Schulterblätter allein'], 'Gemeinsam bilden sie den Brustkorb.', '🛡️'],
+    ['Welcher Gelenktyp ist das Schultergelenk?', ['Kugelgelenk', 'Scharniergelenk', 'Sattelgelenk', 'Eigelenk'], 'Kugelgelenke bewegen sich in alle Richtungen.', '🔵'],
+    ['Welcher Gelenktyp ist das Ellbogengelenk?', ['Scharniergelenk', 'Kugelgelenk', 'Drehgelenk', 'Sattelgelenk'], 'Es beugt und streckt in einer Ebene.', '🚪'],
+    ['Wie heißen die zwei Knochen des Unterarms?', ['Elle und Speiche', 'Schienbein und Wadenbein', 'Oberarm und Elle', 'Speiche und Wadenbein'], 'Die Speiche liegt auf der Daumenseite.', '✋'],
+    ['Wie viele Halswirbel hat der Mensch?', ['7', '5', '12', '24'], 'Genau so viele wie eine Giraffe.', '🦒'],
+    ['Welcher ist der größte Muskel des Körpers?', ['großer Gesäßmuskel', 'Bizeps', 'Zwillingswadenmuskel', 'Kopfwender'], 'Er streckt das Hüftgelenk beim Aufstehen.', '🏋️'],
+    ['Muskeln können …', ['nur ziehen, nicht schieben', 'ziehen und schieben', 'nur schieben', 'sich nicht verkürzen'], 'Darum braucht jedes Gelenk Gegenspieler.', '↔️'],
+  ],
+  1: [
+    ['Was bedeutet das Gegenspieler-Prinzip?', ['Zu jedem Beuger gehört ein Strecker, der die Bewegung zurückführt', 'Zwei Muskeln ziehen immer gleichzeitig', 'Ein Muskel kann ziehen und schieben', 'Knochen bewegen sich selbst'], 'Beuger und Strecker arbeiten abwechselnd.', '⚖️'],
+    ['Welcher Muskel ist der Gegenspieler des vierköpfigen Oberschenkelmuskels?', ['Schenkelbeuger', 'Bizeps', 'großer Brustmuskel', 'Schneidermuskel'], 'Der Strecker vorne, die Beuger hinten am Oberschenkel.', '🦵'],
+    ['Welche Form hat die Wirbelsäule von der Seite gesehen?', ['Doppel-S', 'ganz gerade', 'ein C', 'ein Z'], 'Die Doppel-S-Form federt wie eine Spiralfeder.', '〰️'],
+    ['Wozu dienen die Bandscheiben?', ['Sie federn Stöße ab und machen die Wirbelsäule beweglich', 'Sie bilden Blut', 'Sie verbinden Muskeln mit Knochen', 'Sie schützen das Herz'], 'Sie liegen zwischen den Wirbelkörpern.', '🧽'],
+    ['Welcher Gelenktyp erlaubt Bewegungen in alle Richtungen?', ['Kugelgelenk', 'Scharniergelenk', 'Eigelenk', 'Drehgelenk'], 'Zum Beispiel Schulter und Hüfte.', '🔵'],
+    ['Wo liegt ein Sattelgelenk?', ['zwischen Handwurzel und Daumen', 'im Knie', 'in der Hüfte', 'zwischen Schädel und Unterkiefer'], 'Darum kannst du den Daumen den Fingern gegenüberstellen.', '👍'],
+    ['Welches Gelenk erlaubt das Kopfschütteln („Nein“)?', ['das Drehgelenk zwischen Atlas und Axis', 'das Kiefergelenk', 'das Schultergelenk', 'das Eigelenk der Hand'], 'Der Atlas dreht sich um den Zahn des Axis.', '🙅'],
+    ['Welcher Muskel hebt die Ferse (Zehenspitzenstand)?', ['Zwillingswadenmuskel', 'vorderer Schienbeinmuskel', 'Bizeps', 'Schneidermuskel'], 'Er zieht über die Achillessehne am Fersenbein.', '🩰'],
+    ['Was ist die Achillessehne?', ['die Sehne der Wadenmuskeln zum Fersenbein', 'ein Band im Knie', 'ein Knochen im Fuß', 'ein Muskel am Oberarm'], 'Sie ist die kräftigste Sehne des Körpers.', '🦶'],
+    ['Wie heißen die Rippen 11 und 12?', ['freie Rippen', 'echte Rippen', 'falsche Rippen', 'Halsrippen'], 'Sie haben keine Verbindung zum Brustbein.', '🔢'],
+    ['Wie heißt der erste Halswirbel?', ['Atlas', 'Axis', 'Kreuzbein', 'Steißbein'], 'Er trägt den Kopf wie der Riese Atlas den Himmel.', '🌍'],
+    ['Aus welchen Knochen besteht der Schultergürtel?', ['Schlüsselbein und Schulterblatt', 'Oberarm und Elle', 'Brustbein und Rippen', 'Hüftbein und Kreuzbein'], 'An ihm hängt der Arm.', '🎽'],
+    ['Welcher Muskel dreht und neigt den Kopf?', ['Kopfwender', 'Deltamuskel', 'Trizeps', 'Adduktoren'], 'Er zieht vom Brustbein hinter das Ohr.', '🔄'],
+  ],
+  2: [
+    ['Aus welchen drei Knochen ist das Hüftbein zusammengewachsen?', ['Darmbein, Sitzbein und Schambein', 'Kreuzbein, Steißbein und Wirbel', 'Elle, Speiche und Handwurzel', 'Schienbein, Wadenbein und Sprungbein'], 'Sie verwachsen bis zur Pubertät.', '🦴'],
+    ['Welcher Gelenktyp ist das Handgelenk zwischen Speiche und Handwurzel?', ['Eigelenk', 'Kugelgelenk', 'Drehgelenk', 'Scharniergelenk'], 'Es kann beugen, strecken und kippen, aber nicht drehen.', '🥚'],
+    ['Welcher Knochen liegt als Sesambein in einer Sehne?', ['Kniescheibe', 'Schlüsselbein', 'Fersenbein', 'Zungenbein'], 'Sie liegt in der Sehne des vierköpfigen Oberschenkelmuskels.', '🔘'],
+    ['Wo werden Blutzellen gebildet?', ['im roten Knochenmark', 'in den Sehnen', 'im Knorpel', 'in den Bandscheiben'], 'Zum Beispiel im Brustbein und in den Wirbeln.', '🩸'],
+    ['Was passiert bei einer Verstauchung?', ['Die Bänder eines Gelenks werden überdehnt', 'Der Knochen bricht', 'Ein Muskel reißt ganz', 'Ein Wirbel verrutscht'], 'Kühlen, hochlagern und schonen hilft.', '🧊'],
+    ['Wie heißen die Rippen 8 bis 10?', ['falsche Rippen', 'echte Rippen', 'freie Rippen', 'Lendenrippen'], 'Sie erreichen das Brustbein nur über den Knorpel der Rippe darüber.', '🔢'],
+    ['Welcher Knochen bildet mit keinem anderen Knochen ein Gelenk?', ['Zungenbein', 'Kniescheibe', 'Atlas', 'Schlüsselbein'], 'Er hängt nur in Muskeln und Bändern.', '👅'],
+    ['Warum soll man schwere Lasten aus den Knien heben?', ['Damit die Lendenwirbelsäule und die Bandscheiben geschont werden', 'Damit die Arme stärker werden', 'Weil die Knie sonst einrosten', 'Damit man schneller ist'], 'Mit geradem Rücken arbeiten die starken Beinmuskeln.', '📦'],
+    ['Warum sind Röhrenknochen innen nicht ganz gefüllt?', ['Sie sind so leicht und trotzdem stabil', 'Weil sie noch wachsen müssen', 'Damit Luft hineinpasst', 'Weil Knochen weich sind'], 'Innen liegt Knochenmark, an den Enden ein Gerüst aus Knochenbälkchen.', '🏗️'],
+    ['Welcher ist der längste Muskel des Körpers?', ['Schneidermuskel', 'Bizeps', 'großer Gesäßmuskel', 'Kapuzenmuskel'], 'Er zieht schräg über den ganzen Oberschenkel.', '🧵'],
+    ['Warum bist du am Abend etwas kleiner als am Morgen?', ['Die Bandscheiben geben tagsüber Wasser ab', 'Die Knochen schrumpfen', 'Die Muskeln werden kürzer', 'Das stimmt nicht'], 'In der Nacht saugen sie sich wieder voll.', '🌙'],
+    ['Was kann das Kniegelenk im gebeugten Zustand zusätzlich?', ['ein wenig drehen', 'in alle Richtungen kreisen', 'seitlich abknicken', 'gar nichts'], 'Darum nennt man es auch Drehscharniergelenk.', '🔁'],
+    ['Welche Knochen bilden das obere Sprunggelenk?', ['Schienbein, Wadenbein und Sprungbein', 'Fersenbein und Zehen', 'Oberschenkel und Kniescheibe', 'Hüftbein und Kreuzbein'], 'Schien- und Wadenbein umgreifen das Sprungbein wie eine Gabel.', '🦶'],
+  ],
+};
+function quizStart(s) {
+  K.quiz('quizBox', { fragen: QUIZ[s].map(([f, a, w, bild]) => ({ f, a, r: 0, w, t: 'Schau im Reiter Skelett im Steckbrief nach.', bild })), anzahl: 10, lob: T.lob });
+}
+knoepfe($('stufenQ'), ['⭐ leicht', '⭐⭐ mittel', '⭐⭐⭐ schwer'], quizStart);
+quizStart(0);
+
+/* ═══ Fotos für die Blätter (#blatt=<name>) ═══ */
+const NUMMERN_SKELETT = [
+  { id: 'schaedel', seite: 'links' }, { id: 'clavicula-r', seite: 'links' }, { id: 'humerus-r', seite: 'links' }, { id: 'ulna-r', seite: 'links' }, { id: 'radius-r', seite: 'links' },
+  { id: 'handwurzel-r', seite: 'links' }, { id: 'femur-r', seite: 'links' }, { id: 'tibia-r', seite: 'links' },
+  { id: 'unterkiefer', seite: 'rechts' }, { id: 'sternum', seite: 'rechts' }, { id: 'rippe-6-l', seite: 'rechts' }, { id: 'lendenwirbel-3', seite: 'rechts', hoehe: 0.5 },
+  { id: 'hueftbein-l', seite: 'rechts', hoehe: 0.75, quer: 0.8 }, { id: 'patella-l', seite: 'rechts' }, { id: 'fibula-l', seite: 'rechts' }, { id: 'fusswurzel-l', seite: 'rechts' },
+];
+const NUMMERN_MUSKELN = [
+  { id: 'kopfwender-r', seite: 'links' }, { id: 'deltamuskel-r', seite: 'links' }, { id: 'bizeps-r', seite: 'links' }, { id: 'unterarmbeuger-r', seite: 'links' }, { id: 'vierkoepfiger-oberschenkelmuskel-r', seite: 'links' }, { id: 'vorderer-schienbeinmuskel-r', seite: 'links' },
+  { id: 'kapuzenmuskel-l', seite: 'rechts' }, { id: 'grosser-brustmuskel-l', seite: 'rechts' }, { id: 'aeusserer-schraeger-bauchmuskel-l', seite: 'rechts' }, { id: 'schneidermuskel-l', seite: 'rechts', hoehe: 0.82, quer: 0.75 }, { id: 'adduktoren-l', seite: 'rechts', hoehe: 0.55, quer: 0.25 }, { id: 'zwillingswadenmuskel-l', seite: 'rechts' },
+];
+async function blattSzene(name) {
+  await atlas.bereit;
+  atlas.seiteZeigen(false); atlas.druck(true);
+  const nummern = (liste) => liste.filter((x) => atlas.teil(x.id)).map((x, i) => ({ ...x, nr: i + 1 }));
+  const stil = (n) => (/-nummern$/.test(n) ? 'nummer' : /-loesung$/.test(n) ? 'loesung' : 'name');
+  if (/^skelett-/.test(name)) {
+    atlas.kamera('vorne'); await warte(1100);
+    atlas.beschriftung(nummern(NUMMERN_SKELETT), { stil: stil(name), autoNummer: true });
+  } else if (/^muskeln-/.test(name)) {
+    await atlas.schicht('muskeln', true); atlas.kamera('vorne'); await warte(1200);
+    atlas.beschriftung(nummern(NUMMERN_MUSKELN), { stil: stil(name), autoNummer: true });
+  } else if (name === 'setzkasten') {
+    await atlas.modus('setzkasten'); await warte(800);
+  } else if (name === 'gelenke') {
+    atlas.kamera('vorne'); await warte(1100);
+    const M = [['halswirbel-1', 'halswirbel-2', 'Drehgelenk: Atlas und Axis'], [`humerus-${L}`, `scapula-${L}`, 'Kugelgelenk: Schulter'], [`humerus-${L}`, `ulna-${L}`, 'Scharniergelenk: Ellbogen'], [`femur-${L}`, `tibia-${L}`, 'Scharniergelenk: Knie'], [`radius-${L}`, `handwurzel-${L}`, 'Eigelenk: Handgelenk', true], [`mittelhand-${L}`, `handwurzel-${L}`, 'Sattelgelenk: Daumen', false, true]];
+    atlas.markiere([...new Set(M.flatMap((m) => [m[0], m[1]]))], { rest: 'geist', farbe: () => '#e9b25c', leuchten: () => 0.1 });
+    atlas.marken(M.map(([a, b2, text, links, filter]) => ({ pos: gelenkPunkt(a, b2, filter ? DAUMEN_FILTER : null), text, farbe: '#ff6a3d', links: links ?? false })));
+  } else if (/^beuger/.test(name)) {
+    paarNr = 0; await paarZeigen(0); await warte(900); $('reglerM').value = name === 'beuger-gestreckt' ? '0' : '85'; stelleM(name === 'beuger-gestreckt' ? 0 : 0.85);
+    await warte(1000); atlas.rahme(paarIds(PAARE[0]), 0, PAARE[0].kamera, 1.2);
+  } else if (name === 'wirbelsaeule') {
+    await haltungZeigen(); await warte(1800);
+  } else if (name.startsWith('markiert-')) {
+    const id = name.slice(9);
+    const muskel = atlas.teil(id) && atlas.teil(id).schicht === 'muskeln';
+    if (muskel) await atlas.schicht('muskeln', true);
+    atlas.kamera(/trizeps|zwillingswaden|schollen|gesaess|kapuzen|schenkelbeuger|rueckenstrecker|achilles/.test(id) ? 'hinten' : 'vorne');
+    /* Knochen: rot vor blassem Skelett. Muskel: leuchtend gelb zwischen den anderen Muskeln (Rot auf Rot sähe man nicht). */
+    atlas.markiere([id], muskel ? { rest: (t) => (t.schicht === 'muskeln' ? null : 'geist'), farbe: () => '#ffd23a', leuchten: () => 0.45 } : { rest: 'geist', farbe: () => '#e8303a', leuchten: () => 0.25 });
+    await warte(1100);
+  }
+  requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(() => { document.documentElement.dataset.blattFertig = '1'; }, 500)));
+}
+if (BLATT) blattSzene(BLATT);
+
+K.start();
+</script>
+<script src="/lernwerkzeuge/lib/lernblick-laden.js"></script>
+</body>
+</html>

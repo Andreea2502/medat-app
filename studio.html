@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio – MedAT Trainer</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Social-Media-Studio (nur Admin) – Andreea, 19.10.2026:
+     „Der Button mit Aufnehmen und der richtige Modus, ob Handy oder Laptop, muss schon weit vorher abgefragt worden sein …
+      es muss erkenntlich sein, da war eine Frage, die wurde falsch beantwortet, und dann kommt der Lernassistent – fließend.“
+     Darum: Die ganze App läuft hier in einem Handy- oder Laptop-Rahmen. Erst Format wählen, dann Aufnahme starten,
+     dann ganz normal in der App üben – aufgenommen wird nur der Rahmen, von der Frage bis zur Erklärung am Stück. */
+  :root { --ink: #1a1a2e; --muted: #6b6b80; --line: #e6e2d8; --gelb: #f5c542; --rot: #e11d48; --nacht: #15122b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--ink); background: radial-gradient(120% 90% at 70% 0%, #2b1d5c 0%, var(--nacht) 65%); min-height: 100vh; }
+  .panel { position: fixed; left: 0; top: 0; bottom: 0; width: 360px; background: #fff; overflow: auto; padding: 18px 18px 30px; display: grid; align-content: start; gap: 14px; box-shadow: 6px 0 30px rgba(0,0,0,.25); z-index: 5; }
+  h1 { margin: 0; font-size: 19px; }
+  h1 span { color: #b48600; }
+  .schritt { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: #fbfaf7; }
+  .schritt > b { font-size: 13px; letter-spacing: .02em; color: var(--muted); text-transform: uppercase; }
+  .schritt.aus { opacity: .45; pointer-events: none; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #fff; }
+  .seg button { flex: 1; border: 0; background: none; padding: 10px 6px; font: inherit; font-weight: 600; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  label.zeile { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+  input[type=text] { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 14px; }
+  .knopf { border: 0; border-radius: 12px; padding: 12px 14px; font: inherit; font-weight: 800; font-size: 15px; cursor: pointer; background: var(--ink); color: var(--gelb); }
+  .knopf.rec { background: var(--rot); color: #fff; }
+  .knopf.zweit { background: #fff; color: var(--ink); border: 1px solid var(--line); font-weight: 700; }
+  .knopf:disabled { opacity: .5; cursor: default; }
+  .hinweis { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+  .hinweis b { color: var(--ink); }
+  ol.ablauf { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.55; }
+  .rec-an[hidden] { display: none; }
+  .rec-an { display: flex; align-items: center; gap: 8px; font-weight: 800; color: var(--rot); }
+  .rec-an i { width: 12px; height: 12px; border-radius: 50%; background: var(--rot); animation: blink 1s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  video.ergebnis { width: 100%; border-radius: 10px; background: #000; }
+  .block { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; font-size: 14px; }
+  .block p { margin: 0; white-space: pre-wrap; line-height: 1.45; }
+  .kopf { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .mini { border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 4px 8px; font: inherit; font-size: 12px; cursor: pointer; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  canvas.vorschau { width: 100%; border-radius: 10px; }
+  /* Rahmen */
+  .buehne { position: fixed; left: 360px; right: 0; top: 0; bottom: 0; display: grid; place-items: center; }
+  .rahmen { position: relative; background: #000; border-radius: 26px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5), 0 0 0 8px #0b0a14; transform-origin: center center; }
+  .rahmen.quer { border-radius: 12px; box-shadow: 0 30px 80px rgba(0,0,0,.5), 0 0 0 6px #0b0a14; }
+  .rahmen iframe { display: block; border: 0; width: 100%; height: 100%; background: #fff; }
+  .karte { position: absolute; inset: 0; display: grid; place-items: center; padding: 9%; text-align: center; color: #fff; background: radial-gradient(120% 90% at 50% 20%, #3b2a7a 0%, var(--nacht) 70%); opacity: 0; pointer-events: none; transition: opacity .45s ease; z-index: 3; }
+  .karte.da { opacity: 1; }
+  .karte .gross { font-weight: 900; font-size: clamp(30px, 5.2vh, 60px); line-height: 1.08; text-shadow: 0 4px 24px rgba(0,0,0,.5); }
+  .karte .klein { display: block; margin-top: 22px; font-weight: 800; font-size: 20px; color: var(--gelb); }
+  .karte .zahl { font-weight: 900; font-size: 120px; color: var(--gelb); }
+  .karte.da .gross, .karte.da .zahl { animation: auf .6s cubic-bezier(.2,1.3,.4,1); }
+  @keyframes auf { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .sperre { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(21,18,43,.92); color: #fff; z-index: 10; font-size: 18px; text-align: center; padding: 30px; }
+  .sperre[hidden] { display: none; }
+  @media (max-width: 900px) {
+    .panel { position: static; width: auto; box-shadow: none; }
+    .buehne { position: static; padding: 20px 0 40px; }
+  }
+</style>
+</head>
+<body>
+<aside class="panel">
+  <h1>🎬 Social-Media-<span>Studio</span></h1>
+  <p class="hinweis">Rechts läuft die App im Rahmen. Du übst dort ganz normal. Das Video zeichnet die App danach selbst: Frage, falsche Antwort, dann die Tafel groß mit Stimme.</p>
+
+  <div class="schritt" id="s1">
+    <b>1 · Format</b>
+    <div class="seg" id="format">
+      <button type="button" data-f="9x16" aria-pressed="true">📱 Handy 9:16</button>
+      <button type="button" data-f="16x9" aria-pressed="false">💻 Laptop 16:9</button>
+    </div>
+  </div>
+
+  <div class="schritt" id="s2">
+    <b>2 · Einstieg und Schluss</b>
+    <label class="zeile"><input type="checkbox" id="mit-hook" checked> Hook-Karte am Anfang (3 Sekunden)</label>
+    <input type="text" id="hook" value="Diesen MedAT-Fehler machen fast alle 😳" aria-label="Hook-Text">
+    <label class="zeile"><input type="checkbox" id="mit-schluss" checked> Schlusskarte am Ende</label>
+    <input type="text" id="schluss" value="Damit dir das im MedAT nicht passiert – folge für mehr!" aria-label="Schluss-Text">
+  </div>
+
+  <div class="schritt" id="s3">
+    <b>3 · Video</b>
+    <ol class="ablauf">
+      <li>Im Rahmen eine Frage üben und <b>falsch</b> beantworten.</li>
+      <li>„Mit LernBlick verstehen“ tippen und die Erklärung einmal ansehen (mit Stimme).</li>
+      <li>Optional zuerst Schritt 4: Hook und Schluss passend zur Erklärung schreiben lassen.</li>
+      <li>„Video erstellen“: Die App spielt die Erklärung noch einmal ab und zeichnet dabei das Video – Frage, deine falsche Antwort, dann die Tafel groß mit Stimme und Untertitel. Kostet nichts extra.</li>
+    </ol>
+    <button class="knopf rec" id="rec" type="button">🎬 Video erstellen</button>
+    <div class="rec-an" id="rec-an" hidden><i></i><span id="rec-zeit">00:00</span> <span id="rec-was">Video entsteht</span></div>
+    <p class="hinweis">Während das Video entsteht, diesen Tab bitte offen und im Vordergrund lassen.</p>
+    <button class="knopf zweit" id="neu" type="button">↺ App im Rahmen neu laden</button>
+    <p class="hinweis" id="rec-hinweis"></p>
+    <video class="ergebnis" id="ergebnis" controls playsinline hidden></video>
+  </div>
+
+  <div class="schritt" id="s4">
+    <b>4 · Für den Beitrag</b>
+    <p class="hinweis">Wird beim Video automatisch geschrieben: Hook, Vorschaubild, Caption, Hashtags und Einblendungen zu genau dieser Erklärung. Mit dem Knopf kannst du es vorher oder neu schreiben lassen.</p>
+    <button class="knopf zweit" id="paket" type="button">✨ Hook, Caption &amp; Hashtags</button>
+    <div id="paket-inhalt"></div>
+  </div>
+</aside>
+
+<main class="buehne">
+  <div class="rahmen" id="rahmen">
+    <iframe id="app" src="index.html?studio=1" title="MedAT Trainer"></iframe>
+    <div class="karte" id="karte"></div>
+  </div>
+</main>
+<div class="sperre" id="sperre" hidden></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const MASS = { "9x16": [390, 844], "16x9": [1280, 720] };
+  let format = "9x16", rec = null, teile = [], start = 0, uhr = null, paket = null;
+  const esc = (t) => String(t == null ? "" : t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const app = () => $("app").contentWindow;
+
+  // Rahmen in echter Gerätegröße, nur verkleinert, wenn der Bildschirm zu klein ist (die App sieht dadurch genau wie am Handy aus)
+  function rahmen() {
+    const [w, h] = MASS[format], r = $("rahmen"), b = r.parentElement.getBoundingClientRect();
+    const k = Math.min(1, (b.width - 60) / w, (b.height - 50) / h);
+    r.style.width = w + "px"; r.style.height = h + "px"; r.style.transform = `scale(${k.toFixed(3)})`;
+    r.classList.toggle("quer", format === "16x9");
+  }
+  addEventListener("resize", rahmen); rahmen();
+  $("format").querySelectorAll("button").forEach((b) => (b.onclick = () => {
+    if (rec) return;
+    format = b.dataset.f; $("format").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    rahmen(); if (paket) zeigePaket();
+  }));
+  $("neu").onclick = () => { $("app").src = "index.html?studio=1&t=" + Date.now(); };
+
+  // Nur für Admin
+  $("app").addEventListener("load", () => {
+    setTimeout(() => {
+      try {
+        const w = app(); const admin = w.Admin && w.Admin.isAdmin && w.Admin.isAdmin();
+        if (w.Auth && w.Auth.isLoggedIn && !admin) { $("sperre").hidden = false; $("sperre").textContent = "Das Studio ist nur für den Admin-Zugang."; }
+      } catch (e) {}
+    }, 2500);
+  });
+
+  const warte = (ms) => new Promise((r) => setTimeout(r, ms));
+  async function karte(html, ms) {
+    const k = $("karte"); k.innerHTML = html; k.classList.add("da"); await warte(ms); k.classList.remove("da"); await warte(450);
+  }
+
+  // Video: die App im Rahmen zeichnet es selbst (Frage → falsche Antwort → Tafel groß mit Stimme) – kein Bildschirm-Mitschnitt
+  $("rec").onclick = async () => {
+    const w = app(), S = w && w.LernBlick && w.LernBlick._studio;
+    $("rec-hinweis").textContent = "";
+    if (!S || !S.video) { $("rec-hinweis").textContent = "Die App im Rahmen ist noch nicht bereit."; return; }
+    if (!S.hatErklaerung()) { $("rec-hinweis").textContent = "Zuerst im Rahmen eine Frage falsch beantworten und LernBlick erklären lassen."; return; }
+    $("rec").disabled = true; $("rec-an").hidden = false; $("s1").classList.add("aus"); $("s2").classList.add("aus");
+    // Hook, Caption und Hashtags immer mitliefern (Andreea, 19.10.2026: „wieso schreibt unser Studio keine Captions?“):
+    // fehlt das Paket zu dieser Erklärung, wird es jetzt geschrieben – Hook und Schluss kommen dann gleich ins Video
+    if (!paket || paket._fuer !== ((S.frage() || {}).frage || S.titel())) {
+      $("rec-was").textContent = "Ich schreibe Hook, Caption und Hashtags …";
+      try { paket = await S.paket(); paket._fuer = (S.frage() || {}).frage || S.titel(); zeigePaket(); if (paket.hook) $("hook").value = paket.hook; if (paket.schluss) $("schluss").value = paket.schluss; $("paket").textContent = "✨ Neu schreiben"; }
+      catch (e) { $("rec-hinweis").textContent = "Caption konnte nicht geschrieben werden (" + (e.message || e) + ") – das Video entsteht trotzdem."; }
+    }
+    start = Date.now();
+    uhr = setInterval(() => { const s = Math.floor((Date.now() - start) / 1000); $("rec-zeit").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }, 500);
+    // Fachprüfung vor dem Veröffentlichen (Andreea, 20.10.2026: „ein Kontrollmechanismus … ob tatsächlich keine Fehler drinnen sind“)
+    if (S.pruefen) {
+      $("rec-was").textContent = "Fachprüfung von Text und Bild …";
+      try {
+        const pr = await S.pruefen();
+        if (pr && pr.ok === false && (pr.fehler || []).length) {
+          $("rec-hinweis").innerHTML = "<b>⚠ Fachprüfung:</b><br>" + pr.fehler.map((x) => "• " + esc(x)).join("<br>");
+          if (!confirm("Die Fachprüfung hat mögliche Fehler gefunden:\n\n" + pr.fehler.join("\n") + "\n\nTrotzdem ein Video erstellen?")) { clearInterval(uhr); $("rec").disabled = false; $("rec-an").hidden = true; $("s1").classList.remove("aus"); $("s2").classList.remove("aus"); return; }
+        } else if (pr && pr.ok) $("rec-hinweis").textContent = "✓ Fachprüfung: keine Fehler gefunden.";
+      } catch (e) { $("rec-hinweis").textContent = "Fachprüfung war nicht möglich – bitte selbst gegenlesen."; }
+    }
+    try {
+      const v = await S.video({ format, hook: $("hook").value, schluss: $("schluss").value, mitHook: $("mit-hook").checked, mitSchluss: $("mit-schluss").checked, status: (t) => { $("rec-was").textContent = t; } });
+      const url = URL.createObjectURL(v.blob), a = document.createElement("a"); a.href = url; a.download = v.name; a.click();
+      $("ergebnis").src = url; $("ergebnis").hidden = false;
+      $("rec-hinweis").textContent = `✓ Video fertig (${v.mp4 ? "MP4" : "WebM"}, ${(v.blob.size / 1048576).toFixed(1)} MB). Es liegt in deinen Downloads.`;
+    } catch (e) { $("rec-hinweis").textContent = "Das Video hat nicht geklappt: " + (e.message || e); }
+    clearInterval(uhr); $("rec").disabled = false; $("rec-an").hidden = true; $("s1").classList.remove("aus"); $("s2").classList.remove("aus");
+  };
+
+  // Hook, Caption, Hashtags zur letzten Erklärung im Rahmen
+  $("paket").onclick = async () => {
+    const w = app(), S = w && w.LernBlick && w.LernBlick._studio;
+    if (!S || !S.hatErklaerung()) { $("paket-inhalt").innerHTML = '<p class="hinweis">Zuerst im Rahmen eine Erklärung von LernBlick laufen lassen.</p>'; return; }
+    const b = $("paket"); b.disabled = true; b.textContent = "Ich schreibe …";
+    try { paket = await S.paket(); paket._fuer = (S.frage() || {}).frage || S.titel(); zeigePaket(); if (paket.hook) $("hook").value = paket.hook; if (paket.schluss) $("schluss").value = paket.schluss; }
+    catch (e) { $("paket-inhalt").innerHTML = `<p class="hinweis">Das hat nicht geklappt: ${esc(e.message || e)}</p>`; }
+    b.disabled = false; b.textContent = "✨ Neu schreiben";
+  };
+  function zeigePaket() {
+    const P = paket, box = $("paket-inhalt"); if (!P) return;
+    const tags = (P.hashtags || []).map((h) => (typeof h === "string" ? { tag: h, wofuer: "" } : h));
+    box.innerHTML = `
+      <div class="block"><div class="kopf"><b>Hook</b></div>${[P.hook, ...(P.hooks_alt || [])].filter(Boolean).map((h, i) => `<label class="zeile"><input type="radio" name="hook" ${i ? "" : "checked"} data-h="${esc(h)}"> ${esc(h)}</label>`).join("")}</div>
+      <div class="block"><div class="kopf"><b>Vorschaubild</b><button class="mini" id="dl">⬇ Herunterladen</button></div><canvas class="vorschau" id="vorschau"></canvas></div>
+      <div class="block"><div class="kopf"><b>Caption</b><button class="mini" data-kopie="caption">Kopieren</button></div><p>${esc(P.caption || "")}</p></div>
+      <div class="block"><div class="kopf"><b>Hashtags</b><button class="mini" data-kopie="tags">Kopieren</button></div><table><tr><th>Hashtag</th><th>Wofür</th></tr>${tags.map((x) => `<tr><td>${esc(x.tag)}</td><td>${esc(x.wofuer || "")}</td></tr>`).join("")}</table></div>
+      <div class="block"><div class="kopf"><b>Text-Einblendungen</b></div><table><tr><th>Wann</th><th>Text</th></tr><tr><td>Anfang</td><td>${esc(P.hook || "")}</td></tr>${(P.einblendungen || []).map((x) => `<tr><td>nach Satz ${esc(x.nach_satz)}</td><td>${esc(x.text || "")}</td></tr>`).join("")}<tr><td>Ende</td><td>${esc(P.schluss || "")}</td></tr></table></div>
+      ${(P.keywords || []).length ? `<div class="block"><div class="kopf"><b>Keywords</b><button class="mini" data-kopie="kw">Kopieren</button></div><p>${esc(P.keywords.join(", "))}</p></div>` : ""}`;
+    const text = { caption: P.caption || "", tags: tags.map((x) => x.tag).join(" "), kw: (P.keywords || []).join(", ") };
+    box.querySelectorAll("[data-kopie]").forEach((b) => (b.onclick = () => { navigator.clipboard && navigator.clipboard.writeText(text[b.dataset.kopie]); b.textContent = "✓ kopiert"; }));
+    box.querySelectorAll("input[name=hook]").forEach((r) => (r.onchange = () => { P.hook = r.dataset.h; $("hook").value = r.dataset.h; zeichne(); }));
+    const zeichne = () => { try { app().LernBlick._studio.vorschau($("vorschau"), P, format); } catch (e) {} };
+    $("dl").onclick = () => { const a = document.createElement("a"); a.download = `medat-vorschau-${format}.png`; a.href = $("vorschau").toDataURL("image/png"); a.click(); };
+    zeichne();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+{
+ "quelle": "Lehrerzimmer (Infografik-Arten und Zeichenstile), Vorschaubilder: Photosynthese bzw. Zelle",
+ "arten": [
+  {
+   "id": "poster",
+   "label": "Lernposter",
+   "hint": "Ein zentrales Objekt groß gezeichnet, ringsum 6–8 prall gefüllte Bereiche. Sehr informationsreich.",
+   "aufteilung": "Ein großes Bild in der Mitte, ringsum sechs bis acht beschriftete Bereiche. Die dichteste Art — ein Blatt, das ein Schuljahr lang im Klassenraum hängt.",
+   "hoch": true,
+   "regeln": "- Detailliert und stilkonform gezeichnet, mit dünnen Callout-Linien beschriftet.\n- Im oberen Bilddrittel, mittig oder leicht versetzt, das stärkste Element der Grafik.\n- Alle Bereiche sichtbar als abgegrenzte Zonen — Rahmen, Trennlinien oder Freiraum, gezeichnet im gewählten Stil.\n- Bereiche unterschiedlich groß, nach ihrem Gewicht — kein starres Raster aus gleichen Kästen.\n- Je Bereich eine deutliche Überschrift; eine kleine Vignette im Stil nur dort, wo sie etwas zeigt.\n- Dichte Anordnung: das Blatt ist gut gefüllt, keine großen leeren Flächen — aber nichts überlappt.\n- Wichtige Begriffe hervorgehoben (mit den Mitteln des Stils: Fettung, Unterstreichung, Akzentton), damit man sie wiederfindet.\n- Ein Merksatz-Banner, falls vorhanden, deutlich abgesetzt — als eigene Fläche im Stil der Grafik.\n- Gleichmäßige Ränder, ruhige Ordnung trotz Fülle.\n- Anmutung: hochwertiges Lernposter, das ein Schuljahr im Klassenraum hängt."
+  },
+  {
+   "id": "cheatsheet",
+   "label": "Merkblatt (sehr dicht)",
+   "hint": "Viele Bereiche auf einem Blatt — zum Lernen und Mitnehmen. Detailreichste Art.",
+   "aufteilung": "Wie das Lernposter, aber noch dichter gepackt: möglichst viel Stoff auf ein Blatt zum Mitnehmen und Lernen.",
+   "hoch": true,
+   "regeln": "- Als Anker oben gezeichnet, kleiner als beim Poster, mit Callouts beschriftet.\n- Dichte Anordnung wie ein hochwertiger Lernzettel: alle Bereiche auf einem Blatt, klar voneinander abgegrenzt.\n- Jeder Bereich hat eine deutliche Überschrift; Trennlinien statt bunter Kästen, wie auf einem guten Lernzettel.\n- Wichtige Begriffe hervorgehoben (mit den Mitteln des Stils: Fettung, Unterstreichung, Akzentton).\n- Trotz Dichte: klare Ordnung, gleichmäßige Ränder, nichts überlappt."
+  },
+  {
+   "id": "eselsbruecke",
+   "label": "Eselsbrücke",
+   "hint": "Eine Alltags-Metapher macht das Fachthema greifbar – mit Merksatz.",
+   "aufteilung": "Ein großes Bild aus dem Alltag, dessen Teile für die Fachbegriffe stehen, unten ein Merksatz.",
+   "hoch": false,
+   "regeln": "- EINE große Alltags-Metapher als Bild in der Mitte (z. B. eine Fabrik, eine Küche, ein Bahnhof), die das Fachthema verständlich macht.\n- Dünne beschriftete Linien verbinden Teile der Metapher mit dem Fachbegriff: „Metapher-Teil = Fachbegriff“.\n- Unten ein großer, einprägsamer Merksatz (Reim oder Anfangsbuchstaben) als eigene Fläche.\n- Wenig Text, viel Bild."
+  },
+  {
+   "id": "mindmap",
+   "label": "Mindmap",
+   "hint": "Wurzelbegriff in der Mitte, Äste nach außen.",
+   "aufteilung": "Ein Begriff in der Mitte, Hauptäste rundum, Unteräste daran. Zeigt ZUSAMMENHÄNGE statt einer Reihenfolge.",
+   "hoch": false,
+   "regeln": "- Das Thema als Wurzelbegriff groß in der Mitte.\n- 4 bis 6 Hauptäste in verschiedenen Farben nach außen, je Ast eine Überschrift und eine kleine Vignette.\n- Je Hauptast 2 bis 4 Unterzweige mit Stichworten (Fachbegriffe, Werte).\n- Äste geschwungen und dicker zur Mitte hin, nichts kreuzt sich."
+  },
+  {
+   "id": "flowchart",
+   "label": "Flussdiagramm",
+   "hint": "Ablauf von oben nach unten, mit Ja/Nein-Verzweigungen.",
+   "aufteilung": "Von oben nach unten, mit Rauten für Entscheidungen und Pfeilen für Ja und Nein. Beantwortet: Was passiert wann?",
+   "hoch": true,
+   "regeln": "- Kästen von oben nach unten, durch Pfeile verbunden; Entscheidungen als Rauten mit Ja/Nein-Pfeilen.\n- Jeder Kasten: ein kurzer Schritt mit Fachbegriff, dazu eine kleine Vignette.\n- Klare Leserichtung, kein Pfeil kreuzt einen anderen.\n- Unten das Ergebnis deutlich hervorgehoben."
+  },
+  {
+   "id": "cycle",
+   "label": "Kreislauf",
+   "hint": "Etwas, das immer wieder von vorn beginnt — Kreis mit Pfeilen.",
+   "aufteilung": "Dieselben Schritte, aber im Kreis: Der letzte führt zum ersten zurück. Für alles, was nie aufhört.",
+   "hoch": false,
+   "regeln": "- Die Schritte sind gleichmäßig auf einem großen Kreis angeordnet, im Uhrzeigersinn.\n- Gebogene Pfeile verbinden die Schritte durchgehend rundum — der Kreis ist geschlossen.\n- In der Kreismitte steht der Name des Kreislaufs, ruhig und klein.\n- Je Schritt eine kleine Vignette im Stil plus kurze Beschriftung außen am Kreis.\n- Keine Anfangs- oder Endmarkierung, es gibt keinen Ausgang."
+  },
+  {
+   "id": "compare",
+   "label": "Gegenüberstellung",
+   "hint": "Zwei Seiten direkt vergleichen — links gegen rechts.",
+   "aufteilung": "Genau zwei Spalten, durch eine Linie getrennt. Gegenübergestellte Punkte stehen auf derselben Höhe — man vergleicht Zeile für Zeile.",
+   "hoch": false,
+   "regeln": "- Genau ZWEI Spalten, durch eine deutliche senkrechte Linie getrennt.\n- Links und rechts jeweils Überschrift oben, darunter die Stichwörter auf gleicher Höhe.\n- Gegenübergestellte Punkte stehen auf derselben Zeile, damit man direkt vergleichen kann.\n- Beide Seiten unterschiedlich getönt (helle Variante des Akzents gegen neutralen Ton).\n- Je Seite ein Symbol, das die Seite auf den ersten Blick kennzeichnet."
+  },
+  {
+   "id": "cross_section",
+   "label": "Querschnitt / Aufbau",
+   "hint": "Ein Ding aufgeschnitten und beschriftet — Aufbau erklären.",
+   "aufteilung": "Ein Gegenstand aufgeschnitten, mit dünnen Linien beschriftet. Zeigt den AUFBAU von innen, nicht den Ablauf.",
+   "hoch": false,
+   "regeln": "- Als großer, sauberer Querschnitt bzw. Schnittzeichnung dargestellt, wissenschaftlich präzise.\n- Füllt die Bildmitte, alle Schichten oder Bauteile klar unterscheidbar.\n- Die Bereiche sind BESCHRIFTUNGEN am Objekt: dünne Linien von der Beschriftung zur genauen Stelle.\n- Beschriftungen liegen außen herum, nie über dem Objekt, keine Linie kreuzt eine andere.\n- Die Stichwörter eines Bereichs stehen direkt unter seiner Beschriftung, sehr knapp.\n- Anmutung: Abbildung aus einem hochwertigen Schulbuch."
+  },
+  {
+   "id": "beschriftung",
+   "label": "Beschriftungsbild",
+   "hint": "Ein Objekt, viele beschriftete Teile — Zellaufbau, Blüte, Herz, Vulkan, Skelett.",
+   "aufteilung": "Ein großer Gegenstand in der Mitte, ringsum acht bis zwölf einzelne Beschriftungen an dünnen Linien. Gebaut, damit man die Wörter später abdecken kann.",
+   "hoch": false,
+   "regeln": "- Der Gegenstand füllt die Mitte des Bildes, groß, sauber und fachlich richtig gezeichnet.\n- Keine zweite Szene, kein Hintergrundmotiv, keine Dekoration daneben.\n- KEINE Bereiche, KEINE Boxen mit Fließtext, KEIN Merksatz-Banner. Nur das Objekt und seine Beschriftungen.\n- 8 bis 12 Beschriftungen. Jede besteht aus EINEM bis DREI Wörtern — dem Fachwort, sonst nichts.\n- Jede Beschriftung steht WAAGERECHT in einem eigenen hellen Feld mit ruhigem, einfarbigem Grund.\n  Sie darf nicht auf der Zeichnung liegen und sich mit nichts überschneiden.\n- Von jedem Feld führt eine dünne gerade Linie oder ein feiner Pfeil an die Stelle, die gemeint ist.\n  Die Linie berührt das Wort nicht und kreuzt keine andere Linie.\n- Beschriftungen gleichmäßig links und rechts verteilen, alle in derselben Schriftgröße.\n- Viel Luft: Ränder frei lassen, lieber weniger Beschriftungen als ein volles Blatt.\n- Anmutung: die saubere Tafelzeichnung aus einem guten Schulbuch."
+  },
+  {
+   "id": "overview",
+   "label": "Übersichtsgrafik",
+   "hint": "Mehrere gleichwertige Bereiche nebeneinander — der Überblick über ein Thema.",
+   "aufteilung": "Gleich große Felder in einem ruhigen Raster, ohne Hauptbild. Für den Überblick in einer Sekunde, nicht zum Vertiefen.",
+   "hoch": false,
+   "regeln": "- KEIN zentrales Objekt: die Bereiche sind gleich groß und gleich wichtig.\n- Anordnung als ruhiges Raster (2×2, 2×3 oder eine Reihe), klar getrennt.\n- Je Bereich: Überschrift, eine kleine Illustration im Stil der Grafik, darunter die Stichwörter.\n- Der Blick soll in einer Sekunde erfassen, worum es insgesamt geht."
+  },
+  {
+   "id": "howto",
+   "label": "Schritt für Schritt",
+   "hint": "Anleitung mit einer kleinen Zeichnung je Schritt.",
+   "aufteilung": "Nummerierte Schritte in einer Reihe — was zuerst, was danach. Der Weg von Anfang bis Ende, ohne Verzweigung.",
+   "hoch": false,
+   "regeln": "- Die Schritte liegen in Leserichtung nebeneinander bzw. in zwei Reihen, durchnummeriert.\n- JEDER Schritt hat eine eigene kleine Illustration, die die Handlung zeigt — nicht nur ein Icon.\n- Große Schrittnummer, darunter die kurze Handlungsangabe.\n- Zwischen den Schritten schlanke Pfeile in Leserichtung.\n- Keine Rauten, keine Verzweigungen — ein durchgehender Weg."
+  },
+  {
+   "id": "timeline",
+   "label": "Zeitstrahl",
+   "hint": "Ereignisse in zeitlicher Reihenfolge auf einer Achse.",
+   "aufteilung": "Eine Achse mit Jahreszahlen, die Ereignisse abwechselnd darüber und darunter. Für Geschichte und Entwicklungen.",
+   "hoch": false,
+   "regeln": "- Eine durchgehende Zeitachse (waagerecht oder senkrecht) mit Markierungen.\n- Je Ereignis/Phase: Zeitangabe, kurzer Titel, 1–2 Stichworte und eine kleine Vignette.\n- Gleichmäßige Abstände, Farbverlauf entlang der Achse.\n- Anfang und Ende deutlich beschriftet."
+  },
+  {
+   "id": "checklist",
+   "label": "Merkkarte / Checkliste",
+   "hint": "Zum Abhaken und Ausdrucken — für Abläufe und Regeln.",
+   "aufteilung": "Punkt für Punkt untereinander, jeder mit einem Kästchen zum Abhaken. Zum Mitnehmen und Abarbeiten.",
+   "hoch": true,
+   "regeln": "- Liste mit deutlichen Kästchen zum Abhaken vor jedem Punkt.\n- Bereiche als Zwischenüberschriften, darunter die Punkte.\n- Sehr klare Typografie, hoher Kontrast, viel Weißraum — muss auf Papier funktionieren.\n- Rechts oben ein kleines passendes Symbol, sonst sparsam mit Deko."
+  }
+ ],
+ "stile": [
+  {
+   "id": "sketchnote",
+   "label": "Sketchnote",
+   "sub": "Hand-Lettering · handgezeichnet auf Papier, freundlich-locker",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: hand-drawn sketchnote style on slightly textured cream paper. Medium-thick black felt-tip marker lines, loose and imperfect. Small accent splashes of color fitting the subject. Hand-lettered feel, lively and clear. Print-friendly: ink-economic, mostly cream paper with bold lines and small color highlights."
+  },
+  {
+   "id": "flat_modern",
+   "label": "Flat-Modern",
+   "sub": "Lehrbuch 2025 · flach, geometrisch, helle Pastellfarben",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: contemporary flat vector illustration in the visual language of modern educational textbooks. Solid pastel fills, no outlines, no gradients, no shadows. Clean geometric shapes. Color palette adapts to subject. White background, perfect symmetry. Print-friendly with crisp solid colors."
+  },
+  {
+   "id": "klassik",
+   "label": "Klassik",
+   "sub": "Wissenschaftslehrbuch · präzise Tintenzeichnung, weißer Grund",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: precise scientific ink illustration in the tradition of 19th-century natural history plates (Ernst Haeckel, Linnaeus). Fine black ink linework with crosshatching for shading on PURE WHITE background. ONE SUBTLE ACCENT COLOR sparingly applied — choose the accent color naturally fitting the subject. Precise, scholarly, ink-economic. Print-friendly: mostly white paper with thin lines."
+  },
+  {
+   "id": "isometric",
+   "label": "Isometric 3D",
+   "sub": "3D-isometrisch · technisch, gedämpfte Pastelle",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: isometric 3D illustration viewed from a standard 30-degree isometric angle. Solid pastel color blocks with gentle geometric shadows. Color palette adapted to subject. Pure white background, isolated subjects. Print-friendly: light background, moderate color saturation."
+  },
+  {
+   "id": "blueprint",
+   "label": "Technical Blueprint",
+   "sub": "Konstruktionszeichnung · weiße Linien auf Gitterpapier",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: technical blueprint drawing on soft blue grid paper background (#E8F0F5). Crisp white linework with construction guides and arrows showing relationships. Precise, technical, minimal. Accent color sparingly used. Print-friendly: light blue background prints well, minimal ink."
+  },
+  {
+   "id": "magazin",
+   "label": "Magazin",
+   "sub": "Editorial · große Serif-Anmutung, erdige Töne, edel",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: elegant editorial magazine illustration (Kinfolk, Cereal). Flat shapes with dark refined outlines, muted earthy tones (mustard, sage, terracotta, anthracite) on warm off-white paper (#FAF7F2) with subtle texture. Big high-contrast display-serif headlines for titles, body labels in a narrow sans-serif. Calm, premium, lots of negative space. Print-friendly."
+  },
+  {
+   "id": "watercolor",
+   "label": "Watercolor",
+   "sub": "Aquarell · weich, künstlerisch, durchscheinende Farben",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: delicate watercolor painting on rough cotton paper. Soft wet-on-wet technique with translucent washes, color bleeds at edges, visible brush strokes. Muted earthy palette adapted to subject. Plenty of white paper showing through. Loose, organic, artistic. Print-friendly: light paper background."
+  },
+  {
+   "id": "botanical",
+   "label": "Botanical Vintage",
+   "sub": "Linné-Stil · Naturkunde-Tafel, Sepia auf Pergament",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: botanical illustration in the style of 18th-century naturalist plates (Linnaeus, Maria Sibylla Merian). Fine detailed engraving with crosshatching, sepia and muted tones on aged ivory parchment background. Color accents adapt to subject. Antique scholarly elegance. Print-friendly: warm sepia palette."
+  },
+  {
+   "id": "paper_cut",
+   "label": "Paper-Cut",
+   "sub": "Papierschnitt · Schichten, sanfte Schatten",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: layered paper-cut illustration in the style of artist Eiko Ojala. Each element appears cut from separate sheets of matte pastel paper. Soft shadows between layers create depth. Slightly tactile look. Color palette adapted to subject. White background. Print-friendly with restrained pastels."
+  },
+  {
+   "id": "comic",
+   "label": "Comic",
+   "sub": "Comic · kräftige Outlines, Rasterpunkte, dynamisch",
+   "druck": true,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: comic book illustration. Bold varied-weight black ink outlines, flat cel shading in two tones, visible halftone screentone dots, small dynamic motion lines. Colors bright but controlled, white background. Print-friendly."
+  },
+  {
+   "id": "tafel",
+   "label": "Kreidetafel",
+   "sub": "Kreide auf grüner Tafel · wie eine schöne Tafelskizze",
+   "druck": false,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: chalk drawing on a dark green classroom blackboard. White chalk linework and hand-written chalk labels with soft chalk dust texture, small accents in pastel yellow and pink chalk. Hand-drawn, slightly rough strokes, like a beautiful teacher's board sketch. Background is the dark green board surface. NOT print-friendly (dark background)."
+  },
+  {
+   "id": "neon",
+   "label": "Neon / Cyber",
+   "sub": "Leuchtkanten auf dunklem Grund · futuristisch",
+   "druck": false,
+   "design": "Design-Vorgaben (Zeichenstil):\nStyle: neon cyber look. Glowing luminous cyan and magenta outlines with visible bloom on a very dark blue-black background, thin grid floor hint, high-contrast rim light. Labels in glowing light type. NOT print-friendly (dark background)."
+  }
+ ]
+}

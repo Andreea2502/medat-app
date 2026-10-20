@@ -42,6 +42,13 @@ const App = {
     this.bindAuth();
     this.bindNav();
 
+    // Lizenz-Refresh wenn der User zurück zum Tab kommt — z.B. nach Stripe-Checkout.
+    // Throttle ist im Helper drin, mehrfach feuern ist OK.
+    window.addEventListener('focus', () => this._refreshLicenseSilently());
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) this._refreshLicenseSilently();
+    });
+
     // Scratchpad init
     Scratchpad.init();
 
@@ -146,12 +153,20 @@ const App = {
   },
 
   showScreen(id) {
+    if (id === 'screen-goodies' && CONFIG.CHEATSHEETS_AKTIV === false) id = 'screen-home';
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id)?.classList.add('active');
     window.scrollTo(0, 0);
 
-    // Apply tools-locking when entering Lern-Tools screen
-    if (id === 'screen-tools') this._applyToolsLocks();
+    // Lizenz-Status frisch holen für Screens die auf den Tier reagieren —
+    // damit DB-Upgrades (z.B. nach Stripe-Kauf) ohne Re-Login wirken.
+    if (id === 'screen-tools' || id === 'screen-konto' || id === 'screen-trap-lab' || id === 'screen-home') {
+      this._refreshLicenseSilently().then(() => {
+        if (id === 'screen-tools') this._applyToolsLocks();
+      });
+    } else if (id === 'screen-tools') {
+      this._applyToolsLocks();
+    }
 
     // Hide simulation generating overlay on any screen transition
     this._hideSimGeneratingOverlay();
@@ -445,7 +460,7 @@ const App = {
     const tier = impersonating
       ? Admin._impersonating.tier
       : Auth.licenseTier;
-    // NEU: free | basic (Legacy) | pro (€29,90) | premium (€39,90, Vollzugang inkl. Wissens-Lab)
+    // Tiers: free (kostenlos) | basic/pro (Legacy, Bestand) | premium (€29,90, einziger verkäuflicher Plan)
     const tierLabel = (tier === 'premium' || tier === 'pro' || tier === 'basic') ? 'Vollzugang' : 'Free';
     const tierClass = tier === 'premium' ? 'tier-premium' : tier === 'pro' ? 'tier-pro' : tier === 'basic' ? 'tier-basic' : 'tier-free';
     el.innerHTML = `
@@ -626,17 +641,21 @@ const App = {
     const labelEl = document.getElementById('hero-countdown-label');
     if (!daysEl || !labelEl) return;
 
-    // Default: July 3, 2026
-    const medatDate = new Date('2026-07-03T00:00:00');
+    // Nächster MedAT-Termin (2027: voraussichtlich, offiziell wird er um den Jahreswechsel bestätigt)
+    const TERMINE = ['2026-07-03', '2027-07-09', '2028-07-07'];
+    const heute = new Date(); heute.setHours(0, 0, 0, 0);
+    const naechster = TERMINE.map((d) => new Date(d + 'T00:00:00')).find((d) => d >= heute) || new Date(TERMINE[TERMINE.length - 1] + 'T00:00:00');
+    const medatDate = new Date(naechster.getTime());
 
-    // Check if user has a custom date
+    // Eigenes Datum der Person – nur, wenn es noch in der Zukunft liegt (sonst zählt der nächste Termin)
     if (Auth.isLoggedIn && Auth.userProfile?.medat_date) {
       const custom = new Date(Auth.userProfile.medat_date + 'T00:00:00');
-      if (!isNaN(custom.getTime())) {
+      if (!isNaN(custom.getTime()) && custom >= heute) {
         medatDate.setTime(custom.getTime());
       }
     }
 
+    this._medatZiel = new Date(medatDate.getTime());
     const now = new Date();
     const diffMs = medatDate - now;
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
@@ -727,9 +746,15 @@ const App = {
   renderKonto() {
     const container = document.getElementById('konto-container');
     if (!container) return;
+    // Neues Modell: Monatsabo, MedAT-Pass, Credits (js/abo.js)
+    if (typeof Abo !== 'undefined' && Abo.NEUES_MODELL) {
+      Abo.renderKonto(container);
+      Abo.laden(true).then(() => Abo.renderKonto(container));
+      return;
+    }
 
     // NEUE Tier-Namen seit Premium-Launch 2026-05-09:
-    //   free | basic (Legacy €19,90) | pro (€29,90) | premium (€39,90 inkl. Wissens-Lab)
+    //   free | basic/pro (Legacy-Bestand) | premium (€29,90, einziger verkäuflicher Plan)
     const tier       = Auth.licenseTier;
     const isPremium  = tier === 'premium';        // Vollzugang inkl. Wissens-Lab
     const isPro      = tier === 'pro';
@@ -739,22 +764,16 @@ const App = {
     const email      = Auth.currentUser?.email || '–';
     const username   = Auth.userProfile?.username || '–';
 
-    // Promo-Window-Daten (aus user_profiles)
-    const promoUntilStr = Auth.userProfile?.promo_window_until || null;
+    // Bestandskunden-Info (für eigene Anzeige in ihrer Karte)
     const totalPaidCents = Auth.userProfile?.total_paid_cents || 0;
     const totalPaidEuro = totalPaidCents / 100;
-    const inPromoWindow = !!promoUntilStr && new Date(promoUntilStr) > new Date();
 
-    // Premium-Upgrade-Preis (Bestandskunde): (39,90 − bisher_bezahlt) × 0,8 — NUR im Promo-Fenster
-    const PREMIUM_FULL = 39.90;
-    const upgradeBasePrice = isBasic ? 19.90 : isPro ? 29.90 : 0;
-    const upgradePrice = (isPaid && !isPremium && inPromoWindow)
-      ? Math.max(1.00, +((PREMIUM_FULL - totalPaidEuro) * 0.8).toFixed(2))
-      : null;
-    const upgradePriceStr = upgradePrice !== null ? upgradePrice.toFixed(2).replace('.', ',') : null;
-    // Free-User im Promo-Fenster: 20 % auf vollen Premium-Preis
-    const freePromoPrice = (isFree && inPromoWindow) ? +(PREMIUM_FULL * 0.8).toFixed(2) : null;
-    const freePromoPriceStr = freePromoPrice !== null ? freePromoPrice.toFixed(2).replace('.', ',') : null;
+    // Pricing FINAL (2026-05-27):
+    //   Free                                 0 €    (kostenlos, limitiert)
+    //   Premium                              29,90 €  ← einziger verkaufbarer Plan
+    //   basic/pro (Legacy):                  bleibt wie ist, kein Upgrade nötig.
+    // Bestandskunden (basic/pro/premium) sehen die Premium-Karte gar nicht mehr
+    // → sie bekommen vom Preiswechsel nichts mit.
 
     const expiresAt = Auth.licenseExpiresAt;
     let daysLeft = null;
@@ -816,20 +835,8 @@ const App = {
         Kaufen
       </button>`;
 
-    // Promo-Countdown String (für CTAs)
-    const promoCountdown = inPromoWindow
-      ? (() => {
-          const ms = new Date(promoUntilStr) - new Date();
-          const h = Math.floor(ms / 3600000);
-          const m = Math.floor((ms % 3600000) / 60000);
-          return h > 0 ? `noch ${h} h ${m} min` : `noch ${m} min`;
-        })()
-      : null;
-    const promoStripBlock = inPromoWindow ? `
-      <div style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff;border-radius:14px;padding:0.95rem 1.1rem;margin-bottom:1rem;text-align:center;box-shadow:0 6px 18px rgba(67,56,202,0.28)">
-        <div style="font-size:.7rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:0.85">🎁 Premium-Launch · 20 % Rabatt</div>
-        <div style="font-size:1.05rem;font-weight:800;margin-top:3px">Endet in ${promoCountdown}</div>
-      </div>` : '';
+    // Promo-Logik entfernt (2026-05-27) — nur noch ein fester Premium-Preis
+    const promoStripBlock = '';
 
     html += promoStripBlock + `
       <div class="konto-section-title">Wähle deinen Plan</div>
@@ -854,94 +861,53 @@ const App = {
           <button class="konto-plan-btn konto-plan-btn--gray" disabled>${isFree ? 'Gratis starten' : '—'}</button>
         </div>
 
-        ${isBasic ? `
-        <!-- BASIC (Legacy / grandfathered, nur sichtbar für Bestandskunden) -->
+        ${(isBasic || isPro) ? `
+        <!-- BASIC/PRO Bestand: Karte zeigt was sie haben, KEIN Upgrade-Hinweis (User merkt nichts vom Preiswechsel) -->
         <div class="konto-plan-card konto-plan-card--basic konto-plan-card--active-blue">
-          <div class="konto-plan-badge konto-plan-badge--blue">Aktuell · Bestand</div>
-          <div class="konto-plan-name" style="color:#3b82f6">Basic</div>
-          <div class="konto-plan-subtitle">Dein bisheriger Plan (nicht mehr verkaufbar)</div>
-          <div class="konto-plan-price">€<span class="konto-plan-price-num">19,90</span></div>
-          <div class="konto-plan-price-sub">bezahlt · gültig bis 3. Juli 2026</div>
+          <div class="konto-plan-badge konto-plan-badge--blue">Aktuell</div>
+          <div class="konto-plan-name" style="color:#3b82f6">${isBasic ? 'Basic' : 'Pro'}</div>
+          <div class="konto-plan-subtitle">Dein Vollzugang</div>
+          <div class="konto-plan-price">€<span class="konto-plan-price-num">${totalPaidEuro.toFixed(2).replace('.', ',')}</span></div>
+          <div class="konto-plan-price-sub">einmalig · gültig bis MedAT 2026</div>
           <div class="konto-plan-features">
-            ${_yes('Alle Fragen & unbegr. PDF-Simulationen')}
+            ${_yes('Unbegrenzt Fragen & PDF-Simulationen')}
             ${_yes('Lernplan unbegrenzt')}
-            ${_yes('Wissens-Lab: 1 Tool pro Fach')}
-            ${_ki('200 KI-Tutor-Sessions')}
-            ${_ki('50 KI-Merkbilder')}
+            ${_yes('Alle Wissens-Lab-Tools')}
+            ${_yes('Prüfungsfallen-Lab komplett offen')}
+            ${_ki(`Alle 10 KI-Tutoren freigeschaltet`)}
+            ${_ki(`${aiSessTotal} KI-Tutor-Sessions`)}
+            ${_ki(`${aiImgTotal} KI-Merkbilder`)}
           </div>
           <button class="konto-plan-btn konto-plan-btn--blue-active" disabled>✓ Aktueller Plan</button>
         </div>` : ''}
 
-        <!-- PRO (€29,90) -->
-        <div class="konto-plan-card konto-plan-card--premium ${isPro ? 'konto-plan-card--active-dark' : ''}">
-          <div class="konto-plan-badge konto-plan-badge--dark">${isPro ? 'Aktuell' : 'BELIEBT'}</div>
-          <div class="konto-plan-name" style="color:#f59e0b">Pro</div>
-          <div class="konto-plan-subtitle">Alle Tutoren. Unbegrenzt üben.</div>
-          <div class="konto-plan-price">
-            <span class="konto-plan-price-old">€50</span>
-            €<span class="konto-plan-price-num">29,90</span>
-          </div>
-          <div class="konto-plan-discount" style="background:rgba(245,158,11,0.15);color:#f59e0b">Du sparst 40 %</div>
-          <div class="konto-plan-price-sub">einmalig · gültig bis 3. Juli 2026</div>
-          <div class="konto-plan-features">
-            ${_yes('Alle Fragen & unbegr. PDF-Simulationen')}
-            ${_yes('Lernplan unbegrenzt')}
-            ${_yes('Wissens-Lab: 1 Tool pro Fach')}
-            ${_ki('<strong>Alle 10 KI-Tutoren</strong> freigeschaltet')}
-            ${_ki('<strong>400 KI-Tutor-Sessions</strong>')}
-            ${_ki('<strong>100 KI-Merkbilder</strong> (Banana)')}
-          </div>
-          ${isPro
-            ? '<button class="konto-plan-btn konto-plan-btn--dark-active" disabled>✓ Aktueller Plan</button>'
-            : isPremium
-              ? '<button class="konto-plan-btn konto-plan-btn--gray" disabled>Bereits in Premium enthalten</button>'
-              : isBasic
-                ? '<button class="konto-plan-btn konto-plan-btn--gray" disabled>—</button>'
-                : '<button class="konto-plan-btn konto-plan-btn--yellow" data-stripe-plan="pro" onclick="App.startStripeCheckout(\'pro\')">Pro sichern – €29,90</button>'
-          }
-          ${!isPro && !isPremium ? '<div class="konto-plan-note">Einmalzahlung – kein Abo</div>' : ''}
-        </div>
-
-        <!-- PREMIUM (€39,90, Vollzugang inkl. Wissens-Lab) -->
+        ${(isFree || isPremium) ? `
+        <!-- PREMIUM (€29,90) — nur für Free-User (Upgrade) und Premium-User (Aktuell). Bestandskunden sehen diese Karte NICHT. -->
         <div class="konto-plan-card ${isPremium ? 'konto-plan-card--active-dark' : ''}" style="position:relative;background:linear-gradient(180deg,#fff,#f5f0ff);border:2px solid #6366f1">
           <div class="konto-plan-badge" style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff">${isPremium ? 'Aktuell' : 'ALLES DRIN'}</div>
           <div class="konto-plan-name" style="color:#4338ca">Premium</div>
-          <div class="konto-plan-subtitle">Alles + alle 19 Wissens-Lab-Tools</div>
+          <div class="konto-plan-subtitle">Vollzugang inkl. Wissens-Lab & Prüfungsfallen-Lab</div>
           <div class="konto-plan-price">
-            ${upgradePriceStr
-              ? `<span class="konto-plan-price-old">€39,90</span>€<span class="konto-plan-price-num">${upgradePriceStr}</span>`
-              : freePromoPriceStr
-                ? `<span class="konto-plan-price-old">€39,90</span>€<span class="konto-plan-price-num">${freePromoPriceStr}</span>`
-                : `<span class="konto-plan-price-old">€60</span>€<span class="konto-plan-price-num">39,90</span>`
-            }
+            €<span class="konto-plan-price-num">29,90</span>
           </div>
-          ${upgradePriceStr
-            ? `<div class="konto-plan-discount" style="background:rgba(99,102,241,0.15);color:#4338ca">Treue-Rabatt · 48 h</div>
-               <div class="konto-plan-price-sub">Upgrade von ${isBasic ? 'Basic' : 'Pro'} · ${promoCountdown}</div>`
-            : freePromoPriceStr
-              ? `<div class="konto-plan-discount" style="background:rgba(99,102,241,0.15);color:#4338ca">Launch-Rabatt 20 % · 48 h</div>
-                 <div class="konto-plan-price-sub">${promoCountdown}</div>`
-              : `<div class="konto-plan-discount" style="background:rgba(99,102,241,0.15);color:#4338ca">Du sparst 33 %</div>
-                 <div class="konto-plan-price-sub">einmalig · gültig bis 3. Juli 2026</div>`
-          }
+          <div class="konto-plan-discount" style="background:rgba(99,102,241,0.15);color:#4338ca">Alles drin · einmalig</div>
+          <div class="konto-plan-price-sub">gültig bis MedAT 2026 · kein Abo</div>
           <div class="konto-plan-features">
-            ${_yes('Alle Fragen & unbegr. PDF-Simulationen')}
+            ${_yes('Unbegrenzt Fragen & PDF-Simulationen')}
             ${_yes('Lernplan unbegrenzt')}
-            ${_yes('<strong>Alle 19 Wissens-Lab-Tools</strong> (Bio · Physik · Chemie)')}
+            ${_yes('<strong>Alle Wissens-Lab-Tools</strong> (Bio · Physik · Chemie)')}
+            ${_yes('<strong>Prüfungsfallen-Lab</strong> komplett offen')}
+            ${_yes('<strong>Auch alle künftigen Tools</strong> automatisch')}
             ${_ki('<strong>Alle 10 KI-Tutoren</strong> freigeschaltet')}
             ${_ki('<strong>800 KI-Tutor-Sessions</strong>')}
             ${_ki('<strong>200 KI-Merkbilder</strong> (Banana)')}
           </div>
           ${isPremium
             ? '<button class="konto-plan-btn konto-plan-btn--dark-active" disabled>✓ Aktueller Plan</button>'
-            : `<button class="konto-plan-btn" style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff" data-stripe-plan="premium" onclick="App.startStripeCheckout('premium')">${
-                upgradePriceStr ? `Upgrade auf Premium – €${upgradePriceStr}`
-                : freePromoPriceStr ? `Premium sichern – €${freePromoPriceStr}`
-                : 'Premium sichern – €39,90'
-              }</button>`
+            : `<button class="konto-plan-btn" style="background:linear-gradient(135deg,#6366f1,#4338ca);color:#fff" data-stripe-plan="premium" onclick="App.startStripeCheckout('premium')">Premium sichern – €29,90</button>`
           }
           ${!isPremium ? '<div class="konto-plan-note">Einmalzahlung – kein Abo</div>' : ''}
-        </div>
+        </div>` : ''}
 
       </div>
     `;
@@ -1042,7 +1008,7 @@ const App = {
 
     // ===== FREUNDE EINLADEN =====
     html += `
-      <div onclick="App.shareApp()" style="background:#fff;border:2px solid #e8e2d8;border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(26,26,46,0.04)">
+      <div class="app-retired" onclick="App.shareApp()" style="background:#fff;border:2px solid #e8e2d8;border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(26,26,46,0.04)">
         <div style="display:flex;align-items:center;gap:0.6rem">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5c5c6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
           <div>
@@ -1083,37 +1049,31 @@ const App = {
   },
 
   // ===== STRIPE CHECKOUT =====
+  // Ab 27.05.2026: Direkter Stripe-Payment-Link (29,90 € fix für alle).
+  // Edge Function (create-checkout-session) wird nicht mehr aufgerufen,
+  // die Differenz-Logik für Bestandskunden entfällt — Bestandskunden mit
+  // basic/pro/premium sehen die Premium-Karte gar nicht mehr (renderKonto
+  // blendet sie aus für sie), nur Free-User landen auf dem Stripe-Link.
   async startStripeCheckout(plan) {
     if (!Auth.isLoggedIn) {
       this.showToast('Bitte zuerst einloggen', 'error');
       return;
     }
-    // Disable the clicked button and show loading state
-    const btn = document.querySelector(`[data-stripe-plan="${plan}"]`);
-    const origHTML = btn ? btn.innerHTML : '';
-    if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Weiterleitung…'; }
-
-    try {
-      const { data: { session } } = await Auth.supabase.auth.getSession();
-      if (!session?.access_token) throw new Error('Bitte neu einloggen');
-
-      const resp = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': CONFIG.SUPABASE_ANON_KEY,
-        },
-        body: JSON.stringify({ plan }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data.error || 'Checkout fehlgeschlagen');
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
-    } catch (e) {
-      this.showToast('Fehler: ' + (e.message || 'Unbekannt'), 'error');
-      if (btn) { btn.disabled = false; btn.innerHTML = origHTML; }
-    }
+    // ⚠️ WICHTIG: client_reference_id muss mit der User-UUID gefüllt sein,
+    // damit der Stripe-Webhook (functions/stripe-webhook) den Account
+    // automatisch upgraden kann. OHNE diese ID matcht der Webhook fail-safe
+    // per Email (siehe Email-Fallback), aber das ist nur die Notbremse.
+    const userId = Auth.currentUser?.id || '';
+    const email  = Auth.currentUser?.email || '';
+    const link   = CONFIG.STRIPE_PREMIUM_LINK;
+    const params = new URLSearchParams();
+    if (userId) params.set('client_reference_id', userId);
+    if (email)  params.set('prefilled_email', email);
+    const qs  = params.toString();
+    const url = qs ? `${link}?${qs}` : link;
+    // In neuem Tab öffnen, damit der User die App nicht verliert
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return;
   },
 
   // ===== WISSENS-LAB: Lock-State anwenden =====
@@ -1121,10 +1081,48 @@ const App = {
   // Logik: Premium-User haben alle Tools frei. Alle anderen
   // sehen nur das "data-free=1" Tool pro Fach freigeschaltet,
   // die anderen ausgegraut + Klick öffnet Upgrade-Modal.
+  // Holt den User-Profile-Datensatz frisch aus der DB (ohne Re-Login).
+  // Wird bei Screen-Wechseln + Tab-Focus aufgerufen, damit ein Premium-Upgrade
+  // (Stripe-Webhook, manueller DB-Update, Admin-Action) sofort wirkt.
+  // Throttled auf 1× alle 8 Sekunden um die DB nicht zu spammen.
+  _lastLicenseRefresh: 0,
+  async _refreshLicenseSilently() {
+    if (typeof Auth === 'undefined' || !Auth.isLoggedIn) return;
+    const now = Date.now();
+    if (now - this._lastLicenseRefresh < 8000) return;
+    this._lastLicenseRefresh = now;
+    try {
+      const prevTier = Auth.licenseTier;
+      await Auth.loadProfile();
+      const newTier = Auth.licenseTier;
+      if (prevTier !== newTier) {
+        // Tier hat sich geändert → UI neu aufbauen wo nötig
+        console.log(`[License] tier changed: ${prevTier} → ${newTier}`);
+        if (document.getElementById('screen-tools')?.classList.contains('active')) {
+          this._applyToolsLocks();
+        }
+        // Konto-Screen ggf. neu rendern
+        if (document.getElementById('screen-konto')?.classList.contains('active') && typeof this.renderKonto === 'function') {
+          this.renderKonto();
+        }
+        // Toast wenn Premium frisch dazugekommen
+        if (newTier === 'premium' && prevTier === 'free' && typeof this.showToast === 'function') {
+          this.showToast('🎉 Premium ist aktiv — alle Inhalte freigeschaltet!', 'success');
+        }
+      }
+    } catch (e) {
+      console.warn('[License] refresh failed:', e);
+    }
+  },
+
   _applyToolsLocks() {
     const tier = (Auth && Auth.licenseTier) || 'free';
-    const isAdmin = typeof Admin !== 'undefined' && Admin.isAdmin?.();
-    const hasAll = tier === 'premium' || isAdmin;
+    // Wer hat Vollzugang aufs Wissens-Lab?
+    //  - Admins (immer)
+    //  - Premium-User
+    //  - Bestandskunden mit Basic/Pro (Legacy — die hatten Vollzugang)
+    const isAdmin = typeof Admin !== 'undefined' && Admin.isAdmin && Admin.isAdmin();
+    const hasAll = isAdmin || tier === 'premium' || tier === 'basic' || tier === 'pro';
 
     document.querySelectorAll('#screen-tools .tools-card').forEach(card => {
       const isLockedByDefault = card.dataset.toolLocked === '1';
@@ -1168,33 +1166,12 @@ const App = {
 
   // ===== WISSENS-LAB: Upgrade-Modal =====
   openToolsUpgradeModal() {
-    const tier = (Auth && Auth.licenseTier) || 'free';
-    const isPaid = tier === 'basic' || tier === 'pro';
-    const promoUntilStr = Auth?.userProfile?.promo_window_until || null;
-    const inPromoWindow = !!promoUntilStr && new Date(promoUntilStr) > new Date();
-    const totalPaidCents = Auth?.userProfile?.total_paid_cents || 0;
-    const totalPaidEuro = totalPaidCents / 100;
-
-    let priceStr = '€39,90';
-    let descStr  = 'einmalig · alle Tools für immer';
-
-    if (inPromoWindow) {
-      if (isPaid) {
-        const upgrade = Math.max(1.00, +((39.90 - totalPaidEuro) * 0.8).toFixed(2));
-        priceStr = '€' + upgrade.toFixed(2).replace('.', ',');
-        const fromLabel = tier === 'basic' ? 'Basic' : 'Pro';
-        descStr = `Treue-Upgrade von ${fromLabel} · 48 h`;
-      } else {
-        const launch = +(39.90 * 0.8).toFixed(2);
-        priceStr = '€' + launch.toFixed(2).replace('.', ',');
-        descStr = 'Launch-Rabatt 20 % · 48 h';
-      }
-    }
-
+    // Pricing FINAL: Premium 29,90 für alle. Bestandskunden (basic/pro) sehen
+    // dieses Modal eigentlich nicht (sie haben Vollzugang), aber für den Fall:
     const priceEl = document.getElementById('tools-upgrade-modal-price');
     const descEl  = document.getElementById('tools-upgrade-modal-pricedesc');
-    if (priceEl) priceEl.textContent = priceStr;
-    if (descEl)  descEl.textContent  = descStr;
+    if (priceEl) priceEl.textContent = '€29,90';
+    if (descEl)  descEl.textContent  = 'Vollzugang · einmalig';
 
     document.getElementById('tools-upgrade-modal')?.classList.add('show');
   },
@@ -4096,6 +4073,8 @@ const App = {
           b.disabled = true;
         });
         if (!isCorrect) btn.classList.add('incorrect');
+        // Für die Fehler-Analyse am Ende: was stand zur Wahl, was wurde gewählt, was war richtig
+        this._antwortInfo = { optionen: indexed.map((it, k) => `${String.fromCharCode(65 + k)}) ${it.opt}`).join('\n'), gewaehlt: `${String.fromCharCode(65 + idx)}) ${indexed[idx].opt}`, richtig: `${String.fromCharCode(65 + newCorrectIdx)}) ${indexed[newCorrectIdx].opt}` };
 
         this.handleAnswer(isCorrect, data.explanation || '');
       };
@@ -4107,6 +4086,14 @@ const App = {
     const timeTaken = Math.round((Date.now() - this.questionStartTime) / 1000);
     if (correct) this.score++;
     this.results.push({ correct, timeTaken });
+
+    // Alle Fehler (auch Simulation/Prüfung) für die Fehler-Analyse auf dem Ergebnis-Bildschirm
+    if (!this.fehlerListe || this.results.length === 1) this.fehlerListe = [];
+    if (!correct) {
+      const fq = this.questions[this.currentIndex], fd = (fq && fq.content) || {}, ai = this._antwortInfo || {};
+      this.fehlerListe.push({ frage: fd.question || (fd.premise1 ? `${fd.premise1} ${fd.premise2 || ''}` : '') || fd.word || (fd.sequence ? String(fd.sequence) : ''), optionen: ai.optionen || '', gewaehlt: ai.gewaehlt || '', richtig: ai.richtig || this._getCorrectAnswerText(fd) || '', erklaerung: String(explanation || fd.explanation || '').slice(0, 900), typ: fq ? fq.type : '', untertyp: fq ? (fq.subtype || '') : '' });
+    }
+    this._antwortInfo = null;
 
     // Track wrong answers for infographic generation at the end
     if (!correct && this.mode === 'practice') {
@@ -4600,7 +4587,7 @@ const App = {
               <span style="font-size:1.1rem;font-weight:700;color:#1a1a2e;">2.300+ Fragen</span> in allen Kategorien<br>
               <span style="font-size:1.1rem;font-weight:700;color:#1a1a2e;">10+ PDF-Simulationen</span> im MedAT-Format
             </div>
-            <button onclick="App.showScreen('screen-konto')" style="background:#1a1a2e;color:#f5c542;border:none;border-radius:12px;padding:0.7rem 1.8rem;font-size:0.95rem;font-weight:700;cursor:pointer;">Vollzugang ab €19,90 →</button>
+            <button onclick="App.showScreen('screen-konto')" style="background:#1a1a2e;color:#f5c542;border:none;border-radius:12px;padding:0.7rem 1.8rem;font-size:0.95rem;font-weight:700;cursor:pointer;">Vollzugang für €29,90 →</button>
           </div>`;
       } else {
         upgradeEl.classList.add('hidden');
@@ -4610,12 +4597,8 @@ const App = {
     // Auto-generate personalized KI-Zusammenfassung if there are wrong answers
     const resumeSection = document.getElementById('result-resume');
     if (resumeSection) {
-      if (this.wrongAnswers && this.wrongAnswers.length > 0 && this.mode !== 'simulation') {
-        resumeSection.classList.remove('hidden');
-        document.getElementById('resume-loading').classList.remove('hidden');
-        document.getElementById('resume-content').classList.add('hidden');
-        document.getElementById('resume-content').innerHTML = '';
-        // Auto-trigger — no click needed
+      // Die automatische KI-Zusammenfassung ist abgeschaltet – Fehler werden jetzt mit LernBlick besprochen.
+      if (false && this.wrongAnswers && this.wrongAnswers.length > 0 && this.mode !== 'simulation') {
         this._generateResume();
       } else {
         resumeSection.classList.add('hidden');
@@ -4629,6 +4612,7 @@ const App = {
       Nudge.maybeShowOnResult(pct, wrongCount, topicLabel);
     }
 
+    if (typeof FehlerAnalyse !== 'undefined') FehlerAnalyse.zeige(this.fehlerListe || [], this.mode);
     this.showScreen('screen-result');
   },
 
