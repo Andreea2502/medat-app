@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prüfungsfallen-Lab · Banner-Varianten</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --bg-warm: #f0ebe1;
+    --surface: #fff;
+    --dark: #1a1a2e;
+    --text: #1a1a2e;
+    --text-secondary: #5c5c6e;
+    --text-muted: #9e9eae;
+    --yellow: #f5c542;
+    --yellow-deep: #e6a817;
+    --yellow-soft: #fdf3d7;
+    --mint: #c8e6d0;
+    --mint-deep: #6db88a;
+    --coral: #f5a68e;
+    --coral-soft: #fde8e0;
+    --lavender: #e4daf0;
+    --lavender-deep: #9b7fc4;
+    --border: #e8e2d8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .page-header h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+  }
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  .mockup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .mockup-frame {
+    background: var(--bg);
+    border: 8px solid #1a1a2e;
+    border-radius: 30px;
+    padding: 1rem 1rem 3rem;
+    box-shadow: 0 16px 48px rgba(26, 26, 46, 0.18);
+    position: relative;
+  }
+  .mockup-notch {
+    width: 100px; height: 18px;
+    background: #1a1a2e;
+    border-radius: 0 0 14px 14px;
+    margin: -8px auto 0.5rem;
+  }
+  .mockup-label {
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+  .mockup-title {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+  .mockup-desc {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+    line-height: 1.45;
+    min-height: 36px;
+  }
+
+  /* === Gemeinsame Banner-Basis === */
+  .trap-banner {
+    margin: 0.5rem 0;
+    border-radius: 18px;
+    padding: 1.1rem 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s, box-shadow 0.18s;
+    font-family: inherit;
+    text-align: left;
+    border: none;
+    width: 100%;
+  }
+  .trap-banner:hover {
+    transform: translateY(-2px);
+  }
+  .trap-banner-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .trap-banner-icon svg {
+    width: 24px; height: 24px;
+    stroke-width: 2.2;
+  }
+  .trap-banner-info {
+    flex: 1; min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .trap-banner-label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    margin-bottom: 2px;
+  }
+  .trap-banner-new {
+    display: inline-block;
+    font-size: 0.55rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 0.45rem;
+    vertical-align: middle;
+  }
+  .trap-banner-desc {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+  .trap-banner-arrow {
+    font-size: 1.4rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* === Variante A — Warmer Sonnenuntergang (yellow → coral) === */
+  .variant-a {
+    background: linear-gradient(135deg, #fcd34d 0%, #f5a68e 100%);
+    box-shadow: 0 6px 22px rgba(245, 166, 142, 0.35);
+    color: #2a1a1f;
+  }
+  .variant-a:hover {
+    box-shadow: 0 10px 28px rgba(245, 166, 142, 0.45);
+  }
+  .variant-a::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -20px;
+    width: 130px; height: 130px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .variant-a .trap-banner-icon {
+    background: rgba(255, 255, 255, 0.95);
+    color: #c25a35;
+    box-shadow: 0 4px 14px rgba(194, 90, 53, 0.25);
+  }
+  .variant-a .trap-banner-label { color: #2a1a1f; }
+  .variant-a .trap-banner-desc { color: rgba(42, 26, 31, 0.72); }
+  .variant-a .trap-banner-arrow { color: rgba(42, 26, 31, 0.45); }
+  .variant-a .trap-banner-new {
+    background: #1a1a2e;
+    color: #fcd34d;
+  }
+
+  /* === Variante B — Lavender Glow (lavender → deep purple) === */
+  .variant-b {
+    background: linear-gradient(135deg, #c4b5fd 0%, #7c5fc7 60%, #5b3fb8 100%);
+    box-shadow: 0 6px 22px rgba(107, 88, 214, 0.35);
+    color: #fff;
+  }
+  .variant-b:hover {
+    box-shadow: 0 10px 28px rgba(107, 88, 214, 0.5);
+  }
+  .variant-b::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -20px;
+    width: 130px; height: 130px;
+    background: radial-gradient(circle, rgba(245, 197, 66, 0.4) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .variant-b .trap-banner-icon {
+    background: linear-gradient(135deg, #f5c542, #e6a817);
+    color: #1a1a2e;
+    box-shadow: 0 4px 14px rgba(245, 197, 66, 0.45);
+  }
+  .variant-b .trap-banner-label { color: #fff; }
+  .variant-b .trap-banner-desc { color: rgba(255, 255, 255, 0.78); }
+  .variant-b .trap-banner-arrow { color: rgba(255, 255, 255, 0.45); }
+  .variant-b .trap-banner-new {
+    background: #fcd34d;
+    color: #1a1a2e;
+  }
+
+  /* === Variante C — Helle Karte mit gelbem Akzent === */
+  .variant-c {
+    background: #fff;
+    border: 2px solid var(--border);
+    border-left: 6px solid #f5c542;
+    box-shadow: 0 4px 16px rgba(26, 26, 46, 0.06);
+    color: var(--text);
+  }
+  .variant-c:hover {
+    box-shadow: 0 8px 24px rgba(26, 26, 46, 0.1);
+    border-left-color: var(--yellow-deep);
+  }
+  .variant-c::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 110px; height: 110px;
+    background: radial-gradient(circle, rgba(245, 197, 66, 0.18) 0%, transparent 65%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .variant-c .trap-banner-icon {
+    background: linear-gradient(135deg, #fdf3d7, #fde8e0);
+    color: #c25a35;
+    border: 1.5px solid #f5c542;
+  }
+  .variant-c .trap-banner-label { color: var(--text); }
+  .variant-c .trap-banner-desc { color: var(--text-muted); }
+  .variant-c .trap-banner-arrow { color: var(--text-muted); }
+  .variant-c .trap-banner-new {
+    background: linear-gradient(135deg, #c25a35, #e07a55);
+    color: #fff;
+  }
+
+  /* Context (Mock-Tiles drum herum für Kontext) */
+  .ctx-hero {
+    background: var(--dark);
+    color: #fff;
+    border-radius: 14px;
+    padding: 1rem 1.2rem 1.5rem;
+    margin-bottom: 0.6rem;
+    text-align: center;
+  }
+  .ctx-hero .label { font-size: 0.6rem; letter-spacing: 1.2px; color: #aaa; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .ctx-hero .title { font-size: 1rem; font-weight: 800; margin-bottom: 0.2rem; }
+  .ctx-hero .title span { color: var(--yellow); }
+  .ctx-hero .countdown {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--yellow);
+    margin-top: 0.4rem;
+  }
+  .ctx-hero .countdown-sub { font-size: 0.7rem; color: #aaa; }
+
+  .ctx-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+    margin-top: 0.5rem;
+  }
+  .ctx-tile {
+    border-radius: 12px;
+    padding: 0.7rem 0.6rem 0.75rem;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .ctx-tile-icon {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.22);
+    margin-bottom: 0.4rem;
+  }
+  .ctx-tile-sub { font-size: 0.6rem; font-weight: 600; opacity: 0.78; }
+  .ctx-tile-yellow { background: linear-gradient(135deg, #e6a817, #d4920a); }
+  .ctx-tile-coral  { background: linear-gradient(135deg, #e07a55, #c25a35); }
+  .ctx-tile-purple { background: linear-gradient(135deg, #6b58d6, #4f3fb8); }
+  .ctx-tile-mint   { background: linear-gradient(135deg, #2d8a54, #1f6b3f); }
+
+  /* Footer voting */
+  .vote-section {
+    max-width: 720px;
+    margin: 3rem auto 1rem;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(26, 26, 46, 0.06);
+    text-align: center;
+  }
+  .vote-section h2 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .vote-section p {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .vote-list {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  .vote-list span {
+    background: var(--bg-warm);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>🎨 Prüfungsfallen-Lab · Banner-Varianten</h1>
+  <p>Drei moderne Alternativen zum dunklen Banner. Klick auf eine, um sie auszuprobieren.</p>
+</div>
+
+<div class="mockup-grid">
+
+  <!-- ========== VARIANTE A ========== -->
+  <div class="mockup-frame">
+    <div class="mockup-notch"></div>
+    <div class="mockup-label">Variante A</div>
+    <div class="mockup-title">Warmer Sonnenuntergang</div>
+    <div class="mockup-desc">Gelb-Coral-Verlauf. Warm, einladend, MedAT-Sommerstimmung. Sticht ohne dunkles Schwarz hervor.</div>
+
+    <div class="ctx-hero">
+      <div class="label">MedAT 2026 Vorbereitung</div>
+      <div class="title">MedAT <span>Trainer</span></div>
+      <div class="countdown">46</div>
+      <div class="countdown-sub">Tage bis zum MedAT</div>
+    </div>
+
+    <button class="trap-banner variant-a">
+      <div class="trap-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+      </div>
+      <div class="trap-banner-info">
+        <span class="trap-banner-label">Prüfungsfallen-Lab<span class="trap-banner-new">NEU</span></span>
+        <span class="trap-banner-desc">Trainiere die Denkfehler, die dich im MedAT Punkte kosten</span>
+      </div>
+      <span class="trap-banner-arrow">›</span>
+    </button>
+
+    <div class="ctx-tiles">
+      <div class="ctx-tile ctx-tile-yellow"><div class="ctx-tile-icon"></div>BMS + KFF<div class="ctx-tile-sub">Üben in der App</div></div>
+      <div class="ctx-tile ctx-tile-coral"><div class="ctx-tile-icon"></div>PDF-Simulator<div class="ctx-tile-sub">Simulation drucken</div></div>
+      <div class="ctx-tile ctx-tile-purple"><div class="ctx-tile-icon"></div>KI-Lern-Studio<div class="ctx-tile-sub">Tutoren · Bilder</div></div>
+      <div class="ctx-tile ctx-tile-mint"><div class="ctx-tile-icon"></div>Wissens-Lab<div class="ctx-tile-sub">19 Tools</div></div>
+    </div>
+  </div>
+
+  <!-- ========== VARIANTE B ========== -->
+  <div class="mockup-frame">
+    <div class="mockup-notch"></div>
+    <div class="mockup-label">Variante B</div>
+    <div class="mockup-title">Lavender Glow</div>
+    <div class="mockup-desc">Lavender → Deep Purple mit gelbem Glow. Mystisch, modern, hebt sich klar von den 4 Tiles ab.</div>
+
+    <div class="ctx-hero">
+      <div class="label">MedAT 2026 Vorbereitung</div>
+      <div class="title">MedAT <span>Trainer</span></div>
+      <div class="countdown">46</div>
+      <div class="countdown-sub">Tage bis zum MedAT</div>
+    </div>
+
+    <button class="trap-banner variant-b">
+      <div class="trap-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+      </div>
+      <div class="trap-banner-info">
+        <span class="trap-banner-label">Prüfungsfallen-Lab<span class="trap-banner-new">NEU</span></span>
+        <span class="trap-banner-desc">Trainiere die Denkfehler, die dich im MedAT Punkte kosten</span>
+      </div>
+      <span class="trap-banner-arrow">›</span>
+    </button>
+
+    <div class="ctx-tiles">
+      <div class="ctx-tile ctx-tile-yellow"><div class="ctx-tile-icon"></div>BMS + KFF<div class="ctx-tile-sub">Üben in der App</div></div>
+      <div class="ctx-tile ctx-tile-coral"><div class="ctx-tile-icon"></div>PDF-Simulator<div class="ctx-tile-sub">Simulation drucken</div></div>
+      <div class="ctx-tile ctx-tile-purple"><div class="ctx-tile-icon"></div>KI-Lern-Studio<div class="ctx-tile-sub">Tutoren · Bilder</div></div>
+      <div class="ctx-tile ctx-tile-mint"><div class="ctx-tile-icon"></div>Wissens-Lab<div class="ctx-tile-sub">19 Tools</div></div>
+    </div>
+  </div>
+
+  <!-- ========== VARIANTE C ========== -->
+  <div class="mockup-frame">
+    <div class="mockup-notch"></div>
+    <div class="mockup-label">Variante C</div>
+    <div class="mockup-title">Helle Karte · Gelber Akzent</div>
+    <div class="mockup-desc">Weiße Card mit dickem gelbem Border-Left. Konsistent mit den weißen Quick-Tiles, dezent aber klar markiert.</div>
+
+    <div class="ctx-hero">
+      <div class="label">MedAT 2026 Vorbereitung</div>
+      <div class="title">MedAT <span>Trainer</span></div>
+      <div class="countdown">46</div>
+      <div class="countdown-sub">Tage bis zum MedAT</div>
+    </div>
+
+    <button class="trap-banner variant-c">
+      <div class="trap-banner-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
+      </div>
+      <div class="trap-banner-info">
+        <span class="trap-banner-label">Prüfungsfallen-Lab<span class="trap-banner-new">NEU</span></span>
+        <span class="trap-banner-desc">Trainiere die Denkfehler, die dich im MedAT Punkte kosten</span>
+      </div>
+      <span class="trap-banner-arrow">›</span>
+    </button>
+
+    <div class="ctx-tiles">
+      <div class="ctx-tile ctx-tile-yellow"><div class="ctx-tile-icon"></div>BMS + KFF<div class="ctx-tile-sub">Üben in der App</div></div>
+      <div class="ctx-tile ctx-tile-coral"><div class="ctx-tile-icon"></div>PDF-Simulator<div class="ctx-tile-sub">Simulation drucken</div></div>
+      <div class="ctx-tile ctx-tile-purple"><div class="ctx-tile-icon"></div>KI-Lern-Studio<div class="ctx-tile-sub">Tutoren · Bilder</div></div>
+      <div class="ctx-tile ctx-tile-mint"><div class="ctx-tile-icon"></div>Wissens-Lab<div class="ctx-tile-sub">19 Tools</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="vote-section">
+  <h2>Welche Variante soll's werden?</h2>
+  <p>Schreib mir <b>A</b>, <b>B</b> oder <b>C</b> — ich tausche das Banner im Live-Code aus.</p>
+  <div class="vote-list">
+    <span>🌅 A — Sonnenuntergang</span>
+    <span>🔮 B — Lavender Glow</span>
+    <span>📒 C — Helle Karte</span>
+  </div>
+</div>
+
+</body>
+</html>

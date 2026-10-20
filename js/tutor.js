@@ -20,6 +20,49 @@ GESAMT: ~221 Fragen, ~258 Minuten aktive Testzeit`;
 
   // ── Tutor-Konfigurationen ────────────────────────────────────────────────
   const TUTORS = {
+    // ── Prüfungsfallen-Coach (hidden in selection — opened via openTrapCoach) ─
+    fallencoach: {
+      key: 'fallencoach',
+      name: 'Prüfungsfallen-Coach',
+      icon: '🪤',
+      color: '#1a1a2e',
+      colorSoft: '#fdf3d7',
+      tagline: 'Macht Denkfehler sichtbar',
+      description: 'Zeigt dir, welche Antworten richtig klingen – aber falsch sind.',
+      hiddenFromSelection: true,
+      systemPrompt: (ctx) => `Du bist der PRÜFUNGSFALLEN-COACH für den österreichischen Medizinaufnahmetest (MedAT).
+Deine Aufgabe ist NICHT, ein Thema allgemein und breit zu erklären.
+Deine Aufgabe ist, typische Denkfehler, Verwechslungen, MC-Fallen und falsche Antwortlogiken sichtbar zu machen.
+
+THEMA / KONTEXT:
+${ctx.frage}
+${ctx.bereich ? `\nBEREICH: ${ctx.bereich}` : ''}
+
+STARTVERHALTEN: Beginne SOFORT mit deiner Methode. KEINE Selbstvorstellung, KEINE Begrüßung. Direkt zum Punkt — starte mit der ersten konkreten Prüfungsfalle.
+
+DEINE ARBEITSWEISE — STRIKT NACH DIESEM SCHEMA:
+1. Benenne die konkrete Falle (1 Satz).
+2. Erkläre, warum sie gefährlich ist (1–2 Sätze).
+3. Zeige die typische FALSCHE Denkweise (kurz, in Anführungszeichen).
+4. Stelle die KORREKTE Denkweise gegenüber.
+5. Gib ein kurzes MC-Beispiel mit 3–5 Antwortmöglichkeiten.
+6. Erkläre, warum die falschen Antworten verführerisch sind.
+7. Gib einen kompakten Merksatz.
+
+VERMEIDE STRIKT:
+- Lange Lehrbuchtexte
+- Allgemeine Themen-Einführungen
+- Vage Aussagen ohne Konkretes Beispiel
+- Reine Motivation
+- Medizinische Beratung
+- Unbelegte Behauptungen
+
+SPRACHE:
+Deutsch, Du-Form, klar, direkt, prüfungsorientiert. Maximal 4 Sätze pro Block. Verwende Markdown für Klarheit (Fett, Aufzählungen).
+
+Wenn der Nutzer einen Folgewunsch hat (z.B. "Noch eine Falle", "Erklär mir Punkt 3 nochmal", "Mach ein MC-Beispiel"), antworte FOKUSSIERT auf genau diese Bitte — nicht den ganzen Stoff neu aufrollen.`,
+    },
+
     sokrates: {
       key: 'sokrates',
       name: 'Sokrates',
@@ -765,7 +808,7 @@ DEINE 12 REGELN:
           <span class="tutor-guide-arrow" id="tutor-guide-arrow">▾</span>
         </button>
         <div class="tutor-guide-content hidden" id="tutor-guide-content">
-          ${Object.values(TUTORS).map(t => `
+          ${Object.values(TUTORS).filter(t => !t.hiddenFromSelection).map(t => `
             <div class="tutor-guide-item" style="--tutor-color:${t.color};--tutor-color-soft:${t.colorSoft}">
               <div class="tutor-guide-item-header">
                 <span class="tutor-guide-item-icon">${t.icon}</span>
@@ -783,7 +826,7 @@ DEINE 12 REGELN:
     `;
 
     const grid = _el('tutor-grid');
-    Object.values(TUTORS).forEach(t => {
+    Object.values(TUTORS).filter(t => !t.hiddenFromSelection).forEach(t => {
       const card = document.createElement('button');
       card.className = t.canGenerateImages ? 'tutor-card tutor-card--banana' : 'tutor-card';
       card.style.setProperty('--tutor-color', t.color);
@@ -1717,9 +1760,20 @@ DEINE 12 REGELN:
     div.className = `tutor-msg tutor-msg--${role}`;
 
     if (role === 'assistant' && t) {
+      // Im Prüfungsfallen-Coach: Button „Ins PDF übernehmen" anhängen
+      const isTrapCoach = _currentTutor === 'fallencoach' &&
+        typeof TrapLab !== 'undefined' &&
+        typeof TrapLab.getCurrentTopicId === 'function' &&
+        TrapLab.getCurrentTopicId();
+      const pdfBtn = isTrapCoach
+        ? `<button class="tutor-msg-pdf-btn" data-msg-text="${String(text).replace(/"/g, '&quot;')}" onclick="Tutor._captureToPDF(this)">📄 Ins PDF übernehmen</button>`
+        : '';
       div.innerHTML = `
         <span class="tutor-msg-icon" style="background:${t.colorSoft};color:${t.color}">${t.icon}</span>
-        <div class="tutor-msg-bubble tutor-msg-bubble--assistant" style="--tutor-color:${t.color}">${_formatText(text)}</div>
+        <div class="tutor-msg-wrap">
+          <div class="tutor-msg-bubble tutor-msg-bubble--assistant" style="--tutor-color:${t.color}">${_formatText(text)}</div>
+          ${pdfBtn}
+        </div>
       `;
     } else {
       div.innerHTML = `
@@ -1727,6 +1781,18 @@ DEINE 12 REGELN:
       `;
     }
     return div;
+  }
+
+  // Vom Trap-Coach-Button aufgerufen: speichert die Coach-Antwort als PDF-Notiz.
+  function _captureToPDF(btn) {
+    if (!btn || typeof TrapLab === 'undefined' || typeof TrapLab.addPdfNote !== 'function') return;
+    const txt = btn.dataset.msgText || '';
+    const cnt = TrapLab.addPdfNote(txt);
+    if (cnt !== undefined) {
+      btn.disabled = true;
+      btn.classList.add('is-captured');
+      btn.innerHTML = `✓ Im PDF gespeichert (${cnt})`;
+    }
   }
 
   function _formatText(text) {
@@ -2333,6 +2399,33 @@ DEINE 12 REGELN:
     document.body.style.overflow = 'hidden';
   }
 
+  // Direkt-Einstieg zum Prüfungsfallen-Coach — überspringt die Tutor-Auswahl.
+  // Wird aus dem Prüfungsfallen-Lab (TrapLab.askCoach) heraus aufgerufen.
+  function openTrapCoach(topicObj, topicLine) {
+    if (typeof Credits !== 'undefined' && !Credits.hasAiSession()) {
+      Credits.showAiPaywall('session');
+      return;
+    }
+
+    _freeModeTopic = topicLine || (topicObj && topicObj.title) || '';
+    _currentQuestion = null;
+    _messages = [];
+
+    const overlay = _el('tutor-overlay');
+    if (!overlay) return;
+
+    _show('tutor-overlay');
+    _hide('tutor-view-select');
+    _show('tutor-view-chat');
+    document.body.style.overflow = 'hidden';
+
+    if (typeof Credits !== 'undefined') {
+      Credits.useAiSession().catch(() => {});
+    }
+    _currentTutor = 'fallencoach';
+    _renderChat(true);
+  }
+
   function close() {
     _hide('tutor-overlay');
     document.body.style.overflow = '';
@@ -2407,6 +2500,8 @@ DEINE 12 REGELN:
     init,
     open,
     openFreeMode,
+    openTrapCoach,
+    _captureToPDF,
     close,
     selectTutor,
     _downloadImage,

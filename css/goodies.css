@@ -785,3 +785,7 @@
 .gan-dot-grey { background: var(--text-muted); }
 
 .gan-empty { padding: 3rem 2rem; text-align: center; color: var(--text-muted); }
+
+/* Cheat-Sheets: Punkte antippen → LernBlick erklärt */
+.gd-sheet-hint { margin: 0.5rem 0 0.4rem; padding: 0.55rem 0.8rem; border-radius: 10px; background: #fff6dd; color: #6b4a00; font-size: 0.85rem; font-weight: 600; }
+.gd-media-preview img.lb-sheet { cursor: crosshair; }

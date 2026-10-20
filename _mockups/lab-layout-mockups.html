@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prüfungsfallen-Lab · Layout-Varianten</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --bg-warm: #f0ebe1;
+    --surface: #fff;
+    --dark: #1a1a2e;
+    --text: #1a1a2e;
+    --text-secondary: #5c5c6e;
+    --text-muted: #9e9eae;
+    --yellow: #f5c542;
+    --yellow-deep: #e6a817;
+    --yellow-soft: #fdf3d7;
+    --mint: #c8e6d0;
+    --mint-deep: #2d8a54;
+    --mint-bg: #ecfdf5;
+    --coral: #f5a68e;
+    --coral-deep: #c25a35;
+    --coral-soft: #fde8e0;
+    --lavender: #e4daf0;
+    --lavender-deep: #6d4dc2;
+    --blue-bg: #ecf6fc;
+    --blue-deep: #2d6a8e;
+    --border: #e8e2d8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem 1rem;
+  }
+  .page-header {
+    max-width: 1400px;
+    margin: 0 auto 2rem;
+    text-align: center;
+  }
+  .page-header h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+  }
+  .page-header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* Layout-Grid */
+  .layouts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .frame {
+    background: var(--bg);
+    border: 8px solid #1a1a2e;
+    border-radius: 30px;
+    padding: 0;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(26, 26, 46, 0.18);
+    position: relative;
+  }
+  .frame-notch {
+    width: 100px; height: 18px;
+    background: #1a1a2e;
+    border-radius: 0 0 14px 14px;
+    margin: 0 auto;
+  }
+  .variant-label {
+    background: #1a1a2e;
+    color: var(--yellow);
+    text-align: center;
+    padding: 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .variant-title {
+    background: #1a1a2e;
+    color: #fff;
+    text-align: center;
+    padding: 0 0.6rem 0.6rem;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  .variant-desc {
+    background: #1a1a2e;
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 0 1rem 0.9rem;
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+  .phone-body {
+    padding: 0.6rem 0.6rem 1rem;
+    min-height: 600px;
+  }
+
+  /* App-Header (statisch) */
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0.7rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 12px 12px 0 0;
+    margin: -0.6rem -0.6rem 0;
+  }
+  .app-header-back {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .app-header h2 {
+    font-size: 0.92rem;
+    font-weight: 800;
+  }
+
+  /* ============================================================
+     VARIANTE 1 — COMPARISON-GRID (dichte Tabelle)
+     ============================================================ */
+  .v1-hero {
+    background: linear-gradient(135deg, #6db88a 0%, #2d8a54 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+    margin: 0.8rem 0;
+  }
+  .v1-hero-cat {
+    background: rgba(255,255,255,0.92);
+    color: var(--dark);
+    display: inline-block;
+    font-size: 0.55rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    margin-bottom: 0.35rem;
+  }
+  .v1-hero h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.15rem;
+  }
+  .v1-hero-stats {
+    display: flex;
+    gap: 0.55rem;
+    margin-top: 0.55rem;
+  }
+  .v1-hero-stat {
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.66rem;
+  }
+  .v1-hero-stat b { font-size: 0.78rem; }
+  .v1-tabs {
+    display: flex;
+    gap: 0.3rem;
+    margin: 0.4rem 0 0.6rem;
+    padding: 0.25rem;
+    background: var(--bg-warm);
+    border-radius: 10px;
+  }
+  .v1-tab {
+    flex: 1;
+    padding: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .v1-tab.is-active {
+    background: var(--surface);
+    color: var(--dark);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .v1-table {
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+  }
+  .v1-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0.55rem 0.55rem;
+    align-items: start;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    line-height: 1.35;
+  }
+  .v1-row.head {
+    background: var(--bg-warm);
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    padding: 0.5rem 0.55rem;
+  }
+  .v1-row:last-child { border-bottom: none; }
+  .v1-row .num {
+    background: var(--mint-deep);
+    color: #fff;
+    font-weight: 800;
+    text-align: center;
+    border-radius: 6px;
+    padding: 0.15rem 0;
+    font-size: 0.65rem;
+  }
+  .v1-row .myth {
+    background: var(--coral-soft);
+    color: var(--coral-deep);
+    padding: 0.35rem;
+    border-radius: 6px;
+    font-style: italic;
+    font-weight: 500;
+  }
+  .v1-row .truth {
+    background: var(--mint-bg);
+    color: var(--mint-deep);
+    padding: 0.35rem;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     VARIANTE 2 — CARD-STACK (eine reiche Card pro Falle)
+     ============================================================ */
+  .v2-hero {
+    background: linear-gradient(135deg, #fff 0%, var(--mint-bg) 100%);
+    border: 2px solid var(--mint-deep);
+    border-radius: 16px;
+    padding: 0.9rem;
+    margin: 0.8rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .v2-hero-icon {
+    width: 38px; height: 38px;
+    background: var(--mint-deep);
+    color: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .v2-hero h3 { font-size: 1rem; margin-bottom: 0.1rem; }
+  .v2-hero-sub { font-size: 0.7rem; color: var(--text-muted); }
+  .v2-hero-cta {
+    margin-left: auto;
+    background: var(--dark);
+    color: #fff;
+    border: none;
+    padding: 0.45rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .v2-card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 0.85rem;
+    border: 1.5px solid var(--border);
+    margin-bottom: 0.6rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .v2-card-num {
+    position: absolute;
+    top: 8px; right: 12px;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--mint-bg);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .v2-card-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+    position: relative;
+  }
+  .v2-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .v2-split-cell {
+    padding: 0.45rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    line-height: 1.4;
+  }
+  .v2-split-cell.myth {
+    background: var(--coral-soft);
+    border-left: 3px solid var(--coral-deep);
+  }
+  .v2-split-cell.truth {
+    background: var(--mint-bg);
+    border-left: 3px solid var(--mint-deep);
+  }
+  .v2-split-lbl {
+    font-size: 0.55rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.2rem;
+  }
+  .v2-split-cell.myth .v2-split-lbl { color: var(--coral-deep); }
+  .v2-split-cell.truth .v2-split-lbl { color: var(--mint-deep); }
+  .v2-merksatz {
+    background: var(--yellow-soft);
+    border: 1.5px dashed var(--yellow-deep);
+    border-radius: 8px;
+    padding: 0.45rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    position: relative;
+  }
+  .v2-merksatz::before { content: '💡'; }
+
+  /* ============================================================
+     VARIANTE 3 — STORY-MODE (Slides + Progress)
+     ============================================================ */
+  .v3-progress {
+    display: flex;
+    gap: 3px;
+    padding: 0.7rem 0;
+    margin: 0 -0.6rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+  }
+  .v3-progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .v3-progress-bar.is-done { background: var(--mint-deep); }
+  .v3-progress-bar.is-active {
+    background: linear-gradient(90deg, var(--mint-deep) 60%, var(--border) 60%);
+  }
+  .v3-slide {
+    background: linear-gradient(180deg, var(--mint-bg) 0%, #fff 60%);
+    border-radius: 18px;
+    padding: 1rem 0.9rem;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 6px 20px rgba(45, 138, 84, 0.08);
+  }
+  .v3-slide-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+  .v3-slide-pos {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--mint-deep);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .v3-slide-cat {
+    background: var(--mint-deep);
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: 800;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .v3-slide-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 0.6rem;
+  }
+  .v3-stat-row {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.7rem;
+  }
+  .v3-stat-pill {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 0.25rem 0.55rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .v3-stat-pill b { color: var(--coral-deep); font-size: 0.78rem; }
+  .v3-myth-box {
+    background: var(--coral-soft);
+    border-radius: 10px;
+    padding: 0.55rem;
+    margin-bottom: 0.4rem;
+    position: relative;
+  }
+  .v3-myth-box::before {
+    content: '✗';
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 16px; height: 16px;
+    background: var(--coral-deep);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+  }
+  .v3-myth-box .txt {
+    padding-left: 22px;
+    font-style: italic;
+    font-size: 0.72rem;
+    color: var(--coral-deep);
+  }
+  .v3-truth-box {
+    background: var(--mint-bg);
+    border-radius: 10px;
+    padding: 0.55rem;
+    margin-bottom: 0.4rem;
+    position: relative;
+  }
+  .v3-truth-box::before {
+    content: '✓';
+    position: absolute;
+    top: 6px; left: 6px;
+    width: 16px; height: 16px;
+    background: var(--mint-deep);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+  }
+  .v3-truth-box .txt {
+    padding-left: 22px;
+    font-size: 0.74rem;
+    color: var(--dark);
+    line-height: 1.4;
+  }
+  .v3-merk-sticky {
+    background: var(--yellow);
+    color: var(--dark);
+    border-radius: 10px;
+    padding: 0.55rem;
+    margin: 0.5rem 0 0.6rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    line-height: 1.35;
+    transform: rotate(-1deg);
+    box-shadow: 0 4px 14px rgba(245, 197, 66, 0.35);
+    position: relative;
+  }
+  .v3-merk-sticky::before {
+    content: '💡 MERKE';
+    display: block;
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 0.2rem;
+    opacity: 0.7;
+  }
+  .v3-mini-quiz {
+    background: var(--dark);
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.55rem 0.6rem;
+    font-size: 0.72rem;
+  }
+  .v3-mini-quiz-lbl {
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+  }
+  .v3-mini-quiz-q {
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+  }
+  .v3-mini-quiz-opt {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 6px;
+    padding: 0.3rem 0.5rem;
+    margin: 0.2rem 0;
+    font-size: 0.7rem;
+  }
+  .v3-mini-quiz-opt b { color: var(--yellow); margin-right: 0.4rem; }
+  .v3-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.7rem;
+  }
+  .v3-nav-btn {
+    background: var(--bg-warm);
+    border: none;
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .v3-nav-btn.primary {
+    background: var(--dark);
+    color: #fff;
+  }
+  .v3-nav-dots {
+    display: flex;
+    gap: 4px;
+  }
+  .v3-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .v3-dot.is-active {
+    background: var(--dark);
+    width: 16px;
+    border-radius: 999px;
+  }
+
+  /* Vote-Section */
+  .vote {
+    max-width: 720px;
+    margin: 3rem auto 1rem;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(26, 26, 46, 0.06);
+    text-align: center;
+  }
+  .vote h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.4rem; }
+  .vote p { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5; }
+  .vote ul {
+    text-align: left;
+    margin-top: 1rem;
+    list-style: none;
+    padding: 0;
+  }
+  .vote ul li {
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-warm);
+    border-radius: 8px;
+    margin: 0.35rem 0;
+    font-size: 0.82rem;
+  }
+  .vote ul li b { color: var(--mint-deep); }
+
+  /* Box-Library */
+  .boxlib {
+    max-width: 1400px;
+    margin: 2.5rem auto 1rem;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 16px rgba(26, 26, 46, 0.06);
+  }
+  .boxlib h2 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 0.4rem;
+  }
+  .boxlib > p {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    margin-bottom: 1.2rem;
+  }
+  .boxlib-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .boxlib-item {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 0.85rem;
+  }
+  .boxlib-item h3 {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+  /* Beispiel-Box: Vergleich */
+  .ex-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+  .ex-compare > div {
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.72rem;
+  }
+  .ex-compare > div b { display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.2rem; }
+  .ex-compare .a { background: var(--coral-soft); color: var(--coral-deep); }
+  .ex-compare .b { background: var(--mint-bg); color: var(--mint-deep); }
+
+  /* Beispiel-Box: Fakten */
+  .ex-facts {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    padding: 0.5rem;
+    font-size: 0.74rem;
+  }
+  .ex-facts div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.2rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .ex-facts div:last-child { border-bottom: none; }
+  .ex-facts div b { color: var(--dark); }
+
+  /* Beispiel: Quote-Sticky */
+  .ex-sticky {
+    background: var(--yellow);
+    border-radius: 10px;
+    padding: 0.55rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    transform: rotate(-1deg);
+    box-shadow: 0 4px 12px rgba(245, 197, 66, 0.3);
+    color: var(--dark);
+  }
+
+  /* Beispiel: Numbered Step */
+  .ex-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.74rem;
+  }
+  .ex-steps div {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .ex-steps div span {
+    width: 18px; height: 18px;
+    background: var(--dark);
+    color: var(--yellow);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 800;
+  }
+
+  /* Beispiel: Mini-Quiz Hint */
+  .ex-mini {
+    background: var(--dark);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.55rem;
+    font-size: 0.72rem;
+  }
+  .ex-mini b { color: var(--yellow); display: block; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.2rem; }
+
+  /* Beispiel: Stats-Box */
+  .ex-stat {
+    background: linear-gradient(135deg, var(--coral-soft), #fff);
+    border-radius: 10px;
+    padding: 0.7rem;
+    text-align: center;
+  }
+  .ex-stat-num { font-size: 1.6rem; font-weight: 800; color: var(--coral-deep); line-height: 1; }
+  .ex-stat-lbl { font-size: 0.66rem; color: var(--text-secondary); margin-top: 0.2rem; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>🎨 Prüfungsfallen-Lab · Layout-Varianten für die Themen-Seite</h1>
+  <p>Drei moderne Ansätze, wie das Lab übersichtlicher und einprägsamer wird — von dichter Tabelle bis Story-Slides. Drunter: eine Bibliothek möglicher Visualisierungs-Boxen.</p>
+</div>
+
+<div class="layouts">
+
+  <!-- ========== VARIANTE 1: COMPARISON-GRID ========== -->
+  <div class="frame">
+    <div class="frame-notch"></div>
+    <div class="variant-label">Variante 1</div>
+    <div class="variant-title">Comparison-Grid</div>
+    <div class="variant-desc">Alle Fallen tabellarisch auf einer Seite: „Mythos vs. Realität" als Spalten. Maximal dicht, minimal Scrollen — perfekt zum schnellen Drüberlesen.</div>
+    <div class="phone-body">
+      <div class="app-header">
+        <button class="app-header-back">← Zurück</button>
+        <h2>🪤 Mitochondrien</h2>
+      </div>
+
+      <div class="v1-hero">
+        <span class="v1-hero-cat">Biologie</span>
+        <h3>Mitochondrien</h3>
+        <div class="v1-hero-stats">
+          <div class="v1-hero-stat"><b>10</b> Fallen</div>
+          <div class="v1-hero-stat"><b>10</b> MC</div>
+          <div class="v1-hero-stat"><b>15</b> min</div>
+        </div>
+      </div>
+
+      <div class="v1-tabs">
+        <div class="v1-tab is-active">Fallen</div>
+        <div class="v1-tab">Quiz</div>
+        <div class="v1-tab">Coach</div>
+        <div class="v1-tab">PDF</div>
+      </div>
+
+      <div class="v1-table">
+        <div class="v1-row head">
+          <div></div>
+          <div>Mythos</div>
+          <div>Realität</div>
+        </div>
+        <div class="v1-row">
+          <div class="num">01</div>
+          <div class="myth">„Atmungskette läuft in der Matrix."</div>
+          <div class="truth">An der inneren Membran.</div>
+        </div>
+        <div class="v1-row">
+          <div class="num">02</div>
+          <div class="myth">„Protonen werden in die Matrix gepumpt."</div>
+          <div class="truth">Aus der Matrix raus.</div>
+        </div>
+        <div class="v1-row">
+          <div class="num">03</div>
+          <div class="myth">„NADH und FADH₂ liefern gleich viel ATP."</div>
+          <div class="truth">NADH ≈ 2,5; FADH₂ ≈ 1,5.</div>
+        </div>
+        <div class="v1-row">
+          <div class="num">04</div>
+          <div class="myth">„ATP-Synthase pumpt Protonen."</div>
+          <div class="truth">Sie erntet den Rückfluss.</div>
+        </div>
+        <div class="v1-row">
+          <div class="num">05</div>
+          <div class="myth">„Gärung läuft im Mitochondrium."</div>
+          <div class="truth">Im Cytoplasma, ohne O₂.</div>
+        </div>
+        <div class="v1-row">
+          <div class="num">06</div>
+          <div class="myth">„mtDNA wird mendelsch vererbt."</div>
+          <div class="truth">Nur maternal.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== VARIANTE 2: CARD-STACK ========== -->
+  <div class="frame">
+    <div class="frame-notch"></div>
+    <div class="variant-label">Variante 2</div>
+    <div class="variant-title">Card-Stack mit Split-Cards</div>
+    <div class="variant-desc">Pro Falle eine ganze Karte mit: Nummern-Stempel, Mythos↔Realität-Split nebeneinander, gelber Merksatz-Sticky. Alles auf einen Blick, scrollbar aber luftig.</div>
+    <div class="phone-body">
+      <div class="app-header">
+        <button class="app-header-back">← Zurück</button>
+        <h2>🪤 Mitochondrien</h2>
+      </div>
+
+      <div class="v2-hero">
+        <div class="v2-hero-icon">🧬</div>
+        <div>
+          <h3>Mitochondrien</h3>
+          <div class="v2-hero-sub">Bio · 10 Fallen · 10 MC</div>
+        </div>
+        <button class="v2-hero-cta">▶ Quiz</button>
+      </div>
+
+      <div class="v2-card">
+        <div class="v2-card-num">01</div>
+        <div class="v2-card-title">Atmungskette vs. Citratzyklus</div>
+        <div class="v2-split">
+          <div class="v2-split-cell myth">
+            <div class="v2-split-lbl">Mythos</div>
+            Läuft in der Matrix
+          </div>
+          <div class="v2-split-cell truth">
+            <div class="v2-split-lbl">Realität</div>
+            Innere Membran
+          </div>
+        </div>
+        <div class="v2-merksatz">Citrat = Matrix; Kette = Membran</div>
+      </div>
+
+      <div class="v2-card">
+        <div class="v2-card-num">02</div>
+        <div class="v2-card-title">Matrix vs. Intermembranraum</div>
+        <div class="v2-split">
+          <div class="v2-split-cell myth">
+            <div class="v2-split-lbl">Mythos</div>
+            H⁺ wandern in die Matrix
+          </div>
+          <div class="v2-split-cell truth">
+            <div class="v2-split-lbl">Realität</div>
+            H⁺ raus aus der Matrix
+          </div>
+        </div>
+        <div class="v2-merksatz">Speicher = Intermembran; Verbraucher = Matrix</div>
+      </div>
+
+      <div class="v2-card">
+        <div class="v2-card-num">03</div>
+        <div class="v2-card-title">NADH vs. FADH₂</div>
+        <div class="v2-split">
+          <div class="v2-split-cell myth">
+            <div class="v2-split-lbl">Mythos</div>
+            Beide ≈ gleich ATP
+          </div>
+          <div class="v2-split-cell truth">
+            <div class="v2-split-lbl">Realität</div>
+            2,5 vs. 1,5 ATP
+          </div>
+        </div>
+        <div class="v2-merksatz">Komplex I (NADH) > Komplex II (FADH₂)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== VARIANTE 3: STORY-MODE ========== -->
+  <div class="frame">
+    <div class="frame-notch"></div>
+    <div class="variant-label">Variante 3</div>
+    <div class="variant-title">Story-Mode mit Mini-Quiz</div>
+    <div class="variant-desc">Wie Instagram-Stories: Eine Falle pro Slide, Top-Progress, alles drauf (Mythos, Wahrheit, Merksatz + Mini-Quiz-Sneak-Peek). Maximal fokussiert, Swipe-Navigation.</div>
+    <div class="phone-body">
+      <div class="app-header">
+        <button class="app-header-back">← Zurück</button>
+        <h2>🪤 Mitochondrien</h2>
+      </div>
+
+      <div class="v3-progress">
+        <div class="v3-progress-bar is-done"></div>
+        <div class="v3-progress-bar is-done"></div>
+        <div class="v3-progress-bar is-active"></div>
+        <div class="v3-progress-bar"></div>
+        <div class="v3-progress-bar"></div>
+        <div class="v3-progress-bar"></div>
+        <div class="v3-progress-bar"></div>
+        <div class="v3-progress-bar"></div>
+        <div class="v3-progress-bar"></div>
+        <div class="v3-progress-bar"></div>
+      </div>
+
+      <div class="v3-slide">
+        <div class="v3-slide-head">
+          <span class="v3-slide-pos">FALLE 03 / 10</span>
+          <span class="v3-slide-cat">Biologie</span>
+        </div>
+        <h3 class="v3-slide-title">NADH vs. FADH₂</h3>
+        <div class="v3-stat-row">
+          <div class="v3-stat-pill"><b>61%</b>wählen falsch</div>
+          <div class="v3-stat-pill">⏱ ~45s</div>
+        </div>
+
+        <div class="v3-myth-box">
+          <div class="txt">„Beide liefern gleich viel ATP."</div>
+        </div>
+        <div class="v3-truth-box">
+          <div class="txt">NADH → Komplex I → ca. 2,5 ATP. FADH₂ → Komplex II → ca. 1,5 ATP.</div>
+        </div>
+        <div class="v3-merk-sticky">
+          Komplex I = mehr Pumpen = mehr ATP.
+        </div>
+
+        <div class="v3-mini-quiz">
+          <div class="v3-mini-quiz-lbl">Quick-Check</div>
+          <div class="v3-mini-quiz-q">Welcher liefert mehr ATP?</div>
+          <div class="v3-mini-quiz-opt"><b>A</b>NADH</div>
+          <div class="v3-mini-quiz-opt"><b>B</b>FADH₂</div>
+        </div>
+
+        <div class="v3-nav">
+          <button class="v3-nav-btn">←</button>
+          <div class="v3-nav-dots">
+            <span class="v3-dot"></span>
+            <span class="v3-dot"></span>
+            <span class="v3-dot is-active"></span>
+            <span class="v3-dot"></span>
+            <span class="v3-dot"></span>
+          </div>
+          <button class="v3-nav-btn primary">Weiter →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     BOX-BIBLIOTHEK
+     ============================================================ -->
+<div class="boxlib">
+  <h2>🧱 Box-Bibliothek — diese Bausteine könnten wir kombinieren</h2>
+  <p>Statt einer langen Textwüste hilft jedes Visualisierungs-Modul, eine Idee schneller einprägen zu lassen. Pick + mix.</p>
+  <div class="boxlib-grid">
+
+    <div class="boxlib-item">
+      <h3>1 · Mythos ↔ Realität</h3>
+      <div class="ex-compare">
+        <div class="a"><b>Mythos</b>Beide gleich</div>
+        <div class="b"><b>Realität</b>2,5 vs. 1,5</div>
+      </div>
+      <p style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted)">Sofortiger visueller Kontrast. Coral vs. Mint.</p>
+    </div>
+
+    <div class="boxlib-item">
+      <h3>2 · Fakten-Tabelle</h3>
+      <div class="ex-facts">
+        <div>NADH<b>2,5 ATP</b></div>
+        <div>FADH₂<b>1,5 ATP</b></div>
+        <div>Glucose<b>~32 ATP</b></div>
+        <div>Gärung<b>2 ATP</b></div>
+      </div>
+      <p style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted)">Daten auf einen Blick, gut für Mengen-Fragen.</p>
+    </div>
+
+    <div class="boxlib-item">
+      <h3>3 · Merksatz-Sticky</h3>
+      <div class="ex-sticky">💡 Komplex I = mehr Pumpen = mehr ATP</div>
+      <p style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted)">Gelbe Sticky-Note in leichter Schräge. Bleibt im Kopf.</p>
+    </div>
+
+    <div class="boxlib-item">
+      <h3>4 · Schritt-für-Schritt</h3>
+      <div class="ex-steps">
+        <div><span>1</span>NADH bindet Komplex I</div>
+        <div><span>2</span>3 Protonen-Pumpen</div>
+        <div><span>3</span>2,5 ATP-Ausbeute</div>
+      </div>
+      <p style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted)">Für Prozesse / Reihenfolgen.</p>
+    </div>
+
+    <div class="boxlib-item">
+      <h3>5 · Mini-Quiz Inline</h3>
+      <div class="ex-mini">
+        <b>Quick-Check</b>
+        Wer liefert mehr ATP?<br>A · NADH &nbsp; B · FADH₂
+      </div>
+      <p style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted)">Direkt in der Falle, ohne Quiz-Start.</p>
+    </div>
+
+    <div class="boxlib-item">
+      <h3>6 · Falle-Statistik</h3>
+      <div class="ex-stat">
+        <div class="ex-stat-num">61%</div>
+        <div class="ex-stat-lbl">wählen falsch</div>
+      </div>
+      <p style="margin-top:0.5rem;font-size:0.7rem;color:var(--text-muted)">Schafft Spannung: „Das ist die häufigste Falle".</p>
+    </div>
+
+  </div>
+</div>
+
+<div class="vote">
+  <h2>Welches Layout darf ich umsetzen?</h2>
+  <p>Schreib mir die Nummer der Variante (1 / 2 / 3) und welche Box-Bausteine du gerne drin hättest (z.B. „Layout 2 mit Boxen 1, 3, 5").</p>
+  <ul>
+    <li><b>Variante 1 — Comparison-Grid:</b> alle Fallen tabellarisch + Tab-Nav, sehr dicht</li>
+    <li><b>Variante 2 — Card-Stack:</b> reiche Cards mit Split + Sticky-Merksatz, ausgewogen</li>
+    <li><b>Variante 3 — Story-Mode:</b> ein Slide pro Falle, mit Statistik + Inline-Quiz, maximaler Fokus</li>
+  </ul>
+</div>
+
+</body>
+</html>

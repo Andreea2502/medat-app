@@ -54,6 +54,7 @@ const Goodies = {
   /** Show a teaser on the home screen if there's an unclaimed active goodie.
    *  Called from App.showScreen('screen-home') / home load. */
   async showHomeBanner() {
+    if (CONFIG.CHEATSHEETS_AKTIV === false) return;
     if (!Auth.isLoggedIn || !Auth.currentUser) return;
     const host = document.getElementById('home-goodies-teaser');
     if (!host) return;
@@ -150,6 +151,7 @@ const Goodies = {
 
   _showViewer(g) {
     document.querySelectorAll('.gd-modal').forEach(m => m.remove());
+    this._sheetTitle = g.title || '';
     const files = Array.isArray(g.files) ? g.files : [];
     const modal = document.createElement('div');
     modal.className = 'gd-modal';
@@ -181,7 +183,8 @@ const Goodies = {
 
     if (type === 'image') {
       return `
-        <div class="gd-media-preview"><img src="${this._escape(url)}" alt="${this._escape(file.name || '')}"></div>
+        <div class="gd-sheet-hint">👆 Tippe auf einen Punkt im Bild – LernBlick erklärt ihn dir an der Tafel. LernBlick arbeitet mit KI und kann Fehler machen.</div>
+        <div class="gd-media-preview"><img class="lb-sheet" crossorigin="anonymous" src="${this._escape(url)}" data-title="${this._escape(this._sheetTitle || '')}" alt="${this._escape(file.name || '')}"></div>
         <div class="gd-file-item">
           <div class="gd-file-thumb">🖼</div>
           <div class="gd-file-info">

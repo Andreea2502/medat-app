@@ -61,10 +61,34 @@ const PDFExport = {
   },
 
   // ===== PDF Dialog =====
-  openDialog() {
+  async openDialog() {
     if (!window.jspdf) {
       alert('PDF-Bibliothek wird noch geladen. Bitte versuche es in ein paar Sekunden erneut.');
       return;
+    }
+
+    // Free users: check PDF limit before opening dialog
+    if (App.isFreeUser()) {
+      const allowed = await App.checkSimulationLimit();
+      if (!allowed) {
+        const wrapper = document.createElement('div');
+        wrapper.id = 'pdf-limit-overlay';
+        wrapper.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;padding:1rem';
+        wrapper.innerHTML = `<div style="background:#fff;border-radius:20px;max-width:380px;width:100%;padding:2rem 1.5rem;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative">
+          <button onclick="document.getElementById('pdf-limit-overlay').remove()" style="position:absolute;top:0.8rem;right:0.8rem;background:none;border:none;font-size:1.2rem;color:#9e9eae;cursor:pointer">✕</button>
+          <div style="font-size:2.5rem;margin-bottom:0.75rem">📄</div>
+          <h2 style="font-size:1.2rem;font-weight:800;color:#1a1a2e;margin:0 0 0.5rem">PDF-Simulation bereits erstellt</h2>
+          <p style="font-size:0.88rem;color:#5c5c6e;line-height:1.6;margin:0 0 1.25rem">
+            Im Free-Plan ist eine kostenlose PDF-Simulation enthalten. Mit <strong>Basic oder Premium</strong> erstellst du unbegrenzt viele PDFs — so oft du willst, bis zum MedAT.
+          </p>
+          <button onclick="document.getElementById('pdf-limit-overlay').remove();App.showScreen('screen-konto');App.renderKonto();" style="width:100%;background:linear-gradient(135deg,#f5c542,#e0a820);color:#1a1a2e;border:none;border-radius:12px;padding:0.85rem;font-weight:700;font-size:0.95rem;cursor:pointer;box-shadow:0 4px 12px rgba(245,197,66,0.3)">
+            Jetzt upgraden →
+          </button>
+          <div style="margin-top:0.75rem;font-size:0.75rem;color:#9e9eae">Premium €29,90 · einmalig, kein Abo</div>
+        </div>`;
+        document.body.appendChild(wrapper);
+        return;
+      }
     }
 
     const overlay = document.createElement('div');
@@ -226,8 +250,16 @@ const PDFExport = {
       if (checked.length === 0) {
         summary.textContent = 'Keine Sektionen ausgewählt';
       } else {
-        // PDF-Generierung ist nicht mehr Credit-gebunden (Credit-System entfernt).
-        summary.innerHTML = `${checked.length} Sektion${checked.length !== 1 ? 'en' : ''} · ${totalQ} Fragen · ca. ${totalMin} Min`;
+        // Estimate page count (~3 questions per page for BMS, ~2 for KFF, rough estimate)
+        const estPages = Math.max(1, Math.ceil(totalQ / 2.5) + checked.length);
+        let creditNote = '';
+        if (!Credits.isUnlimited()) {
+          creditNote = ` · ca. ${estPages} Credits (1/Seite)`;
+          if (Credits.remaining < estPages) {
+            creditNote = ` · <span style="color:#ef4444">ca. ${estPages} Credits nötig (${Credits.remaining} übrig)</span>`;
+          }
+        }
+        summary.innerHTML = `${checked.length} Sektion${checked.length !== 1 ? 'en' : ''} · ${totalQ} Fragen · ca. ${totalMin} Min${creditNote}`;
       }
     }
   },
@@ -353,7 +385,7 @@ const PDFExport = {
             if (!error && preTexts && preTexts.length > 0) {
               const shuffled = preTexts.sort(() => Math.random() - 0.5).slice(0, textCount);
               const allTexts = shuffled.map(t => ({
-                title: (t.text_content || '').substring(0, 80).split('.')[0] || 'Text',
+                title: t.title || 'Text',
                 content: t.text_content,
                 questions: typeof t.questions === 'string' ? JSON.parse(t.questions) : t.questions,
               }));
@@ -518,7 +550,7 @@ const PDFExport = {
               isMemorize: set.isMemorize || false,
               isRanking: set.section?.isRanking || false,
             }));
-            await Auth.supabase.from('user_simulations').insert({
+            const { error: simInsertError } = await Auth.supabase.from('user_simulations').insert({
               user_id: Auth.currentUser.id,
               title: simTitle,
               answer_key: allAnswerKeys,
@@ -526,9 +558,21 @@ const PDFExport = {
               total_questions: allAnswerKeys.length,
               status: 'generated',
             });
-            App._incrementSimulationCount();
+            if (simInsertError) {
+              console.error('[PDF] Simulation speichern fehlgeschlagen:', simInsertError);
+              // Limit vom Server (Trigger) → Cache aktualisieren und Paywall zeigen
+              if (simInsertError.message?.includes('FREE_PLAN_LIMIT')) {
+                App._simulationCount = App.MAX_SIMULATIONS_FREE;
+                this._hideSimLoadingOverlay();
+                this._setLoading(false);
+                App.showSimulationLimitPaywall(document.querySelector('.pdf-dialog-content') || document.body);
+                return;
+              }
+            } else {
+              App._incrementSimulationCount();
+            }
           }
-        } catch (saveErr) { console.warn('[PDF] Simulation speichern fehlgeschlagen:', saveErr); }
+        } catch (saveErr) { console.error('[PDF] Simulation speichern Exception:', saveErr); }
       }
 
       await progress('PDF wird gespeichert...', 100);
@@ -667,7 +711,18 @@ const PDFExport = {
   // =========================================================
   //  SIMULATION PDF (full MedAT-H style)
   // =========================================================
-  async generateSimulationPDF(customTitle = null) {
+  async generateSimulationPDF() {
+    // Monatsabo: 2 Simulationen sofort, dann jede Woche eine weitere (Andreea, 19.10.2026)
+    if (typeof Abo !== 'undefined' && Abo.NEUES_MODELL && Abo.stand && Abo.stand.aktiv && (Abo.stand.art === 'monat' || Abo.stand.art === 'probe')) {
+      try {
+        const { count } = await Auth.supabase.from('user_simulations').select('id', { count: 'exact', head: true }).eq('user_id', Auth.currentUser.id).gte('created_at', Abo.stand.start);
+        if ((count || 0) >= Abo.simFreigabe(999)) {
+          const am = Abo.naechsteSimAm();
+          App.showToast(Abo.stand.art === 'probe' ? 'In der Probezeit sind 2 Simulationen dabei. Mit dem MedAT-Pass hast du alle sofort.' : `Deine nächste Simulation wird am ${am ? am.toLocaleDateString('de-AT') : 'nächsten Wochenstart'} freigeschaltet. Mit dem MedAT-Pass hast du alle sofort.`);
+          return;
+        }
+      } catch (e) { /* im Zweifel nicht blockieren */ }
+    }
     this._setLoading(true);
     this._showSimLoadingOverlay();
     let currentStep = 'Initialisierung';
@@ -749,7 +804,7 @@ const PDFExport = {
                 // Shuffle and pick textCount
                 const shuffled = preTexts.sort(() => Math.random() - 0.5).slice(0, textCount);
                 const allTexts = shuffled.map(t => ({
-                  title: (t.text_content || '').substring(0, 80).split('.')[0] || 'Text',
+                  title: t.title || 'Text',
                   content: t.text_content,
                   questions: typeof t.questions === 'string' ? JSON.parse(t.questions) : t.questions,
                 }));
@@ -995,13 +1050,13 @@ const PDFExport = {
       }
 
       // Footers with sidebar labels
-      this._addFootersToAllPages(ctx, customTitle || 'MedAT-H Simulation', sectionPageMap);
+      this._addFootersToAllPages(ctx, 'MedAT-H Simulation', sectionPageMap);
 
       // ===== SAVE SIMULATION TO DATABASE =====
       await progress('Simulation wird in deinem Konto gespeichert...', 96);
       try {
         if (Auth.isLoggedIn && Auth.supabase) {
-          const simTitle = customTitle || `MedAT-H Simulation ${new Date().toLocaleDateString('de-AT')}`;
+          const simTitle = `MedAT-H Simulation ${new Date().toLocaleDateString('de-AT')}`;
           // Build block structure for scoring
           const blockStructure = allQuestionSets.map(set => ({
             label: set.section?.label || 'Unbekannt',
@@ -1035,7 +1090,7 @@ const PDFExport = {
       await progress('PDF wird gespeichert...', 100);
       // Small delay so user sees 100%
       await new Promise(r => setTimeout(r, 400));
-      const simFileName = customTitle ? `MedAT_${customTitle.replace(/\\s+/g, '_')}.pdf` : `MedAT_Simulation_${new Date().toISOString().slice(0, 10)}.pdf`;
+      const simFileName = `MedAT_Simulation_${new Date().toISOString().slice(0, 10)}.pdf`;
       await this._saveWithPrompt(pdf, simFileName, 'simulation', 'simulation', allAnswerKeys?.length || 0);
       this._trackPdfCreated();
       this._trackSimulationCompleted();
@@ -1050,11 +1105,6 @@ const PDFExport = {
       this._setLoading(false);
       this._hideSimLoadingOverlay();
     }
-  },
-
-  // Alias for admin batch generation
-  async generateAdminSimulationPDF(title) {
-    return this.generateSimulationPDF(title);
   },
 
   // =========================================================
@@ -1367,6 +1417,17 @@ const PDFExport = {
       .replace(/\u03BC/g, 'mu').replace(/\u03B4/g, 'delta').replace(/\u03B5/g, 'epsilon');
   },
 
+  // Safe multi-line text renderer with page-break checking per line
+  _textSafe(ctx, lines, x, lineHeight) {
+    const lh = lineHeight || 5;
+    const arr = Array.isArray(lines) ? lines : [lines];
+    for (let i = 0; i < arr.length; i++) {
+      this._checkPage(ctx, lh + 2);
+      ctx.pdf.text(arr[i], x, ctx.y);
+      ctx.y += lh;
+    }
+  },
+
   // ===== COVER PAGES =====
 
   _drawSimCoverPage(ctx) {
@@ -1460,7 +1521,7 @@ const PDFExport = {
     ctx.y = 250;
     pdf.setFontSize(9);
     pdf.setTextColor(120);
-    const notice = 'Dieses Dokument ist ein Übungstool und kein offizielles MedAT-Testdokument. Die Struktur orientiert sich am echten Testformat.';
+    const notice = '\u00A9 MedAT Trainer \u2013 Dieses Dokument ist urheberrechtlich gesch\u00FCtzt. Die Vervielf\u00E4ltigung, Weitergabe oder Ver\u00F6ffentlichung ist ohne ausdr\u00FCckliche Genehmigung nicht gestattet. Anfragen an: office@ai-guide.at';
     const noticeLines = pdf.splitTextToSize(notice, contentW - 20);
     pdf.text(noticeLines, pageW / 2, ctx.y, { align: 'center' });
   },
@@ -2062,12 +2123,16 @@ const PDFExport = {
         this._drawLine(ctx, margin, ctx.y, margin + contentW);
         ctx.y += 5;
 
-        // Question text (bold)
+        // Question text (bold, line-by-line for page safety)
         pdf.setFont('DejaVuSans', 'bold');
         pdf.setTextColor(30);
         const qLines = pdf.splitTextToSize(this._clean(tq.question || ''), contentW);
-        pdf.text(qLines, margin, ctx.y);
-        ctx.y += qLines.length * 5 + 3;
+        for (let li = 0; li < qLines.length; li++) {
+          this._checkPage(ctx, 6);
+          pdf.text(qLines[li], margin, ctx.y);
+          ctx.y += 5;
+        }
+        ctx.y += 3;
         pdf.setFont('DejaVuSans', 'normal');
 
         // Options (shuffle to avoid answer position bias)
@@ -2184,15 +2249,23 @@ const PDFExport = {
         pdf.text('P1:', margin, ctx.y);
         pdf.setFont('DejaVuSans', 'normal');
         const p1Lines = pdf.splitTextToSize(this._clean(data.premise1), contentW - 10);
-        pdf.text(p1Lines, margin + 10, ctx.y);
-        ctx.y += p1Lines.length * 5 + 2;
+        for (let li = 0; li < p1Lines.length; li++) {
+          this._checkPage(ctx, 6);
+          pdf.text(p1Lines[li], margin + 10, ctx.y);
+          ctx.y += 5;
+        }
+        ctx.y += 2;
 
         pdf.setFont('DejaVuSans', 'bold');
         pdf.text('P2:', margin, ctx.y);
         pdf.setFont('DejaVuSans', 'normal');
         const p2Lines = pdf.splitTextToSize(this._clean(data.premise2), contentW - 10);
-        pdf.text(p2Lines, margin + 10, ctx.y);
-        ctx.y += p2Lines.length * 5 + 4;
+        for (let li = 0; li < p2Lines.length; li++) {
+          this._checkPage(ctx, 6);
+          pdf.text(p2Lines[li], margin + 10, ctx.y);
+          ctx.y += 5;
+        }
+        ctx.y += 4;
 
         const opts = data.answer_options || data.options || [];
         const { shuffledOpts, correctLetter } = this._shuffleOptionsWithAnswer(opts, data);
@@ -2268,8 +2341,12 @@ const PDFExport = {
         pdf.setFontSize(10);
         pdf.setFont('DejaVuSans', 'bold');
         const qLines = pdf.splitTextToSize(this._clean(data.question || ''), contentW);
-        pdf.text(qLines, margin, ctx.y);
-        ctx.y += qLines.length * 5 + 3;
+        for (let li = 0; li < qLines.length; li++) {
+          this._checkPage(ctx, 6);
+          pdf.text(qLines[li], margin, ctx.y);
+          ctx.y += 5;
+        }
+        ctx.y += 3;
         pdf.setFont('DejaVuSans', 'normal');
 
         const opts = data.answer_options || data.options || [];
@@ -2307,12 +2384,16 @@ const PDFExport = {
       pdf.setFontSize(8);
       pdf.text(labels[i], margin + 3 - pdf.getTextWidth(labels[i]) / 2, ctx.y - 0.2);
 
-      // Option text
+      // Option text (line-by-line to respect page breaks)
       pdf.setFont('DejaVuSans', 'normal');
       pdf.setTextColor(30);
       pdf.setFontSize(10);
-      pdf.text(optLines, margin + 10, ctx.y);
-      ctx.y += optLines.length * 5 + 2;
+      for (let li = 0; li < optLines.length; li++) {
+        this._checkPage(ctx, 6);
+        pdf.text(optLines[li], margin + 10, ctx.y);
+        ctx.y += 5;
+      }
+      ctx.y += 2;
     }
   },
 
@@ -2784,8 +2865,12 @@ const PDFExport = {
         ? this._clean(data.question || `Wie fühlt sich die Person in dieser Situation?`)
         : this._clean(data.question || '');
       const qLines = pdf.splitTextToSize(qText, contentW);
-      pdf.text(qLines, margin, ctx.y);
-      ctx.y += qLines.length * 5 + 3;
+      for (let li = 0; li < qLines.length; li++) {
+        this._checkPage(ctx, 6);
+        pdf.text(qLines[li], margin, ctx.y);
+        ctx.y += 5;
+      }
+      ctx.y += 3;
 
       if (isEE) {
         // EE: Emotions table (wahrscheinlich / unwahrscheinlich)
@@ -2870,8 +2955,12 @@ const PDFExport = {
           pdf.text(`${labels[i]})`, margin + 11, ctx.y);
           pdf.setFont('DejaVuSans', 'normal');
           const optLines = pdf.splitTextToSize(this._clean(opts[i]), contentW - 22);
-          pdf.text(optLines, margin + 19, ctx.y);
-          ctx.y += optLines.length * 5 + 2;
+          for (let li = 0; li < optLines.length; li++) {
+            if (li > 0) this._checkPage(ctx, 6);
+            pdf.text(optLines[li], margin + 19, ctx.y);
+            ctx.y += 5;
+          }
+          ctx.y += 2;
         }
 
         // Answer key: correct ranking as string
@@ -3403,11 +3492,25 @@ const PDFExport = {
    * Also deducts credits for PDF pages.
    */
   async _saveWithPrompt(pdf, fileName, category, pdfType, questionCount) {
+    // Neues Modell (Andreea, 19.10.2026): höchstens 10 PDFs in 30 Tagen, jede Seite mit Wasserzeichen (E-Mail)
+    if (typeof Abo !== 'undefined' && Abo.NEUES_MODELL && Auth.isLoggedIn) {
+      const f = await Abo.pdfFreigabe(fileName);
+      if (!f.ok) { Abo.pdfGrenze(f); return; }
+      Abo.wasserzeichen(pdf);
+    }
     const pageCount = pdf.getNumberOfPages();
 
-    // PDF-Generierung ist nicht mehr Credit-gebunden — Free-User dürfen
-    // beliebig viele PDFs ziehen, der eigentliche Tier-Gate sitzt am
-    // Frage-Limit (150 Fragen) das vor dem Üben greift.
+    // Credit check for PDF generation
+    if (!Credits.isUnlimited()) {
+      if (!Credits.hasEnough(pageCount)) {
+        if (Credits.remaining <= 0) {
+          Credits.showPaywall();
+          return;
+        }
+      }
+      // Deduct credits for PDF pages
+      await Credits.use(pageCount, 'pdf_page', `${fileName} (${pageCount} Seiten)`);
+    }
 
     // Get blob before showing prompt
     const blob = pdf.output('blob');
@@ -3808,6 +3911,7 @@ const PDFExport = {
       'Geometrie & Trigonometrie': 'ruler', 'Statistik & Wahrscheinlichkeit': 'ruler',
       'Prozent- & Zinsrechnung': 'ruler', 'Einheiten & Umrechnung': 'ruler',
       // KFF
+      'Figuren zusammensetzen': 'puzzle', 'Allergieausweise (Merkfähigkeit)': 'brain',
       'Zahlenfolgen': 'hash', 'Wortflüssigkeit': 'textLines', 'Implikationen erkennen': 'brainCog',
       // TV
       'Textverständnis': 'bookRead',
@@ -3877,6 +3981,8 @@ const PDFExport = {
     }
 
     const kffSections = [
+      { key: 'figuren', label: 'Figuren zusammensetzen' },
+      { key: 'allergieausweis', label: 'Allergieausweise (Merkfähigkeit)' },
       { key: 'zahlenfolge', label: 'Zahlenfolgen' },
       { key: 'wortfluessigkeit', label: 'Wortflüssigkeit' },
       { key: 'implikation', label: 'Implikationen erkennen' },
@@ -4100,7 +4206,7 @@ const PDFExport = {
       setProgress(3, 'Icons werden vorbereitet...');
 
       // --- PRE-RENDER LUCIDE SVG ICONS as PNGs ---
-      const iconKeys = new Set(['flask', 'bookRead', 'brain', 'heart', 'dna', 'testTube', 'atom', 'ruler', 'hash', 'textLines', 'brainCog', 'eye', 'smile', 'users']);
+      const iconKeys = new Set(['flask', 'bookRead', 'brain', 'heart', 'dna', 'testTube', 'atom', 'ruler', 'hash', 'textLines', 'brainCog', 'eye', 'smile', 'users', 'puzzle']);
       // White icons for dark backgrounds (chapter headers)
       const whiteIcons = await this._preRenderPDFIcons([...iconKeys], 48, '#ffffff');
       // Dark icons for light backgrounds (TOC, answer key) — render per block color
@@ -4142,6 +4248,37 @@ const PDFExport = {
 
       // KFF questions
       for (const kffType of kffTypes) {
+        if (kffType === 'figuren') {
+          // Figuren: generate algorithmically (15 per simulation, using selected difficulty)
+          const difficulty = document.getElementById('pdf-difficulty')?.value || 'hard';
+          const figurenCount = 15;
+          const figurenQuestions = [];
+          const baseSeed = 20260326;
+          for (let i = 0; i < figurenCount; i++) {
+            const diff = difficulty === 'mixed' ? (['easy','medium','hard','expert'])[i % 4] : difficulty;
+            figurenQuestions.push(FigurenGenerator.generate(diff, baseSeed + i * 7919));
+          }
+          chapters.push({
+            block: 'kff', blockLabel: 'KFF', subject: null, subjectLabel: 'Kognitive Fähigkeiten',
+            label: 'Figuren zusammensetzen', color: bc.kff.rgb, blockColor: bc.kff.rgb,
+            questions: figurenQuestions, questionType: 'figuren',
+          });
+          totalQ += figurenCount;
+          continue;
+        }
+        if (kffType === 'allergieausweis') {
+          // Allergieausweise: generate photo cards using allergie-photos.js
+          const allergieCount = 8; // 8 passes per simulation
+          const recallCount = 25; // 25 recall questions
+          chapters.push({
+            block: 'kff', blockLabel: 'KFF', subject: null, subjectLabel: 'Kognitive Fähigkeiten',
+            label: 'Allergieausweise (Merkfähigkeit)', color: bc.kff.rgb, blockColor: bc.kff.rgb,
+            questions: { learnCount: allergieCount, recallCount },
+            questionType: 'allergieausweis',
+          });
+          totalQ += allergieCount + recallCount;
+          continue;
+        }
         const { data, error } = await Auth.supabase
           .from('questions').select('*')
           .eq('type', kffType)
@@ -4244,7 +4381,11 @@ const PDFExport = {
         ctx.y = ctx.margin;
         const topicAnswers = [];
 
-        if (chapter.questionType === 'tv') {
+        if (chapter.questionType === 'figuren') {
+          await this._renderFigurenQuestions(ctx, chapter, chapterNum, topicAnswers);
+        } else if (chapter.questionType === 'allergieausweis') {
+          await this._renderAllergieausweisQuestions(ctx, chapter, chapterNum, topicAnswers);
+        } else if (chapter.questionType === 'tv') {
           this._renderTVQuestions(ctx, chapter, chapterNum, topicAnswers);
         } else if (chapter.questionType === 'sek') {
           this._renderSEKQuestions(ctx, chapter, chapterNum, topicAnswers);
@@ -4360,7 +4501,7 @@ const PDFExport = {
     pdf.setFontSize(15);
     pdf.setFont('DejaVuSans', 'normal');
     pdf.setTextColor(200, 195, 220);
-    pdf.text('Fragensammlung', pageW / 2, 54, { align: 'center' });
+    pdf.text(ctx.simulationName || 'Fragensammlung', pageW / 2, 54, { align: 'center' });
 
     // Block tags
     const blocks = [...new Set(chapters.map(c => c.block))];
@@ -4440,14 +4581,10 @@ const PDFExport = {
     pdf.line(margin + 30, ctx.y, pageW - margin - 30, ctx.y);
     ctx.y += 12;
 
-    pdf.setFontSize(10);
-    pdf.setTextColor(100);
-    pdf.setFont('DejaVuSans', 'normal');
-    pdf.text(`Erstellt am ${new Date().toLocaleDateString('de-AT', { day: '2-digit', month: 'long', year: 'numeric' })}`, pageW / 2, ctx.y, { align: 'center' });
-    ctx.y += 10;
     pdf.setFontSize(8.5);
     pdf.setTextColor(160);
-    pdf.text('Dieses Dokument ist vertraulich und nur für internen Gebrauch bestimmt.', pageW / 2, ctx.y, { align: 'center' });
+    const crLines = pdf.splitTextToSize('\u00A9 MedAT Trainer \u2013 Urheberrechtlich gesch\u00FCtzt. Vervielf\u00E4ltigung, Weitergabe oder Ver\u00F6ffentlichung ohne Genehmigung nicht gestattet. Anfragen: office@ai-guide.at', contentW - 20);
+    for (const crl of crLines) { pdf.text(crl, pageW / 2, ctx.y, { align: 'center' }); ctx.y += 4; }
 
     pdf.setFontSize(8);
     pdf.setTextColor(180);
@@ -4624,75 +4761,97 @@ const PDFExport = {
   },
 
   // ===================== QUESTION RENDERERS =====================
+  // "MedAT Exam Booklet" style — large badges, bold readable questions, clean options
 
-  // Shared: draw question number badge
+  // Shared: draw question number badge — LARGE prominent circle
   _drawQNumBadge(ctx, qNum, color) {
     const { pdf, margin } = ctx;
+    const badgeX = margin + 5;
+    const badgeY = ctx.y - 1.5;
+    const badgeR = 4.2;
+    // Filled colored circle
     pdf.setFillColor(color[0], color[1], color[2]);
-    pdf.circle(margin + 4, ctx.y - 1.2, 3, 'F');
-    pdf.setFontSize(6.5);
-    pdf.setFont('DejaVuSans', 'bold');
-    pdf.setTextColor(255);
+    pdf.circle(badgeX, badgeY, badgeR, 'F');
+    // White number inside
     const numStr = qNum.includes('.') ? qNum.split('.').pop() : qNum;
-    pdf.text(numStr, margin + 4, ctx.y, { align: 'center' });
+    pdf.setFontSize(numStr.length > 2 ? 7 : 8);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text(numStr, badgeX, badgeY + 1.2, { align: 'center' });
   },
 
-  // Shared: draw option (normal weight)
+  // Shared: draw option with colored letter badge — clean MedAT exam style
   _drawOption(ctx, optLabel, optText, color, indent) {
     const { pdf, margin, contentW } = ctx;
-    this._checkPage(ctx, 6);
-    pdf.setDrawColor(color[0], color[1], color[2]);
-    pdf.setLineWidth(0.35);
-    pdf.circle(margin + indent, ctx.y - 1, 2, 'S');
-    pdf.setFontSize(7.5);
+    this._checkPage(ctx, 7);
+    const optX = margin + indent;
+    const badgeR = 2.8;
+    // Colored circle outline with letter
+    pdf.setFillColor(color[0], color[1], color[2]);
+    pdf.circle(optX, ctx.y - 1.2, badgeR, 'F');
+    pdf.setFontSize(7);
     pdf.setFont('DejaVuSans', 'bold');
-    pdf.setTextColor(color[0], color[1], color[2]);
-    pdf.text(optLabel, margin + indent, ctx.y, { align: 'center' });
-    // Option text: NORMAL weight
+    pdf.setTextColor(255, 255, 255);
+    pdf.text(optLabel, optX, ctx.y, { align: 'center' });
+    // Option text — readable size, normal weight
     pdf.setFont('DejaVuSans', 'normal');
-    pdf.setTextColor(60, 60, 70);
-    pdf.setFontSize(9);
-    const optLines = pdf.splitTextToSize(this._clean(optText), contentW - indent - 8);
-    pdf.text(optLines, margin + indent + 5, ctx.y);
-    ctx.y += optLines.length * 4.2 + 1.5;
+    pdf.setTextColor(40, 40, 50);
+    pdf.setFontSize(10);
+    const textX = optX + badgeR + 3;
+    const maxW = margin + contentW - textX - 2;
+    const optLines = pdf.splitTextToSize(this._clean(optText), maxW);
+    pdf.text(optLines, textX, ctx.y);
+    ctx.y += optLines.length * 4.5 + 2;
   },
 
   _drawQSeparator(ctx) {
     const { pdf, margin, contentW } = ctx;
-    pdf.setDrawColor(230, 228, 240);
-    pdf.setLineWidth(0.15);
-    pdf.line(margin + 10, ctx.y, margin + contentW - 10, ctx.y);
-    ctx.y += 4;
+    ctx.y += 1;
+    pdf.setDrawColor(215, 213, 225);
+    pdf.setLineWidth(0.3);
+    pdf.line(margin, ctx.y, margin + contentW, ctx.y);
+    ctx.y += 5;
   },
 
-  // --- MCQ Questions (BMS) --- QUESTIONS ARE BOLD
+  // --- MCQ Questions (BMS) --- Bold, large, readable exam style
   _renderMCQQuestions(ctx, chapter, chapterNum, answers) {
     const { pdf, margin, contentW } = ctx;
     const c = chapter.color;
     const optLabels = ['A', 'B', 'C', 'D', 'E'];
+    const qTextX = margin + 13; // text starts after badge
+    const qTextW = contentW - 13; // full remaining width for question text
 
     for (let qi = 0; qi < chapter.questions.length; qi++) {
       const q = chapter.questions[qi];
       const data = q.content || {};
       const qNum = `${chapterNum}.${qi + 1}`;
-      const questionLines = pdf.splitTextToSize(this._clean(data.question || ''), contentW - 14);
+
+      // Set font BEFORE splitTextToSize for accurate width calculation
+      pdf.setFontSize(11);
+      pdf.setFont('DejaVuSans', 'bold');
+      const questionLines = pdf.splitTextToSize(this._clean(data.question || ''), qTextW);
       const optionCount = (data.options || []).length;
-      const spaceNeeded = 12 + (questionLines.length * 4.5) + (optionCount * 6) + 5;
+      const spaceNeeded = 14 + (questionLines.length * 5) + (optionCount * 7) + 8;
       this._checkPage(ctx, spaceNeeded);
 
+      // Large colored number badge
       this._drawQNumBadge(ctx, qNum, c);
 
-      // Question text: BOLD
-      pdf.setFontSize(9.5);
+      // Question text: LARGE BOLD — the star of the layout
+      pdf.setFontSize(11);
       pdf.setFont('DejaVuSans', 'bold');
-      pdf.setTextColor(30, 30, 40);
-      pdf.text(questionLines, margin + 10, ctx.y);
-      ctx.y += questionLines.length * 4.5 + 3;
+      pdf.setTextColor(26, 26, 46);
+      for (let li = 0; li < questionLines.length; li++) {
+        this._checkPage(ctx, 6);
+        pdf.text(questionLines[li], qTextX, ctx.y);
+        ctx.y += 5;
+      }
+      ctx.y += 3;
 
-      // Options: normal weight (handled by _drawOption)
+      // Options — indented under question, clean readable size
       const options = data.options || [];
       for (let oi = 0; oi < options.length; oi++) {
-        this._drawOption(ctx, optLabels[oi], options[oi] || '', c, 13);
+        this._drawOption(ctx, optLabels[oi], options[oi] || '', c, 16);
       }
       ctx.y += 2;
       this._drawQSeparator(ctx);
@@ -4709,27 +4868,63 @@ const PDFExport = {
       const q = chapter.questions[qi];
       const data = q.content || {};
       const qNum = `${chapterNum}.${qi + 1}`;
-      this._checkPage(ctx, 22);
+      this._checkPage(ctx, 30);
 
       this._drawQNumBadge(ctx, qNum, c);
-      ctx.y += 5;
+      ctx.y += 4;
 
-      // Sequence: bold
-      pdf.setFontSize(11);
-      pdf.setFont('DejaVuSans', 'bold');
-      pdf.setTextColor(40, 35, 55);
+      // Draw sequence with individual boxes
       const seq = data.sequence || [];
-      const seqStr = seq.map(n => n === null ? '?' : String(n)).join('   ');
-      const seqLines = pdf.splitTextToSize(seqStr, contentW - 12);
-      pdf.text(seqLines, margin + 10, ctx.y);
-      ctx.y += seqLines.length * 5.5 + 4;
+      const boxW = 14;
+      const boxH = 10;
+      const gap = 3;
+      const startX = margin + 13;
+
+      for (let si = 0; si < seq.length; si++) {
+        const bx = startX + si * (boxW + gap);
+        if (bx + boxW > margin + contentW - 2) break;
+
+        if (seq[si] === null) {
+          // Empty answer box — colored border
+          pdf.setDrawColor(c[0], c[1], c[2]);
+          pdf.setLineWidth(0.7);
+          pdf.setFillColor(255, 255, 255);
+          pdf.roundedRect(bx, ctx.y - 7, boxW, boxH, 1.5, 1.5, 'FD');
+        } else {
+          // Filled number box — light bg
+          pdf.setFillColor(245, 243, 250);
+          pdf.setDrawColor(210, 208, 220);
+          pdf.setLineWidth(0.3);
+          pdf.roundedRect(bx, ctx.y - 7, boxW, boxH, 1.5, 1.5, 'FD');
+          pdf.setFontSize(11);
+          pdf.setFont('DejaVuSans', 'bold');
+          pdf.setTextColor(40, 35, 55);
+          pdf.text(String(seq[si]), bx + boxW / 2, ctx.y, { align: 'center' });
+        }
+      }
+      ctx.y += boxH + 2;
 
       this._drawQSeparator(ctx);
-      answers.push({ nr: qNum, correct: (data.solution || []).join(', ') || '?', explanation: data.explanation || '' });
+      answers.push({ nr: qNum, correct: (data.solution || []).join(', ') || '?', explanation: data.pattern_description || data.explanation || '' });
     }
   },
 
   // --- Wortflüssigkeit ---
+  _scrambleWordDeterministic(word) {
+    // Deterministic scramble based on character codes — same word always gives same scramble
+    const arr = word.toUpperCase().split('');
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = (arr[i].charCodeAt(0) * 7 + i * 13 + arr[0].charCodeAt(0) * 3) % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    let scrambled = arr.join('');
+    if (scrambled === word.toUpperCase() && arr.length > 1) {
+      [arr[0], arr[1]] = [arr[1], arr[0]];
+      scrambled = arr.join('');
+    }
+    return scrambled;
+  },
+
   _renderWortfluessigkeitQuestions(ctx, chapter, chapterNum, answers) {
     const { pdf, margin, contentW } = ctx;
     const c = chapter.color;
@@ -4739,31 +4934,79 @@ const PDFExport = {
       const q = chapter.questions[qi];
       const data = q.content || {};
       const qNum = `${chapterNum}.${qi + 1}`;
-      this._checkPage(ctx, 28);
+      this._checkPage(ctx, 38);
 
       this._drawQNumBadge(ctx, qNum, c);
 
-      // Anagram: bold
-      pdf.setFontSize(13);
+      // Get word and create deterministic scramble
+      const word = (data.word || data.anagram || data.scrambled || '').toUpperCase();
+      const scrambled = word ? this._scrambleWordDeterministic(word) : '';
+
+      // Display scrambled letters as plain bold purple block letters (NO boxes)
+      const letterSpacing = scrambled.length > 11 ? '  ' : '   ';
+      const letterStr = scrambled.split('').join(letterSpacing);
+      const fontSize = scrambled.length > 11 ? 14 : 18;
+      pdf.setFontSize(fontSize);
       pdf.setFont('DejaVuSans', 'bold');
       pdf.setTextColor(c[0], c[1], c[2]);
-      const anagram = data.anagram || data.scrambled || '';
-      pdf.text(anagram, margin + 12, ctx.y);
-      if (data.letter_count) {
-        pdf.setFontSize(7.5);
-        pdf.setFont('DejaVuSans', 'normal');
-        pdf.setTextColor(140);
-        pdf.text(`(${data.letter_count} Buchstaben)`, margin + 12 + pdf.getTextWidth(anagram + '  '), ctx.y);
-      }
-      ctx.y += 7;
+      // Ensure it fits
+      let finalSize = fontSize;
+      const lw = pdf.getTextWidth(letterStr);
+      if (lw > contentW - 15) finalSize = Math.floor(fontSize * (contentW - 15) / lw);
+      pdf.setFontSize(finalSize);
+      pdf.text(letterStr, margin + 13, ctx.y);
+      ctx.y += 3;
 
-      const opts = data.options || [];
-      for (let oi = 0; oi < opts.length; oi++) {
-        this._drawOption(ctx, optLabels[oi], opts[oi] || '', c, 13);
+      // Letter count hint
+      pdf.setFontSize(8);
+      pdf.setFont('DejaVuSans', 'normal');
+      pdf.setTextColor(140);
+      pdf.text(`(${word.length} Buchstaben)`, margin + 13, ctx.y + 3);
+      ctx.y += 8;
+
+      // First letter MCQ options (like the app)
+      const firstLetter = word.charAt(0);
+      // Deterministic "random" based on word to keep PDF stable
+      const seed = word.split('').reduce((s, ch) => s + ch.charCodeAt(0), 0);
+      const allLetters = 'ABCDEFGHIJKLMNOPRSTUVWZ'.split('');
+      const wrongLetters = allLetters.filter(l => l !== firstLetter);
+      // Deterministic shuffle of wrong letters
+      for (let wi = wrongLetters.length - 1; wi > 0; wi--) {
+        const wj = ((seed * 7 + wi * 13) & 0x7fffffff) % (wi + 1);
+        [wrongLetters[wi], wrongLetters[wj]] = [wrongLetters[wj], wrongLetters[wi]];
+      }
+      // Decide if "Keine" is correct (deterministic: every 5th question)
+      const keineCorrect = qi % 5 === 4;
+      let letterOpts;
+      let correctAnswer;
+      if (keineCorrect) {
+        letterOpts = wrongLetters.slice(0, 4);
+        correctAnswer = 'E';
+      } else {
+        letterOpts = [firstLetter, ...wrongLetters.slice(0, 3)];
+        // Deterministic shuffle
+        for (let si = letterOpts.length - 1; si > 0; si--) {
+          const sj = ((seed * 11 + si * 17) & 0x7fffffff) % (si + 1);
+          [letterOpts[si], letterOpts[sj]] = [letterOpts[sj], letterOpts[si]];
+        }
+        const correctIdx = letterOpts.indexOf(firstLetter);
+        correctAnswer = optLabels[correctIdx];
+      }
+      letterOpts.push('Keine der Antwortmöglichkeiten ist richtig');
+
+      // Render options
+      pdf.setFontSize(9);
+      pdf.setFont('DejaVuSans', 'bold');
+      pdf.setTextColor(60);
+      pdf.text('Mit welchem Buchstaben beginnt das Lösungswort?', margin + 13, ctx.y);
+      ctx.y += 5;
+      for (let oi = 0; oi < letterOpts.length; oi++) {
+        this._drawOption(ctx, optLabels[oi], letterOpts[oi], c, 16);
       }
       ctx.y += 2;
+
       this._drawQSeparator(ctx);
-      answers.push({ nr: qNum, correct: optLabels[data.correct] || '?', explanation: data.explanation || '' });
+      answers.push({ nr: qNum, correct: `${correctAnswer} (${word})`, explanation: `Buchstaben: ${scrambled}` });
     }
   },
 
@@ -4782,59 +5025,80 @@ const PDFExport = {
       this._drawQNumBadge(ctx, qNum, c);
       ctx.y += 5;
 
-      // Premises in styled boxes
+      // Premises in styled boxes — larger text for readability
       const premiseIndent = margin + 6;
       if (data.premise1) {
-        const p1Lines = pdf.splitTextToSize(this._clean(data.premise1), contentW - 22);
-        const p1H = p1Lines.length * 4.2 + 4;
+        // Set font BEFORE splitTextToSize for accurate width calc
+        pdf.setFont('DejaVuSans', 'bold');
+        pdf.setFontSize(10);
+        const p1Lines = pdf.splitTextToSize(this._clean(data.premise1), contentW - 26);
+        const p1H = p1Lines.length * 4.5 + 5;
         pdf.setFillColor(248, 246, 252);
-        pdf.roundedRect(premiseIndent, ctx.y - 3.5, contentW - 8, p1H, 1.5, 1.5, 'F');
+        pdf.roundedRect(premiseIndent, ctx.y - 3.5, contentW - 8, p1H, 2, 2, 'F');
         pdf.setFillColor(c[0], c[1], c[2]);
-        pdf.roundedRect(premiseIndent, ctx.y - 3.5, 2, p1H, 1, 1, 'F');
+        pdf.roundedRect(premiseIndent, ctx.y - 3.5, 2.5, p1H, 1, 1, 'F');
 
-        pdf.setFontSize(7.5);
+        pdf.setFontSize(8);
         pdf.setFont('DejaVuSans', 'bold');
         pdf.setTextColor(c[0], c[1], c[2]);
         pdf.text('P1', premiseIndent + 5, ctx.y);
-        // Premise text: bold
+        // Premise text: bold 10pt
         pdf.setFont('DejaVuSans', 'bold');
-        pdf.setFontSize(9);
+        pdf.setFontSize(10);
         pdf.setTextColor(40);
-        pdf.text(p1Lines, premiseIndent + 14, ctx.y);
-        ctx.y += p1H + 2;
+        for (let li = 0; li < p1Lines.length; li++) {
+          pdf.text(p1Lines[li], premiseIndent + 16, ctx.y);
+          ctx.y += 4.5;
+        }
+        ctx.y += 2;
       }
       if (data.premise2) {
-        const p2Lines = pdf.splitTextToSize(this._clean(data.premise2), contentW - 22);
-        const p2H = p2Lines.length * 4.2 + 4;
+        // Set font BEFORE splitTextToSize for accurate width calc
+        pdf.setFont('DejaVuSans', 'bold');
+        pdf.setFontSize(10);
+        const p2Lines = pdf.splitTextToSize(this._clean(data.premise2), contentW - 26);
+        const p2H = p2Lines.length * 4.5 + 5;
         pdf.setFillColor(248, 246, 252);
-        pdf.roundedRect(premiseIndent, ctx.y - 3.5, contentW - 8, p2H, 1.5, 1.5, 'F');
+        pdf.roundedRect(premiseIndent, ctx.y - 3.5, contentW - 8, p2H, 2, 2, 'F');
         pdf.setFillColor(c[0], c[1], c[2]);
-        pdf.roundedRect(premiseIndent, ctx.y - 3.5, 2, p2H, 1, 1, 'F');
+        pdf.roundedRect(premiseIndent, ctx.y - 3.5, 2.5, p2H, 1, 1, 'F');
 
-        pdf.setFontSize(7.5);
+        pdf.setFontSize(8);
         pdf.setFont('DejaVuSans', 'bold');
         pdf.setTextColor(c[0], c[1], c[2]);
         pdf.text('P2', premiseIndent + 5, ctx.y);
         pdf.setFont('DejaVuSans', 'bold');
-        pdf.setFontSize(9);
+        pdf.setFontSize(10);
         pdf.setTextColor(40);
-        pdf.text(p2Lines, premiseIndent + 14, ctx.y);
-        ctx.y += p2H + 2;
+        for (let li = 0; li < p2Lines.length; li++) {
+          pdf.text(p2Lines[li], premiseIndent + 16, ctx.y);
+          ctx.y += 4.5;
+        }
+        ctx.y += 2;
       }
       ctx.y += 2;
 
       // Question label: bold
-      pdf.setFontSize(8);
+      pdf.setFontSize(9);
       pdf.setFont('DejaVuSans', 'bold');
       pdf.setTextColor(100);
-      pdf.text('Welche Schlussfolgerung ist korrekt?', margin + 10, ctx.y);
-      ctx.y += 5;
+      pdf.text('Welche Schlussfolgerung ist korrekt?', margin + 13, ctx.y);
+      ctx.y += 6;
 
-      // Options: normal
-      const opts = data.options || data.conclusions || data.answer_options || [];
+      // Options: clean readable size — ensure 5 options with E = "Keine Aussage lässt sich treffen"
+      let opts = data.options || data.conclusions || data.answer_options || [];
+      opts = opts.map(o => typeof o === 'string' ? o : (o?.text || ''));
+      // Ensure exactly 5 options, with E always being the "Keine" option
+      const keineText = 'Keine Aussage lässt sich treffen';
+      // Remove any existing "Keine" variant from the options
+      opts = opts.filter(o => !o.toLowerCase().startsWith('keine aussage'));
+      // Ensure we have 4 real options, then add "Keine" as E
+      while (opts.length < 4) opts.push('');
+      if (opts.length > 4) opts = opts.slice(0, 4);
+      opts.push(keineText);
+
       for (let oi = 0; oi < opts.length; oi++) {
-        const optText = typeof opts[oi] === 'string' ? opts[oi] : (opts[oi]?.text || '');
-        this._drawOption(ctx, optLabels[oi], optText, c, 13);
+        this._drawOption(ctx, optLabels[oi], opts[oi], c, 16);
       }
       ctx.y += 2;
       this._drawQSeparator(ctx);
@@ -4843,6 +5107,15 @@ const PDFExport = {
       let correctLabel;
       if (typeof correctRaw === 'string' && correctRaw.length === 1) {
         correctLabel = correctRaw.toUpperCase();
+      } else if (typeof correctRaw === 'number') {
+        // If original correct pointed at the "Keine" option that we moved to E
+        const origOpts = data.options || data.conclusions || data.answer_options || [];
+        const origCorrectText = origOpts[correctRaw];
+        if (typeof origCorrectText === 'string' && origCorrectText.toLowerCase().startsWith('keine aussage')) {
+          correctLabel = 'E'; // always E now
+        } else {
+          correctLabel = optLabels[correctRaw] || '?';
+        }
       } else {
         correctLabel = optLabels[parseInt(correctRaw) || 0] || '?';
       }
@@ -4858,67 +5131,73 @@ const PDFExport = {
 
     for (let ti = 0; ti < chapter.questions.length; ti++) {
       const text = chapter.questions[ti];
-      this._checkPage(ctx, 30);
 
-      // Text title: bold
-      pdf.setFontSize(11);
+      // Each text starts on a new page
+      if (ti > 0) { pdf.addPage(); ctx.y = ctx.margin || 25; }
+
+      // Text title: bold colored
+      pdf.setFontSize(13);
       pdf.setFont('DejaVuSans', 'bold');
       pdf.setTextColor(c[0], c[1], c[2]);
-      pdf.text(`Text ${ti + 1}: ${this._clean(text.title || 'Ohne Titel')}`, margin + 4, ctx.y);
-      ctx.y += 6;
+      pdf.text(`Text ${ti + 1}: ${this._clean(text.title || 'Ohne Titel')}`, margin + 2, ctx.y);
+      ctx.y += 8;
 
-      // Text content in light bg: normal
+      // Text content — plain flowing text, NO grey box
       pdf.setFont('DejaVuSans', 'normal');
-      pdf.setFontSize(8.5);
-      pdf.setTextColor(40);
+      pdf.setFontSize(9.5);
+      pdf.setTextColor(30, 30, 40);
       const textLines = pdf.splitTextToSize(this._clean(text.content || ''), contentW - 4);
-
-      const textH = textLines.length * 3.8 + 4;
-      pdf.setFillColor(250, 249, 252);
-      pdf.roundedRect(margin, ctx.y - 2, contentW, Math.min(textH, 120), 2, 2, 'F');
-      pdf.setDrawColor(230, 228, 240);
-      pdf.setLineWidth(0.2);
-      pdf.roundedRect(margin, ctx.y - 2, contentW, Math.min(textH, 120), 2, 2, 'S');
-
       for (const line of textLines) {
         this._checkPage(ctx, 5);
-        pdf.setFontSize(8.5);
-        pdf.setTextColor(40);
+        pdf.setFontSize(9.5);
         pdf.setFont('DejaVuSans', 'normal');
-        pdf.text(line, margin + 3, ctx.y);
-        ctx.y += 3.8;
+        pdf.setTextColor(30, 30, 40);
+        pdf.text(line, margin + 2, ctx.y);
+        ctx.y += 4.2;
       }
+      ctx.y += 8;
+
+      // Questions header with separator line
+      this._checkPage(ctx, 14);
+      pdf.setDrawColor(c[0], c[1], c[2]);
+      pdf.setLineWidth(0.6);
+      pdf.line(margin, ctx.y, margin + contentW, ctx.y);
       ctx.y += 5;
+      pdf.setFontSize(10);
+      pdf.setFont('DejaVuSans', 'bold');
+      pdf.setTextColor(c[0], c[1], c[2]);
+      pdf.text('Fragen zum Text', margin + 2, ctx.y);
+      ctx.y += 8;
 
       const qs = text.questions || [];
       for (let qi = 0; qi < qs.length; qi++) {
         const q = qs[qi];
         const qNum = `${chapterNum}.${ti + 1}.${qi + 1}`;
-        this._checkPage(ctx, 25);
+        this._checkPage(ctx, 30);
 
         this._drawQNumBadge(ctx, String(qi + 1), c);
 
-        // Question text: BOLD
-        pdf.setFontSize(9.5);
+        // Question text
+        pdf.setFontSize(10.5);
         pdf.setFont('DejaVuSans', 'bold');
-        pdf.setTextColor(30);
-        const qLines = pdf.splitTextToSize(this._clean(q.question || ''), contentW - 14);
-        pdf.text(qLines, margin + 10, ctx.y);
-        ctx.y += qLines.length * 4.5 + 2;
+        pdf.setTextColor(26, 26, 46);
+        const qLines = pdf.splitTextToSize(this._clean(q.question || ''), contentW - 13);
+        for (let li = 0; li < qLines.length; li++) {
+          this._checkPage(ctx, 6);
+          pdf.text(qLines[li], margin + 13, ctx.y);
+          ctx.y += 5;
+        }
+        ctx.y += 4;
 
-        // Options: normal
+        // Options with more spacing
         const opts = q.options || q.answer_options || [];
         for (let oi = 0; oi < opts.length; oi++) {
-          this._drawOption(ctx, optLabels[oi], opts[oi] || '', c, 13);
+          this._drawOption(ctx, optLabels[oi], opts[oi] || '', c, 16);
         }
-        ctx.y += 2;
+        ctx.y += 4;
+        this._drawQSeparator(ctx);
         answers.push({ nr: qNum, correct: optLabels[q.correct_answer ?? q.correct ?? 0] || '?', explanation: q.explanation || '' });
       }
-      ctx.y += 3;
-      pdf.setDrawColor(c[0], c[1], c[2]);
-      pdf.setLineWidth(0.5);
-      pdf.line(margin + 20, ctx.y, margin + contentW - 20, ctx.y);
-      ctx.y += 6;
     }
   },
 
@@ -4930,31 +5209,242 @@ const PDFExport = {
 
     for (let qi = 0; qi < chapter.questions.length; qi++) {
       const q = chapter.questions[qi];
+      let data = q.content || q; // SEK data is inside content JSONB
+      // Handle case where content might be a string (not auto-parsed)
+      if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) { data = {}; } }
       const qNum = `${chapterNum}.${qi + 1}`;
-      this._checkPage(ctx, 32);
+      this._checkPage(ctx, 40);
 
       this._drawQNumBadge(ctx, qNum, c);
 
-      // Scenario: BOLD
-      pdf.setFontSize(9.5);
-      pdf.setFont('DejaVuSans', 'bold');
-      pdf.setTextColor(30);
-      const scenario = this._clean(q.scenario || q.content?.question || q.question || '');
-      const qLines = pdf.splitTextToSize(scenario, contentW - 14);
-      pdf.text(qLines, margin + 10, ctx.y);
-      ctx.y += qLines.length * 4.5 + 3;
+      // Scenario text (the situation description) — normal weight
+      // Check multiple possible field names for the scenario
+      const scenario = this._clean(data.scenario || data.situation || data.text || data.context || '');
+      if (scenario) {
+        pdf.setFontSize(10);
+        pdf.setFont('DejaVuSans', 'normal');
+        pdf.setTextColor(30, 30, 40);
+        const scenLines = pdf.splitTextToSize(scenario, contentW - 13);
+        for (let li = 0; li < scenLines.length; li++) {
+          this._checkPage(ctx, 5);
+          pdf.text(scenLines[li], margin + 13, ctx.y);
+          ctx.y += 4.5;
+        }
+        ctx.y += 4;
+      }
 
-      // Options: normal
-      const opts = q.options || q.content?.options || q.answer_options || [];
+      // Question text (bold)
+      const question = this._clean(data.question || '');
+      if (question) {
+        pdf.setFontSize(10.5);
+        pdf.setFont('DejaVuSans', 'bold');
+        pdf.setTextColor(26, 26, 46);
+        const qLines = pdf.splitTextToSize(question, contentW - 13);
+        for (let li = 0; li < qLines.length; li++) {
+          this._checkPage(ctx, 6);
+          pdf.text(qLines[li], margin + 13, ctx.y);
+          ctx.y += 5;
+        }
+        ctx.y += 4;
+      }
+
+      // Options
+      const opts = data.options || [];
       for (let oi = 0; oi < opts.length; oi++) {
         const optText = typeof opts[oi] === 'string' ? opts[oi] : (opts[oi]?.text || opts[oi]?.label || '');
-        this._drawOption(ctx, optLabels[oi], optText, c, 13);
+        this._drawOption(ctx, optLabels[oi], optText, c, 16);
       }
-      ctx.y += 2;
+      ctx.y += 4;
       this._drawQSeparator(ctx);
 
-      const correct = q.correct_answer ?? q.content?.correct ?? q.correct ?? 0;
-      answers.push({ nr: qNum, correct: optLabels[correct] || '?', explanation: q.explanation || q.content?.explanation || '' });
+      // Determine correct answer for answer key
+      let correctLabel = '?';
+      const explanation = this._clean(data.explanation || '');
+      if (data.correct_emotions) {
+        // SEK Erkennen: multiple correct emotions
+        const correctOnes = data.correct_emotions.map((v, i) => v ? optLabels[i] : null).filter(Boolean);
+        correctLabel = correctOnes.join(', ');
+      } else if (data.correct_ranking) {
+        // SEK Entscheiden: ranking order
+        correctLabel = data.correct_ranking.map(i => optLabels[i]).join(' > ');
+      } else {
+        const correct = data.correct_answer ?? data.correct ?? 0;
+        correctLabel = optLabels[parseInt(correct)] || '?';
+      }
+      answers.push({ nr: qNum, correct: correctLabel, explanation });
+    }
+  },
+
+  // ===================== FIGUREN zusammensetzen (PDF) =====================
+  async _renderFigurenQuestions(ctx, chapter, chapterNum, answers) {
+    const { pdf, margin, contentW } = ctx;
+    const c = chapter.color;
+    const labels = ['A', 'B', 'C', 'D', 'E'];
+
+    for (let qi = 0; qi < chapter.questions.length; qi++) {
+      const figData = chapter.questions[qi];
+      const qNum = `${chapterNum}.${qi + 1}`;
+      this._checkPage(ctx, 75);
+      this._drawQNumBadge(ctx, qNum, c);
+
+      pdf.setFontSize(8);
+      pdf.setFont('DejaVuSans', 'normal');
+      pdf.setTextColor(120);
+      const diffLabel = { easy: 'Leicht', medium: 'Mittel', hard: 'Schwer', expert: 'Expert' };
+      pdf.text(`${diffLabel[figData.difficulty] || figData.difficulty} \u00B7 ${figData.numPieces} Teile`, margin + 12, ctx.y);
+      ctx.y += 5;
+
+      // Pieces — compact layout
+      const pieceSize = figData.numPieces > 7 ? 14 : 16;
+      let px = margin + 6;
+      for (const piece of figData.pieces) {
+        if (px + pieceSize > margin + contentW - 6) { px = margin + 6; ctx.y += pieceSize + 1; }
+        const svg = this._figureSVG(piece, pieceSize, 0.85);
+        try { pdf.addImage(await this._svgToPng(svg, pieceSize * 4), 'PNG', px, ctx.y, pieceSize, pieceSize); }
+        catch(e) { pdf.setDrawColor(c[0], c[1], c[2]); pdf.rect(px, ctx.y, pieceSize, pieceSize); }
+        px += pieceSize + 1.5;
+      }
+      ctx.y += pieceSize + 4;
+
+      pdf.setFontSize(8); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(60);
+      pdf.text('Welche Figur ergibt sich?', margin + 6, ctx.y);
+      ctx.y += 4;
+
+      // Answer options — evenly spaced across full width
+      const optSize = 20;
+      const totalOptW = 5 * optSize;
+      const optGap = (contentW - 12 - totalOptW) / 4;
+      for (let oi = 0; oi < 5; oi++) {
+        const ox = margin + 6 + oi * (optSize + optGap);
+        if (oi < 4 && oi < figData.options.length) {
+          const svg = this._figureSVG(figData.options[oi], optSize, 0.8);
+          try { pdf.addImage(await this._svgToPng(svg, optSize * 4), 'PNG', ox, ctx.y, optSize, optSize); }
+          catch(e) { pdf.setDrawColor(c[0], c[1], c[2]); pdf.rect(ox, ctx.y, optSize, optSize); }
+        } else if (oi === 4) {
+          pdf.setFontSize(5.5); pdf.setFont('DejaVuSans', 'normal'); pdf.setTextColor(120);
+          pdf.text('Keine', ox + optSize / 2, ctx.y + optSize / 2 - 1, { align: 'center' });
+          pdf.text('richtig', ox + optSize / 2, ctx.y + optSize / 2 + 3, { align: 'center' });
+        }
+        pdf.setFontSize(9); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(c[0], c[1], c[2]);
+        pdf.text(labels[oi], ox + optSize / 2, ctx.y + optSize + 4, { align: 'center' });
+      }
+      ctx.y += optSize + 8;
+      this._drawQSeparator(ctx);
+
+      const cl = figData.correct < 4 ? labels[figData.correct] : 'E';
+      answers.push({ nr: qNum, correct: cl, explanation: `${figData.shapeName}, ${figData.numPieces} Teile (${diffLabel[figData.difficulty] || ''})` });
+    }
+  },
+
+  _figureSVG(pts, size, sf) {
+    let mnX = Infinity, mnY = Infinity, mxX = -Infinity, mxY = -Infinity;
+    for (const [x, y] of pts) { if (x < mnX) mnX = x; if (y < mnY) mnY = y; if (x > mxX) mxX = x; if (y > mxY) mxY = y; }
+    const w = mxX - mnX || 1, h = mxY - mnY || 1, sc = (size * sf) / Math.max(w, h);
+    const cx = (mnX + mxX) / 2, cy = (mnY + mxY) / 2, half = size / 2, s4 = size * 4;
+    const d = pts.map(([x, y], i) => `${i ? 'L' : 'M'}${(((x - cx) * sc) * 4 + half * 4).toFixed(1)},${(((y - cy) * sc) * 4 + half * 4).toFixed(1)}`).join(' ') + ' Z';
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${s4} ${s4}" width="${s4}" height="${s4}"><path d="${d}" fill="#88c8e8" stroke="#345678" stroke-width="4" stroke-linejoin="round"/></svg>`;
+  },
+
+  // ===================== ALLERGIEAUSWEIS (PDF) =====================
+  _generateAllergieausweisData(simNum) {
+    const firstNames = ['Anna', 'Maria', 'Thomas', 'Lukas', 'Sophie', 'Julia', 'Daniel', 'Markus', 'Laura', 'Stefan', 'Lisa', 'Michael'];
+    const lastNames = ['Huber', 'M\u00FCller', 'Fischer', 'Weber', 'Wagner', 'Bauer', 'Schmidt', 'Schneider', 'Brunner', 'Steiner', 'Moser', 'Berger'];
+    const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-'];
+    const allergyPool = ['Penicillin', 'Latex', 'Aspirin', 'Jod', 'N\u00FCsse', 'Bienengift', 'Pollen', 'Hausstaubmilben', 'Nickel', 'Sulfonamide', 'Kontrastmittel', 'Meeresfr\u00FCchte', 'Ei', 'Soja', 'Weizen', 'Milch'];
+    let seed = (simNum || 1) * 2654435761;
+    const rng = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+    const pickN = (arr, n) => { const s = [...arr]; for (let i = s.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [s[i], s[j]] = [s[j], s[i]]; } return s.slice(0, n); };
+
+    const usedNames = new Set();
+    const cards = [];
+    for (let i = 0; i < 8; i++) {
+      let name;
+      do { name = pick(firstNames) + ' ' + pick(lastNames); } while (usedNames.has(name));
+      usedNames.add(name);
+      cards.push({ name, bloodType: bloodTypes[i], allergies: pickN(allergyPool, 1 + Math.floor(rng() * 3)) });
+    }
+
+    const optLabels = ['A', 'B', 'C', 'D', 'E'];
+    const questions = [];
+    for (let i = 0; i < 25; i++) {
+      const card = cards[i % 8];
+      const qType = i % 3;
+      let q;
+      if (qType === 0) {
+        const wrongBT = bloodTypes.filter(b => b !== card.bloodType);
+        const opts = pickN([card.bloodType, ...pickN(wrongBT, 4)], 5);
+        q = { question: `Welche Blutgruppe hat ${card.name}?`, options: opts, correctValue: card.bloodType };
+      } else if (qType === 1) {
+        const wrongA = allergyPool.filter(a => !card.allergies.includes(a));
+        const opts = pickN([card.allergies[0], ...pickN(wrongA, 4)], 5);
+        q = { question: `Gegen welchen Stoff ist ${card.name} allergisch?`, options: opts, correctValue: card.allergies[0] };
+      } else {
+        const wrong = cards.filter(c => c.name !== card.name);
+        const opts = pickN([card.name, ...pickN(wrong.map(c => c.name), 4)], 5);
+        q = { question: `Wer hat die Blutgruppe ${card.bloodType}?`, options: opts, correctValue: card.name };
+      }
+      q.correct = q.options.indexOf(q.correctValue);
+      if (q.correct === -1) q.correct = 0;
+      questions.push(q);
+    }
+    return { cards, questions };
+  },
+
+  async _renderAllergieausweisQuestions(ctx, chapter, chapterNum, answers) {
+    const { pdf, margin, contentW } = ctx;
+    const c = chapter.color;
+    const optLabels = ['A', 'B', 'C', 'D', 'E'];
+
+    // Use the same card generation as the app — full 7-field cards with photos
+    const learnCount = chapter.questions?.learnCount || 8;
+    const recallCount = chapter.questions?.recallCount || 25;
+    const cards = App.generateMemorizeCards(learnCount);
+
+    // Phase 1: Learning phase — render full cards using base PDF renderer
+    pdf.setFontSize(12); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(c[0], c[1], c[2]);
+    pdf.text('Phase 1: Lernphase \u2013 Pr\u00E4ge dir die folgenden Ausweise ein', margin + 2, ctx.y);
+    ctx.y += 3;
+    pdf.setFontSize(8); pdf.setFont('DejaVuSans', 'normal'); pdf.setTextColor(100);
+    pdf.text('Merke dir alle Angaben auf jedem Ausweis (8 Minuten).', margin + 2, ctx.y);
+    ctx.y += 6;
+
+    // Render full cards using base _drawMemorizeCards (with photos, all 7 fields)
+    await this._drawMemorizeCards(ctx, cards);
+
+    // Phase 2: Recall questions — generated the same way as the app
+    pdf.addPage(); ctx.y = ctx.margin || 25;
+    pdf.setFontSize(12); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(c[0], c[1], c[2]);
+    pdf.text('Phase 2: Pr\u00FCfphase \u2013 Beantworte die Fragen aus dem Ged\u00E4chtnis', margin + 2, ctx.y);
+    ctx.y += 3;
+    pdf.setFontSize(8); pdf.setFont('DejaVuSans', 'normal'); pdf.setTextColor(100);
+    pdf.text('Beantworte die folgenden Fragen, ohne die Ausweise nochmals anzusehen (15 Minuten).', margin + 2, ctx.y);
+    ctx.y += 8;
+
+    const recallQuestions = App.generateRecallQuestions(cards, recallCount);
+
+    for (let qi = 0; qi < recallQuestions.length; qi++) {
+      const q = recallQuestions[qi];
+      const qNum = `${chapterNum}.${qi + 1}`;
+      this._checkPage(ctx, 28);
+
+      this._drawQNumBadge(ctx, qNum, c);
+
+      // Question text (may contain HTML img tags from Type 2 — strip them for PDF)
+      let qText = q.question || '';
+      qText = qText.replace(/<img[^>]*>/gi, '').replace(/<[^>]+>/g, '').trim();
+      pdf.setFontSize(10.5); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(26, 26, 46);
+      const qLines = pdf.splitTextToSize(this._clean(qText), contentW - 13);
+      for (const line of qLines) { pdf.text(line, margin + 13, ctx.y); ctx.y += 5; }
+      ctx.y += 3;
+
+      const opts = q.options || [];
+      for (let oi = 0; oi < opts.length; oi++) {
+        this._drawOption(ctx, optLabels[oi], this._clean(String(opts[oi])), c, 16);
+      }
+      ctx.y += 3;
+      this._drawQSeparator(ctx);
+      answers.push({ nr: qNum, correct: optLabels[q.correct] || '?', explanation: q.explanation || '' });
     }
   },
 
@@ -4963,13 +5453,11 @@ const PDFExport = {
     const { pdf, pageW, pageH, margin, contentW } = ctx;
     const c = ak.color;
 
-    // Chapter answer header with icon
     pdf.setFillColor(c[0], c[1], c[2]);
     pdf.roundedRect(margin, ctx.y - 2, contentW, 12, 2, 2, 'F');
     pdf.setFillColor(Math.max(0, c[0] - 40), Math.max(0, c[1] - 40), Math.max(0, c[2] - 40));
     pdf.roundedRect(margin, ctx.y + 7.5, contentW, 2.5, 0, 0, 'F');
 
-    // Icon in header
     const iconKey = this._topicToIconKey(ak.label, ak.block);
     if (ctx.whiteIcons[iconKey]) {
       this._placeIcon(pdf, ctx.whiteIcons[iconKey], margin + 3, ctx.y - 1, 6);
@@ -4994,7 +5482,6 @@ const PDFExport = {
         pdf.setFillColor(c[0], c[1], c[2]);
         pdf.roundedRect(margin, ctx.y - 3, 2.5, cardH, 1, 1, 'F');
 
-        // Answer badge
         pdf.setFillColor(c[0], c[1], c[2]);
         pdf.circle(margin + 8, ctx.y + 1, 3.5, 'F');
         pdf.setFontSize(8);
@@ -5028,6 +5515,869 @@ const PDFExport = {
       }
     }
     ctx.y += 4;
+  },
+
+  // ===================== ANSWER SHEET (Antwortbogen) =====================
+  _drawAdminAnswerSheet(ctx, answerKeys) {
+    const { pdf, margin, contentW, pageW } = ctx;
+    const optLabels = ['A', 'B', 'C', 'D', 'E'];
+
+    pdf.addPage();
+    ctx.y = ctx.margin || 25;
+
+    // Title
+    pdf.setFontSize(18); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(30, 25, 50);
+    pdf.text('Antwortbogen', margin, ctx.y);
+    ctx.y += 3;
+    pdf.setFontSize(9); pdf.setFont('DejaVuSans', 'normal'); pdf.setTextColor(120);
+    pdf.text('Kreuze die richtige Antwort an. Verwende einen Kugelschreiber oder Bleistift.', margin, ctx.y);
+    ctx.y += 8;
+
+    for (const ak of answerKeys) {
+      if (ak.answers.length === 0) continue;
+      this._checkPage(ctx, 18);
+      const c = ak.color;
+
+      // Section header
+      pdf.setFillColor(c[0], c[1], c[2]);
+      pdf.roundedRect(margin, ctx.y - 3, contentW, 9, 1.5, 1.5, 'F');
+      pdf.setFontSize(8.5); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(255);
+      pdf.text(`${ak.label}`, margin + 4, ctx.y + 2.5);
+      ctx.y += 10;
+
+      // Grid: Nr | A | B | C | D | E
+      const colW = 8;
+      const nrW = 16;
+      const rowH = 6;
+      const gridX = margin + 2;
+      const circleR = 2.2;
+      const cols = 3; // 3 columns of questions side by side
+      const colBlockW = nrW + 5 * colW + 4;
+
+      let qIdx = 0;
+      while (qIdx < ak.answers.length) {
+        const rowsInBatch = Math.min(Math.ceil((ak.answers.length - qIdx) / cols), 20);
+        this._checkPage(ctx, rowsInBatch * rowH + 4);
+
+        for (let row = 0; row < rowsInBatch; row++) {
+          for (let col = 0; col < cols; col++) {
+            const ai = qIdx + row + col * rowsInBatch;
+            if (ai >= ak.answers.length) continue;
+            const a = ak.answers[ai];
+            const bx = gridX + col * (colBlockW + 4);
+
+            // Question number
+            pdf.setFontSize(7); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(60);
+            pdf.text(a.nr, bx, ctx.y + row * rowH + 3);
+
+            // Option circles
+            for (let oi = 0; oi < 5; oi++) {
+              const cx = bx + nrW + oi * colW;
+              const cy = ctx.y + row * rowH + 2;
+              pdf.setDrawColor(180, 178, 195);
+              pdf.setLineWidth(0.3);
+              pdf.circle(cx, cy, circleR, 'S');
+              pdf.setFontSize(5.5); pdf.setFont('DejaVuSans', 'normal'); pdf.setTextColor(140);
+              pdf.text(optLabels[oi], cx, cy + 0.8, { align: 'center' });
+            }
+          }
+        }
+        ctx.y += rowsInBatch * rowH + 4;
+        qIdx += rowsInBatch * cols;
+      }
+      ctx.y += 2;
+    }
+  },
+
+  // ===================== PREMIUM SIMULATION PDF LAYOUT =====================
+  // These functions create a visually distinct, premium PDF design for admin simulations
+  // (sold separately from the app). Different from the app's built-in PDF simulator.
+
+  _premiumColors: {
+    gradient1: [15, 12, 41],      // Deep midnight
+    gradient2: [48, 25, 88],      // Rich purple
+    gradient3: [72, 40, 120],     // Vivid purple
+    gold: [245, 197, 66],         // Accent gold
+    goldDark: [212, 160, 23],     // Dark gold
+    textDark: [30, 25, 50],       // Main text
+    textMuted: [120, 115, 140],   // Muted text
+    surface: [250, 248, 255],     // Light surface
+    border: [230, 225, 245],      // Border
+  },
+
+  // --- PREMIUM COVER PAGE ---
+  _drawPremiumCoverPage(ctx, simName, sections, totalQ) {
+    const { pdf, pageW, pageH, margin, contentW } = ctx;
+    const pc = this._premiumColors;
+    const bc = this._adminBlockColors;
+
+    // Full-page gradient background
+    const gradSteps = 40;
+    for (let i = 0; i < gradSteps; i++) {
+      const t = i / gradSteps;
+      const r = Math.round(pc.gradient1[0] + (pc.gradient2[0] - pc.gradient1[0]) * t);
+      const g = Math.round(pc.gradient1[1] + (pc.gradient2[1] - pc.gradient1[1]) * t);
+      const b = Math.round(pc.gradient1[2] + (pc.gradient2[2] - pc.gradient1[2]) * t);
+      pdf.setFillColor(r, g, b);
+      pdf.rect(0, i * (pageH / gradSteps), pageW, pageH / gradSteps + 1, 'F');
+    }
+
+    // Decorative geometric shapes (small, out of content area)
+    try { pdf.setGState(new pdf.GState({ opacity: 0.04 })); } catch(e) {}
+    pdf.setFillColor(255, 255, 255);
+    pdf.circle(pageW + 10, 20, 30, 'F');
+    pdf.circle(15, pageH - 40, 22, 'F');
+    try { pdf.setGState(new pdf.GState({ opacity: 1 })); } catch(e) {}
+
+    // Gold accent line at top
+    pdf.setFillColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+    pdf.rect(0, 0, pageW, 2, 'F');
+
+    // Small "MedAT Trainer" brand badge
+    const badgeW = 48, badgeH = 8, badgeX = (pageW - badgeW) / 2, badgeY = 30;
+    pdf.setFillColor(255, 255, 255);
+    try { pdf.setGState(new pdf.GState({ opacity: 0.12 })); } catch(e) {}
+    pdf.roundedRect(badgeX, badgeY, badgeW, badgeH, 4, 4, 'F');
+    try { pdf.setGState(new pdf.GState({ opacity: 1 })); } catch(e) {}
+    pdf.setFontSize(7);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('MEDAT TRAINER 2026', pageW / 2, badgeY + 5.5, { align: 'center' });
+
+    // Large title
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(38);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.text('MedAT-H', pageW / 2, 62, { align: 'center' });
+
+    // Subtitle: Simulation name
+    pdf.setFontSize(11);
+    pdf.setFont('DejaVuSans', 'normal');
+    pdf.setTextColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+    pdf.text('PRÜFUNGSSIMULATION', pageW / 2, 74, { align: 'center' });
+
+    // Gold divider
+    const divW = 60;
+    pdf.setFillColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+    pdf.rect((pageW - divW) / 2, 80, divW, 0.8, 'F');
+
+    // Simulation name (large, prominent)
+    pdf.setFontSize(22);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    const simLines = pdf.splitTextToSize(simName, contentW - 20);
+    let nameY = 94;
+    for (const line of simLines) {
+      pdf.text(line, pageW / 2, nameY, { align: 'center' });
+      nameY += 10;
+    }
+
+    // --- Content overview box ---
+    const boxY = nameY + 8;
+    const boxH = 82;
+    pdf.setFillColor(255, 255, 255);
+    try { pdf.setGState(new pdf.GState({ opacity: 0.07 })); } catch(e) {}
+    pdf.roundedRect(margin + 10, boxY, contentW - 20, boxH, 4, 4, 'F');
+    try { pdf.setGState(new pdf.GState({ opacity: 1 })); } catch(e) {}
+
+    // Box title
+    pdf.setFontSize(9);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+    pdf.text('INHALT DIESER SIMULATION', pageW / 2, boxY + 10, { align: 'center' });
+
+    // Content grid: show each block
+    const blockSummary = {};
+    for (const sec of sections) {
+      const bKey = sec.block?.key || sec.block?.label?.toLowerCase() || 'other';
+      const bLabel = sec.block?.label || 'Sonstige';
+      if (!blockSummary[bKey]) blockSummary[bKey] = { label: bLabel, sections: [], count: 0 };
+      blockSummary[bKey].sections.push(sec.section?.label || sec.secKey);
+      const qCount = sec.isTVSection ? (sec.tvTexts || []).reduce((s, t) => s + (t.questions?.length || 0), 0) :
+                     sec.isMemorize ? 0 :
+                     sec.isFiguren ? (sec.section?.questions || 15) :
+                     (sec.questions?.length || 0);
+      blockSummary[bKey].count += qCount;
+    }
+
+    let gridY = boxY + 18;
+    const gridColW = (contentW - 30) / 2;
+    let gridIdx = 0;
+    const blockKeys = Object.keys(blockSummary);
+
+    for (const bKey of blockKeys) {
+      const info = blockSummary[bKey];
+      const col = gridIdx % 2;
+      const gx = margin + 15 + col * (gridColW + 5);
+      if (col === 0 && gridIdx > 0) gridY += 22;
+
+      // Block color dot
+      const bColor = bc[bKey] || bc.bms;
+      pdf.setFillColor(bColor.rgb[0], bColor.rgb[1], bColor.rgb[2]);
+      pdf.circle(gx + 3, gridY + 1, 2.5, 'F');
+
+      // Block name
+      pdf.setFontSize(9);
+      pdf.setFont('DejaVuSans', 'bold');
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(info.label, gx + 9, gridY + 2.5);
+
+      // Section list + count (truncated to column width)
+      pdf.setFontSize(7);
+      pdf.setFont('DejaVuSans', 'normal');
+      pdf.setTextColor(200, 195, 215);
+      const maxTextW = gridColW - 14;
+      let secNames = info.sections.join(', ');
+      // Truncate if too long for column
+      const secLines = pdf.splitTextToSize(secNames, maxTextW);
+      pdf.text(secLines[0], gx + 9, gridY + 8);
+      if (secLines.length > 1) {
+        pdf.text(secLines[1].length > 40 ? secLines[1].substring(0, 37) + '...' : secLines[1], gx + 9, gridY + 12);
+        pdf.text(`${info.count} Aufgaben`, gx + 9, gridY + 17);
+      } else {
+        pdf.text(`${info.count} Aufgaben`, gx + 9, gridY + 13);
+      }
+
+      gridIdx++;
+    }
+
+    // --- Stats bar ---
+    const statsY = boxY + boxH + 12;
+    pdf.setFontSize(10);
+    pdf.setFont('DejaVuSans', 'normal');
+    pdf.setTextColor(200, 195, 215);
+    pdf.text(`${totalQ} Aufgaben  \u00B7  ${sections.length} Untertests  \u00B7  Mit L\u00F6sungen & Erkl\u00E4rungen`, pageW / 2, statsY, { align: 'center' });
+
+    // --- Bottom section ---
+    // Test structure table
+    const tableY = statsY + 15;
+    pdf.setFillColor(255, 255, 255);
+    try { pdf.setGState(new pdf.GState({ opacity: 0.05 })); } catch(e) {}
+    pdf.roundedRect(margin + 10, tableY, contentW - 20, 55, 3, 3, 'F');
+    try { pdf.setGState(new pdf.GState({ opacity: 1 })); } catch(e) {}
+
+    pdf.setFontSize(8);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+    pdf.text('TESTAUFBAU MEDAT-H 2026', pageW / 2, tableY + 8, { align: 'center' });
+
+    const rows = [
+      ['BMS \u2013 Basiskenntnistest', '94 Aufgaben', '75 min', '40%'],
+      ['TV \u2013 Textverst\u00E4ndnis', '12 Aufgaben', '35 min', '10%'],
+      ['KFF \u2013 Kognitive F\u00E4higkeiten', '68 Aufgaben', '68 min', '40%'],
+      ['SEK \u2013 Sozial-emotionale Komp.', '~45 Aufgaben', '~60 min', '10%'],
+    ];
+
+    const colX = [margin + 16, margin + contentW - 65, margin + contentW - 42, margin + contentW - 18];
+    let rowY = tableY + 16;
+    pdf.setFontSize(7);
+    for (const row of rows) {
+      pdf.setFont('DejaVuSans', 'normal');
+      pdf.setTextColor(220, 215, 235);
+      pdf.text(row[0], colX[0], rowY);
+      pdf.setTextColor(180, 175, 200);
+      pdf.text(row[1], colX[1], rowY);
+      pdf.text(row[2], colX[2], rowY);
+      pdf.setFont('DejaVuSans', 'bold');
+      pdf.setTextColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+      pdf.text(row[3], colX[3], rowY);
+      rowY += 8;
+    }
+
+    // Copyright at very bottom
+    pdf.setFontSize(7);
+    pdf.setFont('DejaVuSans', 'normal');
+    pdf.setTextColor(100, 95, 120);
+    const crText = '\u00A9 MedAT Trainer \u2013 Urheberrechtlich gesch\u00FCtzt. Vervielf\u00E4ltigung oder Weitergabe ohne Genehmigung nicht gestattet.';
+    const crLines = pdf.splitTextToSize(crText, contentW - 30);
+    let crY = pageH - 18;
+    for (const cl of crLines) { pdf.text(cl, pageW / 2, crY, { align: 'center' }); crY += 3.5; }
+
+    // Bottom gold line
+    pdf.setFillColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+    pdf.rect(0, pageH - 2, pageW, 2, 'F');
+  },
+
+  // --- PREMIUM TABLE OF CONTENTS ---
+  _drawPremiumTOC(ctx, tocPageNum, sectionPageMap, allQuestionSets, appendixPageMap) {
+    const { pdf, margin, contentW, pageW, pageH } = ctx;
+    const pc = this._premiumColors;
+    const bc = this._adminBlockColors;
+
+    pdf.setPage(tocPageNum);
+    let y = margin;
+
+    // Header bar
+    pdf.setFillColor(pc.gradient1[0], pc.gradient1[1], pc.gradient1[2]);
+    pdf.rect(0, 0, pageW, 28, 'F');
+    pdf.setFillColor(pc.gold[0], pc.gold[1], pc.gold[2]);
+    pdf.rect(0, 28, pageW, 1, 'F');
+
+    pdf.setFontSize(14);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('Inhaltsverzeichnis', pageW / 2, 18, { align: 'center' });
+
+    y = 38;
+
+    // Group sections by block
+    const blockGroups = {};
+    const blockOrder = [];
+    for (const entry of sectionPageMap) {
+      const matchSet = allQuestionSets.find(qs =>
+        entry.label.includes(qs.section?.label) || entry.label.includes(qs.block?.label)
+      );
+      const count = matchSet?.count || 0;
+      const blockName = entry.label.split(' \u00B7 ')[0] || entry.label;
+      if (!blockGroups[blockName]) { blockGroups[blockName] = []; blockOrder.push(blockName); }
+      blockGroups[blockName].push({ ...entry, questionCount: count });
+    }
+
+    for (const blockName of blockOrder) {
+      const entries = blockGroups[blockName];
+      const blockColor = entries[0]?.color || { r: 100, g: 100, b: 100 };
+      const bKey = blockName.toLowerCase().trim().split(' ')[0];
+      const bConf = bc[bKey] || bc.bms;
+
+      // Block header — pill style
+      pdf.setFillColor(bConf.light[0], bConf.light[1], bConf.light[2]);
+      pdf.roundedRect(margin, y - 3, contentW, 9, 2.5, 2.5, 'F');
+      pdf.setFillColor(bConf.rgb[0], bConf.rgb[1], bConf.rgb[2]);
+      pdf.roundedRect(margin, y - 3, 4, 9, 2, 2, 'F');
+
+      pdf.setFontSize(9);
+      pdf.setFont('DejaVuSans', 'bold');
+      pdf.setTextColor(bConf.dark[0], bConf.dark[1], bConf.dark[2]);
+      const fullNames = { bms: 'Basiskenntnistest', kff: 'Kognitive F\u00E4higkeiten & Fertigkeiten', tv: 'Textverst\u00E4ndnis', sek: 'Sozial-emotionale Kompetenzen' };
+      pdf.text(`${blockName} \u2014 ${fullNames[bKey] || ''}`, margin + 8, y + 2.5);
+      y += 11;
+
+      // Section entries
+      for (const entry of entries) {
+        if (y > pageH - 25) { pdf.addPage(); y = margin; }
+        const sectionName = entry.label.split(' \u00B7 ').slice(1).join(' \u00B7 ') || entry.label;
+        const countText = entry.questionCount > 0 ? `${entry.questionCount} Aufgaben` : '';
+
+        // Subtle row background (alternating)
+        pdf.setFillColor(pc.surface[0], pc.surface[1], pc.surface[2]);
+        pdf.rect(margin + 4, y - 3, contentW - 8, 7, 'F');
+
+        // Section name
+        pdf.setFontSize(8.5);
+        pdf.setFont('DejaVuSans', 'normal');
+        pdf.setTextColor(pc.textDark[0], pc.textDark[1], pc.textDark[2]);
+        pdf.text(sectionName, margin + 8, y + 1);
+
+        // Question count
+        if (countText) {
+          pdf.setFontSize(7);
+          pdf.setTextColor(pc.textMuted[0], pc.textMuted[1], pc.textMuted[2]);
+          pdf.text(countText, margin + contentW * 0.58, y + 1);
+        }
+
+        // Dot leader
+        pdf.setFontSize(5);
+        pdf.setTextColor(200, 195, 215);
+        let dotX = margin + contentW * 0.68;
+        const dotEnd = margin + contentW - 20;
+        while (dotX < dotEnd) { pdf.text('\u00B7', dotX, y + 1); dotX += 2; }
+
+        // Page number
+        pdf.setFontSize(8.5);
+        pdf.setFont('DejaVuSans', 'bold');
+        pdf.setTextColor(bConf.rgb[0], bConf.rgb[1], bConf.rgb[2]);
+        pdf.text(`${entry.startPage}`, margin + contentW - 4, y + 1, { align: 'right' });
+
+        // Clickable link
+        pdf.link(margin, y - 3, contentW, 7, { pageNumber: entry.startPage });
+
+        y += 8;
+      }
+      y += 4;
+    }
+
+    // Appendix section
+    if (appendixPageMap && Object.keys(appendixPageMap).length > 0) {
+      y += 2;
+      pdf.setFillColor(pc.border[0], pc.border[1], pc.border[2]);
+      pdf.rect(margin, y, contentW, 0.3, 'F');
+      y += 8;
+
+      pdf.setFontSize(9);
+      pdf.setFont('DejaVuSans', 'bold');
+      pdf.setTextColor(pc.textDark[0], pc.textDark[1], pc.textDark[2]);
+      pdf.text('Anhang', margin + 4, y);
+      y += 8;
+
+      const appendixItems = [
+        { key: 'antwortbogen', label: 'Antwortbogen (Bubble Sheet)' },
+        { key: 'loesungen', label: 'L\u00F6sungsschl\u00FCssel' },
+        { key: 'figuren_lsg', label: 'Figuren-L\u00F6sungen (visuell)' },
+        { key: 'erklaerungen', label: 'Ausf\u00FChrliche Erkl\u00E4rungen' },
+      ];
+
+      for (const item of appendixItems) {
+        const pg = appendixPageMap[item.key];
+        if (!pg) continue;
+
+        pdf.setFontSize(8.5);
+        pdf.setFont('DejaVuSans', 'normal');
+        pdf.setTextColor(pc.textMuted[0], pc.textMuted[1], pc.textMuted[2]);
+        pdf.text(item.label, margin + 8, y);
+
+        pdf.setFont('DejaVuSans', 'bold');
+        pdf.setTextColor(pc.goldDark[0], pc.goldDark[1], pc.goldDark[2]);
+        pdf.text(`${pg}`, margin + contentW - 4, y, { align: 'right' });
+
+        pdf.link(margin, y - 3, contentW, 7, { pageNumber: pg });
+        y += 7;
+      }
+    }
+
+    // Total summary
+    y += 8;
+    const totalQ = allQuestionSets.reduce((s, qs) => s + (qs.count || 0), 0);
+    pdf.setFontSize(7.5);
+    pdf.setFont('DejaVuSans', 'normal');
+    pdf.setTextColor(pc.textMuted[0], pc.textMuted[1], pc.textMuted[2]);
+    pdf.text(`Gesamt: ${sectionPageMap.length} Untertests \u00B7 ${totalQ} Aufgaben \u00B7 ${pdf.getNumberOfPages()} Seiten`, margin + 4, y);
+  },
+
+  // --- PREMIUM SECTION DIVIDER PAGE ---
+  _drawPremiumSectionDivider(ctx, secData, sectionIdx) {
+    const { pdf, pageW, pageH, margin, contentW } = ctx;
+    const pc = this._premiumColors;
+    const bc = this._adminBlockColors;
+    const bKey = secData.block?.key || secData.block?.label?.toLowerCase() || 'bms';
+    const bConf = bc[bKey] || bc.bms;
+
+    // Full colored header (65% of page)
+    const headerH = 65;
+    pdf.setFillColor(bConf.rgb[0], bConf.rgb[1], bConf.rgb[2]);
+    pdf.rect(0, 0, pageW, headerH, 'F');
+
+    // Darker bottom band
+    const dr = Math.max(0, bConf.rgb[0] - 35), dg = Math.max(0, bConf.rgb[1] - 35), db = Math.max(0, bConf.rgb[2] - 35);
+    pdf.setFillColor(dr, dg, db);
+    pdf.rect(0, headerH - 18, pageW, 18, 'F');
+
+    // Decorative circles
+    const lr = Math.min(255, bConf.rgb[0] + 40), lg = Math.min(255, bConf.rgb[1] + 40), lb = Math.min(255, bConf.rgb[2] + 40);
+    try { pdf.setGState(new pdf.GState({ opacity: 0.15 })); } catch(e) {}
+    pdf.setFillColor(lr, lg, lb);
+    pdf.circle(pageW - 20, 18, 28, 'F');
+    pdf.circle(30, 50, 15, 'F');
+    try { pdf.setGState(new pdf.GState({ opacity: 1 })); } catch(e) {}
+
+    // Block label (small)
+    pdf.setFontSize(8);
+    pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text(secData.block?.label || '', pageW / 2, 16, { align: 'center' });
+
+    // Section name
+    pdf.setFontSize(24); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(255);
+    const secLabel = secData.section?.label || secData.secKey || '';
+    const sLines = pdf.splitTextToSize(secLabel, contentW - 20);
+    let sY = 34;
+    for (const l of sLines) { pdf.text(l, pageW / 2, sY, { align: 'center' }); sY += 11; }
+
+    // Question count pill
+    const qc = secData.isMemorize ? (secData.cards?.length || 8) + ' Ausweise' :
+               secData.isFiguren ? (secData.section?.questions || 15) + ' Aufgaben' :
+               secData.isTVSection ? (secData.tvTexts || []).reduce((s, t) => s + (t.questions?.length || 0), 0) + ' Fragen' :
+               (secData.questions?.length || 0) + ' Aufgaben';
+    const pW = 45;
+    pdf.setFillColor(245, 197, 66);
+    pdf.roundedRect((pageW - pW) / 2, sY + 2, pW, 7, 3.5, 3.5, 'F');
+    pdf.setFontSize(7); pdf.setFont('DejaVuSans', 'bold');
+    pdf.setTextColor(15, 12, 41);
+    pdf.text(qc, pageW / 2, sY + 6.5, { align: 'center' });
+
+    // Gold accent line
+    pdf.setFillColor(245, 197, 66);
+    pdf.rect(0, headerH, pageW, 1.5, 'F');
+
+    // Instructions below
+    ctx.y = headerH + 12;
+    const inst = {
+      'figuren': 'Setze die Einzelteile zu einer der vorgegebenen Figuren zusammen.',
+      'allergieausweis_mem': 'Präge dir die folgenden Allergieausweise ein. Du hast 1 Minute pro Ausweis.',
+      'allergieausweis_abruf': 'Beantworte die Fragen zu den Allergieausweisen.',
+      'zahlenfolge': 'Ergänze die fehlenden Zahlen in der Zahlenfolge.',
+      'wortfluessigkeit': 'Finde heraus, welches Wort sich aus den Buchstaben bilden lässt.',
+      'implikation': 'Lies die Prämissen und wähle die logisch korrekte Schlussfolgerung.',
+      'textverstaendnis': 'Lies den Text aufmerksam und beantworte die Verständnisfragen.',
+      'emotionen_erkennen': 'Wähle die Emotion, die die Person am wahrscheinlichsten empfindet.',
+      'emotionen_regulieren': 'Wähle die angemessenste Reaktion.',
+      'soziales_entscheiden': 'Bringe die Optionen in die richtige Reihenfolge.',
+    };
+    const iText = inst[secData.secKey] || '';
+    if (iText) {
+      pdf.setFontSize(9); pdf.setFont('DejaVuSans', 'normal');
+      pdf.setTextColor(120, 115, 140);
+      const iLines = pdf.splitTextToSize(iText, contentW - 20);
+      for (const l of iLines) { pdf.text(l, pageW / 2, ctx.y, { align: 'center' }); ctx.y += 4.5; }
+    }
+    ctx.y = headerH + 28;
+  },
+
+  // --- PREMIUM FOOTERS ---
+  _addPremiumFooters(ctx, simName, sectionPageMap) {
+    const { pdf, margin, pageW, pageH } = ctx;
+    const total = pdf.getNumberOfPages();
+    for (let p = 2; p <= total; p++) {
+      pdf.setPage(p);
+      // Find section color
+      let cc = null;
+      for (const sec of sectionPageMap) { if (p >= sec.startPage && p <= sec.endPage) { cc = sec.color; break; } }
+      // Top accent line
+      if (cc) { pdf.setFillColor(cc.r || 200, cc.g || 200, cc.b || 200); }
+      else { pdf.setFillColor(230, 225, 245); }
+      pdf.rect(0, 0, pageW, 0.5, 'F');
+      // Footer
+      pdf.setDrawColor(230, 225, 245); pdf.setLineWidth(0.3);
+      pdf.line(margin, pageH - 13, pageW - margin, pageH - 13);
+      pdf.setFontSize(6.5); pdf.setFont('DejaVuSans', 'normal'); pdf.setTextColor(120, 115, 140);
+      pdf.text('MedAT Trainer · Prüfungssimulation', margin, pageH - 8);
+      pdf.setFontSize(7.5); pdf.setFont('DejaVuSans', 'bold'); pdf.setTextColor(30, 25, 50);
+      pdf.text(`${p}`, pageW / 2, pageH - 8, { align: 'center' });
+      pdf.setFontSize(6.5); pdf.setFont('DejaVuSans', 'normal'); pdf.setTextColor(120, 115, 140);
+      const sn = simName.length > 30 ? simName.substring(0, 27) + '...' : simName;
+      pdf.text(sn, pageW - margin, pageH - 8, { align: 'right' });
+    }
+  },
+
+  // ===================== SIMULATION PDF EXPORT =====================
+  // Premium layout for admin simulations — visually distinct from the app's PDF simulator
+  async exportSimulationPDF(simId, simNum) {
+    if (!Admin.isAdmin()) return;
+    if (!window.jspdf) { alert('PDF-Bibliothek wird noch geladen...'); return; }
+
+    const defaultName = `Simulation ${simNum}`;
+    const simName = prompt('Name der Simulation für das Deckblatt:', defaultName);
+    if (simName === null) return;
+    const finalSimName = simName.trim() || defaultName;
+
+    this._showSimLoadingOverlay();
+    const progress = async (step, pct) => {
+      this._updateSimProgress(step, pct);
+      await new Promise(r => setTimeout(r, 0));
+    };
+
+    try {
+      await progress('Simulationsdaten werden geladen...', 3);
+
+      // 1. Load simulation question assignments
+      const { data: sqData, error: sqErr } = await Auth.supabase
+        .from('simulation_questions')
+        .select('question_id, question_source, section')
+        .eq('simulation_id', simId)
+        .order('sort_order');
+      if (sqErr || !sqData || sqData.length === 0) {
+        this._hideSimLoadingOverlay();
+        alert('Keine Fragen für diese Simulation gefunden.');
+        return;
+      }
+
+      // --- DUPLICATE CHECK: Load all question IDs from OTHER simulations ---
+      const { data: allSimQs } = await Auth.supabase
+        .from('simulation_questions')
+        .select('question_id, simulation_id')
+        .neq('simulation_id', simId);
+      const usedInOther = new Set((allSimQs || []).map(q => q.question_id));
+      const duplicates = sqData.filter(sq => usedInOther.has(sq.question_id));
+      if (duplicates.length > 0) {
+        const proceed = confirm(`Achtung: ${duplicates.length} Frage(n) in dieser Simulation sind auch in anderen Simulationen enthalten.\n\nTrotzdem fortfahren?`);
+        if (!proceed) { this._hideSimLoadingOverlay(); return; }
+      }
+
+      // Group by section
+      const bySection = {};
+      sqData.forEach(sq => {
+        if (!bySection[sq.section]) bySection[sq.section] = [];
+        bySection[sq.section].push(sq);
+      });
+
+      const fetchByIds = async (table, ids) => {
+        if (!ids.length) return [];
+        let all = [];
+        for (let i = 0; i < ids.length; i += 100) {
+          const batch = ids.slice(i, i + 100);
+          const { data } = await Auth.supabase.from(table).select('*').in('id', batch);
+          if (data) all = all.concat(data);
+        }
+        const idOrder = {};
+        ids.forEach((id, idx) => idOrder[id] = idx);
+        all.sort((a, b) => (idOrder[a.id] ?? 999) - (idOrder[b.id] ?? 999));
+        return all;
+      };
+
+      await progress('Fragen werden aus der Datenbank geladen...', 8);
+
+      // 2. Build sections array
+      const sections = [];
+      const bmsBlock = CONFIG.TEST_BLOCKS.bms;
+      const tvBlock = CONFIG.TEST_BLOCKS.tv;
+      const kffBlock = CONFIG.TEST_BLOCKS.kff;
+      const sekBlock = CONFIG.TEST_BLOCKS.sek;
+
+      // BMS
+      const bmsSubjects = ['biologie', 'chemie', 'physik', 'mathematik'];
+      for (const subject of bmsSubjects) {
+        const items = bySection[`bms_${subject}`];
+        if (!items || items.length === 0) continue;
+        const questions = await fetchByIds('questions', items.map(i => i.question_id));
+        if (questions.length === 0) continue;
+        for (let i = questions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+        const sec = bmsBlock.sections[subject];
+        sections.push({ block: bmsBlock, section: sec, secKey: subject, questions, dbType: 'bms' });
+      }
+
+      // TV
+      if (bySection.tv && bySection.tv.length > 0) {
+        const rawTexts = await fetchByIds('pre_generated_tv', bySection.tv.map(i => i.question_id));
+        if (rawTexts.length > 0) {
+          const tvTexts = rawTexts.map(t => ({
+            title: t.title || 'Text',
+            content: t.text_content || t.content || '',
+            questions: typeof t.questions === 'string' ? JSON.parse(t.questions) : (t.questions || []),
+          }));
+          const sec = tvBlock.sections.textverstaendnis;
+          sections.push({ block: tvBlock, section: sec, secKey: 'textverstaendnis', tvTexts, dbType: 'textverstaendnis', isTVSection: true });
+        }
+      }
+
+      await progress('KFF-Fragen werden vorbereitet...', 20);
+
+      // KFF
+      const figSec = kffBlock.sections.figuren;
+      sections.push({ block: kffBlock, section: figSec, secKey: 'figuren', questions: [], dbType: 'figur', isFiguren: true });
+
+      const memSec = kffBlock.sections.allergieausweis_mem;
+      const memCards = App.generateMemorizeCards(8);
+      sections.push({ block: kffBlock, section: memSec, secKey: 'allergieausweis_mem', isMemorize: true, cards: memCards, dbType: 'memorize' });
+
+      if (bySection.zahlenfolge) {
+        const zfQs = await fetchByIds('questions', bySection.zahlenfolge.map(i => i.question_id));
+        if (zfQs.length > 0) {
+          sections.push({ block: kffBlock, section: kffBlock.sections.zahlenfolge, secKey: 'zahlenfolge', questions: zfQs, dbType: 'zahlenfolge' });
+        }
+      }
+
+      if (bySection.wortfluessigkeit) {
+        const wfQs = await fetchByIds('questions', bySection.wortfluessigkeit.map(i => i.question_id));
+        if (wfQs.length > 0) {
+          sections.push({ block: kffBlock, section: kffBlock.sections.wortfluessigkeit, secKey: 'wortfluessigkeit', questions: wfQs, dbType: 'wortfluessigkeit' });
+        }
+      }
+
+      const recSec = kffBlock.sections.allergieausweis_abruf;
+      const recallQs = App.generateRecallQuestions(memCards, recSec.questions || 25);
+      sections.push({ block: kffBlock, section: recSec, secKey: 'allergieausweis_abruf', questions: recallQs, dbType: 'allergieausweis_frage' });
+
+      if (bySection.implikation) {
+        const impQs = await fetchByIds('questions', bySection.implikation.map(i => i.question_id));
+        if (impQs.length > 0) {
+          sections.push({ block: kffBlock, section: kffBlock.sections.implikation, secKey: 'implikation', questions: impQs, dbType: 'implikation' });
+        }
+      }
+
+      // SEK
+      const sekMap = { sek_erkennen: 'emotionen_erkennen', sek_regulieren: 'emotionen_regulieren', sek_entscheiden: 'soziales_entscheiden' };
+      for (const [dbSec, secKey] of Object.entries(sekMap)) {
+        const items = bySection[dbSec];
+        if (!items || items.length === 0) continue;
+        const rawQs = await fetchByIds('pre_generated_sek', items.map(i => i.question_id));
+        if (rawQs.length === 0) continue;
+        const sec = sekBlock.sections[secKey];
+        const sekQs = rawQs.map((q, idx) => {
+          const qData = typeof q.content === 'string' ? JSON.parse(q.content) : q.content;
+          return {
+            id: `sek-${sec.dbSubtype}-${idx}`, type: sec.dbType, subtype: sec.dbSubtype,
+            content: {
+              scenario: qData.scenario || '', person: qData.person || '',
+              question: qData.question, options: qData.options,
+              correct: qData.correct, correct_ranking: qData.correct_ranking,
+              explanation: qData.explanation || '',
+            }
+          };
+        });
+        sections.push({ block: sekBlock, section: sec, secKey, questions: sekQs, dbType: sec.dbType, isSEKSection: true, isRanking: sec.isRanking || false });
+      }
+
+      if (sections.length === 0) {
+        this._hideSimLoadingOverlay();
+        alert('Keine Fragen für Simulation ' + simNum + ' gefunden.');
+        return;
+      }
+
+      await progress('PDF-Dokument wird vorbereitet...', 30);
+
+      // 3. Create PDF
+      const pdf = await this._createPDFDoc();
+      const ctx = this._newContext(pdf);
+      const allAnswerKeys = [];
+      const allQuestionSets = [];
+
+      // Count total questions
+      let totalQ = 0;
+      for (const s of sections) {
+        if (s.isTVSection) totalQ += (s.tvTexts || []).reduce((sum, t) => sum + (t.questions?.length || 0), 0);
+        else if (s.isMemorize) totalQ += 0;
+        else if (s.isFiguren) totalQ += s.section?.questions || 15;
+        else totalQ += s.questions?.length || 0;
+      }
+
+      // ===== PREMIUM COVER PAGE =====
+      this._drawPremiumCoverPage(ctx, finalSimName, sections, totalQ);
+
+      // Instructions page (reuse base)
+      pdf.addPage(); ctx.y = ctx.margin;
+      this._drawInstructionsPage(ctx);
+
+      // Reserve TOC page
+      pdf.addPage();
+      const simTocPageNum = pdf.getNumberOfPages();
+      ctx.y = ctx.margin;
+
+      // ===== RENDER EACH SECTION with PREMIUM DIVIDERS =====
+      await progress('Fragen werden ins PDF geschrieben...', 40);
+      let globalQNum = 0;
+      const sectionPageMap = [];
+
+      for (let si = 0; si < sections.length; si++) {
+        const secData = sections[si];
+        await progress(`${secData.section.label} wird gerendert...`, 40 + Math.round(35 * (si / sections.length)));
+
+        // Premium section divider page
+        pdf.addPage(); ctx.y = ctx.margin;
+        this._drawPremiumSectionDivider(ctx, secData, si);
+
+        // Then content page
+        pdf.addPage(); ctx.y = ctx.margin;
+        const sectionStartPage = pdf.getNumberOfPages() - 1; // divider page
+        ctx.currentSection = secData.section.label;
+        ctx.currentBlock = secData.block.label;
+        ctx.currentBlockColor = secData.block.color;
+
+        if (secData.isMemorize) {
+          this._drawSectionHeader(ctx, secData.section, secData.block, true, secData.secKey);
+          await this._drawMemorizeCards(ctx, secData.cards);
+          allQuestionSets.push({ section: secData.section, block: secData.block, count: 0, isMemorize: true });
+        } else if (secData.isTVSection) {
+          this._drawSectionHeader(ctx, secData.section, secData.block, false, secData.secKey);
+          ctx.y += 4;
+          const startNum = globalQNum + 1;
+          const tvAK = this._drawTVTexts(ctx, secData.tvTexts, startNum, secData.block.color);
+          const tvCount = secData.tvTexts.reduce((sum, t) => sum + (t.questions ? t.questions.length : 0), 0);
+          allAnswerKeys.push(...tvAK);
+          const tvFQ = [];
+          for (const txt of secData.tvTexts) { for (const tq of (txt.questions || [])) { tvFQ.push({ content: tq }); } }
+          allQuestionSets.push({ section: secData.section, block: secData.block, count: tvCount, startNum, questions: tvFQ });
+          globalQNum += tvCount;
+        } else if (secData.isSEKSection) {
+          this._drawSectionHeader(ctx, secData.section, secData.block, false, secData.secKey);
+          ctx.y += 4;
+          const startNum = globalQNum + 1;
+          const sekAK = this._drawSEKQuestions(ctx, secData.questions, secData.isRanking, startNum, secData.block.color, secData.dbType);
+          allAnswerKeys.push(...sekAK);
+          allQuestionSets.push({ section: secData.section, block: secData.block, count: secData.questions.length, startNum, questions: secData.questions });
+          globalQNum += secData.questions.length;
+        } else if (secData.dbType === 'figur' && window.FigurenGenerator) {
+          this._drawSectionHeader(ctx, secData.section, secData.block, false, secData.secKey);
+          ctx.y += 4;
+          const startNum = globalQNum + 1;
+          const figCount = secData.section.questions || 15;
+          const figResult = this._drawFigurenQuestions(ctx, figCount, startNum, secData.block.color);
+          allAnswerKeys.push(...figResult.answerKey);
+          if (!ctx._figurenData) ctx._figurenData = [];
+          ctx._figurenData.push({ data: figResult.figurenData, blockColor: secData.block.color });
+          allQuestionSets.push({ section: secData.section, block: secData.block, count: figCount, startNum });
+          globalQNum += figCount;
+        } else {
+          this._drawSectionHeader(ctx, secData.section, secData.block, false, secData.secKey);
+          ctx.y += 4;
+          const startNum = globalQNum + 1;
+          const answerKey = this._drawQuestions(ctx, secData.questions, secData.dbType, startNum, secData.block.color);
+          allAnswerKeys.push(...answerKey);
+          allQuestionSets.push({ section: secData.section, block: secData.block, count: secData.questions.length, startNum, questions: secData.questions });
+          globalQNum += secData.questions.length;
+        }
+
+        sectionPageMap.push({
+          label: `${secData.block.label} · ${secData.section.label}`,
+          startPage: sectionStartPage,
+          endPage: pdf.getNumberOfPages(),
+          color: this._getBlockColor(secData.block),
+        });
+      }
+
+      // ===== APPENDIX PAGES (track page numbers for TOC) =====
+      const appendixPageMap = {};
+
+      // Antwortbogen
+      if (allAnswerKeys.length > 0) {
+        await progress('Antwortbogen wird erstellt...', 78);
+        pdf.addPage(); ctx.y = ctx.margin;
+        appendixPageMap.antwortbogen = pdf.getNumberOfPages();
+        this._drawAnswerSheet(ctx, allQuestionSets);
+      }
+
+      // Lösungsschlüssel
+      await progress('Lösungsschlüssel wird erstellt...', 82);
+      pdf.addPage(); ctx.y = ctx.margin;
+      appendixPageMap.loesungen = pdf.getNumberOfPages();
+      this._drawAnswerKey(ctx, allAnswerKeys);
+
+      // Figuren-Lösungen
+      if (ctx._figurenData && ctx._figurenData.length > 0) {
+        await progress('Figuren-Lösungen werden gezeichnet...', 86);
+        appendixPageMap.figuren_lsg = pdf.getNumberOfPages() + 1;
+        for (const fg of ctx._figurenData) {
+          this._drawFigurenSolutions(ctx, fg.data, fg.blockColor);
+        }
+      }
+
+      // Erklärungen
+      await progress('Erklärungen werden hinzugefügt...', 90);
+      const allQN = [];
+      for (const qs of allQuestionSets) {
+        if (!qs.questions || !qs.startNum) continue;
+        for (let qi = 0; qi < qs.questions.length; qi++) {
+          allQN.push({ ...qs.questions[qi], _globalNum: qs.startNum + qi });
+        }
+      }
+      pdf.addPage(); ctx.y = ctx.margin;
+      appendixPageMap.erklaerungen = pdf.getNumberOfPages();
+      this._drawExplanations(ctx, allQN);
+
+      // ===== PREMIUM TABLE OF CONTENTS (with appendix links) =====
+      if (simTocPageNum > 0 && sectionPageMap.length > 0) {
+        this._drawPremiumTOC(ctx, simTocPageNum, sectionPageMap, allQuestionSets, appendixPageMap);
+      }
+
+      // ===== PREMIUM FOOTERS =====
+      await progress('Layout wird finalisiert...', 95);
+      this._addPremiumFooters(ctx, finalSimName, sectionPageMap);
+
+      // ===== SAVE =====
+      await progress('PDF wird heruntergeladen...', 100);
+      await new Promise(r => setTimeout(r, 400));
+      const safeName = finalSimName.replace(/[^a-zA-Z0-9äöüäöüß _-]/g, '').replace(/\s+/g, '_');
+      pdf.save(`MedAT_${safeName}.pdf`);
+
+      this._hideSimLoadingOverlay();
+      App.showToast(`${finalSimName}: PDF mit ${allAnswerKeys.length} Fragen erstellt!`);
+
+    } catch (e) {
+      console.error('Simulation PDF export error:', e);
+      this._hideSimLoadingOverlay();
+      alert('Fehler beim PDF-Export: ' + e.message);
+    }
   },
 
 };

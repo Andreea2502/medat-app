@@ -1,5 +1,5 @@
 // MedAT KFF Trainer - Service Worker for PWA
-const CACHE_NAME = 'medat-kff-v2';
+const CACHE_NAME = 'medat-kff-v27';
 
 // Minimal shell for offline support
 const SHELL_ASSETS = [

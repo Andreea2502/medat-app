@@ -155,6 +155,7 @@ const FigurenGenerator = (() => {
     easy:   ['Dreieck','Quadrat','Rechteck','Fünfeck','Sechseck','Halbkreis'],
     medium: ['Dreieck','Quadrat','Rechteck','Parallelogramm','Raute','Fünfeck','Sechseck','Achteck','Halbkreis','Viertelkreis'],
     hard:   Object.keys(SHAPE_REGISTRY),
+    expert: Object.keys(SHAPE_REGISTRY),
   };
 
   function pickShapeName(difficulty) {
@@ -250,6 +251,65 @@ const FigurenGenerator = (() => {
         const ratio = Math.min(q0.area, q1.area) / Math.max(q0.area, q1.area);
         // Score: prefer balanced splits with good aspect ratios
         const score = ratio * (q0.aspect + q1.aspect) / 2;
+        if (score > bestScore) {
+          bestScore = score;
+          bestSplit = halves;
+        }
+      }
+
+      if (bestSplit) {
+        pieces.splice(bestIdx, 1, ...bestSplit);
+      }
+    }
+
+    return pieces;
+  }
+
+  // =============================================
+  // EXPERT CUTTING – random angles, off-center, thinner pieces allowed
+  // =============================================
+
+  function splitFigureExpert(poly, numCuts) {
+    let pieces = [poly];
+
+    for (let cut = 0; cut < numCuts; cut++) {
+      let bestIdx = 0, bestArea = 0;
+      for (let i = 0; i < pieces.length; i++) {
+        const a = Math.abs(polyArea(pieces[i]));
+        if (a > bestArea) { bestArea = a; bestIdx = i; }
+      }
+
+      const target = pieces[bestIdx];
+      const bbox = polyBBox(target);
+      const cx = (bbox.minX + bbox.maxX) / 2;
+      const cy = (bbox.minY + bbox.maxY) / 2;
+
+      let bestSplit = null, bestScore = 0;
+
+      for (let attempt = 0; attempt < 40; attempt++) {
+        // Completely random angles (no structured grid)
+        const angle = rand(0, Math.PI);
+        const dir = [Math.cos(angle), Math.sin(angle)];
+
+        // Larger offset range for more off-center, diagonal cuts
+        const offsetAmt = rand(-0.42, 0.42);
+        const point = [cx + bbox.width * offsetAmt * Math.sin(angle),
+                       cy + bbox.height * offsetAmt * Math.cos(angle)];
+
+        const halves = splitPolygonByLine(target, point, vecAdd(point, dir));
+        if (halves.length !== 2) continue;
+
+        const q0 = pieceQuality(halves[0]);
+        const q1 = pieceQuality(halves[1]);
+
+        // Allow smaller, thinner pieces for more challenge
+        if (q0.area < 25 || q1.area < 25) continue;
+        if (q0.aspect < 0.10 || q1.aspect < 0.10) continue;
+        if (q0.compactness < 0.06 || q1.compactness < 0.06) continue;
+
+        const ratio = Math.min(q0.area, q1.area) / Math.max(q0.area, q1.area);
+        // Accept more unbalanced splits for variety
+        const score = (ratio * 0.5 + 0.5) * (q0.aspect + q1.aspect) / 2;
         if (score > bestScore) {
           bestScore = score;
           bestSplit = halves;
@@ -428,12 +488,15 @@ const FigurenGenerator = (() => {
     const baseFigure = SHAPE_REGISTRY[shapeName].gen();
 
     // 2. Piece count based on difficulty
-    const numCuts = difficulty === 'easy' ? randInt(2, 3) :    // 3–4 pieces
-                    difficulty === 'hard' ? randInt(4, 6) :     // 5–7 pieces
-                    randInt(3, 4);                               // 4–5 pieces
+    const numCuts = difficulty === 'easy'   ? randInt(2, 3) :    // 3–4 pieces
+                    difficulty === 'expert' ? randInt(6, 9) :    // 7–10 pieces
+                    difficulty === 'hard'   ? randInt(4, 6) :    // 5–7 pieces
+                    randInt(3, 4);                                // 4–5 pieces (medium)
 
-    // 3. Split into pieces (with quality checks)
-    const pieces = splitFigure(baseFigure, numCuts);
+    // 3. Split into pieces (expert uses aggressive cutting)
+    const pieces = difficulty === 'expert'
+      ? splitFigureExpert(baseFigure, numCuts)
+      : splitFigure(baseFigure, numCuts);
 
     // Verify minimum 3 pieces
     if (pieces.length < 3) {
@@ -583,6 +646,11 @@ const FigurenGenerator = (() => {
       } else if (difficulty === 'medium') {
         tips.push('🔍 <strong>Besondere Merkmale:</strong> Suche nach markanten Ecken, Einkerbungen oder geraden Kanten.');
         tips.push('⏱️ <strong>Ausschlussverfahren:</strong> Eliminiere zuerst die Antworten, die offensichtlich nicht passen.');
+      } else if (difficulty === 'expert') {
+        tips.push('🎯 <strong>Systematisch vorgehen:</strong> Bei ' + numPieces + ' Teilen ist systematisches Arbeiten entscheidend. Beginne mit den auffälligsten Ecken und Kanten.');
+        tips.push('🧠 <strong>Kanten zählen:</strong> Zähle die geraden Außenkanten aller Teile. Die Gesamtfigur hat weniger Außenkanten, weil innere Schnittkanten verschwinden.');
+        tips.push('🔍 <strong>Schräge Schnitte:</strong> Im Expert-Level sind die Schnitte unregelmäßiger. Achte besonders auf die Winkel und Proportionen der einzelnen Teile.');
+        tips.push('⏱️ <strong>Zeitmanagement:</strong> Du hast ~80 Sekunden pro Aufgabe. Wenn du nach 60 Sekunden keine Lösung hast, wähle die wahrscheinlichste Option.');
       } else {
         tips.push('🎯 <strong>Systematisch vorgehen:</strong> Nummeriere die Teile gedanklich und versuche, sie Schritt für Schritt anzulegen.');
         tips.push('🧠 <strong>Kanten zählen:</strong> Zähle die geraden Außenkanten aller Teile. Die Gesamtfigur hat weniger Außenkanten, weil innere Schnittkanten verschwinden.');

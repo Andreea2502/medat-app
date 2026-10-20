@@ -55,8 +55,10 @@ const API = {
         query = query.eq('topic', topic);
       }
 
-      // Load dramatically more to allow strict filtering of duplicates during batch generation
-      query = query.limit(Math.min(limit * 20, 1000));
+      // Load plenty to allow filtering for freshness + topic variety
+      // For BMS subjects with many topics, we need a big pool so shuffle gives good mix
+      const fetchLimit = (type === 'bms') ? Math.min(Math.max(limit * 20, 300), 800) : Math.min(limit * 5, 500);
+      query = query.limit(fetchLimit);
 
       const { data, error } = await query;
       if (error) throw new Error(`Fehler beim Laden der Fragen: ${error.message}`);
@@ -72,26 +74,23 @@ const API = {
       const fresh = available.filter(q => !prevAnswered.has(q.id));
       const old = available.filter(q => prevAnswered.has(q.id));
 
-      let selected;
-      const freshTarget = Math.ceil(limit * 0.8); // 80% should be new
+      let pool;
+      const freshTarget = Math.ceil(limit * 0.8);
 
       if (fresh.length >= freshTarget) {
-        // Enough fresh questions: pick 80% fresh + 20% old (shuffled)
         const freshPick = this._shuffleAndLimit(fresh, freshTarget);
         const oldPick = this._shuffleAndLimit(old, limit - freshTarget);
-        selected = [...freshPick, ...oldPick];
-        // If we didn't get enough old ones, fill with more fresh
-        if (selected.length < limit) {
-          const remaining = fresh.filter(q => !selected.some(s => s.id === q.id));
-          selected.push(...this._shuffleAndLimit(remaining, limit - selected.length));
+        pool = [...freshPick, ...oldPick];
+        if (pool.length < limit) {
+          const remaining = fresh.filter(q => !pool.some(s => s.id === q.id));
+          pool.push(...this._shuffleAndLimit(remaining, limit - pool.length));
         }
-        // Final shuffle so fresh/old are mixed
-        selected = this._shuffleAndLimit(selected, selected.length);
       } else {
-        // Not enough fresh questions: use all fresh + fill from old
-        selected = [...this._shuffleAndLimit(fresh, fresh.length), ...this._shuffleAndLimit(old, limit - fresh.length)];
-        selected = this._shuffleAndLimit(selected, limit);
+        pool = [...this._shuffleAndLimit(fresh, fresh.length), ...this._shuffleAndLimit(old, limit - fresh.length)];
       }
+
+      // ── Topic-diverse selection: spread questions across different topics ──
+      let selected = this._topicDiverseSelect(pool, limit);
 
       // Mark these as seen
       selected.forEach(q => this._seenQuestionIds.add(q.id));
@@ -118,7 +117,7 @@ const API = {
     if (topic && topic !== 'all') {
       url += `&topic=eq.${encodeURIComponent(topic)}`;
     }
-    url += `&limit=${Math.min(limit * 20, 1000)}`;
+    url += `&limit=${Math.min(limit * 3, 300)}`;
 
     const response = await fetch(url, {
       headers: {
@@ -144,6 +143,57 @@ const API = {
       [questions[i], questions[j]] = [questions[j], questions[i]];
     }
     return questions.slice(0, limit);
+  },
+
+  /**
+   * Topic-diverse selection: round-robin pick from different topics
+   * Ensures questions are spread across all available topics, not clustered
+   */
+  _topicDiverseSelect(questions, limit) {
+    if (questions.length <= limit) {
+      return this._shuffleAndLimit(questions, questions.length);
+    }
+
+    // Group by topic (or subtype as fallback)
+    const byTopic = {};
+    for (const q of questions) {
+      const key = q.topic || q.subtype || '_other';
+      if (!byTopic[key]) byTopic[key] = [];
+      byTopic[key].push(q);
+    }
+
+    // Shuffle within each topic group
+    const topicKeys = Object.keys(byTopic);
+    for (const key of topicKeys) {
+      this._shuffleAndLimit(byTopic[key], byTopic[key].length);
+    }
+
+    // Shuffle topic order too
+    for (let i = topicKeys.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [topicKeys[i], topicKeys[j]] = [topicKeys[j], topicKeys[i]];
+    }
+
+    // Round-robin pick: take 1 from each topic, repeat until we have enough
+    const selected = [];
+    const indices = {};
+    topicKeys.forEach(k => indices[k] = 0);
+
+    while (selected.length < limit) {
+      let added = false;
+      for (const key of topicKeys) {
+        if (selected.length >= limit) break;
+        if (indices[key] < byTopic[key].length) {
+          selected.push(byTopic[key][indices[key]]);
+          indices[key]++;
+          added = true;
+        }
+      }
+      if (!added) break; // All topics exhausted
+    }
+
+    // Final shuffle so topics don't appear in predictable round-robin order
+    return this._shuffleAndLimit(selected, selected.length);
   },
 
   /**
@@ -175,6 +225,8 @@ const API = {
 
       if (error) {
         console.warn('Fortschritt konnte nicht gespeichert werden:', error.message);
+      } else if (typeof Credits !== 'undefined') {
+        Credits.incrementQuestionCount();
       }
       return;
     }

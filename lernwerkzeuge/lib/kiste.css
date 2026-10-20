@@ -1,0 +1,196 @@
+/* ────────────────────────────────────────────────────────────────
+   Werkzeugkiste — gemeinsamer Rahmen der Kinder-Werkzeuge (28.09.2026).
+   Große Knöpfe (≥ 48 px), klare Farben, läuft am Tablet und Handy.
+   Benutzt von public/lernwerkzeuge/werkzeugkiste/*.html zusammen mit
+   kiste.js. Werkzeugeigene Regeln stehen in der jeweiligen Seite.
+   ──────────────────────────────────────────────────────────────── */
+@font-face{font-family:'Plattform';font-style:normal;font-weight:400;font-display:swap;src:url('schrift/plus-jakarta-sans-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Plattform';font-style:normal;font-weight:600;font-display:swap;src:url('schrift/plus-jakarta-sans-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Plattform';font-style:normal;font-weight:700;font-display:swap;src:url('schrift/plus-jakarta-sans-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Plattform';font-style:normal;font-weight:800;font-display:swap;src:url('schrift/plus-jakarta-sans-latin-800-normal.woff2') format('woff2')}
+
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fbf6ec;--surface:#fff;--ink:#1d1b33;--ink-2:#565470;--ink-3:#8c8aa3;--line:#ece4d4;
+  --accent:#e2574c;--accent-deep:#b93a31;--accent-soft:#fde6e2;
+  --rot:#e2574c;--blau:#3d7be0;--gelb:#f5b82e;--gruen:#2fa36b;--lila:#8a5be0;--orange:#f08a24;
+  --ok:#218a55;--ok-soft:#dcf5e7;--falsch:#c8373a;--falsch-soft:#fde4e4;
+  --r:22px;--r-sm:14px;--pill:999px;
+  --schatten:0 2px 4px rgba(29,27,51,.05),0 12px 30px -14px rgba(29,27,51,.22);
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Plattform','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.45;-webkit-font-smoothing:antialiased;padding-bottom:60px;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+[data-lucide]{width:20px;height:20px;stroke-width:2.2;flex-shrink:0}
+
+/* Oberes Band: Fach, Stufe — wie im Wissenslab */
+.lz-band{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding:8px 16px;background:#1d1b33;color:#f3f2fa;font:600 13px/1.4 'Plattform',system-ui,sans-serif}
+.lz-band .lz-tag{background:var(--gelb);color:#1d1b33;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.lz-band .lz-stufe{background:rgba(255,255,255,.14);padding:3px 10px;border-radius:99px;font-size:12px}
+.lz-band a{margin-left:auto;color:#ffd77a;text-decoration:none;font-size:12.5px}
+.lz-band a:hover{text-decoration:underline}
+
+/* Kopf */
+.kopf{background:rgba(255,255,255,.94);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40;backdrop-filter:blur(10px)}
+.kopf-innen{max-width:1040px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.kopf .abzeichen{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-deep);font-size:26px;flex-shrink:0}
+.kopf h1{font-size:1.3rem;font-weight:800;letter-spacing:-.3px;line-height:1.15}
+.kopf p{font-size:.82rem;color:var(--ink-2)}
+.kopf .rechts{margin-left:auto;display:flex;gap:6px;flex-shrink:0}
+.rund{width:48px;height:48px;border-radius:50%;border:2px solid var(--line);background:#fff;display:grid;place-items:center;transition:.2s}
+/* Blätter zum Ausdrucken (07.10.2026) — kiste.js setzt den Knopf nur, wenn es Blätter gibt. */
+/* „🖨️ Ausdrucken" (16.10.2026, blaetter-knopf.js): ruhig wie die anderen Knöpfe im Kopf — Andreea: „einfach ist mir lieber als zu viel Schnickschnack". */
+.blaetter-knopf{height:48px;padding:0 16px;border-radius:999px;border:2px solid var(--line);background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:6px;font-weight:800;text-decoration:none;white-space:nowrap;transition:.2s}
+.blaetter-knopf:hover,.blaetter-knopf[aria-expanded="true"]{border-color:var(--accent);color:var(--accent-deep)}
+@media (max-width:560px){.blaetter-knopf span{display:none}.blaetter-knopf{padding:0 12px}}
+/* Mit „🃏 Karten" (15.10.2026) stehen oben bis zu fünf Knöpfe — am Handy etwas kleiner, und reicht der Platz neben
+   dem Titel nicht, rücken sie in eine eigene Zeile darunter (statt aus dem Bild zu laufen). */
+@media (max-width:560px){.kopf-innen{flex-wrap:wrap;row-gap:8px}.kopf .rechts{gap:4px}.kopf .rechts .rund{width:44px;height:44px}.kopf .rechts .blaetter-knopf,.kopf .rechts .zurueck-knopf{height:44px}}
+/* Zurück zur Lernwerkstatt (11.10.2026, zurueck-knopf.js) — nur für Lehrkräfte aus der Lernwerkstatt. */
+.zurueck-knopf{height:48px;padding:0 14px;border-radius:999px;border:2px solid var(--line);background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:6px;font-weight:800;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:.2s}
+.zurueck-knopf:hover{border-color:var(--accent);color:var(--accent-deep)}
+@media (max-width:560px){.zurueck-knopf .zurueck-text{display:none}.zurueck-knopf{padding:0 14px;font-size:1.2rem}}
+.blaetter-lehrer{margin:0 0 10px;padding:10px 12px;background:#fff;border-radius:12px;border:1px solid #f0cf6b}
+.blaetter-lehrer a,.karten-lehrer a{font-weight:800;color:var(--lila)}
+.rund:hover{border-color:var(--accent)}
+.rund[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* Im Kopf ruhiger (16.10.2026): der Ton-Schalter zeigt seinen Stand am Zeichen (🔊/🔇), nicht als volle Farbfläche. */
+.kopf .rund[aria-pressed="true"]{background:#fff;color:var(--ink);border-color:var(--accent)}
+
+/* Reiter */
+.reiter{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 12px 4px;max-width:1040px;margin:0 auto}
+.reiter button{min-height:52px;padding:0 20px;border-radius:var(--pill);border:2px solid var(--line);background:#fff;font-weight:800;font-size:1rem;display:inline-flex;align-items:center;gap:8px;transition:.2s}
+.reiter button:hover{border-color:var(--accent);transform:translateY(-1px)}
+.reiter button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 8px 18px -8px var(--accent)}
+.reiter .emo{font-size:1.2em}
+
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+.bereich{display:none}.bereich.an{display:block;animation:hoch .35s ease}
+@keyframes hoch{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.karte{background:var(--surface);border-radius:var(--r);padding:20px;margin:14px 0;box-shadow:var(--schatten);border:1px solid var(--line)}
+.karte h2{font-size:1.2rem;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.karte .lead{color:var(--ink-2);margin-bottom:14px;font-size:.98rem}
+.zeile{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.mitte{justify-content:center;text-align:center}
+
+/* Knöpfe */
+.k{min-height:52px;min-width:52px;padding:0 20px;border-radius:var(--pill);border:2px solid var(--line);background:#fff;font-weight:800;font-size:1.05rem;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .15s,background .2s,border-color .2s;user-select:none;-webkit-user-select:none}
+.k:hover{border-color:var(--accent)}
+.k:active{transform:scale(.96)}
+.k.haupt{background:var(--accent);border-color:var(--accent);color:#fff}
+.k.haupt:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+.k.leise{background:transparent}
+.k.an,.k[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.k:disabled{opacity:.45;cursor:default;transform:none}
+.k.gross{min-height:64px;font-size:1.35rem;padding:0 26px}
+
+/* Rückmeldung */
+.meldung{min-height:56px;margin-top:14px;border-radius:var(--r-sm);padding:12px 16px;font-weight:800;font-size:1.1rem;display:flex;align-items:center;gap:10px;background:#f6f3ec;color:var(--ink-2);transition:background .2s}
+.meldung.ok{background:var(--ok-soft);color:var(--ok);animation:hupf .45s ease}
+.meldung.falsch{background:var(--falsch-soft);color:var(--falsch);animation:wackel .4s ease}
+@keyframes hupf{0%{transform:scale(.96)}50%{transform:scale(1.03)}100%{transform:none}}
+@keyframes wackel{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* Sterne & Punkte */
+.sterne{display:flex;gap:4px;font-size:28px;line-height:1;flex-wrap:wrap}
+.sterne span{filter:grayscale(1);opacity:.25;transition:.3s}
+.sterne span.an{filter:none;opacity:1;animation:hupf .4s ease}
+.stand{display:inline-flex;align-items:center;gap:8px;background:#fff;border:2px solid var(--line);border-radius:var(--pill);padding:6px 14px;font-weight:800}
+
+/* Aufgabe groß */
+.aufgabe{font-size:clamp(1.6rem,6vw,2.6rem);font-weight:800;text-align:center;letter-spacing:-.5px;margin:6px 0 14px}
+.eingabe{font:800 clamp(1.6rem,6vw,2.4rem)/1 'Plattform',system-ui,sans-serif;width:4.2em;text-align:center;padding:10px;border-radius:var(--r-sm);border:3px solid var(--line);background:#fff;color:var(--ink)}
+.eingabe:focus{outline:none;border-color:var(--accent)}
+
+/* Ziffernblock für Kinder (statt Tastatur am Tablet) */
+.ziffern{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;max-width:420px;margin:12px auto 0}
+.ziffern button{min-height:56px;border-radius:16px;border:2px solid var(--line);background:#fff;font-size:1.4rem;font-weight:800}
+.ziffern button:active{transform:scale(.95);background:var(--accent-soft)}
+.ziffern .weg{background:#f6f3ec}
+.ziffern .ok{background:var(--accent);border-color:var(--accent);color:#fff;grid-column:span 2}
+
+/* Für Lehrkräfte */
+.lehrer{margin:18px 0;background:#fff8e1;border:2px dashed #f0cf6b;border-radius:var(--r);padding:0}
+.lehrer summary{list-style:none;cursor:pointer;padding:14px 18px;font-weight:800;display:flex;align-items:center;gap:8px;min-height:52px}
+.lehrer summary::-webkit-details-marker{display:none}
+.lehrer summary::after{content:'▾';margin-left:auto;transition:.2s}
+.lehrer[open] summary::after{transform:rotate(180deg)}
+.lehrer .innen{padding:0 18px 16px;color:var(--ink-2);font-size:.95rem}
+.lehrer ul{padding-left:20px}.lehrer li{margin:4px 0}
+
+/* Erklären Schritt für Schritt (K.schritte, 06.10.2026) */
+.erklaer-text{font-size:clamp(1.15rem,3.6vw,1.5rem);font-weight:700;line-height:1.4;text-align:center;min-height:3.2em;display:flex;align-items:center;justify-content:center;padding:6px 8px;max-width:760px;margin:10px auto 0}
+.erklaer-text.neu{animation:hoch .35s ease}
+.punkte{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
+.punkte .punkt{width:16px;height:16px;min-width:16px;border-radius:50%;border:2px solid var(--accent);background:#fff;padding:0}
+.punkte .punkt.war{background:var(--accent-soft)}
+.punkte .punkt.an{background:var(--accent);transform:scale(1.2)}
+
+/* Quiz (K.quiz) */
+.quiz-kopf{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.quiz-bild{text-align:center;font-size:64px;line-height:1.1;margin:10px 0 0}
+.quiz-bild svg{max-width:100%;height:auto}
+.quiz-frage{font-size:clamp(1.2rem,4vw,1.6rem);font-weight:800;text-align:center;margin:10px 0 8px}
+.quiz-antworten{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px;max-width:760px;margin:12px auto 0}
+.quiz-a{min-height:60px;border-radius:16px;border:3px solid var(--line);background:#fff;font-weight:800;font-size:1.15rem;padding:8px 12px;transition:transform .15s}
+.quiz-a:hover{border-color:var(--accent)}
+.quiz-a:active{transform:scale(.97)}
+.quiz-a.richtig{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);animation:hupf .45s ease}
+.quiz-a.daneben{background:var(--falsch-soft);border-color:var(--falsch);color:var(--falsch);animation:wackel .4s ease}
+.quiz-a:disabled{cursor:default}
+.quiz-a:disabled:not(.richtig):not(.daneben){opacity:.5}
+
+/* Konfetti */
+.konfetti{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden}
+.konfetti i{position:absolute;top:-20px;width:12px;height:16px;border-radius:3px;animation:fall 1.4s cubic-bezier(.2,.6,.4,1) forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.8}}
+
+/* Ton aus, aber jemand tippt auf „Hören": der Ton-Knopf winkt, beim ersten Mal mit Satz (03.10.2026) */
+.rund.winkt{animation:winkt .9s ease}
+@keyframes winkt{0%,100%{transform:none}20%{transform:scale(1.18) rotate(-10deg)}40%{transform:scale(1.18) rotate(10deg)}60%{transform:scale(1.1) rotate(-6deg)}}
+.ton-hinweis{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;width:max-content;max-width:calc(100% - 32px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-sm);font-weight:800;box-shadow:var(--schatten);animation:hinweis .3s ease}
+@keyframes hinweis{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+.versteckt{display:none!important}
+/* Ab der 3. Schulstufe ohne Vorlesestimme (06.10.2026): 🔈-Knöpfe weg. */
+html[data-stimme="aus"] .nur-stimme{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (max-width:560px){
+  .kopf h1{font-size:1.08rem}.kopf p{display:none}
+  .kopf .abzeichen{width:42px;height:42px;font-size:22px}
+  .reiter button{padding:0 14px;font-size:.95rem;min-height:48px}
+  .karte{padding:14px;border-radius:18px}
+  .k{padding:0 14px;font-size:1rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── Präsentieren (11.10.2026, kiste.js praesentation) ── Bühne über den ganzen Schirm, der Satz groß darunter. */
+html.praesi-an,html.praesi-an body{overflow:hidden}
+.praesi-flaeche{position:fixed;inset:0;z-index:10050;background:var(--bg);display:grid;grid-template-rows:minmax(0,1fr) auto;padding:2.5vh 3vw 1.5vh;gap:1.2vh}
+.praesi-buehne{min-height:0;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.praesi-buehne>*{max-width:none!important;width:100%!important;height:100%!important;margin:0!important;aspect-ratio:auto!important;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.praesi-buehne>*>svg{width:100%!important;height:100%!important;max-width:100%;max-height:100%;min-width:0!important}
+.praesi-unten{display:flex;justify-content:center;padding-bottom:5.5vh}
+.praesi-unten .erklaer-text{font-size:clamp(1.4rem,2.9vw,2.8rem);max-width:min(1500px,94vw);min-height:2.7em;margin:0;line-height:1.3}
+.praesi-merk,.praesi-merktitel{display:none}
+.praesi-flaeche.merk .praesi-buehne,.praesi-flaeche.merk .praesi-unten .erklaer-text{display:none}
+.praesi-flaeche.merk .praesi-merk{display:flex;min-height:0;align-items:center;justify-content:center;cursor:pointer}
+.praesi-flaeche.merk .praesi-merk>svg{width:100%;height:100%;max-height:100%}
+.praesi-flaeche.merk .praesi-merktitel{display:block;font-size:clamp(1.2rem,2.2vw,2rem);font-weight:800;text-align:center}
+.praesi-leiste{position:absolute;right:1.4vw;bottom:1.2vh;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:999px;padding:4px 6px;opacity:.55;transition:opacity .2s}
+.praesi-leiste:hover,.praesi-leiste:focus-within{opacity:1}
+.praesi-leiste button{width:44px;height:44px;border-radius:50%;border:0;background:transparent;font-size:1.1rem;font-weight:800;color:var(--ink);cursor:pointer}
+.praesi-leiste button:hover:not(:disabled){background:var(--accent-soft)}
+.praesi-leiste button:disabled{opacity:.3;cursor:default}
+.praesi-stand{min-width:4.2em;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.praesi-flaeche.schwarz{background:#000}
+.praesi-flaeche.schwarz>*{visibility:hidden}
+@media print{.praesi-knopf{display:none}}
+/* Motive aus der Bildbibliothek statt Emoji (kiste.js, motivPlatz, 11.10.2026) */
+img.lz-motiv{width:1.2em;height:1.2em;object-fit:contain;vertical-align:-.2em;display:inline-block}
+img.lz-motiv.fuellen{width:100%;height:100%;vertical-align:top}
+/* DE | EN im Kopf (16.10.2026, kiste.js sprachKnopf) — nur bei Werkzeugen mit Übersetzung. */
+.sprach-knopf{font-weight:800;font-size:.95rem;letter-spacing:.02em;color:var(--ink);text-decoration:none}
+.sprach-knopf:hover{color:var(--accent-deep)}
