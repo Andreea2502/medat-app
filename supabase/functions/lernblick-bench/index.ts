@@ -20,7 +20,8 @@ Deno.serve(async (req: Request) => {
   if ((await sha256(req.headers.get("x-bench-token") || "")) !== TOKEN_HASH) return json({ error: "Kein Zugang" }, 401);
   const apiKey = Deno.env.get("GEMINI_API_KEY");
   if (!apiKey) return json({ error: "GEMINI_API_KEY fehlt" }, 500);
-  const { system_prompt, messages, image, stream } = await req.json();
+  const { system_prompt, messages, image, stream, modell } = await req.json();
+  const modelle = modell === "pruefen" ? ["gemini-2.5-pro", "gemini-2.5-flash"] : MODELS;
   if (typeof system_prompt !== "string" || !Array.isArray(messages) || !messages.length) return json({ error: "Fehlende Angaben" }, 400);
   const contents = messages.slice(-14).map((m: { role: string; content: string }) => ({
     role: m.role === "assistant" ? "model" : "user",
@@ -30,10 +31,10 @@ Deno.serve(async (req: Request) => {
   const body = JSON.stringify({
     system_instruction: { parts: [{ text: system_prompt }] },
     contents,
-    generationConfig: { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
+    generationConfig: { temperature: modell === "pruefen" ? 0.1 : 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: modell === "pruefen" ? 4096 : 2048 } },
   });
   const t0 = Date.now();
-  for (const model of MODELS) {
+  for (const model of modelle) {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:${stream ? "streamGenerateContent?alt=sse" : "generateContent"}`, {
       method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey }, body,
     });

@@ -489,3 +489,6 @@ html.lb-studio .lb-taphint { display: none !important; }
   #lernblick-root .lb-stage-main .board:not(.side):has(> svg) { height: min(56vh, 520px); overflow: hidden; }
   #lernblick-root .lb-stage-main .board:not(.side) > svg { width: 100%; height: 100%; }
 }
+
+/* Bild-Erklärung: keine Kreise mehr, nur der rote Zeigepfeil (Andreea, 20.10.2026: „Lass die Kreise weg, die Pfeile reichen“) */
+#lernblick-root svg [data-teil^="stelle-"], #lernblick-root svg [data-teil^="stelle-"] *, #lernblick-root svg [data-teil^="bild-"], #lernblick-root svg [data-teil^="bild-"] * { stroke: transparent !important; fill: transparent !important; filter: none !important; }

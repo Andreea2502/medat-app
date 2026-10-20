@@ -93,7 +93,9 @@ Deno.serve(async (req: Request) => {
     const apiKey = Deno.env.get("GEMINI_API_KEY");
     if (!apiKey) return json({ error: "KI nicht konfiguriert (GEMINI_API_KEY fehlt)" }, 500);
 
-    const { system_prompt, messages, image, stream, kurz, abrechnung } = await req.json();
+    const { system_prompt, messages, image, stream, kurz, abrechnung, modell } = await req.json();
+    // Fachprüfung von Bildern und Erklärungen: das stärkere Modell (Andreea, 20.10.2026: „ein Kontrollmechanismus, ob tatsächlich keine Fehler drin sind“)
+    const modelle = modell === "pruefen" ? (Deno.env.get("LERNBLICK_PRUEF_MODELS") || "gemini-2.5-pro,gemini-2.5-flash").split(",").map((m) => m.trim()).filter(Boolean) : MODELS;
     if (typeof system_prompt !== "string" || !Array.isArray(messages) || !messages.length) {
       return json({ error: "Fehlende Angaben: system_prompt und messages" }, 400);
     }
@@ -114,11 +116,11 @@ Deno.serve(async (req: Request) => {
       system_instruction: { parts: [{ text: system_prompt + GRUNDREGEL }] },
       contents,
       // kurz: schnelle Analyse (Denkfehler, Gesprächsaufhänger) – ohne Nachdenk-Phase, wenige Wörter
-      generationConfig: kurz ? { temperature: 0.3, maxOutputTokens: 4000, thinkingConfig: { thinkingBudget: 0 } } : { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
+      generationConfig: modell === "pruefen" ? { temperature: 0.1, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 4096 } } : kurz ? { temperature: 0.3, maxOutputTokens: 4000, thinkingConfig: { thinkingBudget: 0 } } : { temperature: 0.4, maxOutputTokens: 16384, thinkingConfig: { thinkingBudget: 2048 } },
     });
 
     let lastError = "";
-    for (const model of MODELS) {
+    for (const model of modelle) {
       const call = (b: string) => fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:${stream ? "streamGenerateContent?alt=sse" : "generateContent"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
