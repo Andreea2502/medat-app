@@ -492,3 +492,6 @@ html.lb-studio .lb-taphint { display: none !important; }
 
 /* Bild-Erklärung: keine Kreise mehr, nur der rote Zeigepfeil (Andreea, 20.10.2026: „Lass die Kreise weg, die Pfeile reichen“) */
 #lernblick-root svg [data-teil^="stelle-"], #lernblick-root svg [data-teil^="stelle-"] *, #lernblick-root svg [data-teil^="bild-"], #lernblick-root svg [data-teil^="bild-"] * { stroke: transparent !important; fill: transparent !important; filter: none !important; }
+/* Eigenes Foto: Kamera fährt auf die Korrektur – Bild und Rotstift zoomen gemeinsam, die Tafel schneidet ab (20.10.2026) */
+#lernblick-root .board:has(> .lb-upboard) { overflow: hidden; }
+#lernblick-root .lb-upboard { will-change: transform; }
