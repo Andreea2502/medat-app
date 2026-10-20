@@ -23,13 +23,12 @@ const Abo = (() => {
     })();
     return ladend;
   }
-  // Zugang: Admin, aktives Abo/Pass/Probe, oder alter bezahlter Zugang, der noch läuft
+  // Zugang: Admin oder aktives Abo/Pass/Probe. Alte Zugänge vom letzten Durchgang zählen nicht mehr
+  // (Andreea, 20.10.2026: „sperre bitte alle, die momentan rein wollen“ – laut AGB galten sie nur bis zum MedAT).
   function zugang() {
     if (!NEUES_MODELL) return true;
     if (istAdmin()) return true;
-    if (stand && stand.aktiv) return true;
-    try { const t = Auth.licenseTier; if (t && t !== 'free') return true; } catch (e) {}
-    return false;
+    return !!(stand && stand.aktiv);
   }
   const credits = () => (stand ? (stand.monat || 0) + (stand.extra || 0) : 0);
   // Monatsabo: 2 Simulationen sofort, dann jede Woche eine weitere. Pass, Admin und Altkunden: alle.
